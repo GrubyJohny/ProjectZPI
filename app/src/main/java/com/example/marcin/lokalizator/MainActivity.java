@@ -12,8 +12,9 @@ public class MainActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        System.out.println("Hello Chudy!");
-        System.out.println("SIEMA");
+        System.out.println("Hello Chum=dy!");
+        System.out.println("S");
+        System.out.println("Nana nana");
     }
 
 

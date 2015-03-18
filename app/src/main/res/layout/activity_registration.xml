@@ -1,0 +1,81 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    tools:context="com.example.marcin.lokalizator.RegistrationActivity">
+
+
+    <TextView
+        android:id="@+id/registrationText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:text="Login"
+        android:textColor="@color/link_text_material_light"
+        android:textSize="36dp" />
+
+    <EditText
+        android:id="@+id/registrationField"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/registrationText"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="5dp"
+        android:singleLine="true" />
+
+    <TextView
+        android:id="@+id/passwordRegistrationText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/registrationField"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="40dp"
+        android:text="Hasło"
+        android:textColor="@color/link_text_material_light"
+        android:textSize="36dp" />
+
+    <EditText
+        android:id="@+id/passwordRegistrationField"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/passwordRegistrationText"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="5dp"
+        android:singleLine="true"
+        android:password="true" />
+
+    <TextView
+        android:id="@+id/emailRegistrationText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/passwordRegistrationField"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="40dp"
+        android:text="E-mail"
+        android:textColor="@color/link_text_material_light"
+        android:textSize="36dp" />
+
+    <EditText
+        android:id="@+id/emailRegistrationField"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/emailRegistrationText"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="5dp"
+        android:singleLine="true" />
+
+    <Button
+        android:id="@+id/registrationButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/emailRegistrationField"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="40dp"
+        android:text="Zarejestruj" />
+
+</RelativeLayout>

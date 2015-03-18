@@ -1,0 +1,74 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.marcin.lokalizator.LoginActivity">
+
+    <ImageView
+        android:id="@+id/logo"
+        android:layout_width="match_parent"
+        android:layout_height="120dp"
+        android:src="@drawable/pierwsze_logo" />
+
+    <TextView
+        android:id="@+id/loginText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_below="@id/logo"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="140dp"
+        android:text="Login"
+        android:textColor="@color/link_text_material_light"
+        android:textSize="30dp" />
+
+    <EditText
+        android:id="@+id/loginField"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:singleLine="true"
+        android:layout_below="@id/loginText"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="5dp" />
+
+    <TextView
+        android:id="@+id/passwordText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/loginField"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="40dp"
+        android:text="Hasło"
+        android:textColor="@color/link_text_material_light"
+        android:textSize="30dp" />
+
+    <EditText
+        android:id="@+id/passwordField"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/passwordText"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="5dp"
+        android:singleLine="true"
+        android:password="true" />
+
+    <Button
+        android:id="@+id/loginButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/passwordField"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="40dp"
+        android:text="Zaloguj się" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/loginButton"
+        android:layout_centerHorizontal="true"
+        android:clickable="true"
+        android:layout_marginTop="15dp"
+        android:text="Przypomnij hasło"
+        android:textColor="#479123" />
+
+</RelativeLayout>

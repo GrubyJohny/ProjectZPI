@@ -60,11 +60,14 @@
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
 
-        <!-- Goolge Maps API Key -->
+        <!-- Goolge Maps API Key
         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
             android:value="AIzaSyAOy_r0NTmRlAPzSyJVq-zW5Pl6bf_7_NA" />
-
+        -->
+        <meta-data
+            android:name="com.google.android.maps.v2.API_KEY"
+            android:value="AIzaSyDecwCgEFE5fOz5WCbETm_Ri58iE8ZVLNw" />
 
         <!-- Required OpenGL ES 2.0. for Maps V2 -->
         <uses-feature

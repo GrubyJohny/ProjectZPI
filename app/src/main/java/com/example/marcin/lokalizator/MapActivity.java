@@ -12,7 +12,6 @@ import android.widget.Toast;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapsInitializer;
-import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
@@ -44,15 +43,7 @@ public class MapActivity extends SupportMapFragment {
 
     private OnFragmentInteractionListener mListener;
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment MapActivity.
-     */
-    // TODO: Rename and change types and number of parameters
+
     public static MapActivity newInstance(String param1, String param2) {
         MapActivity fragment = new MapActivity();
         Bundle args = new Bundle();
@@ -61,7 +52,7 @@ public class MapActivity extends SupportMapFragment {
     }
 
     public MapActivity() {
-        // Required empty public constructor
+
     }
 
     @Override
@@ -69,9 +60,8 @@ public class MapActivity extends SupportMapFragment {
         super.onCreate(savedInstanceState);
 
         try {
-            // Loading map
-            initilizeMap();
 
+            initializeMap();
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -85,7 +75,7 @@ public class MapActivity extends SupportMapFragment {
         return inflater.inflate(R.layout.fragment_map, container, false);
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
+
     public void onButtonPressed(Uri uri) {
         if (mListener != null) {
             mListener.onFragmentInteraction(uri);
@@ -124,16 +114,16 @@ public class MapActivity extends SupportMapFragment {
         public void onFragmentInteraction(Uri uri);
     }
 
-    private void initilizeMap() {
+    private void initializeMap() {
         if (googleMap == null) {
             MapsInitializer.initialize(getActivity());
             googleMap = ((MapActivity) getFragmentManager().findFragmentById(
                     R.id.MapActivity)).getMap();
-            googleMap.addMarker(marker);
-            googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(wroclawCameraPosition));
-            googleMap.setMyLocationEnabled(true);
-            googleMap.getUiSettings().setMyLocationButtonEnabled(true);
-            // check if map is created successfully or not
+            //googleMap.addMarker(marker);
+            //googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(wroclawCameraPosition));
+            //googleMap.setMyLocationEnabled(true);
+            //googleMap.getUiSettings().setMyLocationButtonEnabled(true);
+
             if (googleMap == null) {
                 Toast.makeText(getActivity(),
                         "Sorry! unable to create maps", Toast.LENGTH_SHORT)

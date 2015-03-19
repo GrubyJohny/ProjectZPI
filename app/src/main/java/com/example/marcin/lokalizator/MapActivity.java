@@ -7,25 +7,40 @@ import android.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
+
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapsInitializer;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link MapFragment.OnFragmentInteractionListener} interface
+ * {@link MapActivity.OnFragmentInteractionListener} interface
  * to handle interaction events.
- * Use the {@link MapFragment#newInstance} factory method to
+ * Use the {@link MapActivity#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class MapFragment extends Fragment {
+public class MapActivity extends SupportMapFragment {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+
 
     // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+
+
+    private GoogleMap googleMap;
+    double wroclawLatitude = 51.11;
+    double wroclawLongitude = 17.03 ;
+    MarkerOptions marker = new MarkerOptions().position(new LatLng(wroclawLatitude, wroclawLongitude)).title("Dżomborno!");
+    CameraPosition wroclawCameraPosition = new CameraPosition.Builder().target(
+            new LatLng(wroclawLatitude, wroclawLongitude)).zoom(12).build();
 
     private OnFragmentInteractionListener mListener;
 
@@ -35,28 +50,31 @@ public class MapFragment extends Fragment {
      *
      * @param param1 Parameter 1.
      * @param param2 Parameter 2.
-     * @return A new instance of fragment MapFragment.
+     * @return A new instance of fragment MapActivity.
      */
     // TODO: Rename and change types and number of parameters
-    public static MapFragment newInstance(String param1, String param2) {
-        MapFragment fragment = new MapFragment();
+    public static MapActivity newInstance(String param1, String param2) {
+        MapActivity fragment = new MapActivity();
         Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
         fragment.setArguments(args);
         return fragment;
     }
 
-    public MapFragment() {
+    public MapActivity() {
         // Required empty public constructor
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+
+        try {
+            // Loading map
+            initilizeMap();
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -104,6 +122,24 @@ public class MapFragment extends Fragment {
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         public void onFragmentInteraction(Uri uri);
+    }
+
+    private void initilizeMap() {
+        if (googleMap == null) {
+            MapsInitializer.initialize(getActivity());
+            googleMap = ((MapActivity) getFragmentManager().findFragmentById(
+                    R.id.MapActivity)).getMap();
+            googleMap.addMarker(marker);
+            googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(wroclawCameraPosition));
+            googleMap.setMyLocationEnabled(true);
+            googleMap.getUiSettings().setMyLocationButtonEnabled(true);
+            // check if map is created successfully or not
+            if (googleMap == null) {
+                Toast.makeText(getActivity(),
+                        "Sorry! unable to create maps", Toast.LENGTH_SHORT)
+                        .show();
+            }
+        }
     }
 
 }

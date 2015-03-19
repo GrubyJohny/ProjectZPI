@@ -7,6 +7,7 @@ import android.view.MenuItem;
 import android.view.View;
 
 import static com.example.marcin.lokalizator.R.layout.activity_main;
+import static com.example.marcin.lokalizator.R.layout.fragment_map;
 
 
 public class LoginActivity extends ActionBarActivity {
@@ -41,7 +42,7 @@ public class LoginActivity extends ActionBarActivity {
     }
 
     public void login(View view) {
-        setContentView(activity_main);
+        setContentView(fragment_map);
     }
 
 }

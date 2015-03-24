@@ -10,8 +10,14 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.NetworkError;
+import com.android.volley.NoConnectionError;
+import com.android.volley.ParseError;
 import com.android.volley.Request.Method;
 import com.android.volley.Response;
+import com.android.volley.ServerError;
+import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 
@@ -21,58 +27,63 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Map;
 
-public class LoginActivity extends Activity {
-
+public class RegisterActivity extends Activity {
     private static final String TAG = RegisterActivity.class.getSimpleName();
-    private Button btnLogin;
-    private Button btnLinkToRegister;
+    private Button btnRegister;
+    private Button btnLinkToLogin;
+    private EditText inputFullName;
     private EditText inputEmail;
     private EditText inputPassword;
     private ProgressDialog pDialog;
     private SessionManager session;
+    private SQLiteHandler db;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
+        setContentView(R.layout.activity_register);
 
+        inputFullName = (EditText) findViewById(R.id.name);
         inputEmail = (EditText) findViewById(R.id.email);
         inputPassword = (EditText) findViewById(R.id.password);
-        btnLogin = (Button) findViewById(R.id.btnLogin);
-        btnLinkToRegister = (Button) findViewById(R.id.btnLinkToRegisterScreen);
+        btnRegister = (Button) findViewById(R.id.btnRegister);
+        btnLinkToLogin = (Button) findViewById(R.id.btnLinkToLoginScreen);
 
         pDialog = new ProgressDialog(this);
         pDialog.setCancelable(false);
 
         session = new SessionManager(getApplicationContext());
 
+        db = new SQLiteHandler(getApplicationContext());
+
         if (session.isLoggedIn()) {
-            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+            Intent intent = new Intent(RegisterActivity.this,
+                    MainActivity.class);
             startActivity(intent);
             finish();
         }
 
-        btnLogin.setOnClickListener(new View.OnClickListener() {
-
+        btnRegister.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
+                String name = inputFullName.getText().toString();
                 String email = inputEmail.getText().toString();
                 String password = inputPassword.getText().toString();
 
-                if (email.trim().length() > 0 && password.trim().length() > 0) {
-                    checkLogin(email, password);
+                if (!name.isEmpty() && !email.isEmpty() && !password.isEmpty()) {
+                    registerUser(name, email, password);
                 } else {
                     Toast.makeText(getApplicationContext(),
-                            "Please enter the credentials!", Toast.LENGTH_LONG).show();
+                            "Please enter your details!", Toast.LENGTH_LONG)
+                            .show();
                 }
             }
-
         });
 
-        btnLinkToRegister.setOnClickListener(new View.OnClickListener() {
+        btnLinkToLogin.setOnClickListener(new View.OnClickListener() {
 
             public void onClick(View view) {
                 Intent i = new Intent(getApplicationContext(),
-                        RegisterActivity.class);
+                        LoginActivity.class);
                 startActivity(i);
                 finish();
             }
@@ -80,10 +91,11 @@ public class LoginActivity extends Activity {
 
     }
 
-    private void checkLogin(final String email, final String password) {
+    private void registerUser(final String name, final String email,
+                              final String password) {
 
-        String tag_string_req = "req_login";
-        pDialog.setMessage("Logging in ...");
+        String tag_string_req = "req_register";
+        pDialog.setMessage("Registering ...");
         showDialog();
 
         StringRequest strReq = new StringRequest(Method.POST,
@@ -91,18 +103,26 @@ public class LoginActivity extends Activity {
 
             @Override
             public void onResponse(String response) {
-                Log.d(TAG, "Login Response: " + response.toString());
+                Log.d(TAG, "Register Response: " + response.toString());
                 hideDialog();
 
                 try {
                     JSONObject jObj = new JSONObject(response);
                     boolean error = jObj.getBoolean("error");
-
                     if (!error) {
-                        session.setLogin(true);
 
-                        Intent intent = new Intent(LoginActivity.this,
-                                MainActivity.class);
+                        String uid = jObj.getString("uid");
+                        JSONObject user = jObj.getJSONObject("user");
+                        String name = user.getString("name");
+                        String email = user.getString("email");
+                        String created_at = user
+                                .getString("created_at");
+
+                        db.addUser(name, email, uid, created_at);
+
+                        Intent intent = new Intent(
+                                RegisterActivity.this,
+                                LoginActivity.class);
                         startActivity(intent);
                         finish();
                     } else {
@@ -120,19 +140,40 @@ public class LoginActivity extends Activity {
 
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.e(TAG, "Login Error: " + error.toString());
 
-                    Toast.makeText(getApplicationContext(),
-                            error.getMessage(), Toast.LENGTH_LONG).show();
-                    hideDialog();
+                if (error instanceof NoConnectionError) {
+                    Log.d("NoConnectionError>>>>>>>>>", "NoConnectionError.......");
 
+                } else if (error instanceof AuthFailureError) {
+                    Log.d("AuthFailureError>>>>>>>>>", "AuthFailureError.......");
+
+                } else if (error instanceof ServerError) {
+                    Log.d("ServerError>>>>>>>>>", "ServerError.......");
+
+                } else if (error instanceof NetworkError) {
+                    Log.d("NetworkError>>>>>>>>>", "NetworkError.......");
+
+                } else if (error instanceof ParseError) {
+                    Log.d("ParseError>>>>>>>>>", "ParseError.......");
+
+                }else if (error instanceof TimeoutError) {
+                    Log.d("TimeoutError>>>>>>>>>", "TimeoutError.......");
+
+                }
+
+                Log.e(TAG, "Registration Error: " + error.getMessage());
+                Toast.makeText(getApplicationContext(),
+                        error.getMessage(), Toast.LENGTH_LONG).show();
+                hideDialog();
             }
         }) {
 
             @Override
             protected Map<String, String> getParams() {
+
                 Map<String, String> params = new HashMap<String, String>();
-                params.put("tag", "login");
+                params.put("tag", "register");
+                params.put("name", name);
                 params.put("email", email);
                 params.put("password", password);
 

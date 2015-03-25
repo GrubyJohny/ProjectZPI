@@ -9,10 +9,13 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.location.LocationManager;
+import android.view.View;
 import android.widget.TabHost;
 
 
 public class MainActivity extends ActionBarActivity {
+
+    SessionManager session;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,6 +27,9 @@ public class MainActivity extends ActionBarActivity {
             buildAlertMessageNoGps();
         }
         tabs();
+
+
+        session = new SessionManager(this);
     }
 
     public void tabs(){
@@ -63,6 +69,7 @@ public class MainActivity extends ActionBarActivity {
                 });
         final AlertDialog alert = builder.create();
         alert.show();
+
     }
 
 
@@ -87,5 +94,11 @@ public class MainActivity extends ActionBarActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public void logOut(View view) {
+        session.setLogin(false);
+        Intent closeIntent = new Intent(this, LoginActivity.class);
+        startActivity(closeIntent);
     }
 }

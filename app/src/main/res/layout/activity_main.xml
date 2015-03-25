@@ -77,6 +77,15 @@
                     />
 
             </LinearLayout>
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Log out"
+                android:id="@+id/button"
+                android:layout_gravity="right|bottom"
+                android:onClick="logOut"
+                />
         </FrameLayout>
 
     </TabHost>

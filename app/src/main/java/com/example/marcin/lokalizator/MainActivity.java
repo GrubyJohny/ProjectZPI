@@ -9,49 +9,51 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.location.LocationManager;
+import android.view.MotionEvent;
 import android.view.View;
-import android.widget.TabHost;
+import android.view.Window;
+import android.view.WindowManager;
+import android.widget.AdapterViewFlipper;
+import android.widget.ViewFlipper;
 
 
 public class MainActivity extends ActionBarActivity {
 
     SessionManager session;
+    ViewFlipper vieFli;
+    private float lastX;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_main);
         final LocationManager manager = (LocationManager) getSystemService( Context.LOCATION_SERVICE );
 
         if (! manager.isProviderEnabled( LocationManager.GPS_PROVIDER ) ) {
             buildAlertMessageNoGps();
         }
-        tabs();
-
 
         session = new SessionManager(this);
+
+
+        vieFli = (ViewFlipper) findViewById(R.id.viewFlipper);
+        vieFli.setHorizontalScrollBarEnabled(true);
+
+
+
+        View vie = View.inflate(this, R.layout.activity_my_map, null);
+        //View vie = View.inflate(this, R.layout.activity_login, null);
+        vieFli.addView(vie);
+
+        View vie2 = View.inflate(this, R.layout.activity_register, null);
+        vieFli.addView(vie2);
+        //vieFli.setAutoStart(true);
+
+
     }
 
-    public void tabs(){
-        TabHost tabHost=(TabHost)findViewById(R.id.tabHost);
-        tabHost.setup();
 
-        TabHost.TabSpec spec1=tabHost.newTabSpec("Tab 1");
-        spec1.setContent(R.id.tab1);
-        spec1.setIndicator("Tab 1");
-
-        TabHost.TabSpec spec2=tabHost.newTabSpec("Tab 2");
-        spec2.setIndicator("Tab 2");
-        spec2.setContent(R.id.tab2);
-
-        TabHost.TabSpec spec3=tabHost.newTabSpec("Tab 3");
-        spec3.setIndicator("Tab 3");
-        spec3.setContent(R.id.tab3);
-
-        tabHost.addTab(spec1);
-        tabHost.addTab(spec2);
-        tabHost.addTab(spec3);
-    }
 
     private void buildAlertMessageNoGps() {
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -100,5 +102,50 @@ public class MainActivity extends ActionBarActivity {
         session.setLogin(false);
         Intent closeIntent = new Intent(this, LoginActivity.class);
         startActivity(closeIntent);
+    }
+
+    // Method to handle touch event like left to right swap and right to left swap
+    public boolean onTouchEvent(MotionEvent touchevent)
+    {
+        switch (touchevent.getAction())
+        {
+            // when user first touches the screen to swap
+            case MotionEvent.ACTION_DOWN:
+            {
+                lastX = touchevent.getX();
+                break;
+            }
+            case MotionEvent.ACTION_UP:
+            {
+                float currentX = touchevent.getX();
+
+                // if left to right swipe on screen
+                if (lastX < currentX)
+                {
+                    // If no more View/Child to flip
+                    if (vieFli.getDisplayedChild() == 0)
+                        break;
+
+                    vieFli.setInAnimation(this, R.anim.slide_in_from_left);
+                    vieFli.setOutAnimation(this, R.anim.slide_out_to_right);
+
+                    vieFli.showNext();
+                }
+
+                // if right to left swipe on screen
+                if (lastX > currentX)
+                {
+                    if (vieFli.getDisplayedChild() == 1)
+                        break;
+
+                    vieFli.setInAnimation(this, R.anim.slide_in_from_right);
+                    vieFli.setOutAnimation(this, R.anim.slide_out_to_left);
+
+                    vieFli.showPrevious();
+                }
+                break;
+            }
+        }
+        return false;
     }
 }

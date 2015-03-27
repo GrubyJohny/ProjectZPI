@@ -9,7 +9,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.SupportMapFragment;
@@ -21,12 +20,12 @@ import com.google.android.gms.maps.model.MarkerOptions;
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link MapActivity.OnFragmentInteractionListener} interface
+ * {@link sMapActivity.OnFragmentInteractionListener} interface
  * to handle interaction events.
- * Use the {@link MapActivity#newInstance} factory method to
+ * Use the {@link sMapActivity#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class MapActivity extends SupportMapFragment {
+public class sMapActivity extends SupportMapFragment {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
 
@@ -44,14 +43,14 @@ public class MapActivity extends SupportMapFragment {
     private OnFragmentInteractionListener mListener;
 
 
-    public static MapActivity newInstance(String param1, String param2) {
-        MapActivity fragment = new MapActivity();
+    public static sMapActivity newInstance(String param1, String param2) {
+        sMapActivity fragment = new sMapActivity();
         Bundle args = new Bundle();
         fragment.setArguments(args);
         return fragment;
     }
 
-    public MapActivity() {
+    public sMapActivity() {
 
     }
 
@@ -117,8 +116,9 @@ public class MapActivity extends SupportMapFragment {
     private void initializeMap() {
         if (googleMap == null) {
             MapsInitializer.initialize(getActivity());
-            googleMap = ((MapActivity) getFragmentManager().findFragmentById(
+            googleMap = ((sMapActivity) getFragmentManager().findFragmentById(
                     R.id.MapActivity)).getMap();
+
             //googleMap.addMarker(marker);
             //googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(wroclawCameraPosition));
             //googleMap.setMyLocationEnabled(true);
@@ -130,6 +130,7 @@ public class MapActivity extends SupportMapFragment {
                         .show();
             }
         }
+
     }
 
 }

@@ -24,7 +24,14 @@
     <!-- Required to show current location -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
+
+
+
+
+    <permission
+        android:name="com.vogella.android.locationapi.maps.permission.MAPS_RECEIVE"
+        android:protectionLevel="signature" />
 
     <application
         android:name=".AppController"
@@ -81,14 +88,17 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.marcin.lokalizator.MainActivity" />
         </activity>
-        <activity
-            android:name=".MyMapActivity"
-            android:label="@string/title_activity_my_map"
-            android:parentActivityName=".MainActivity" >
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
+
+
+
+
+        <activity android:name="com.example.marcin.lokalizator.MyMapActivity"
+            android:label="@string/title_activity_my_map">
+            <meta-data android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.marcin.lokalizator.MainActivity" />
+
         </activity>
     </application>
 
 </manifest>
+

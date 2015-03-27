@@ -16,6 +16,8 @@
     <string name="btn_logout">LOGOUT</string>
     <string name="name">Fullname</string>
     <string name="title_activity_my_map">MyMapActivity</string>
+    <string name="title_activity_meine_map">MeineMapActivity</string>
+    <string name="title_activity_go_to_map">GoToMapActivity</string>
 
 
 </resources>

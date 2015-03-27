@@ -16,6 +16,8 @@ import android.view.WindowManager;
 import android.widget.AdapterViewFlipper;
 import android.widget.ViewFlipper;
 
+import com.google.android.gms.maps.GoogleMap;
+
 
 public class MainActivity extends ActionBarActivity {
 
@@ -42,14 +44,16 @@ public class MainActivity extends ActionBarActivity {
 
 
 
-        View vie = View.inflate(this, R.layout.activity_my_map, null);
+        View vie = View.inflate(this, R.layout.activity_my_map, null );
         //View vie = View.inflate(this, R.layout.activity_login, null);
         vieFli.addView(vie);
 
         View vie2 = View.inflate(this, R.layout.activity_register, null);
         vieFli.addView(vie2);
-        //vieFli.setAutoStart(true);
 
+        View vie3 = View.inflate(this, R.layout.activity_login, null );
+        //View vie = View.inflate(this, R.layout.activity_login, null);
+        vieFli.addView(vie3);
 
     }
 
@@ -147,5 +151,13 @@ public class MainActivity extends ActionBarActivity {
             }
         }
         return false;
+    }
+
+    public void openMap(View v)
+    {
+        Intent i = new Intent(getApplicationContext(),
+                MyMapActivity.class);
+        startActivity(i);
+        finish();
     }
 }

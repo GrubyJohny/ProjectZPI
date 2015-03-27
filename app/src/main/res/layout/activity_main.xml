@@ -8,22 +8,13 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".MainActivity">
 
-    <TextView
-        android:id="@+id/nazwaSesji"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Group LOC"
-        android:textAlignment="center"
-        android:layout_centerHorizontal="true"
-        android:textSize="30dp" />
-
     <ViewFlipper
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/viewFlipper"
-        android:layout_below="@+id/nazwaSesji"
         android:layout_above="@+id/button"
-        android:animateFirstView="true">
+        android:animateFirstView="true"
+        android:layout_alignParentTop="true">
 
     </ViewFlipper>
 
@@ -35,7 +26,19 @@
         android:layout_gravity="right|bottom"
         android:onClick="logOut"
         android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="true" />
+        android:layout_toStartOf="@+id/button2"
+        android:layout_alignParentRight="true" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Map"
+        android:id="@+id/button2"
+        android:layout_gravity="right|bottom"
+        android:onClick="openMap"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentLeft="true" />
 
 
 </RelativeLayout>

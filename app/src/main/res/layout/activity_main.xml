@@ -8,37 +8,40 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".MainActivity">
 
+    <Button
+        android:id="@+id/circleButton"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:background="@drawable/circle_button"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:clickable="true"
+        android:paddingTop="50dp" />
+
     <ViewFlipper
+        android:id="@+id/viewFlipper"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/viewFlipper"
-        android:layout_above="@+id/button"
-        android:animateFirstView="true"
-        android:layout_alignParentTop="true">
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentStart="false"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="@dimen/abc_action_bar_default_height_material"
+        android:animateFirstView="true">
 
     </ViewFlipper>
 
-    <Button
+    <Spinner
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Log out"
-        android:id="@+id/button"
-        android:layout_gravity="right|bottom"
-        android:onClick="logOut"
-        android:layout_alignParentBottom="true"
-        android:layout_toStartOf="@+id/button2"
-        android:layout_alignParentRight="true" />
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Map"
-        android:id="@+id/button2"
-        android:layout_gravity="right|bottom"
-        android:onClick="openMap"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_alignParentLeft="true" />
+        android:id="@+id/spinner"
+        android:visibility="invisible"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:gravity="right"
+        android:layout_toStartOf="@id/circleButton"
+        android:layout_alignParentStart="false"
+        android:layout_alignParentEnd="false"
+        android:paddingTop="50dp" />
 
 
 </RelativeLayout>

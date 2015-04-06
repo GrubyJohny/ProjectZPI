@@ -5,6 +5,8 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.location.Criteria;
+import android.location.Location;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -21,7 +23,11 @@ import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.ViewFlipper;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,17 +35,19 @@ import java.util.List;
 
 public class MainActivity extends ActionBarActivity {
 
-    SessionManager session;
-    ViewFlipper vieFli;
+    private SessionManager session;
+    private ViewFlipper myViewFlipper;
     private float lastX;
     private Spinner spinner1;
     private Button circleButton;
+    private GoogleMap myMap;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_main);
+
         final LocationManager manager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
         if (!manager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
@@ -47,22 +55,6 @@ public class MainActivity extends ActionBarActivity {
         }
 
         session = new SessionManager(this);
-
-
-        vieFli = (ViewFlipper) findViewById(R.id.viewFlipper);
-        vieFli.setHorizontalScrollBarEnabled(true);
-
-
-        View vie = View.inflate(this, R.layout.activity_my_map, null);
-        //View vie = View.inflate(this, R.layout.activity_login, null);
-        vieFli.addView(vie);
-
-        View vie2 = View.inflate(this, R.layout.activity_friends, null);
-        vieFli.addView(vie2);
-
-        //View vie3 = View.inflate(this, R.layout.activity_login, null);
-        //View vie = View.inflate(this, R.layout.activity_login, null);
-        //vieFli.addView(vie3);
 
         spinner1 = (Spinner) findViewById(R.id.spinner);
         String[] spinnerOptions = {"Settings", "Log out"};
@@ -74,7 +66,11 @@ public class MainActivity extends ActionBarActivity {
         addListenerOnButton();
         addListenerOnSpinner();
 
+        setUpViewFlipper();
+        setUpMap();
+
     }
+
 
 
     private void buildAlertMessageNoGps() {
@@ -140,24 +136,24 @@ public class MainActivity extends ActionBarActivity {
                 // if left to right swipe on screen
                 if (lastX < currentX) {
                     // If no more View/Child to flip
-                    if (vieFli.getDisplayedChild() == 0)
+                    if (myViewFlipper.getDisplayedChild() == 0)
                         break;
 
-                    vieFli.setInAnimation(this, R.anim.slide_in_from_left);
-                    vieFli.setOutAnimation(this, R.anim.slide_out_to_right);
+                    myViewFlipper.setInAnimation(this, R.anim.slide_in_from_left);
+                    myViewFlipper.setOutAnimation(this, R.anim.slide_out_to_right);
 
-                    vieFli.showNext();
+                    myViewFlipper.showNext();
                 }
 
                 // if right to left swipe on screen
                 if (lastX > currentX) {
-                    if (vieFli.getDisplayedChild() == 1)
+                    if (myViewFlipper.getDisplayedChild() == 1)
                         break;
 
-                    vieFli.setInAnimation(this, R.anim.slide_in_from_right);
-                    vieFli.setOutAnimation(this, R.anim.slide_out_to_left);
+                    myViewFlipper.setInAnimation(this, R.anim.slide_in_from_right);
+                    myViewFlipper.setOutAnimation(this, R.anim.slide_out_to_left);
 
-                    vieFli.showPrevious();
+                    myViewFlipper.showPrevious();
                 }
                 break;
             }
@@ -165,12 +161,6 @@ public class MainActivity extends ActionBarActivity {
         return false;
     }
 
-    public void openMap(View v) {
-        Intent i = new Intent(getApplicationContext(),
-                MyMapActivity.class);
-        startActivity(i);
-        finish();
-    }
 
     public void addListenerOnButton() {
 
@@ -199,9 +189,40 @@ public class MainActivity extends ActionBarActivity {
             }
 
             @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
+            public void onNothingSelected(AdapterView<?> parent) {}
         });
+    }
+
+    private void setUpMap() {
+        myMap = ((MapFragment)getFragmentManager().findFragmentById(R.id.myMapFragment)).getMap();
+        myMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+        myMap.setMyLocationEnabled(true);
+
+
+        myMap.addMarker(new MarkerOptions().position(new LatLng(51.111508, 17.060268)).title("Rondo Reagana"));
+        myMap.addMarker(new MarkerOptions().position(new LatLng(51.113825, 17.065890)).title("Akademik"));
+        myMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+
+        LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        Criteria criteria = new Criteria();
+        String provider = locationManager.getBestProvider(criteria, true);
+        Location myLocation = locationManager.getLastKnownLocation(provider);
+
+        double latitude = myLocation.getLatitude();
+        double longitude = myLocation.getLongitude();
+        LatLng latLng = new LatLng(latitude, longitude);
+
+        myMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+        myMap.animateCamera(CameraUpdateFactory.zoomTo(15), 3000, null);
+
+    }
+
+    private void setUpViewFlipper() {
+
+        myViewFlipper = (ViewFlipper) findViewById(R.id.viewFlipper);
+        myViewFlipper.setHorizontalScrollBarEnabled(true);
+
+        View view1 = View.inflate(this, R.layout.activity_friends, null);
+        myViewFlipper.addView(view1);
     }
 }

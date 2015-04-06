@@ -28,6 +28,11 @@
         android:layout_marginTop="@dimen/abc_action_bar_default_height_material"
         android:animateFirstView="true">
 
+        <fragment
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:name="com.google.android.gms.maps.MapFragment"
+            android:id="@+id/myMapFragment" />
     </ViewFlipper>
 
     <Spinner

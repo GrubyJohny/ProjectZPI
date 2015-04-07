@@ -195,14 +195,17 @@ public class MainActivity extends ActionBarActivity {
         myMap.addMarker(new MarkerOptions().position(new LatLng(51.113825, 17.065890)).title("Akademik"));
         myMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
 
-       Criteria criteria = new Criteria();
-        String provider = locationManager.getBestProvider(criteria, true);
-        Location myLocation = locationManager.getLastKnownLocation(provider);
+        LatLng latLng = new LatLng(0,0);
+        Criteria criteria = new Criteria();
+        if(criteria!=null) {
+            String provider = locationManager.getBestProvider(criteria, true);
+            Location myLocation = locationManager.getLastKnownLocation(provider);
 
-        double latitude = myLocation.getLatitude();
-        double longitude = myLocation.getLongitude();
-        LatLng latLng = new LatLng(latitude, longitude);
+            double latitude = myLocation.getLatitude();
+            double longitude = myLocation.getLongitude();
+            latLng = new LatLng(latitude, longitude);
 
+        }
         myMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
         myMap.animateCamera(CameraUpdateFactory.zoomTo(15), 3000, null);
 

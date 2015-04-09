@@ -36,7 +36,7 @@ public class RegisterActivity extends Activity {
     private EditText inputPassword;
     private ProgressDialog pDialog;
     private SessionManager session;
-    private SQLiteHandler db;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -54,7 +54,7 @@ public class RegisterActivity extends Activity {
 
         session = new SessionManager(getApplicationContext());
 
-        db = new SQLiteHandler(getApplicationContext());
+
 
         if (session.isLoggedIn()) {
             Intent intent = new Intent(RegisterActivity.this,
@@ -111,14 +111,7 @@ public class RegisterActivity extends Activity {
                     boolean error = jObj.getBoolean("error");
                     if (!error) {
 
-                        String uid = jObj.getString("uid");
-                        JSONObject user = jObj.getJSONObject("user");
-                        String name = user.getString("name");
-                        String email = user.getString("email");
-                        String created_at = user
-                                .getString("created_at");
 
-                        db.addUser(name, email, uid, created_at);
 
                         Intent intent = new Intent(
                                 RegisterActivity.this,
@@ -142,10 +135,10 @@ public class RegisterActivity extends Activity {
             public void onErrorResponse(VolleyError error) {
 
                 if (error instanceof NoConnectionError) {
-                    Log.d("NoConnectionError>>>>>>>>>", "NoConnectionError.......");
+                    Log.d("NoConnectionError>", "NoConnectionError.......");
 
                 } else if (error instanceof AuthFailureError) {
-                    Log.d("AuthFailureError>>>>>>>>>", "AuthFailureError.......");
+                    Log.d("AuthFailureError>", "AuthFailureError.......");
 
                 } else if (error instanceof ServerError) {
                     Log.d("ServerError>>>>>>>>>", "ServerError.......");

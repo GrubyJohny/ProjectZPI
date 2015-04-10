@@ -25,9 +25,6 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
-    <permission
-        android:name="com.vogella.android.locationapi.maps.permission.MAPS_RECEIVE"
-        android:protectionLevel="signature" />
 
     <application
         android:name=".AppController"

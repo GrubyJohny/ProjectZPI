@@ -104,16 +104,17 @@ public class SQLiteHandler extends SQLiteOpenHelper {
     }
 
     public  String getId() {
-        String countQuery = "SELECT "+ KEY_UID+" FROM " + TABLE_LOGIN;
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery(countQuery, null);
-        cursor.moveToFirst();
-       String ID_U= cursor.getString(0);
-        db.close();
-        cursor.close();
+                String countQuery = "SELECT "+ KEY_UID+" FROM " + TABLE_LOGIN;
+                SQLiteDatabase db = this.getReadableDatabase();
+                Cursor cursor = db.rawQuery(countQuery, null);
+                cursor.moveToFirst();
+               String ID_U= cursor.getString(0);
+                db.close();
+                cursor.close();
 
-        return ID_U;
-    }
+                       return ID_U;
+            }
+
 
 
 

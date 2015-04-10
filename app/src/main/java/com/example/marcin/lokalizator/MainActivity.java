@@ -6,28 +6,48 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.location.Criteria;
 import android.location.Location;
+import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.location.LocationManager;
 import android.view.MotionEvent;
 import android.view.View;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.Spinner;
+import android.widget.Toast;
 import android.widget.ViewFlipper;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.NetworkError;
+import com.android.volley.NoConnectionError;
+import com.android.volley.ParseError;
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.ServerError;
+import com.android.volley.TimeoutError;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.util.HashMap;
+import java.util.Map;
 
-public class MainActivity extends ActionBarActivity {
+
+public class MainActivity extends FragmentActivity {
 
     private SessionManager session;
     private ViewFlipper myViewFlipper;
@@ -36,11 +56,42 @@ public class MainActivity extends ActionBarActivity {
     private ImageButton circleButton;
     private GoogleMap myMap;
     private LocationManager locationManager;
+    private WebView myMapView;
+
+
+    private Runnable sender;//wątek, który będzie wysyłał info o położoniu użytkownika do bazy
+        private SQLiteHandler db;//obiekt obsługujący lokalną androidową bazę danych
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        db=new SQLiteHandler(getApplicationContext());
+                sender=new Runnable() {
+                       @Override
+                       public void run() {
+
+                                      try {
+                                       while(true) {
+                                               if (session.isLoggedIn()) {
+
+                                                                Criteria criteria = new Criteria();
+                                                        String provider = locationManager.getBestProvider(criteria, true);
+                                                        Location myLocation = locationManager.getLastKnownLocation(provider);
+
+                                                                double latitude = myLocation.getLatitude();
+                                                        double longitude = myLocation.getLongitude();
+                                                        sendCordinate(db.getId(), (float) latitude, (float) longitude);
+                        }
+                                                Thread.sleep(5000);
+                                           }
+
+                                            } catch (InterruptedException e) {
+                                        e.printStackTrace();
+                                    }
+                            }
+                    };
 
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
@@ -48,7 +99,7 @@ public class MainActivity extends ActionBarActivity {
         }
 
         session = new SessionManager(this);
-
+        new Thread(sender,"Watek do wysyłania koordynatów").start();
         spinner1 = (Spinner) findViewById(R.id.spinner);
         String[] spinnerOptions = {"Settings", "Log out"};
         ArrayAdapter<String> circleButtonOptions = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, spinnerOptions);
@@ -61,6 +112,7 @@ public class MainActivity extends ActionBarActivity {
 
         setUpViewFlipper();
         setUpMap();
+        setupMapWebView();
 
     }
 
@@ -110,6 +162,8 @@ public class MainActivity extends ActionBarActivity {
     }
 
     public void logOut(AdapterView.OnItemSelectedListener view) {
+
+        db.deleteUsers();
         session.setLogin(false);
         Intent closeIntent = new Intent(this, LoginActivity.class);
         startActivity(closeIntent);
@@ -153,6 +207,64 @@ public class MainActivity extends ActionBarActivity {
         }
         return false;
     }
+
+
+
+    public  void sendCordinate(final String id,final float c1,final float c2)
+       {
+                StringRequest request=new StringRequest(Request.Method.POST,AppConfig.URL_LOGIN,new Response.Listener<String>() {
+                        @Override
+                        public void onResponse(String s) {
+                               Toast tost=Toast.makeText(getApplicationContext(),"Hip, Hip + "+c2,Toast.LENGTH_SHORT);
+                                tost.show();
+
+
+                                            }
+                    },new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                                if (error instanceof NoConnectionError) {
+                                        Log.d("NoConnectionError>", "NoConnectionError.......");
+
+                                           } else if (error instanceof AuthFailureError) {
+                                        Log.d("AuthFailureError>", "AuthFailureError.......");
+
+                                            } else if (error instanceof ServerError) {
+                                        Log.d("ServerError>>>>>>>>>", "ServerError.......");
+
+                                           } else if (error instanceof NetworkError) {
+                                       Log.d("NetworkError>>>>>>>>>", "NetworkError.......");
+
+                                            } else if (error instanceof ParseError) {
+                                        Log.d("ParseError>>>>>>>>>", "ParseError.......");
+
+                                            }else if (error instanceof TimeoutError) {
+                                       Log.d("TimeoutError>>>>>>>>>", "TimeoutError.......");
+
+                                            }
+
+                                        Log.e("MAna", "Registration Error: " + error.getMessage());
+                                Toast.makeText(getApplicationContext(),
+                                                error.getMessage(), Toast.LENGTH_LONG).show();
+                           }
+                    })
+                        {
+
+                                    @Override
+                   protected Map<String,String> getParams() {
+                            Map<String,String> params = new HashMap<>();
+                            params.put("tag", "koordynaty");
+                            params.put("id",id);
+                            params.put("koordynat1", c1+"");
+                           params.put("koordynat2", c2+"");
+
+                                    return params;
+                        }
+
+                        };
+
+                        AppController.getInstance().addToRequestQueue(request, "request_coordinates");
+            }
 
 
     public void addListenerOnButton() {
@@ -219,5 +331,16 @@ public class MainActivity extends ActionBarActivity {
 
         View view1 = View.inflate(this, R.layout.fragment_friends, null);
         myViewFlipper.addView(view1);
+    }
+
+    private void setupMapWebView() {
+        myMapView = (WebView) findViewById(R.id.myWebMapFragment);
+        myMapView.clearCache(true);
+        myMapView.setWebViewClient(new WebViewClient());
+        WebSettings webSettings = myMapView.getSettings();
+        webSettings.setJavaScriptEnabled(true);
+        myMapView.addJavascriptInterface(new WebAppInterface(this), "Android");
+        myMapView.loadUrl("https://www.google.com/maps/d/edit?mid=zHXxWf8z-mCE.k-4RjVSIl5O8");
+
     }
 }

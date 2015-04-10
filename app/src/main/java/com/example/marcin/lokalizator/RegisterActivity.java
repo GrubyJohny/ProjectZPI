@@ -56,6 +56,7 @@ public class RegisterActivity extends Activity {
 
 
 
+
         if (session.isLoggedIn()) {
             Intent intent = new Intent(RegisterActivity.this,
                     MainActivity.class);

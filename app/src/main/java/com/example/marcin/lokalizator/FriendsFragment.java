@@ -82,6 +82,7 @@ public class FriendsFragment extends ListFragment {
         }
         View rootView = inflater.inflate(R.layout.fragment_friends, container, false);
 
+
         return rootView;
     }
     @Override
@@ -125,6 +126,8 @@ public class FriendsFragment extends ListFragment {
             throw new ClassCastException(activity.toString()
                     + " must implement OnFragmentInteractionListener");
         }
+
+
     }
 
     @Override

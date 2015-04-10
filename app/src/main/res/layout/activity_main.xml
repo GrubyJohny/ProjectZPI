@@ -8,7 +8,7 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".MainActivity">
 
-    <Button
+    <ImageButton
         android:id="@+id/circleButton"
         android:layout_width="50dp"
         android:layout_height="50dp"
@@ -33,6 +33,12 @@
             android:layout_height="wrap_content"
             android:name="com.google.android.gms.maps.MapFragment"
             android:id="@+id/myMapFragment" />
+
+        <!--<fragment
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:name="com.example.marcin.lokalizator.FriendsFragment"
+            android:id="@+id/fragment" />-->
     </ViewFlipper>
 
     <Spinner

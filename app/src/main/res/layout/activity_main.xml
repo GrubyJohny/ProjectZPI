@@ -12,9 +12,9 @@
         android:id="@+id/circleButton"
         android:layout_width="50dp"
         android:layout_height="50dp"
-        android:background="@drawable/circle_button"
-        android:layout_alignParentTop="true"
         android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:background="@drawable/circle_button"
         android:clickable="true"
         android:paddingTop="50dp" />
 
@@ -29,36 +29,45 @@
         android:animateFirstView="true">
 
         <fragment
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:id="@+id/myMapFragment"
             android:name="com.google.android.gms.maps.MapFragment"
-            android:id="@+id/myMapFragment" />
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
 
         <fragment
-            android:layout_width="match_parent"
-            android:layout_height="fill_parent"
+            android:id="@+id/myWebMapFragment"
             android:name="android.webkit.WebViewFragment"
-            android:id="@+id/myWebMapFragment" />
+            android:layout_width="match_parent"
+            android:layout_height="fill_parent" />
 
-        <!--<fragment
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:name="com.example.marcin.lokalizator.FriendsFragment"
-            android:id="@+id/fragment" />-->
+
+
+            <fragment
+                android:id="@+id/placeHolderFragment"
+                android:name="com.example.marcin.lokalizator.FriendsFragment"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+
+        <!--        <fragment
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:name="com.example.marcin.lokalizator.FriendsFragment"
+                    android:id="@+id/friendFragment" />-->
     </ViewFlipper>
 
     <Spinner
+        android:id="@+id/spinner"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/spinner"
-        android:visibility="invisible"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentTop="true"
-        android:gravity="right"
-        android:layout_toStartOf="@id/circleButton"
-        android:layout_alignParentStart="false"
         android:layout_alignParentEnd="false"
-        android:paddingTop="50dp" />
+        android:layout_alignParentRight="true"
+        android:layout_alignParentStart="false"
+        android:layout_alignParentTop="true"
+        android:layout_toStartOf="@id/circleButton"
+        android:gravity="right"
+        android:paddingTop="50dp"
+        android:visibility="invisible" />
 
 
 </RelativeLayout>

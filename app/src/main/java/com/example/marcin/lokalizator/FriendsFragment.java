@@ -1,10 +1,12 @@
 package com.example.marcin.lokalizator;
 
 import android.app.Activity;
-import android.app.ListFragment;
+
+import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Bundle;
-import android.app.Fragment;
+import android.support.v4.app.*;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,18 +14,12 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.List;
 
 
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link FriendsFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link FriendsFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class FriendsFragment extends ListFragment {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -34,11 +30,20 @@ public class FriendsFragment extends ListFragment {
     private String mParam1;
     private String mParam2;
 
-    private OnFragmentInteractionListener mListener;
+    /*String[] web = {
+            "Ferrari",
+            "Vento",
+            "Inny"
+    };
+    Integer[] imageId = {
+            R.drawable.image1,
+            R.drawable.image2,
+            R.drawable.image3
+    };*/
+    private List<ListViewItem> mItems;
 
-    private ListView lista;
     private ArrayList<String> listaElementow;
-    private ArrayAdapter<String> adapter;
+    //private ArrayAdapter<String> adapter;
 
     /**
      * Use this factory method to create a new instance of
@@ -70,90 +75,83 @@ public class FriendsFragment extends ListFragment {
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
 
+        mItems = new ArrayList<ListViewItem>();
+        Resources resources = getResources();
 
+        mItems.add(new ListViewItem(resources.getDrawable(R.drawable.image1), "Adam Grzech"));
+        mItems.add(new ListViewItem(resources.getDrawable(R.drawable.image2), "Zygmunt Bazur"));
+        mItems.add(new ListViewItem(resources.getDrawable(R.drawable.image3), "Zdzisek Spławski"));
+
+        setListAdapter(new FriendList(getActivity(), mItems));
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        if(container == null) {
+     /*   if(container == null) {
             return null;
-        }
+        }*/
         View rootView = inflater.inflate(R.layout.fragment_friends, container, false);
 
-
+        //W tej meodzie tworzymy tylko widok, uzupelnienie widoku w onViewCreated
         return rootView;
     }
+
     @Override
-    public void onViewCreated(View view, Bundle savedInstanceState){
-        listaElementow = new ArrayList<String>();
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+
+        super.onViewCreated(view, savedInstanceState);
+        // remove the dividers from the ListView of the ListFragment
+        getListView().setDividerHeight(2);
+
+
+        /*listaElementow = new ArrayList<String>();
+        listaElementow.add("Pajac");
+        listaElementow.add("Pajac");
+        listaElementow.add("Pajac");
         listaElementow.add("Pajac");
         listaElementow.add("idiota");
+        listaElementow.add("idiota");
 
-        lista = (ListView) view.findViewById(R.id.listView);
-        adapter = new ArrayAdapter<String>(getActivity().getApplicationContext(), R.layout.fragment_friends, listaElementow);
-        for(String e:listaElementow){
-            System.out.println(e);
-        }
-        System.out.println("Gówno " + listaElementow.size());
-        lista.setAdapter(adapter);
+
+        //adapter = new ArrayAdapter<String>(getActivity().getApplicationContext(), R.layout.one_row, R.id.txt, listaElementow);
+        getListView().setAdapter(adapter);
         //lista = (ListView) view.findViewById(R.id.listView);
-        ((BaseAdapter) lista.getAdapter()).notifyDataSetChanged();
+        ((BaseAdapter) getListView().getAdapter()).notifyDataSetChanged();
 
-        lista.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        getListView().setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View viewClicked,
-                                    int position, long id) {
+            public void onItemClick(AdapterView<?> parent, View viewClicked,int position, long id) {
+                if(getActivity()!=null)
+                    Toast.makeText(getActivity(), "Click on element list position = "+position, Toast.LENGTH_SHORT).show();
             }
-        });
-
+        });*/
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
+    @Override
+    public void onListItemClick(ListView l, View v, int position, long id) {
+
+        ListViewItem item = mItems.get(position);
+        Toast.makeText(getActivity(), item.name, Toast.LENGTH_SHORT).show();
     }
+
 
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        try {
+       /* try {
             mListener = (OnFragmentInteractionListener) activity;
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString()
                     + " must implement OnFragmentInteractionListener");
-        }
-
-
+        }*/
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
-        mListener = null;
     }
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p/>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
-    public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        public void onFragmentInteraction(Uri uri);
-    }
-
-    public void onActivityCreated(Bundle savedInstanceState)
-    {
-        super.onActivityCreated(savedInstanceState);
-    }
 
 }

@@ -1,11 +1,15 @@
 package com.example.marcin.lokalizator;
 
 import android.app.AlertDialog;
+import android.app.Fragment;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.location.Criteria;
 import android.location.Location;
+import android.net.Uri;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -47,7 +51,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 
-public class MainActivity extends FragmentActivity {
+public class MainActivity extends FragmentActivity  {
 
     private SessionManager session;
     private ViewFlipper myViewFlipper;
@@ -60,46 +64,50 @@ public class MainActivity extends FragmentActivity {
 
 
     private Runnable sender;//wątek, który będzie wysyłał info o położoniu użytkownika do bazy
-        private SQLiteHandler db;//obiekt obsługujący lokalną androidową bazę danych
+    private SQLiteHandler db;//obiekt obsługujący lokalną androidową bazę danych
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        db=new SQLiteHandler(getApplicationContext());
-                sender=new Runnable() {
-                       @Override
-                       public void run() {
+        db = new SQLiteHandler(getApplicationContext());
+        sender = new Runnable() {
+            @Override
+            public void run() {
 
-                                      try {
-                                       while(true) {
-                                               if (session.isLoggedIn()) {
+                try {
+                    while (true) {
+                        if (session.isLoggedIn()) {
 
-                                                                Criteria criteria = new Criteria();
-                                                        String provider = locationManager.getBestProvider(criteria, true);
-                                                        Location myLocation = locationManager.getLastKnownLocation(provider);
+                            Criteria criteria = new Criteria();
+                            String provider = locationManager.getBestProvider(criteria, true);
+                            Location myLocation = locationManager.getLastKnownLocation(provider);
 
-                                                                double latitude = myLocation.getLatitude();
-                                                        double longitude = myLocation.getLongitude();
-                                                        sendCordinate(db.getId(), (float) latitude, (float) longitude);
+                            double latitude = myLocation.getLatitude();
+                            double longitude = myLocation.getLongitude();
+
+                            //double latitude = 54.5;
+                            //double longitude = 19.2;
+                            sendCordinate(db.getId(), (float) latitude, (float) longitude);
                         }
-                                                Thread.sleep(5000);
-                                           }
+                        Thread.sleep(5000);
+                    }
 
-                                            } catch (InterruptedException e) {
-                                        e.printStackTrace();
-                                    }
-                            }
-                    };
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
 
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
             buildAlertMessageNoGps();
         }
 
+
         session = new SessionManager(this);
-        new Thread(sender,"Watek do wysyłania koordynatów").start();
+        new Thread(sender, "Watek do wysyłania koordynatów").start();
         spinner1 = (Spinner) findViewById(R.id.spinner);
         String[] spinnerOptions = {"Settings", "Log out"};
         ArrayAdapter<String> circleButtonOptions = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, spinnerOptions);
@@ -115,7 +123,6 @@ public class MainActivity extends FragmentActivity {
         setupMapWebView();
 
     }
-
 
 
     private void buildAlertMessageNoGps() {
@@ -148,9 +155,6 @@ public class MainActivity extends FragmentActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
@@ -209,62 +213,59 @@ public class MainActivity extends FragmentActivity {
     }
 
 
-
-    public  void sendCordinate(final String id,final float c1,final float c2)
-       {
-                StringRequest request=new StringRequest(Request.Method.POST,AppConfig.URL_LOGIN,new Response.Listener<String>() {
-                        @Override
-                        public void onResponse(String s) {
-                               Toast tost=Toast.makeText(getApplicationContext(),"Hip, Hip + "+c2,Toast.LENGTH_SHORT);
-                                tost.show();
+    public void sendCordinate(final String id, final float c1, final float c2) {
+        StringRequest request = new StringRequest(Request.Method.POST, AppConfig.URL_LOGIN, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String s) {
+                Toast tost = Toast.makeText(getApplicationContext(), "Hip, Hip + " + c2, Toast.LENGTH_SHORT);
+                tost.show();
 
 
-                                            }
-                    },new Response.ErrorListener() {
-                        @Override
-                        public void onErrorResponse(VolleyError error) {
-                                if (error instanceof NoConnectionError) {
-                                        Log.d("NoConnectionError>", "NoConnectionError.......");
-
-                                           } else if (error instanceof AuthFailureError) {
-                                        Log.d("AuthFailureError>", "AuthFailureError.......");
-
-                                            } else if (error instanceof ServerError) {
-                                        Log.d("ServerError>>>>>>>>>", "ServerError.......");
-
-                                           } else if (error instanceof NetworkError) {
-                                       Log.d("NetworkError>>>>>>>>>", "NetworkError.......");
-
-                                            } else if (error instanceof ParseError) {
-                                        Log.d("ParseError>>>>>>>>>", "ParseError.......");
-
-                                            }else if (error instanceof TimeoutError) {
-                                       Log.d("TimeoutError>>>>>>>>>", "TimeoutError.......");
-
-                                            }
-
-                                        Log.e("MAna", "Registration Error: " + error.getMessage());
-                                Toast.makeText(getApplicationContext(),
-                                                error.getMessage(), Toast.LENGTH_LONG).show();
-                           }
-                    })
-                        {
-
-                                    @Override
-                   protected Map<String,String> getParams() {
-                            Map<String,String> params = new HashMap<>();
-                            params.put("tag", "koordynaty");
-                            params.put("id",id);
-                            params.put("koordynat1", c1+"");
-                           params.put("koordynat2", c2+"");
-
-                                    return params;
-                        }
-
-                        };
-
-                        AppController.getInstance().addToRequestQueue(request, "request_coordinates");
             }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                if (error instanceof NoConnectionError) {
+                    Log.d("NoConnectionError>", "NoConnectionError.......");
+
+                } else if (error instanceof AuthFailureError) {
+                    Log.d("AuthFailureError>", "AuthFailureError.......");
+
+                } else if (error instanceof ServerError) {
+                    Log.d("ServerError>>>>>>>>>", "ServerError.......");
+
+                } else if (error instanceof NetworkError) {
+                    Log.d("NetworkError>>>>>>>>>", "NetworkError.......");
+
+                } else if (error instanceof ParseError) {
+                    Log.d("ParseError>>>>>>>>>", "ParseError.......");
+
+                } else if (error instanceof TimeoutError) {
+                    Log.d("TimeoutError>>>>>>>>>", "TimeoutError.......");
+
+                }
+
+                Log.e("MAna", "Registration Error: " + error.getMessage());
+                Toast.makeText(getApplicationContext(),
+                        error.getMessage(), Toast.LENGTH_LONG).show();
+            }
+        }) {
+
+            @Override
+            protected Map<String, String> getParams() {
+                Map<String, String> params = new HashMap<>();
+                params.put("tag", "koordynaty");
+                params.put("id", id);
+                params.put("koordynat1", c1 + "");
+                params.put("koordynat2", c2 + "");
+
+                return params;
+            }
+
+        };
+
+        AppController.getInstance().addToRequestQueue(request, "request_coordinates");
+    }
 
 
     public void addListenerOnButton() {
@@ -278,12 +279,11 @@ public class MainActivity extends FragmentActivity {
 
     }
 
-    public void addListenerOnSpinner(){
+    public void addListenerOnSpinner() {
         spinner1.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                switch((int)position)
-                {
+                switch ((int) position) {
                     case 0:
                         //USTAWIENIA TO DO
                         break;
@@ -294,12 +294,13 @@ public class MainActivity extends FragmentActivity {
             }
 
             @Override
-            public void onNothingSelected(AdapterView<?> parent) {}
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
         });
     }
 
     private void setUpMap() {
-        myMap = ((MapFragment)getFragmentManager().findFragmentById(R.id.myMapFragment)).getMap();
+        myMap = ((MapFragment) getFragmentManager().findFragmentById(R.id.myMapFragment)).getMap();
         myMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
         myMap.setMyLocationEnabled(true);
 
@@ -308,9 +309,9 @@ public class MainActivity extends FragmentActivity {
         myMap.addMarker(new MarkerOptions().position(new LatLng(51.113825, 17.065890)).title("Akademik"));
         myMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
 
-        LatLng latLng = new LatLng(0,0);
+        LatLng latLng = new LatLng(0, 0);
         Criteria criteria = new Criteria();
-        if(criteria!=null) {
+        if (criteria != null) {
             String provider = locationManager.getBestProvider(criteria, true);
             Location myLocation = locationManager.getLastKnownLocation(provider);
 
@@ -329,8 +330,15 @@ public class MainActivity extends FragmentActivity {
         myViewFlipper = (ViewFlipper) findViewById(R.id.viewFlipper);
         myViewFlipper.setHorizontalScrollBarEnabled(true);
 
-        View view1 = View.inflate(this, R.layout.fragment_friends, null);
-        myViewFlipper.addView(view1);
+       // View placeHolder = findViewById(R.id.placeHolderFragment);
+
+      /*  FriendsFragment friendsFragment = FriendsFragment.newInstance("","");
+        android.support.v4.app.FragmentTransaction transaction =  getSupportFragmentManager().beginTransaction();
+        transaction.replace(R.id.placeHolderFragment, friendsFragment).commit();
+*/
+
+        //View view1 = View.inflate(this, R.layout.fragment_friends, null);
+       // myViewFlipper.addView(view1);
     }
 
     private void setupMapWebView() {
@@ -343,4 +351,6 @@ public class MainActivity extends FragmentActivity {
         myMapView.loadUrl("https://www.google.com/maps/d/edit?mid=zHXxWf8z-mCE.k-4RjVSIl5O8");
 
     }
+
+
 }

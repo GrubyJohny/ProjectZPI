@@ -1,0 +1,63 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.marcin.lokalizator.AdditionalElementsOnMap">
+
+    <!-- TODO: Update blank fragment layout -->
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="POI"
+        android:id="@+id/buttonPOIFiltering"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="66dp"
+        android:layout_marginTop="5dp" />
+
+    <RadioGroup
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_below="@+id/buttonPOIFiltering"
+        android:layout_alignStart="@+id/buttonPOIFiltering"
+        android:baselineAligned="false"
+        android:id="@+id/RadioGroupListaPOI">
+
+        <RadioButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="ALL"
+            android:id="@+id/radioButton3"
+            android:visibility="invisible"
+            android:textStyle="bold|normal"
+            android:textColor="#fffff4f0"
+            android:singleLine="true"
+            android:elegantTextHeight="true"
+            android:textSize="25dp" />
+
+        <RadioButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="KFC"
+            android:id="@+id/radioButton"
+            android:visibility="invisible"
+            android:textSize="25dp"
+            android:textStyle="bold|normal"
+            android:textColor="#fffff4f0"
+            android:singleLine="true"
+            android:elegantTextHeight="true" />
+
+        <RadioButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="McDonald&apos;s"
+            android:id="@+id/radioButton2"
+            android:visibility="invisible"
+            android:textStyle="bold|normal"
+            android:textColor="#fffff4f0"
+            android:singleLine="true"
+            android:elegantTextHeight="true"
+            android:textSize="25dp" />
+    </RadioGroup>
+
+</RelativeLayout>

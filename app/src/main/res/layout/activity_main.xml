@@ -32,28 +32,22 @@
             android:id="@+id/myMapFragment"
             android:name="com.google.android.gms.maps.MapFragment"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content">
+
+            <include
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                layout="@layout/fragment_additional_elements_on_map" />
+
+            </fragment>
+
 
         <fragment
-            android:id="@+id/myWebMapFragment"
-            android:name="android.webkit.WebViewFragment"
-            android:layout_width="match_parent"
-            android:layout_height="fill_parent" />
+            android:id="@+id/placeHolderFragment"
+            android:name="com.example.marcin.lokalizator.FriendsFragment"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
 
-
-
-            <fragment
-                android:id="@+id/placeHolderFragment"
-                android:name="com.example.marcin.lokalizator.FriendsFragment"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
-
-
-        <!--        <fragment
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:name="com.example.marcin.lokalizator.FriendsFragment"
-                    android:id="@+id/friendFragment" />-->
     </ViewFlipper>
 
     <Spinner

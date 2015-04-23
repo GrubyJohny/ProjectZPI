@@ -7,7 +7,9 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.Rect;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
@@ -18,11 +20,15 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
@@ -44,15 +50,20 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.MapsInitializer;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 
-public class MainActivity extends FragmentActivity implements GoogleApiClient.ConnectionCallbacks,GoogleApiClient.OnConnectionFailedListener, com.google.android.gms.location.LocationListener {
+public class MainActivity extends FragmentActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, com.google.android.gms.location.LocationListener {
 
     private SessionManager session;
     private ViewFlipper myViewFlipper;
@@ -64,6 +75,12 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     private GoogleMap myMap;
     private LocationManager locationManager;
     private WebView myMapView;
+    private Button poiFilteringButton;
+    private RadioGroup radioGroupPoi;
+    private HashMap<Integer, Marker> visibleMarkers = new HashMap<Integer, Marker>();
+    private List<MarkerOptions> markers;
+    private ArrayList<MarkerOptions> markersKFC;
+    private ArrayList<MarkerOptions> markersMcDonalds;
     //Andoridowy obiekt przechowujący dane o położeniu(np latitude, longitude, kiedy zostało zarejestrowane)
     private Location mCurrentLocation;
     private Runnable sender;//wątek, który będzie wysyłał info o położoniu użytkownika do bazy
@@ -84,64 +101,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         setContentView(R.layout.activity_main);
 
         db = new SQLiteHandler(getApplicationContext());
-        sender = createSendThread();
-
-        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-            buildAlertMessageNoGps();
-        }
-
-        //Inicjalizacja mGoogleApiClient i rozpoczęcie połączenia
-        //Ponadto trochę wiecej kodu od Sancza
-        mRequestingLocationUpdates=true;
-        createLocationRequest();
-        buildGoogleApiClient();
-        mGoogleApiClient.connect();
-
-
-        session = new SessionManager(this);
-        new Thread(sender, "Watek do wysyłania koordynatów").start();
-
-        //Taka nie winna propozycja dla sławka,
-        //może stworzysz sobie osobną metodę, w której inicjujesz to GUI.
-
-        spinner1 = (Spinner) findViewById(R.id.spinner);
-        String[] spinnerOptions = {"Settings", "Log out"};
-        ArrayAdapter<String> circleButtonOptions = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, spinnerOptions);
-        spinner1.setAdapter(circleButtonOptions);
-
-        spinner2 = (Spinner) findViewById(R.id.spinner2);
-        String[] spinner2Options = {"notice 1", "notice 2", "notice 3", "notice 4", "notice 5", "notice 6"};
-        ArrayAdapter<String> noticeButtonOptions = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, spinner2Options);
-        spinner2.setAdapter(noticeButtonOptions);
-
-        circleButton = (ImageButton) findViewById(R.id.circleButton);
-        Bitmap icon = BitmapFactory.decodeResource(getResources(), R.drawable.kfclogo);
-        Bitmap bitmap_round=clipBitmap(icon);
-        circleButton.setImageBitmap(bitmap_round);
-
-        noticeButton = (Button) findViewById(R.id.noticeButton);
-
-        addListenerOnButton();
-        addListenerOnSpinner();
-        addListenerOnSpinner2();
-
-        setUpViewFlipper();
-        setUpMap();
-        setMapListener();
-        //setupMapWebView();
-
-    }
-
-
-    /**
-     * Metoda tworząca wątek, który w sumie i tak jest już nie potrzebny, bo za wysyłynie danych o
-     * lokacji będzie odpowiedzialny ChangeLocationListener, przynajniej ten kod nie straszy już w onCreate()
-     * @return Wątek, który ma za zadanie wysyłać co pięć sekund współrzędne do bazy danych
-     */
-    private Runnable createSendThread()
-    {
-       return new Runnable() {
+        sender = new Runnable() {
             @Override
             public void run() {
 
@@ -168,6 +128,105 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                 }
             }
         };
+
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            buildAlertMessageNoGps();
+        }
+
+        //Inicjalizacja mGoogleApiClient i rozpoczęcie połączenia
+        mRequestingLocationUpdates = true;
+        createLocationRequest();
+        buildGoogleApiClient();
+        mGoogleApiClient.connect();
+
+        session = new SessionManager(this);
+        new Thread(sender, "Watek do wysyłania koordynatów").start();
+
+        spinner1 = (Spinner) findViewById(R.id.spinner);
+        String[] spinnerOptions = {"Settings", "Log out"};
+        ArrayAdapter<String> circleButtonOptions = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, spinnerOptions);
+        spinner1.setAdapter(circleButtonOptions);
+
+        spinner2 = (Spinner) findViewById(R.id.spinner2);
+        String[] spinner2Options = {"notice 1", "notice 2", "notice 3", "notice 4", "notice 5", "notice 6"};
+        ArrayAdapter<String> noticeButtonOptions = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, spinner2Options);
+        spinner2.setAdapter(noticeButtonOptions);
+
+        circleButton = (ImageButton) findViewById(R.id.circleButton);
+        Bitmap icon = BitmapFactory.decodeResource(getResources(), R.drawable.kfclogo);
+        Bitmap bitmap_round = clipBitmap(icon);
+        circleButton.setImageBitmap(bitmap_round);
+
+        noticeButton = (Button) findViewById(R.id.noticeButton);
+
+        addListenerOnButton();
+        addListenerOnSpinner();
+        addListenerOnSpinner2();
+
+        final RadioButton radioAll = (RadioButton) findViewById(R.id.radioButton3);
+        radioAll.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                myMap.clear();
+                for (int i = 0; i < markersMcDonalds.size(); i++)
+                    myMap.addMarker(markersMcDonalds.get(i));
+
+                for (int i = 0; i < markersKFC.size(); i++)
+                    myMap.addMarker(markersKFC.get(i));
+            }
+
+        });
+        final RadioButton radiokfc = (RadioButton) findViewById(R.id.radioButton);
+        radiokfc.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                myMap.clear();
+                for (int i = 0; i < markersKFC.size(); i++) {
+                    myMap.addMarker(markersKFC.get(i));
+
+                }
+            }
+
+
+        });
+        final RadioButton radioMcDonalds = (RadioButton) findViewById(R.id.radioButton2);
+        radioMcDonalds.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                myMap.clear();
+                for (int i = 0; i < markersMcDonalds.size(); i++) {
+                    myMap.addMarker(markersMcDonalds.get(i));
+
+                }
+            }
+
+        });
+
+        setUpViewFlipper();
+        //setUpMap();
+        //setupMapWebView();
+        preparePoiPoints();
+    }
+
+    private void addListenerOnPoiButton() {
+        poiFilteringButton.setOnClickListener(new View.OnClickListener() {
+
+            public void onClick(View view) {
+
+                if (findViewById(R.id.radioButton).getVisibility() == View.INVISIBLE) {
+                    (findViewById(R.id.radioButton)).setVisibility(View.VISIBLE);
+                    (findViewById(R.id.radioButton2)).setVisibility(View.VISIBLE);
+                    (findViewById(R.id.radioButton3)).setVisibility(View.VISIBLE);
+                } else {
+                    (findViewById(R.id.radioButton)).setVisibility(View.INVISIBLE);
+                    (findViewById(R.id.radioButton2)).setVisibility(View.INVISIBLE);
+                    (findViewById(R.id.radioButton3)).setVisibility(View.INVISIBLE);
+                }
+            }
+
+        });
     }
 
     private void buildAlertMessageNoGps() {
@@ -192,8 +251,8 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     /**
      * Ot metoda, na szybko inicjalizująca obiekt mLocationRequest
      */
-    private void createLocationRequest(){
-        mLocationRequest=new LocationRequest();
+    private void createLocationRequest() {
+        mLocationRequest = new LocationRequest();
         mLocationRequest.setInterval(10000);
         mLocationRequest.setFastestInterval(5000);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
@@ -203,9 +262,8 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
      * Inicjalizuje obiekt mGoogleApiClient
      * takim fajnym łańcuszkiem wywołań
      */
-    protected synchronized void buildGoogleApiClient()
-    {
-        mGoogleApiClient=new GoogleApiClient.Builder(this)
+    protected synchronized void buildGoogleApiClient() {
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
                 .addApi(LocationServices.API)
@@ -213,17 +271,16 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     }
 
     //Startujemy nasłuchiwanie zmian lokacji
-    protected void startLocationUpdates()
-    {
+    protected void startLocationUpdates() {
         LocationServices.FusedLocationApi
-                .requestLocationUpdates(mGoogleApiClient,mLocationRequest,this);
+                .requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
     }
 
     //Zatrzymujemy nasłuchiwanie o zmianach lokacji
-    protected void stopLocationUpdates()
-    {
-        LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient,this);
+    protected void stopLocationUpdates() {
+        LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
     }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -423,10 +480,23 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
             double longitude = myLocation.getLongitude();
             latLng = new LatLng(latitude, longitude);
 
+            myMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+            myMap.animateCamera(CameraUpdateFactory.zoomTo(15), 3000, null);
         }
-        myMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-        myMap.animateCamera(CameraUpdateFactory.zoomTo(15), 3000, null);
 
+        myMap.setOnCameraChangeListener(getCameraChangeListener());
+    }
+
+    public GoogleMap.OnCameraChangeListener getCameraChangeListener()
+    {
+        return new GoogleMap.OnCameraChangeListener()
+        {
+            @Override
+            public void onCameraChange(CameraPosition position)
+            {
+                //addItemsToMap(markers);
+            }
+        };
     }
 
     private void setUpViewFlipper() {
@@ -434,7 +504,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         myViewFlipper = (ViewFlipper) findViewById(R.id.viewFlipper);
         myViewFlipper.setHorizontalScrollBarEnabled(true);
 
-       // View placeHolder = findViewById(R.id.placeHolderFragment);
+        // View placeHolder = findViewById(R.id.placeHolderFragment);
 
       /*  FriendsFragment friendsFragment = FriendsFragment.newInstance("","");
         android.support.v4.app.FragmentTransaction transaction =  getSupportFragmentManager().beginTransaction();
@@ -442,11 +512,9 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
 */
 
         //View view1 = View.inflate(this, R.layout.fragment_friends, null);
-       // myViewFlipper.addView(view1);
+        // myViewFlipper.addView(view1);
     }
 
-    //Do wyrzucenia, ale niech to ostatecznie zrobi John.
-/*
     private void setupMapWebView() {
         myMapView = (WebView) findViewById(R.id.myMapFragment);
         myMapView.clearCache(true);
@@ -456,23 +524,23 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         myMapView.addJavascriptInterface(new WebAppInterface(this), "Android");
         myMapView.loadUrl("https://www.google.com/maps/d/edit?mid=zHXxWf8z-mCE.k-4RjVSIl5O8");
 
-    }*/
+    }
 
     /**
      * Tutaj definiujemy jakie operacje mają się odbyć po połączeniu z google service
+     *
      * @param bundle - obiekt zawieta ewentualne dane zwracane przez usługę
      */
     @Override
     public void onConnected(Bundle bundle) {
-        if(mRequestingLocationUpdates)
-        {
-            startLocationUpdates();
-        }
+
     }
 
     @Override
     public void onConnectionSuspended(int i) {
-
+        if (mRequestingLocationUpdates) {
+            startLocationUpdates();
+        }
     }
 
     @Override
@@ -482,12 +550,13 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
 
     /**
      * Metoda intefejsu LocationListener
+     *
      * @param location - po prostu zwraca obiekt z danymi o aktualnej lokalizacji
      */
     @Override
     public void onLocationChanged(Location location) {
-        mCurrentLocation=location;
-        Log.d(AppController.TAG,"lokalizacja zostła zaktualizowana");
+        mCurrentLocation = location;
+        Log.d(AppController.TAG, "lokalizacja zostła zaktualizowana");
     }
 
     public static Bitmap clipBitmap(Bitmap bitmap) {
@@ -510,24 +579,46 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         return outputBitmap;
     }
 
+    private void preparePoiPoints() {
+        //add KFC
+        markersKFC = new ArrayList<MarkerOptions>();
+        markersKFC.add(new MarkerOptions().position(new LatLng(51.088720, 16.999470)).title("KFC").icon(BitmapDescriptorFactory.fromResource(R.drawable.kfclogo)));
+        markersKFC.add(new MarkerOptions().position(new LatLng(51.098590, 17.037649)).title("KFC").icon(BitmapDescriptorFactory.fromResource(R.drawable.kfclogo)));
+        markersKFC.add(new MarkerOptions().position(new LatLng(51.099488, 17.028555)).title("KFC").icon(BitmapDescriptorFactory.fromResource(R.drawable.kfclogo)));
+        markersKFC.add(new MarkerOptions().position(new LatLng(51.107786, 17.032295)).title("KFC").icon(BitmapDescriptorFactory.fromResource(R.drawable.kfclogo)));
+        markersKFC.add(new MarkerOptions().position(new LatLng(51.108399, 17.039837)).title("KFC").icon(BitmapDescriptorFactory.fromResource(R.drawable.kfclogo)));
+        markersKFC.add(new MarkerOptions().position(new LatLng(51.112278, 17.059493)).title("KFC").icon(BitmapDescriptorFactory.fromResource(R.drawable.kfclogo)));
+        markersKFC.add(new MarkerOptions().position(new LatLng(51.119768, 16.989862)).title("KFC").icon(BitmapDescriptorFactory.fromResource(R.drawable.kfclogo)));
+        markersKFC.add(new MarkerOptions().position(new LatLng(51.131706, 17.062039)).title("KFC").icon(BitmapDescriptorFactory.fromResource(R.drawable.kfclogo)));
+        markersKFC.add(new MarkerOptions().position(new LatLng(51.142201, 17.088718)).title("KFC").icon(BitmapDescriptorFactory.fromResource(R.drawable.kfclogo)));
 
-    
-    public void setMapListener()
-    {
-        myMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
-            @Override
-            public void onMapLongClick(LatLng latLng) {
-                myMap.addMarker(new MarkerOptions().position(latLng).draggable(true));
+        //add Mcdonalds
+        markersMcDonalds = new ArrayList<MarkerOptions>();
+        markersMcDonalds.add(new MarkerOptions().position(new LatLng(51.106616, 16.948973)).title("McDonald's").icon(BitmapDescriptorFactory.fromResource(R.drawable.mcdonaldslogo)));
+        markersMcDonalds.add(new MarkerOptions().position(new LatLng(51.047800, 16.958560)).title("McDonald's").icon(BitmapDescriptorFactory.fromResource(R.drawable.mcdonaldslogo)));
+        markersMcDonalds.add(new MarkerOptions().position(new LatLng(51.054236, 16.975421)).title("McDonald's").icon(BitmapDescriptorFactory.fromResource(R.drawable.mcdonaldslogo)));
+        markersMcDonalds.add(new MarkerOptions().position(new LatLng(51.119674, 16.988372)).title("McDonald's").icon(BitmapDescriptorFactory.fromResource(R.drawable.mcdonaldslogo)));
+        markersMcDonalds.add(new MarkerOptions().position(new LatLng(51.060817, 16.993000)).title("McDonald's").icon(BitmapDescriptorFactory.fromResource(R.drawable.mcdonaldslogo)));
+        markersMcDonalds.add(new MarkerOptions().position(new LatLng(51.118044, 16.999969)).title("McDonald's").icon(BitmapDescriptorFactory.fromResource(R.drawable.mcdonaldslogo)));
+        markersMcDonalds.add(new MarkerOptions().position(new LatLng(51.116333, 17.024023)).title("McDonald's").icon(BitmapDescriptorFactory.fromResource(R.drawable.mcdonaldslogo)));
+        markersMcDonalds.add(new MarkerOptions().position(new LatLng(51.150980, 17.026410)).title("McDonald's").icon(BitmapDescriptorFactory.fromResource(R.drawable.mcdonaldslogo)));
+        markersMcDonalds.add(new MarkerOptions().position(new LatLng(51.109436, 17.033035)).title("McDonald's").icon(BitmapDescriptorFactory.fromResource(R.drawable.mcdonaldslogo)));
+        markersMcDonalds.add(new MarkerOptions().position(new LatLng(51.108075, 17.037220)).title("McDonald's").icon(BitmapDescriptorFactory.fromResource(R.drawable.mcdonaldslogo)));
+        markersMcDonalds.add(new MarkerOptions().position(new LatLng(51.108230, 17.039610)).title("McDonald's").icon(BitmapDescriptorFactory.fromResource(R.drawable.mcdonaldslogo)));
+        markersMcDonalds.add(new MarkerOptions().position(new LatLng(51.082358, 17.048646)).title("McDonald's").icon(BitmapDescriptorFactory.fromResource(R.drawable.mcdonaldslogo)));
+        markersMcDonalds.add(new MarkerOptions().position(new LatLng(51.095464, 17.056789)).title("McDonald's").icon(BitmapDescriptorFactory.fromResource(R.drawable.mcdonaldslogo)));
+        markersMcDonalds.add(new MarkerOptions().position(new LatLng(51.112505, 17.059547)).title("McDonald's").icon(BitmapDescriptorFactory.fromResource(R.drawable.mcdonaldslogo)));
+        markersMcDonalds.add(new MarkerOptions().position(new LatLng(51.142060, 17.088680)).title("McDonald's").icon(BitmapDescriptorFactory.fromResource(R.drawable.mcdonaldslogo)));
 
-            }
-        });
+        //add markers
+        /*for (int i = 0; i < markersKFC.size(); i++)
+            myMap.addMarker(markersKFC.get(i));
 
-        myMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
-            @Override
-            public boolean onMarkerClick(Marker marker) {
+        for (int i = 0; i < markersMcDonalds.size(); i++)
+            myMap.addMarker(markersMcDonalds.get(i));*/
 
-                return false;
-            }
-        });
+
+        poiFilteringButton = (Button) findViewById(R.id.buttonPOIFiltering);
+        addListenerOnPoiButton();
     }
 }

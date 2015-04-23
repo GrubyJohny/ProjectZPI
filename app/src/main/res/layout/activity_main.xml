@@ -1,5 +1,6 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mainLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:paddingBottom="@dimen/activity_vertical_margin"
@@ -15,52 +16,84 @@
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
         android:background="@drawable/circle_button"
-        android:clickable="true"
-        android:paddingTop="50dp" />
+        android:clickable="true" />
 
-    <ViewFlipper
-        android:id="@+id/viewFlipper"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentStart="false"
+    <Button
+        android:id="@+id/noticeButton"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
-        android:layout_marginTop="@dimen/abc_action_bar_default_height_material"
-        android:animateFirstView="true">
+        android:layout_marginRight="100dp"
+        android:layout_toLeftOf="@id/circleButton"
+        android:background="@drawable/notice_button"
+        android:clickable="true" />
 
-        <fragment
-            android:id="@+id/myMapFragment"
-            android:name="com.google.android.gms.maps.MapFragment"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_marginTop="@dimen/abc_action_bar_default_height_material">
 
-            <include
+        <ViewFlipper
+            android:id="@+id/viewFlipper"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentStart="false"
+            android:layout_alignParentTop="true"
+            android:animateFirstView="true">
+
+            <fragment
+                android:id="@+id/myMapFragment"
+                android:name="com.google.android.gms.maps.MapFragment"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                layout="@layout/fragment_additional_elements_on_map" />
+                android:layout_height="wrap_content">
+
+                <include
+                    layout="@layout/fragment_additional_elements_on_map"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
 
             </fragment>
 
 
-        <fragment
-            android:id="@+id/placeHolderFragment"
-            android:name="com.example.marcin.lokalizator.FriendsFragment"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            <fragment
+                android:id="@+id/placeHolderFragment"
+                android:name="com.example.marcin.lokalizator.FriendsFragment"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
 
-    </ViewFlipper>
+        </ViewFlipper>
+
+        <!--<fragment
+            android:id="@+id/settingsFragment"
+            android:name="com.example.marcin.lokalizator.SettingsFragment"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />-->
+
+    </RelativeLayout>
 
     <Spinner
         android:id="@+id/spinner"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentEnd="false"
         android:layout_alignParentRight="true"
-        android:layout_alignParentStart="false"
         android:layout_alignParentTop="true"
         android:layout_toStartOf="@id/circleButton"
         android:gravity="right"
-        android:paddingTop="50dp"
+        android:layout_marginTop="50dp"
+        android:layout_alignStart="@id/circleButton"
+        android:layout_below="@id/circleButton"
+        android:visibility="invisible" />
+
+    <Spinner
+        android:id="@+id/spinner2"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:layout_toStartOf="@id/noticeButton"
+        android:layout_marginTop="30dp"
         android:visibility="invisible" />
 
 

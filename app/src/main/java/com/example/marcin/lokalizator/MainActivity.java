@@ -4,6 +4,12 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.Path;
+import android.graphics.Rect;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
@@ -134,7 +140,10 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         spinner2.setAdapter(noticeButtonOptions);
 
         circleButton = (ImageButton) findViewById(R.id.circleButton);
-        circleButton.setImageResource(R.drawable.image1);
+        Bitmap icon = BitmapFactory.decodeResource(getResources(), R.drawable.kfclogo);
+        Bitmap bitmap_round=clipBitmap(icon);
+        circleButton.setImageBitmap(bitmap_round);
+
         noticeButton = (Button) findViewById(R.id.noticeButton);
 
         addListenerOnButton();
@@ -464,5 +473,25 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     public void onLocationChanged(Location location) {
         mCurrentLocation=location;
         Log.d(AppController.TAG,"lokalizacja zostła zaktualizowana");
+    }
+
+    public static Bitmap clipBitmap(Bitmap bitmap) {
+        if (bitmap == null)
+            return null;
+        final int width = bitmap.getWidth();
+        final int height = bitmap.getHeight();
+        final Bitmap outputBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+
+        final Path path = new Path();
+        path.addCircle(
+                (float) (width / 2)
+                , (float) (height / 2)
+                , (float) Math.min(width, (height / 2))
+                , Path.Direction.CCW);
+
+        final Canvas canvas = new Canvas(outputBitmap);
+        canvas.clipPath(path);
+        canvas.drawBitmap(bitmap, 0, 0, null);
+        return outputBitmap;
     }
 }

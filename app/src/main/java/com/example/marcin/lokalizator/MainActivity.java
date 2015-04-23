@@ -14,12 +14,13 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.webkit.WebSettings;
 import android.webkit.WebView;
-import android.webkit.WebViewClient;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
@@ -41,10 +42,14 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 
@@ -57,7 +62,6 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     private ImageButton circleButton;
     private GoogleMap myMap;
     private LocationManager locationManager;
-    private WebView myMapView;
     //Andoridowy obiekt przechowujący dane o położeniu(np latitude, longitude, kiedy zostało zarejestrowane)
     private Location mCurrentLocation;
     private Runnable sender;//wątek, który będzie wysyłał info o położoniu użytkownika do bazy
@@ -65,17 +69,64 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     //obiekt będący parametrem, przy wysłaniu żądania o aktualizację lokacji
     private LocationRequest mLocationRequest;
 
+    private Button poiFilteringButton;
+    private RadioGroup radioGroupPoi;
+    private HashMap<Integer, Marker> visibleMarkers = new HashMap<Integer, Marker>();
+    private List<MarkerOptions> markers;
+    private ArrayList<MarkerOptions> markersKFC;
+    private ArrayList<MarkerOptions> markersMcDonalds;
+
     //Obiekt w ogólności reprezentujący googlowe api service,
     //jest często przekazywany jako argument, gdy coś o tego api chcemy
     private GoogleApiClient mGoogleApiClient;
 
-    //Flaga muwiąca o tym czy chcemy monitorować lokalizację
+    //Flaga mówiąca o tym czy chcemy monitorować lokalizację
     private boolean mRequestingLocationUpdates;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        setupCoordinatesThread();
+
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            buildAlertMessageNoGps();
+        }
+
+        //Inicjalizacja mGoogleApiClient i rozpoczęcie połączenia
+        mRequestingLocationUpdates=true;
+        createLocationRequest();
+        buildGoogleApiClient();
+        mGoogleApiClient.connect();
+
+        session = new SessionManager(this);
+        new Thread(sender, "Watek do wysyłania koordynatów").start();
+
+        setupLayoutElements();
+
+        setUpMap();
+        preparePoiPoints();
+
+    }
+
+    private void setupLayoutElements() {
+
+        spinner1 = (Spinner) findViewById(R.id.spinner);
+        String[] spinnerOptions = {"Settings", "Log out"};
+        ArrayAdapter<String> circleButtonOptions = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, spinnerOptions);
+        spinner1.setAdapter(circleButtonOptions);
+
+        circleButton = (ImageButton) findViewById(R.id.circleButton);
+
+        addListenerOnButton();
+        addListenerOnSpinner();
+
+        setUpViewFlipper();
+    }
+
+    private void setupCoordinatesThread() {
 
         db = new SQLiteHandler(getApplicationContext());
         sender = new Runnable() {
@@ -105,38 +156,26 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                 }
             }
         };
-
-        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-            buildAlertMessageNoGps();
-        }
-
-        //Inicjalizacja mGoogleApiClient i rozpoczęcie połączenia
-        mRequestingLocationUpdates=true;
-        createLocationRequest();
-        buildGoogleApiClient();
-        mGoogleApiClient.connect();
-
-
-
-        session = new SessionManager(this);
-        new Thread(sender, "Watek do wysyłania koordynatów").start();
-        spinner1 = (Spinner) findViewById(R.id.spinner);
-        String[] spinnerOptions = {"Settings", "Log out"};
-        ArrayAdapter<String> circleButtonOptions = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, spinnerOptions);
-        spinner1.setAdapter(circleButtonOptions);
-
-        circleButton = (ImageButton) findViewById(R.id.circleButton);
-
-        addListenerOnButton();
-        addListenerOnSpinner();
-
-        setUpViewFlipper();
-        setUpMap();
-        setupMapWebView();
-
     }
 
+    private void addListenerOnPoiButton() {
+                    poiFilteringButton.setOnClickListener(new View.OnClickListener() {
+
+                        public void onClick(View view) {
+
+                            if (findViewById(R.id.radioButton).getVisibility() == View.INVISIBLE) {
+                                (findViewById(R.id.radioButton)).setVisibility(View.VISIBLE);
+                                (findViewById(R.id.radioButton2)).setVisibility(View.VISIBLE);
+                                (findViewById(R.id.radioButton3)).setVisibility(View.VISIBLE);
+                            } else {
+                                (findViewById(R.id.radioButton)).setVisibility(View.INVISIBLE);
+                                (findViewById(R.id.radioButton2)).setVisibility(View.INVISIBLE);
+                                (findViewById(R.id.radioButton3)).setVisibility(View.INVISIBLE);
+                            }
+                        }
+
+                    });
+                }
 
     private void buildAlertMessageNoGps() {
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -264,8 +303,8 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         StringRequest request = new StringRequest(Request.Method.POST, AppConfig.URL_LOGIN, new Response.Listener<String>() {
             @Override
             public void onResponse(String s) {
-                Toast tost = Toast.makeText(getApplicationContext(), "Hip, Hip + " + c2, Toast.LENGTH_SHORT);
-                tost.show();
+                // Toast tost = Toast.makeText(getApplicationContext(), ""+c1+" " +c2, Toast.LENGTH_SHORT);
+                              // tost.show();
 
 
             }
@@ -348,7 +387,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
 
     private void setUpMap() {
         myMap = ((MapFragment) getFragmentManager().findFragmentById(R.id.myMapFragment)).getMap();
-        myMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+
         myMap.setMyLocationEnabled(true);
 
 
@@ -356,7 +395,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         myMap.addMarker(new MarkerOptions().position(new LatLng(51.113825, 17.065890)).title("Akademik"));
         myMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
 
-        LatLng latLng = new LatLng(0, 0);
+        LatLng latLng;
         Criteria criteria = new Criteria();
         if (criteria != null) {
             String provider = locationManager.getBestProvider(criteria, true);
@@ -366,10 +405,98 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
             double longitude = myLocation.getLongitude();
             latLng = new LatLng(latitude, longitude);
 
+            myMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+                        myMap.animateCamera(CameraUpdateFactory.zoomTo(15), 3000, null);
         }
-        myMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-        myMap.animateCamera(CameraUpdateFactory.zoomTo(15), 3000, null);
 
+
+    }
+
+
+    private void preparePoiPoints() {
+        //add KFC
+        markersKFC = new ArrayList<MarkerOptions>();
+        markersKFC.add(new MarkerOptions().position(new LatLng(51.088720, 16.999470)).title("KFC").icon(BitmapDescriptorFactory.fromResource(R.drawable.kfclogo)));
+        markersKFC.add(new MarkerOptions().position(new LatLng(51.098590, 17.037649)).title("KFC").icon(BitmapDescriptorFactory.fromResource(R.drawable.kfclogo)));
+        markersKFC.add(new MarkerOptions().position(new LatLng(51.099488, 17.028555)).title("KFC").icon(BitmapDescriptorFactory.fromResource(R.drawable.kfclogo)));
+        markersKFC.add(new MarkerOptions().position(new LatLng(51.107786, 17.032295)).title("KFC").icon(BitmapDescriptorFactory.fromResource(R.drawable.kfclogo)));
+        markersKFC.add(new MarkerOptions().position(new LatLng(51.108399, 17.039837)).title("KFC").icon(BitmapDescriptorFactory.fromResource(R.drawable.kfclogo)));
+        markersKFC.add(new MarkerOptions().position(new LatLng(51.112278, 17.059493)).title("KFC").icon(BitmapDescriptorFactory.fromResource(R.drawable.kfclogo)));
+        markersKFC.add(new MarkerOptions().position(new LatLng(51.119768, 16.989862)).title("KFC").icon(BitmapDescriptorFactory.fromResource(R.drawable.kfclogo)));
+        markersKFC.add(new MarkerOptions().position(new LatLng(51.131706, 17.062039)).title("KFC").icon(BitmapDescriptorFactory.fromResource(R.drawable.kfclogo)));
+        markersKFC.add(new MarkerOptions().position(new LatLng(51.142201, 17.088718)).title("KFC").icon(BitmapDescriptorFactory.fromResource(R.drawable.kfclogo)));
+
+        //add Mcdonalds
+        markersMcDonalds = new ArrayList<MarkerOptions>();
+        markersMcDonalds.add(new MarkerOptions().position(new LatLng(51.106616, 16.948973)).title("McDonald's").icon(BitmapDescriptorFactory.fromResource(R.drawable.mcdonaldslogo)));
+        markersMcDonalds.add(new MarkerOptions().position(new LatLng(51.047800, 16.958560)).title("McDonald's").icon(BitmapDescriptorFactory.fromResource(R.drawable.mcdonaldslogo)));
+        markersMcDonalds.add(new MarkerOptions().position(new LatLng(51.054236, 16.975421)).title("McDonald's").icon(BitmapDescriptorFactory.fromResource(R.drawable.mcdonaldslogo)));
+        markersMcDonalds.add(new MarkerOptions().position(new LatLng(51.119674, 16.988372)).title("McDonald's").icon(BitmapDescriptorFactory.fromResource(R.drawable.mcdonaldslogo)));
+        markersMcDonalds.add(new MarkerOptions().position(new LatLng(51.060817, 16.993000)).title("McDonald's").icon(BitmapDescriptorFactory.fromResource(R.drawable.mcdonaldslogo)));
+        markersMcDonalds.add(new MarkerOptions().position(new LatLng(51.118044, 16.999969)).title("McDonald's").icon(BitmapDescriptorFactory.fromResource(R.drawable.mcdonaldslogo)));
+        markersMcDonalds.add(new MarkerOptions().position(new LatLng(51.116333, 17.024023)).title("McDonald's").icon(BitmapDescriptorFactory.fromResource(R.drawable.mcdonaldslogo)));
+        markersMcDonalds.add(new MarkerOptions().position(new LatLng(51.150980, 17.026410)).title("McDonald's").icon(BitmapDescriptorFactory.fromResource(R.drawable.mcdonaldslogo)));
+        markersMcDonalds.add(new MarkerOptions().position(new LatLng(51.109436, 17.033035)).title("McDonald's").icon(BitmapDescriptorFactory.fromResource(R.drawable.mcdonaldslogo)));
+        markersMcDonalds.add(new MarkerOptions().position(new LatLng(51.108075, 17.037220)).title("McDonald's").icon(BitmapDescriptorFactory.fromResource(R.drawable.mcdonaldslogo)));
+        markersMcDonalds.add(new MarkerOptions().position(new LatLng(51.108230, 17.039610)).title("McDonald's").icon(BitmapDescriptorFactory.fromResource(R.drawable.mcdonaldslogo)));
+        markersMcDonalds.add(new MarkerOptions().position(new LatLng(51.082358, 17.048646)).title("McDonald's").icon(BitmapDescriptorFactory.fromResource(R.drawable.mcdonaldslogo)));
+        markersMcDonalds.add(new MarkerOptions().position(new LatLng(51.095464, 17.056789)).title("McDonald's").icon(BitmapDescriptorFactory.fromResource(R.drawable.mcdonaldslogo)));
+        markersMcDonalds.add(new MarkerOptions().position(new LatLng(51.112505, 17.059547)).title("McDonald's").icon(BitmapDescriptorFactory.fromResource(R.drawable.mcdonaldslogo)));
+        markersMcDonalds.add(new MarkerOptions().position(new LatLng(51.142060, 17.088680)).title("McDonald's").icon(BitmapDescriptorFactory.fromResource(R.drawable.mcdonaldslogo)));
+
+        //add markers
+        for (int i = 0; i < markersKFC.size(); i++)
+            myMap.addMarker(markersKFC.get(i));
+
+        for (int i = 0; i < markersMcDonalds.size(); i++)
+            myMap.addMarker(markersMcDonalds.get(i));
+
+
+        poiFilteringButton = (Button) findViewById(R.id.buttonPOIFiltering);
+        addListenerOnPoiButton();
+
+
+        final RadioButton radioAll = (RadioButton) findViewById(R.id.radioButton3);
+        radioAll.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                myMap.clear();
+                for(int i=0; i<markersMcDonalds.size(); i++)
+                    myMap.addMarker(markersMcDonalds.get(i));
+
+                for(int i=0; i<markersKFC.size(); i++)
+                    myMap.addMarker(markersKFC.get(i));
+            }
+
+        });
+        final RadioButton radiokfc = (RadioButton) findViewById(R.id.radioButton);
+        radiokfc.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                myMap.clear();
+                for(int i=0; i<markersKFC.size(); i++)
+                {
+                    myMap.addMarker(markersKFC.get(i));
+
+                }
+            }
+
+
+        });
+        final RadioButton radioMcDonalds = (RadioButton) findViewById(R.id.radioButton2);
+        radioMcDonalds.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                myMap.clear();
+                for(int i=0; i<markersMcDonalds.size(); i++)
+                {
+                    myMap.addMarker(markersMcDonalds.get(i));
+
+                }
+            }
+
+        });
     }
 
     private void setUpViewFlipper() {
@@ -386,17 +513,6 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
 
         //View view1 = View.inflate(this, R.layout.fragment_friends, null);
        // myViewFlipper.addView(view1);
-    }
-
-    private void setupMapWebView() {
-        myMapView = (WebView) findViewById(R.id.myWebMapFragment);
-        myMapView.clearCache(true);
-        myMapView.setWebViewClient(new WebViewClient());
-        WebSettings webSettings = myMapView.getSettings();
-        webSettings.setJavaScriptEnabled(true);
-        myMapView.addJavascriptInterface(new WebAppInterface(this), "Android");
-        myMapView.loadUrl("https://www.google.com/maps/d/edit?mid=zHXxWf8z-mCE.k-4RjVSIl5O8");
-
     }
 
     /**

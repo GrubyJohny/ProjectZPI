@@ -45,6 +45,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.HashMap;
@@ -83,7 +84,64 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         setContentView(R.layout.activity_main);
 
         db = new SQLiteHandler(getApplicationContext());
-        sender = new Runnable() {
+        sender = createSendThread();
+
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            buildAlertMessageNoGps();
+        }
+
+        //Inicjalizacja mGoogleApiClient i rozpoczęcie połączenia
+        //Ponadto trochę wiecej kodu od Sancza
+        mRequestingLocationUpdates=true;
+        createLocationRequest();
+        buildGoogleApiClient();
+        mGoogleApiClient.connect();
+
+
+        session = new SessionManager(this);
+        new Thread(sender, "Watek do wysyłania koordynatów").start();
+
+        //Taka nie winna propozycja dla sławka,
+        //może stworzysz sobie osobną metodę, w której inicjujesz to GUI.
+
+        spinner1 = (Spinner) findViewById(R.id.spinner);
+        String[] spinnerOptions = {"Settings", "Log out"};
+        ArrayAdapter<String> circleButtonOptions = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, spinnerOptions);
+        spinner1.setAdapter(circleButtonOptions);
+
+        spinner2 = (Spinner) findViewById(R.id.spinner2);
+        String[] spinner2Options = {"notice 1", "notice 2", "notice 3", "notice 4", "notice 5", "notice 6"};
+        ArrayAdapter<String> noticeButtonOptions = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, spinner2Options);
+        spinner2.setAdapter(noticeButtonOptions);
+
+        circleButton = (ImageButton) findViewById(R.id.circleButton);
+        Bitmap icon = BitmapFactory.decodeResource(getResources(), R.drawable.kfclogo);
+        Bitmap bitmap_round=clipBitmap(icon);
+        circleButton.setImageBitmap(bitmap_round);
+
+        noticeButton = (Button) findViewById(R.id.noticeButton);
+
+        addListenerOnButton();
+        addListenerOnSpinner();
+        addListenerOnSpinner2();
+
+        setUpViewFlipper();
+        setUpMap();
+        setMapListener();
+        //setupMapWebView();
+
+    }
+
+
+    /**
+     * Metoda tworząca wątek, który w sumie i tak jest już nie potrzebny, bo za wysyłynie danych o
+     * lokacji będzie odpowiedzialny ChangeLocationListener, przynajniej ten kod nie straszy już w onCreate()
+     * @return Wątek, który ma za zadanie wysyłać co pięć sekund współrzędne do bazy danych
+     */
+    private Runnable createSendThread()
+    {
+       return new Runnable() {
             @Override
             public void run() {
 
@@ -110,48 +168,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                 }
             }
         };
-
-        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-            buildAlertMessageNoGps();
-        }
-
-        //Inicjalizacja mGoogleApiClient i rozpoczęcie połączenia
-        mRequestingLocationUpdates=true;
-        createLocationRequest();
-        buildGoogleApiClient();
-        mGoogleApiClient.connect();
-
-        session = new SessionManager(this);
-        new Thread(sender, "Watek do wysyłania koordynatów").start();
-
-        spinner1 = (Spinner) findViewById(R.id.spinner);
-        String[] spinnerOptions = {"Settings", "Log out"};
-        ArrayAdapter<String> circleButtonOptions = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, spinnerOptions);
-        spinner1.setAdapter(circleButtonOptions);
-
-        spinner2 = (Spinner) findViewById(R.id.spinner2);
-        String[] spinner2Options = {"notice 1", "notice 2", "notice 3", "notice 4", "notice 5", "notice 6"};
-        ArrayAdapter<String> noticeButtonOptions = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, spinner2Options);
-        spinner2.setAdapter(noticeButtonOptions);
-
-        circleButton = (ImageButton) findViewById(R.id.circleButton);
-        Bitmap icon = BitmapFactory.decodeResource(getResources(), R.drawable.kfclogo);
-        Bitmap bitmap_round=clipBitmap(icon);
-        circleButton.setImageBitmap(bitmap_round);
-
-        noticeButton = (Button) findViewById(R.id.noticeButton);
-
-        addListenerOnButton();
-        addListenerOnSpinner();
-        addListenerOnSpinner2();
-
-        setUpViewFlipper();
-        //setUpMap();
-        //setupMapWebView();
-
     }
-
 
     private void buildAlertMessageNoGps() {
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -491,5 +508,26 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         canvas.clipPath(path);
         canvas.drawBitmap(bitmap, 0, 0, null);
         return outputBitmap;
+    }
+
+
+    
+    public void setMapListener()
+    {
+        myMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
+            @Override
+            public void onMapLongClick(LatLng latLng) {
+                myMap.addMarker(new MarkerOptions().position(latLng).draggable(true));
+
+            }
+        });
+
+        myMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+
+                return false;
+            }
+        });
     }
 }

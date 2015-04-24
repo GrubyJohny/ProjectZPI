@@ -7,9 +7,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.Paint;
 import android.graphics.Path;
-import android.graphics.Rect;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
@@ -20,9 +18,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.webkit.WebSettings;
 import android.webkit.WebView;
-import android.webkit.WebViewClient;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -432,6 +428,8 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
        // myViewFlipper.addView(view1);
     }
 
+    //Do wyrzucenia, ale niech to ostatecznie zrobi John.
+/*
     private void setupMapWebView() {
         myMapView = (WebView) findViewById(R.id.myMapFragment);
         myMapView.clearCache(true);
@@ -441,7 +439,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         myMapView.addJavascriptInterface(new WebAppInterface(this), "Android");
         myMapView.loadUrl("https://www.google.com/maps/d/edit?mid=zHXxWf8z-mCE.k-4RjVSIl5O8");
 
-    }
+    }*/
 
     /**
      * Tutaj definiujemy jakie operacje mają się odbyć po połączeniu z google service
@@ -449,15 +447,15 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
      */
     @Override
     public void onConnected(Bundle bundle) {
-
-    }
-
-    @Override
-    public void onConnectionSuspended(int i) {
         if(mRequestingLocationUpdates)
         {
             startLocationUpdates();
         }
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+
     }
 
     @Override

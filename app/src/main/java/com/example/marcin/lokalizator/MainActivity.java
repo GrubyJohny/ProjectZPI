@@ -18,7 +18,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.webkit.WebView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -73,7 +72,8 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     private View layoutFlipper;
     private GoogleMap myMap;
     private LocationManager locationManager;
-    private Button poiFilteringButton;
+    private Button foodPoiFilteringButton;
+    private Button mainPoiButton;
     private Button confirm;
     private Button cancel;
     private RadioGroup radioGroupPoi;
@@ -122,7 +122,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         notifications();
 
         circleButton = (ImageButton) findViewById(R.id.circleButton);
-        Bitmap icon = BitmapFactory.decodeResource(getResources(), R.drawable.kfclogo);
+        Bitmap icon = BitmapFactory.decodeResource(getResources(), R.drawable.johny);
         Bitmap bitmap_round = clipBitmap(icon);
         circleButton.setImageBitmap(bitmap_round);
 
@@ -144,6 +144,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     }
 
     private void radioButtonyGrubego() {
+
         final RadioButton radioAll = (RadioButton) findViewById(R.id.radioButton3);
         radioAll.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -222,7 +223,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     }
 
     private void addListenerOnPoiButton() {
-        poiFilteringButton.setOnClickListener(new View.OnClickListener() {
+        foodPoiFilteringButton.setOnClickListener(new View.OnClickListener() {
 
             public void onClick(View view) {
 
@@ -576,7 +577,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         Log.d(AppController.TAG, "lokalizacja zostła zaktualizowana");
         float latitude=(float)location.getLatitude();
         float longitude=(float)location.getLongitude();
-        Toast.makeText(getApplicationContext(), "Szerokość + " + latitude + " Długość: " + longitude, Toast.LENGTH_SHORT).show();
+        //Toast.makeText(getApplicationContext(), "Szerokość + " + latitude + " Długość: " + longitude, Toast.LENGTH_SHORT).show();
         sendCordinate(db.getId(), (float) latitude, (float) longitude);
     }
 
@@ -639,8 +640,33 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
             myMap.addMarker(markersMcDonalds.get(i));*/
 
 
-        poiFilteringButton = (Button) findViewById(R.id.buttonPOIFiltering);
+        foodPoiFilteringButton = (Button) findViewById(R.id.button2);
         addListenerOnPoiButton();
+
+        mainPoiButton = (Button) findViewById(R.id.buttonPOIFiltering);
+        addListenerOnPoiFilteringButton();
+    }
+
+    private void addListenerOnPoiFilteringButton() {
+        mainPoiButton.setOnClickListener(new View.OnClickListener() {
+
+            public void onClick(View view) {
+
+                if (findViewById(R.id.button2).getVisibility() == View.INVISIBLE) {
+                    (findViewById(R.id.button2)).setVisibility(View.VISIBLE);
+                    (findViewById(R.id.button3)).setVisibility(View.VISIBLE);
+                    (findViewById(R.id.button4)).setVisibility(View.VISIBLE);
+                    (findViewById(R.id.button5)).setVisibility(View.VISIBLE);
+                } else {
+                    (findViewById(R.id.button2)).setVisibility(View.INVISIBLE);
+                    (findViewById(R.id.button3)).setVisibility(View.INVISIBLE);
+                    (findViewById(R.id.button4)).setVisibility(View.INVISIBLE);
+                    (findViewById(R.id.button5)).setVisibility(View.INVISIBLE);
+                }
+            }
+
+        });
+
     }
 
     public void setMapListener()

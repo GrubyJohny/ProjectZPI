@@ -74,6 +74,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     private LocationManager locationManager;
     private Button foodPoiFilteringButton;
     private Button mainPoiButton;
+    private Button clearPoiButton;
     private Button confirm;
     private Button cancel;
     private RadioGroup radioGroupPoi;
@@ -144,6 +145,15 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     }
 
     private void radioButtonyGrubego() {
+
+        ///to nie ma być w tym miejscu
+        (findViewById(R.id.button2)).setVisibility(View.INVISIBLE);
+        (findViewById(R.id.button3)).setVisibility(View.INVISIBLE);
+        (findViewById(R.id.button4)).setVisibility(View.INVISIBLE);
+        (findViewById(R.id.button5)).setVisibility(View.INVISIBLE);
+        (findViewById(R.id.button6)).setVisibility(View.INVISIBLE);
+
+
 
         final RadioButton radioAll = (RadioButton) findViewById(R.id.radioButton3);
         radioAll.setOnClickListener(new View.OnClickListener() {
@@ -604,15 +614,15 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     private void preparePoiPoints() {
         //add KFC
         markersKFC = new ArrayList<MarkerOptions>();
-        markersKFC.add(new MarkerOptions().position(new LatLng(51.088720, 16.999470)).title("KFC").icon(BitmapDescriptorFactory.fromResource(R.drawable.kfclogo)));
-        markersKFC.add(new MarkerOptions().position(new LatLng(51.098590, 17.037649)).title("KFC").icon(BitmapDescriptorFactory.fromResource(R.drawable.kfclogo)));
-        markersKFC.add(new MarkerOptions().position(new LatLng(51.099488, 17.028555)).title("KFC").icon(BitmapDescriptorFactory.fromResource(R.drawable.kfclogo)));
-        markersKFC.add(new MarkerOptions().position(new LatLng(51.107786, 17.032295)).title("KFC").icon(BitmapDescriptorFactory.fromResource(R.drawable.kfclogo)));
-        markersKFC.add(new MarkerOptions().position(new LatLng(51.108399, 17.039837)).title("KFC").icon(BitmapDescriptorFactory.fromResource(R.drawable.kfclogo)));
-        markersKFC.add(new MarkerOptions().position(new LatLng(51.112278, 17.059493)).title("KFC").icon(BitmapDescriptorFactory.fromResource(R.drawable.kfclogo)));
-        markersKFC.add(new MarkerOptions().position(new LatLng(51.119768, 16.989862)).title("KFC").icon(BitmapDescriptorFactory.fromResource(R.drawable.kfclogo)));
-        markersKFC.add(new MarkerOptions().position(new LatLng(51.131706, 17.062039)).title("KFC").icon(BitmapDescriptorFactory.fromResource(R.drawable.kfclogo)));
-        markersKFC.add(new MarkerOptions().position(new LatLng(51.142201, 17.088718)).title("KFC").icon(BitmapDescriptorFactory.fromResource(R.drawable.kfclogo)));
+        markersKFC.add(new MarkerOptions().position(new LatLng(51.088720, 16.999470)).title("KFC").icon(BitmapDescriptorFactory.fromResource(R.drawable.kfclogo)).snippet("KFC"));
+        markersKFC.add(new MarkerOptions().position(new LatLng(51.098590, 17.037649)).title("KFC").icon(BitmapDescriptorFactory.fromResource(R.drawable.kfclogo)).snippet("KFC"));
+        markersKFC.add(new MarkerOptions().position(new LatLng(51.099488, 17.028555)).title("KFC").icon(BitmapDescriptorFactory.fromResource(R.drawable.kfclogo)).snippet("KFC"));
+        markersKFC.add(new MarkerOptions().position(new LatLng(51.107786, 17.032295)).title("KFC").icon(BitmapDescriptorFactory.fromResource(R.drawable.kfclogo)).snippet("KFC"));
+        markersKFC.add(new MarkerOptions().position(new LatLng(51.108399, 17.039837)).title("KFC").icon(BitmapDescriptorFactory.fromResource(R.drawable.kfclogo)).snippet("KFC"));
+        markersKFC.add(new MarkerOptions().position(new LatLng(51.112278, 17.059493)).title("KFC").icon(BitmapDescriptorFactory.fromResource(R.drawable.kfclogo)).snippet("KFC"));
+        markersKFC.add(new MarkerOptions().position(new LatLng(51.119768, 16.989862)).title("KFC").icon(BitmapDescriptorFactory.fromResource(R.drawable.kfclogo)).snippet("KFC"));
+        markersKFC.add(new MarkerOptions().position(new LatLng(51.131706, 17.062039)).title("KFC").icon(BitmapDescriptorFactory.fromResource(R.drawable.kfclogo)).snippet("KFC"));
+        markersKFC.add(new MarkerOptions().position(new LatLng(51.142201, 17.088718)).title("KFC").icon(BitmapDescriptorFactory.fromResource(R.drawable.kfclogo)).snippet("KFC"));
 
         //add Mcdonalds
         markersMcDonalds = new ArrayList<MarkerOptions>();
@@ -645,10 +655,24 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
 
         mainPoiButton = (Button) findViewById(R.id.buttonPOIFiltering);
         addListenerOnPoiFilteringButton();
+
+        clearPoiButton = (Button) findViewById(R.id.button6);
+        addListenerOnClearPoiButton();
+    }
+
+    private void addListenerOnClearPoiButton() {
+        clearPoiButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                myMap.clear();
+            }
+        });
     }
 
     private void addListenerOnPoiFilteringButton() {
         mainPoiButton.setOnClickListener(new View.OnClickListener() {
+
+
 
             public void onClick(View view) {
 
@@ -657,11 +681,13 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                     (findViewById(R.id.button3)).setVisibility(View.VISIBLE);
                     (findViewById(R.id.button4)).setVisibility(View.VISIBLE);
                     (findViewById(R.id.button5)).setVisibility(View.VISIBLE);
+                    (findViewById(R.id.button6)).setVisibility(View.VISIBLE);
                 } else {
                     (findViewById(R.id.button2)).setVisibility(View.INVISIBLE);
                     (findViewById(R.id.button3)).setVisibility(View.INVISIBLE);
                     (findViewById(R.id.button4)).setVisibility(View.INVISIBLE);
                     (findViewById(R.id.button5)).setVisibility(View.INVISIBLE);
+                    (findViewById(R.id.button6)).setVisibility(View.INVISIBLE);
                 }
             }
 

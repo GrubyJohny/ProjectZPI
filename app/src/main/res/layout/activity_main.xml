@@ -30,6 +30,7 @@
         android:clickable="true" />
 
     <RelativeLayout
+        android:id="@+id/flipperLayout"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:layout_marginTop="@dimen/abc_action_bar_default_height_material">
@@ -65,12 +66,20 @@
 
         </ViewFlipper>
 
-        <!--<fragment
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/settingsLayout"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_marginTop="@dimen/abc_action_bar_default_height_material"
+        android:visibility="invisible">
+
+        <fragment
             android:id="@+id/settingsFragment"
             android:name="com.example.marcin.lokalizator.SettingsFragment"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />-->
-
+            android:layout_height="wrap_content" />
     </RelativeLayout>
 
     <Spinner
@@ -79,11 +88,11 @@
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
-        android:layout_toStartOf="@id/circleButton"
-        android:gravity="right"
-        android:layout_marginTop="50dp"
         android:layout_alignStart="@id/circleButton"
         android:layout_below="@id/circleButton"
+        android:layout_marginTop="50dp"
+        android:layout_toStartOf="@id/circleButton"
+        android:gravity="right"
         android:visibility="invisible" />
 
     <Spinner
@@ -92,8 +101,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
-        android:layout_toStartOf="@id/noticeButton"
         android:layout_marginTop="30dp"
+        android:layout_toStartOf="@id/noticeButton"
         android:visibility="invisible" />
 
 

@@ -4,55 +4,102 @@
 
 
     <TextView
+        android:id="@+id/settingsTitle"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Settings"
         android:gravity="center"
-        android:id="@+id/settingsTitle" />
+        android:text="Settings"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textSize="40dp" />
 
     <LinearLayout
         android:id="@+id/settingsLayout"
-        android:orientation="vertical"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/settingsTitle">
+        android:layout_below="@id/settingsTitle"
+        android:layout_marginTop="50dp"
+        android:orientation="vertical">
 
         <RelativeLayout
             android:layout_width="fill_parent"
             android:layout_height="fill_parent">
 
             <TextView
+                android:id="@+id/changeImgText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:text="Zmień zdjęcie"
-                android:id="@+id/changeImgText" />
+                android:text="Change avatar"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
 
             <Button
+                android:id="@+id/changeImgButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text=""
-                android:layout_toRightOf="@id/changeImgText"
-                android:id="@+id/changeImgButton" />
+                android:layout_alignParentTop="true"
+                android:layout_toEndOf="@+id/passwordChange"
+                android:text="Search..." />
+
+            <TextView
+                android:id="@+id/passwordChange"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/changeImgButton"
+                android:text="New Password"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
+
+            <EditText
+                android:id="@+id/passwordChangeEdit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignTop="@+id/passwordChange"
+                android:layout_toEndOf="@+id/passwordChange2"
+                android:ems="10"
+                android:inputType="textPassword" />
+
+            <TextView
+                android:id="@+id/passwordChange2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_below="@+id/passwordChangeEdit"
+                android:text="New password again"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
+
+            <EditText
+                android:id="@+id/passwordChangeEdit2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/passwordChangeEdit"
+                android:layout_toRightOf="@id/passwordChange2"
+                android:ems="10"
+                android:inputType="textPassword" />
 
         </RelativeLayout>
 
     </LinearLayout>
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Confirm"
-        android:layout_below="@id/settingsLayout"
-        android:id="@+id/confirmSettingsButton" />
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/settingsLayout">
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Cancel"
-        android:layout_toRightOf="@id/confirmSettingsButton"
-        android:layout_below="@id/settingsLayout"
-        android:id="@+id/cancelSettingsButton" />
+        <Button
+            android:id="@+id/confirmSettingsButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="73dp"
+            android:onClick="ConfirmListener"
+            android:text="Confirm" />
 
+        <Button
+            android:id="@+id/cancelSettingsButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@+id/confirmSettingsButton"
+            android:layout_marginLeft="50dp"
+            android:layout_toEndOf="@+id/confirmSettingsButton"
+            android:text="Cancel" />
+    </RelativeLayout>
 </RelativeLayout>

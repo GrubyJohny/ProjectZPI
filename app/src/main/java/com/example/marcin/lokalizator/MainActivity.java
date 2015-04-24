@@ -72,10 +72,14 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     private Spinner spinner2;
     private ImageButton circleButton;
     private Button noticeButton;
+    private View layoutSettings;
+    private View layoutFlipper;
     private GoogleMap myMap;
     private LocationManager locationManager;
     private WebView myMapView;
     private Button poiFilteringButton;
+    private Button confirm;
+    private Button cancel;
     private RadioGroup radioGroupPoi;
     private HashMap<Integer, Marker> visibleMarkers = new HashMap<Integer, Marker>();
     private List<MarkerOptions> markers;
@@ -101,33 +105,8 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         setContentView(R.layout.activity_main);
 
         db = new SQLiteHandler(getApplicationContext());
-        sender = new Runnable() {
-            @Override
-            public void run() {
 
-                try {
-                    while (true) {
-                        if (session.isLoggedIn()) {
-
-                            Criteria criteria = new Criteria();
-                            String provider = locationManager.getBestProvider(criteria, true);
-                            Location myLocation = locationManager.getLastKnownLocation(provider);
-
-                            //double latitude = myLocation.getLatitude();
-                            //double longitude = myLocation.getLongitude();
-
-                            double latitude = 54.5;
-                            double longitude = 19.2;
-                            sendCordinate(db.getId(), (float) latitude, (float) longitude);
-                        }
-                        Thread.sleep(5000);
-                    }
-
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        };
+        sender = createSendThread();
 
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
@@ -143,15 +122,8 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         session = new SessionManager(this);
         new Thread(sender, "Watek do wysyłania koordynatów").start();
 
-        spinner1 = (Spinner) findViewById(R.id.spinner);
-        String[] spinnerOptions = {"Settings", "Log out"};
-        ArrayAdapter<String> circleButtonOptions = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, spinnerOptions);
-        spinner1.setAdapter(circleButtonOptions);
-
-        spinner2 = (Spinner) findViewById(R.id.spinner2);
-        String[] spinner2Options = {"notice 1", "notice 2", "notice 3", "notice 4", "notice 5", "notice 6"};
-        ArrayAdapter<String> noticeButtonOptions = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, spinner2Options);
-        spinner2.setAdapter(noticeButtonOptions);
+        mainSpinner();
+        notifications();
 
         circleButton = (ImageButton) findViewById(R.id.circleButton);
         Bitmap icon = BitmapFactory.decodeResource(getResources(), R.drawable.kfclogo);
@@ -164,6 +136,21 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         addListenerOnSpinner();
         addListenerOnSpinner2();
 
+        radioButtonyGrubego();
+
+        setUpViewFlipper();
+        //setUpMap();
+        //setupMapWebView();
+        preparePoiPoints();
+        //setMapListener();
+
+        layoutSettings = (View) findViewById(R.id.settingsLayout);
+        layoutFlipper = (View) findViewById(R.id.flipperLayout);
+
+        SettingButtons();
+    }
+
+    private void radioButtonyGrubego() {
         final RadioButton radioAll = (RadioButton) findViewById(R.id.radioButton3);
         radioAll.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -203,11 +190,42 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
             }
 
         });
+    }
 
-        setUpViewFlipper();
-        //setUpMap();
-        //setupMapWebView();
-        preparePoiPoints();
+    private void mainSpinner() {
+        spinner1 = (Spinner) findViewById(R.id.spinner);
+        String[] spinnerOptions = {"Nie dotykać", "Settings", "Log out"};
+        ArrayAdapter<String> circleButtonOptions = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, spinnerOptions);
+        spinner1.setAdapter(circleButtonOptions);
+    }
+
+    private void notifications() {
+        spinner2 = (Spinner) findViewById(R.id.spinner2);
+        String[] spinner2Options = {"notice 1", "notice 2", "notice 3", "notice 4", "notice 5", "notice 6"};
+        ArrayAdapter<String> noticeButtonOptions = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, spinner2Options);
+        spinner2.setAdapter(noticeButtonOptions);
+    }
+
+    public void SettingButtons() {
+        confirm = (Button) findViewById(R.id.confirmSettingsButton);
+
+        confirm.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                layoutFlipper.setVisibility(View.VISIBLE);
+                layoutSettings.setVisibility(View.INVISIBLE);
+            }
+        });
+
+        cancel = (Button) findViewById(R.id.cancelSettingsButton);
+
+        cancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                layoutFlipper.setVisibility(View.VISIBLE);
+                layoutSettings.setVisibility(View.INVISIBLE);
+            }
+        });
     }
 
     private void addListenerOnPoiButton() {
@@ -427,9 +445,12 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 switch ((int) position) {
                     case 0:
-                        //USTAWIENIA TO DO
                         break;
                     case 1:
+                        layoutSettings.setVisibility(View.VISIBLE);
+                        layoutFlipper.setVisibility(View.INVISIBLE);
+                        break;
+                    case 2:
                         logOut(this);
                         break;
                 }
@@ -620,5 +641,59 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
 
         poiFilteringButton = (Button) findViewById(R.id.buttonPOIFiltering);
         addListenerOnPoiButton();
+    }
+
+    public void setMapListener()
+    {
+        myMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
+            @Override
+            public void onMapLongClick(LatLng latLng) {
+                myMap.addMarker(new MarkerOptions().position(latLng).draggable(true));
+
+            }
+        });
+
+        myMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+
+                return false;
+            }
+        });
+    }
+    /**
+     * Metoda tworząca wątek, który w sumie i tak jest już nie potrzebny, bo za wysyłynie danych o
+     * lokacji będzie odpowiedzialny ChangeLocationListener, przynajniej ten kod nie straszy już w onCreate()
+     * @return Wątek, który ma za zadanie wysyłać co pięć sekund współrzędne do bazy danych
+     */
+    private Runnable createSendThread()
+    {
+        return new Runnable() {
+            @Override
+            public void run() {
+
+                try {
+                    while (true) {
+                        if (session.isLoggedIn()) {
+
+                            Criteria criteria = new Criteria();
+                            String provider = locationManager.getBestProvider(criteria, true);
+                            Location myLocation = locationManager.getLastKnownLocation(provider);
+
+                            //double latitude = myLocation.getLatitude();
+                            //double longitude = myLocation.getLongitude();
+
+                            double latitude = 54.5;
+                            double longitude = 19.2;
+                            sendCordinate(db.getId(), (float) latitude, (float) longitude);
+                        }
+                        Thread.sleep(5000);
+                    }
+
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
     }
 }

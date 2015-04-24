@@ -7,6 +7,7 @@ import android.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 
 
 /**
@@ -28,6 +29,11 @@ public class SettingsFragment extends Fragment {
     private String mParam2;
 
     private OnFragmentInteractionListener mListener;
+
+    private View layoutSettings;
+    private View layoutFlipper;
+    /*private Button confirm;
+    private Button cancel;*/
 
     /**
      * Use this factory method to create a new instance of
@@ -58,13 +64,38 @@ public class SettingsFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+
+        //ConfirmListener(getView());
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_settings, container, false);
+
+        View view = inflater.inflate(R.layout.fragment_settings, container, false);
+
+        return view;
+    }
+
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+
+        super.onViewCreated(view, savedInstanceState);
+
+        /*confirm = (Button) view.findViewById(R.id.confirmSettingsButton);
+        cancel = (Button) view.findViewById(R.id.cancelSettingsButton);
+
+        layoutSettings = view.findViewById(R.id.settingsLayout);
+        layoutFlipper = view.findViewById(R.id.flipperLayout);
+
+
+        confirm.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                layoutFlipper.setVisibility(View.VISIBLE);
+                layoutSettings.setVisibility(View.INVISIBLE);
+            }
+        });*/
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -73,6 +104,7 @@ public class SettingsFragment extends Fragment {
             mListener.onFragmentInteraction(uri);
         }
     }
+
 
     @Override
     public void onAttach(Activity activity) {

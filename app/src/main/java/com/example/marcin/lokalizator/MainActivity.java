@@ -7,9 +7,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.Paint;
 import android.graphics.Path;
-import android.graphics.Rect;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
@@ -50,7 +48,6 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
-import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
@@ -120,7 +117,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         mGoogleApiClient.connect();
 
         session = new SessionManager(this);
-        new Thread(sender, "Watek do wysyłania koordynatów").start();
+       // new Thread(sender, "Watek do wysyłania koordynatów").start();
 
         mainSpinner();
         notifications();
@@ -139,10 +136,10 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         radioButtonyGrubego();
 
         setUpViewFlipper();
-        //setUpMap();
+        setUpMap();
         //setupMapWebView();
         preparePoiPoints();
-        //setMapListener();
+        setMapListener();
 
         layoutSettings = (View) findViewById(R.id.settingsLayout);
         layoutFlipper = (View) findViewById(R.id.flipperLayout);
@@ -371,8 +368,8 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         StringRequest request = new StringRequest(Request.Method.POST, AppConfig.URL_LOGIN, new Response.Listener<String>() {
             @Override
             public void onResponse(String s) {
-                Toast tost = Toast.makeText(getApplicationContext(), "Hip, Hip + " + c2, Toast.LENGTH_SHORT);
-                tost.show();
+
+
 
 
             }
@@ -559,6 +556,8 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
 
     @Override
     public void onConnectionSuspended(int i) {
+       //mCurrentLocation=;
+
         if (mRequestingLocationUpdates) {
             startLocationUpdates();
         }
@@ -578,6 +577,10 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     public void onLocationChanged(Location location) {
         mCurrentLocation = location;
         Log.d(AppController.TAG, "lokalizacja zostła zaktualizowana");
+        float latitude=(float)location.getLatitude();
+        float longitude=(float)location.getLongitude();
+        Toast tost = Toast.makeText(getApplicationContext(), "Szerokość + " +latitude+" Długość: "+longitude , Toast.LENGTH_SHORT);
+        sendCordinate(db.getId(), (float) latitude, (float) longitude);
     }
 
     public static Bitmap clipBitmap(Bitmap bitmap) {

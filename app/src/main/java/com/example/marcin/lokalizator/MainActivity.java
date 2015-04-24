@@ -494,12 +494,19 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
             String provider = locationManager.getBestProvider(criteria, true);
             Location myLocation = locationManager.getLastKnownLocation(provider);
 
-            double latitude = myLocation.getLatitude();
-            double longitude = myLocation.getLongitude();
-            latLng = new LatLng(latitude, longitude);
 
-            myMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-            myMap.animateCamera(CameraUpdateFactory.zoomTo(15), 3000, null);
+            if(mCurrentLocation!=null) {
+                double latitude = mCurrentLocation.getLatitude();
+                double longitude = mCurrentLocation.getLongitude();
+                latLng = new LatLng(latitude, longitude);
+                myMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+                myMap.animateCamera(CameraUpdateFactory.zoomTo(15), 3000, null);
+            }
+            else
+                Log.d(AppController.TAG,"ostania znana lokacja jest nulem");
+
+
+
         }
 
         myMap.setOnCameraChangeListener(getCameraChangeListener());
@@ -551,16 +558,16 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
      */
     @Override
     public void onConnected(Bundle bundle) {
-
-    }
-
-    @Override
-    public void onConnectionSuspended(int i) {
-       //mCurrentLocation=;
+        mCurrentLocation=LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
 
         if (mRequestingLocationUpdates) {
             startLocationUpdates();
         }
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+
     }
 
     @Override

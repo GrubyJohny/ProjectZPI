@@ -18,9 +18,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.webkit.WebSettings;
 import android.webkit.WebView;
-import android.webkit.WebViewClient;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -75,7 +73,6 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     private View layoutFlipper;
     private GoogleMap myMap;
     private LocationManager locationManager;
-    private WebView myMapView;
     private Button poiFilteringButton;
     private Button confirm;
     private Button cancel;
@@ -136,10 +133,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         addListenerOnSpinner2();
 
         radioButtonyGrubego();
-
         setUpViewFlipper();
-
-        //setupMapWebView();
         preparePoiPoints();
 
 
@@ -543,16 +537,6 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         // myViewFlipper.addView(view1);
     }
 
-    private void setupMapWebView() {
-        myMapView = (WebView) findViewById(R.id.myMapFragment);
-        myMapView.clearCache(true);
-        myMapView.setWebViewClient(new WebViewClient());
-        WebSettings webSettings = myMapView.getSettings();
-        webSettings.setJavaScriptEnabled(true);
-        myMapView.addJavascriptInterface(new WebAppInterface(this), "Android");
-        myMapView.loadUrl("https://www.google.com/maps/d/edit?mid=zHXxWf8z-mCE.k-4RjVSIl5O8");
-
-    }
 
     /**
      * Tutaj definiujemy jakie operacje mają się odbyć po połączeniu z google service

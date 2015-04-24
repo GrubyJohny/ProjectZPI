@@ -318,6 +318,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
 
     public void logOut(AdapterView.OnItemSelectedListener view) {
 
+        stopLocationUpdates();
         db.deleteUsers();
         session.setLogin(false);
         Intent closeIntent = new Intent(this, LoginActivity.class);
@@ -586,7 +587,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         Log.d(AppController.TAG, "lokalizacja zostła zaktualizowana");
         float latitude=(float)location.getLatitude();
         float longitude=(float)location.getLongitude();
-        Toast tost = Toast.makeText(getApplicationContext(), "Szerokość + " +latitude+" Długość: "+longitude , Toast.LENGTH_SHORT);
+        Toast.makeText(getApplicationContext(), "Szerokość + " +latitude+" Długość: "+longitude , Toast.LENGTH_SHORT).show();
         sendCordinate(db.getId(), (float) latitude, (float) longitude);
     }
 

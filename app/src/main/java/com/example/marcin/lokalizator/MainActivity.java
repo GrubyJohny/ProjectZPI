@@ -53,6 +53,8 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -136,10 +138,10 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         radioButtonyGrubego();
 
         setUpViewFlipper();
-        setUpMap();
+
         //setupMapWebView();
         preparePoiPoints();
-        setMapListener();
+
 
         layoutSettings = (View) findViewById(R.id.settingsLayout);
         layoutFlipper = (View) findViewById(R.id.flipperLayout);
@@ -559,10 +561,13 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
      */
     @Override
     public void onConnected(Bundle bundle) {
+        Log.d(AppController.TAG, "Podłączony do api service");
         mCurrentLocation=LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-
+        setUpMap();
+        setMapListener();
         if (mRequestingLocationUpdates) {
             startLocationUpdates();
+
         }
     }
 
@@ -587,7 +592,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         Log.d(AppController.TAG, "lokalizacja zostła zaktualizowana");
         float latitude=(float)location.getLatitude();
         float longitude=(float)location.getLongitude();
-        Toast.makeText(getApplicationContext(), "Szerokość + " +latitude+" Długość: "+longitude , Toast.LENGTH_SHORT).show();
+        Toast.makeText(getApplicationContext(), "Szerokość + " + latitude + " Długość: " + longitude, Toast.LENGTH_SHORT).show();
         sendCordinate(db.getId(), (float) latitude, (float) longitude);
     }
 
@@ -667,8 +672,13 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         myMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
-
-                return false;
+                double latitude=marker.getPosition().latitude;
+                double longitude=marker.getPosition().longitude;
+                Polyline line = myMap.addPolyline(new PolylineOptions()
+                        .add(new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()),
+                                new LatLng(latitude, longitude))
+                        .geodesic(true));
+                return true;
             }
         });
     }

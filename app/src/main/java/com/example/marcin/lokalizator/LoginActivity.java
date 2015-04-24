@@ -49,7 +49,7 @@ public class LoginActivity extends Activity {
 
         session = new SessionManager(getApplicationContext());
 
-        if (session.isLoggedIn()) {
+       if (session.isLoggedIn()) {
             Intent intent = new Intent(LoginActivity.this, MainActivity.class);
             startActivity(intent);
             finish();

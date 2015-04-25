@@ -52,7 +52,6 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
 import org.json.JSONObject;
@@ -725,14 +724,11 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                 longitude=marker.getPosition().longitude;
                 LatLng dest=new LatLng(latitude,longitude);
 
-                Polyline line = myMap.addPolyline(new PolylineOptions()
-                        .add(new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()),
-                                new LatLng(latitude, longitude))
-                        .geodesic(true));
-               /* String url=MainActivity.this.getDirectionUrl(origin,dest);
+
+                String url=MainActivity.this.getDirectionUrl(origin,dest);
                 DownloadTask downloadTask=new DownloadTask();
                 //no to zaczynamy zabawę
-                downloadTask.execute(url);*/
+                downloadTask.execute(url);
                 return true;
             }
         });

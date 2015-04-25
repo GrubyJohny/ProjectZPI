@@ -7,10 +7,12 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Path;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
@@ -53,6 +55,14 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -708,12 +718,21 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         myMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
-                double latitude=marker.getPosition().latitude;
-                double longitude=marker.getPosition().longitude;
+                double latitude=mCurrentLocation.getLatitude();
+                double longitude=mCurrentLocation.getLongitude();
+                LatLng origin=new LatLng(latitude,longitude);
+                latitude=marker.getPosition().latitude;
+                longitude=marker.getPosition().longitude;
+                LatLng dest=new LatLng(latitude,longitude);
+
                 Polyline line = myMap.addPolyline(new PolylineOptions()
                         .add(new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()),
                                 new LatLng(latitude, longitude))
                         .geodesic(true));
+               /* String url=MainActivity.this.getDirectionUrl(origin,dest);
+                DownloadTask downloadTask=new DownloadTask();
+                //no to zaczynamy zabawę
+                downloadTask.execute(url);*/
                 return true;
             }
         });
@@ -753,4 +772,197 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
             }
         };
     }
+
+    //Rozpoczynam pisanie kodu odpowiedzialnego za pokazanie dokładnej trasy
+
+
+private String getDirectionUrl(LatLng origin, LatLng dest){
+   //Skąd wyruszamy
+    String str_origin="origin="+origin.latitude+","+origin.longitude;
+
+    //Quo vadis
+    String str_dest="destination="+dest.latitude+","+dest.longitude;
+    //Sensor enabled
+    String sensor="sensor=false";
+    //Składanie w całość, aby móc przekazać to web service
+    String parameters=str_origin+"&"+str_dest+"&"+sensor;
+    //Definiowanie formatu wyniku
+    String output="json";
+   //Złożenie końcowego łańcucha URL, może początek tego url warto zapisać jako stałą?
+    String url="http://maps.googleapis.com/maps/api/directions/"+output+"?"+parameters;
+    return url;
+}
+    //no to pobieżmy tego jsona
+    private String downloadUrl(String strUrl) throws IOException
+    {
+        Log.d("co tam ",strUrl);
+        String data="";
+        InputStream isStream=null;
+        HttpURLConnection urlConnection=null;
+        try{
+            URL url=new URL(strUrl);
+            //Tworzymy połęczenie przez protokuł http, żeby połączyć sie z adresem url
+            urlConnection=(HttpURLConnection)url.openConnection();
+            //Łączymy się z nim
+            urlConnection.connect();
+
+            //No to teraz zczytujemy dane
+            isStream=urlConnection.getInputStream();
+            BufferedReader br=new BufferedReader(new InputStreamReader(isStream));
+            StringBuffer sb=new StringBuffer();
+
+            String line="";
+            while ((line=br.readLine())!=null)
+            {
+                sb.append(line);
+            }
+            data=sb.toString();
+            br.close();
+        }catch (Exception e) {
+            Log.d("Exception url", e.toString());
+        }
+        finally {
+            isStream.close();
+            urlConnection.disconnect();
+        }
+        return data;
+    }
+
+    //Osobne zadanie do pobierania danych
+    private class DownloadTask extends AsyncTask<String,Void,String>
+    {
+        //Pobieranie danych w innym wątku niż ten opowiedzialny za wyświetlanie grafiki
+        @Override
+        protected String doInBackground(String... url)
+        {
+            //String do przechowywanie odberanych danych
+            String data="";
+            try{
+                data=MainActivity.this.downloadUrl(url[0]);
+            }catch(Exception e)
+            {
+                Log.d("Background Task",e.toString());
+            }
+            return data;
+        }
+
+        //Zrób w wątku wyświtlającym grafikę, potym jak wykonasz doInBackground
+        @Override
+        protected void onPostExecute(String result)
+        {
+            super.onPostExecute(result);
+            ParseTask parseTask=new ParseTask();
+            //wystartuj wątek przetwrzający obiekt JSON
+            parseTask.execute(result);
+        }
+    }
+
+    //A class to parse the Google Places in JSON format
+    private class ParseTask extends AsyncTask<String,Integer,List<List<HashMap<String,String>>>>
+    {
+        //Przetwrzanie danych w wątku innym niż ten odpowiedzialny za wyświetlanie grafiki
+        @Override
+        protected List<List<HashMap<String,String>>> doInBackground(String... jsonData)
+        {
+            JSONObject jObject;
+            List<List<HashMap<String,String>>> routes=null;
+            try{
+                jObject=new JSONObject(jsonData[0]);
+                DirectionsJSONParser parser=new DirectionsJSONParser();
+                //Zacznij ekstrachować dane
+                routes=parser.parse(jObject);
+
+            }catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+            return routes;
+        }
+
+        //Wykonaj w wątku graficznym po wykonaniu metody doInBackground
+        @Override
+        protected void onPostExecute(List<List<HashMap<String,String>>> result)
+        {
+            ArrayList<LatLng> points=null;
+            PolylineOptions lineOptions=null;
+            MarkerOptions markerOptions=new MarkerOptions();
+            String distance="";
+            String duration;
+            if(result.size()<1)
+            {
+                Toast.makeText(MainActivity.this.getBaseContext(),"No Points",Toast.LENGTH_SHORT).show();
+                return;
+            }
+            //Odpowidzanie wszytkich możliwych tras
+            for(int i=0; i<result.size();i++)
+            {
+                points=new ArrayList<LatLng>();
+                lineOptions=new PolylineOptions();
+                //Przechodzenie i-tej drogi
+                List<HashMap<String,String>> path=result.get(i);
+                for(int j=0;j<path.size();j++)
+                {
+                    HashMap<String,String> point=path.get(j);
+                    if(j==0)
+                    {
+                        //Zczytaj dystans z listy
+                        distance=point.get("disance");
+                        continue;
+                    }else if(j==1)
+                    {
+                        //Zczytaj czas podróży
+                        duration=point.get("duration");
+                        continue;
+                    }
+                    double lat=Double.parseDouble(point.get("lat"));
+                    double lng=Double.parseDouble(point.get("lng"));
+                    LatLng position=new LatLng(lat,lng);
+                    points.add(position);
+                }
+                //Dodanie wszystkich punktów na drodze do LineOptions
+                lineOptions.addAll(points);
+                lineOptions.width(2);
+                lineOptions.color(Color.BLUE);
+
+            }
+            MainActivity.this.myMap.addPolyline(lineOptions);
+
+
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }

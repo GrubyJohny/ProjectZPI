@@ -30,14 +30,13 @@ public class LoginActivity extends Activity {
     private EditText inputPassword;
     private ProgressDialog pDialog;
     private SessionManager session;
-    private SQLiteHandler db;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        db = new SQLiteHandler(getApplicationContext());
 
         inputEmail = (EditText) findViewById(R.id.email);
         inputPassword = (EditText) findViewById(R.id.password);
@@ -105,18 +104,19 @@ public class LoginActivity extends Activity {
                         session.setLogin(true);
 
                         String uid = jObj.getString("uid");
-                                                JSONObject user = jObj.getJSONObject("user");
-                                                String name = user.getString("name");
-                                                String email = user.getString("email");
-                                               String created_at = user
-                                                                .getString("created_at");
+                        JSONObject user = jObj.getJSONObject("user");
+                        String name = user.getString("name");
+                        String email = user.getString("email");
+                        String created_at = user.getString("created_at");
 
-                                                        db.addUser(name, email, uid, created_at);
+                        session.setKeyUid(uid);
+                        session.setKeyName(name);
+                        session.setKeyEmail(email);
 
-                        Intent intent = new Intent(LoginActivity.this,
-                                MainActivity.class);
+                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                         startActivity(intent);
                         finish();
+
                     } else {
 
                         String errorMsg = jObj.getString("error_msg");

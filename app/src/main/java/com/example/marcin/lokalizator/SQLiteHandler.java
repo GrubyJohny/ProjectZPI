@@ -13,22 +13,17 @@ public class SQLiteHandler extends SQLiteOpenHelper {
 
     private static final String TAG = SQLiteHandler.class.getSimpleName();
 
-    // All Static variables
-    // Database Version
     private static final int DATABASE_VERSION = 1;
 
-    // Database Name
-    private static final String DATABASE_NAME = "android_api";
+    private static final String DATABASE_NAME = "groupLocDB";
 
-    // Login table name
-    private static final String TABLE_LOGIN = "login";
+    private static final String TABLE_FRIENDS = "friends";
 
-    // Login Table Columns names
+    // Friends Table Columns names
     private static final String KEY_ID = "id";
+    private static final String KEY_UID = "uid";
     private static final String KEY_NAME = "name";
     private static final String KEY_EMAIL = "email";
-    private static final String KEY_UID = "uid";
-    private static final String KEY_CREATED_AT = "created_at";
 
     public SQLiteHandler(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -37,63 +32,65 @@ public class SQLiteHandler extends SQLiteOpenHelper {
     // Creating Tables
     @Override
     public void onCreate(SQLiteDatabase db) {
-        String CREATE_LOGIN_TABLE = "CREATE TABLE " + TABLE_LOGIN + "("
-                + KEY_ID + " INTEGER PRIMARY KEY," + KEY_NAME + " TEXT,"
-                + KEY_EMAIL + " TEXT UNIQUE," + KEY_UID + " TEXT,"
-                + KEY_CREATED_AT + " TEXT" + ")";
+        String CREATE_LOGIN_TABLE = "CREATE TABLE " + TABLE_FRIENDS
+                + "("
+                + KEY_ID + " INTEGER PRIMARY KEY,"
+                + KEY_UID + " TEXT,"
+                + KEY_NAME + " TEXT,"
+                + KEY_EMAIL + " TEXT UNIQUE,"
+                + ")";
+
         db.execSQL(CREATE_LOGIN_TABLE);
 
-        Log.d(TAG, "Database tables created");
+        Log.d(TAG, "Database Friends table created");
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_LOGIN);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_FRIENDS);
 
         onCreate(db);
     }
 
-    public void addUser(String name, String email, String uid, String created_at) {
+    public void addFriend(String uid, String name, String email) {
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
+        values.put(KEY_UID, uid);
         values.put(KEY_NAME, name);
         values.put(KEY_EMAIL, email);
-        values.put(KEY_UID, uid);
-        values.put(KEY_CREATED_AT, created_at);
 
-        long id = db.insert(TABLE_LOGIN, null, values);
+        long id = db.insert(TABLE_FRIENDS, null, values);
         db.close();
 
-        Log.d(TAG, "New user inserted into sqlite: " + id);
+        Log.d(TAG, "New friend inserted into sqlite: " + id);
     }
 
 
-    public HashMap<String, String> getUserDetails() {
-        HashMap<String, String> user = new HashMap<String, String>();
-        String selectQuery = "SELECT  * FROM " + TABLE_LOGIN;
+    public HashMap<String, String> getFriendDetails() {
+        HashMap<String, String> friend = new HashMap<String, String>();
+        String selectQuery = "SELECT  * FROM " + TABLE_FRIENDS;
 
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(selectQuery, null);
 
         cursor.moveToFirst();
         if (cursor.getCount() > 0) {
-            user.put("name", cursor.getString(1));
-            user.put("email", cursor.getString(2));
-            user.put("uid", cursor.getString(3));
-            user.put("created_at", cursor.getString(4));
+            friend.put("uid", cursor.getString(1));
+            friend.put("name", cursor.getString(2));
+            friend.put("email", cursor.getString(3));
         }
         cursor.close();
         db.close();
 
-        Log.d(TAG, "Fetching user from Sqlite: " + user.toString());
+        Log.d(TAG, "Fetching friend from Sqlite: " + friend.toString());
 
-        return user;
+        return friend;
     }
 
     public int getRowCount() {
-        String countQuery = "SELECT  * FROM " + TABLE_LOGIN;
+        String countQuery = "SELECT  * FROM " + TABLE_FRIENDS;
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(countQuery, null);
         int rowCount = cursor.getCount();
@@ -104,26 +101,26 @@ public class SQLiteHandler extends SQLiteOpenHelper {
     }
 
     public  String getId() {
-                String countQuery = "SELECT "+ KEY_UID+" FROM " + TABLE_LOGIN;
+                String countQuery = "SELECT "+ KEY_UID + " FROM " + TABLE_FRIENDS;
                 SQLiteDatabase db = this.getReadableDatabase();
                 Cursor cursor = db.rawQuery(countQuery, null);
                 cursor.moveToFirst();
-               String ID_U= cursor.getString(0);
+                String ID_U= cursor.getString(0);
                 db.close();
                 cursor.close();
 
-                       return ID_U;
-            }
+            return ID_U;
+    }
 
 
 
 
     public void deleteUsers() {
         SQLiteDatabase db = this.getWritableDatabase();
-        db.delete(TABLE_LOGIN, null, null);
+        db.delete(TABLE_FRIENDS, null, null);
         db.close();
 
-        Log.d(TAG, "Deleted all user info from sqlite");
+        Log.d(TAG, "Deleted all friends info from sqlite");
     }
 
 }

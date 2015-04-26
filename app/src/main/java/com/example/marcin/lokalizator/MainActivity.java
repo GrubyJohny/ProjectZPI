@@ -94,7 +94,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     //Andoridowy obiekt przechowujący dane o położeniu(np latitude, longitude, kiedy zostało zarejestrowane)
     private Location mCurrentLocation;
     private Runnable sender;//wątek, który będzie wysyłał info o położoniu użytkownika do bazy
-    private SQLiteHandler db;//obiekt obsługujący lokalną androidową bazę danych
+   // private SQLiteHandler db;//obiekt obsługujący lokalną androidową bazę danych
     //obiekt będący parametrem, przy wysłaniu żądania o aktualizację lokacji
     private LocationRequest mLocationRequest;
 
@@ -102,7 +102,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     //jest często przekazywany jako argument, gdy coś o tego api chcemy
     private GoogleApiClient mGoogleApiClient;
 
-    //Flaga muwiąca o tym czy chcemy monitorować lokalizację
+    //Flaga mowiąca o tym czy chcemy monitorować lokalizację
     private boolean mRequestingLocationUpdates;
 
     @Override
@@ -110,7 +110,8 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        db = new SQLiteHandler(getApplicationContext());
+        session = new SessionManager(this);
+    //    db = new SQLiteHandler(getApplicationContext());
 
         sender = createSendThread();
 
@@ -125,7 +126,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         buildGoogleApiClient();
         mGoogleApiClient.connect();
 
-        session = new SessionManager(this);
+
        // new Thread(sender, "Watek do wysyłania koordynatów").start();
 
         mainSpinner();
@@ -151,6 +152,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         layoutFlipper = (View) findViewById(R.id.flipperLayout);
 
         SettingButtons();
+
     }
 
     private void radioButtonyGrubego() {
@@ -335,8 +337,10 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     public void logOut(AdapterView.OnItemSelectedListener view) {
 
         stopLocationUpdates();
-        db.deleteUsers();
-        session.setLogin(false);
+      //  db.deleteFriends();
+
+        session.logOut();
+
         Intent closeIntent = new Intent(this, LoginActivity.class);
         startActivity(closeIntent);
     }
@@ -597,7 +601,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         float latitude=(float)location.getLatitude();
         float longitude=(float)location.getLongitude();
         //Toast.makeText(getApplicationContext(), "Szerokość + " + latitude + " Długość: " + longitude, Toast.LENGTH_SHORT).show();
-        sendCordinate(db.getId(), (float) latitude, (float) longitude);
+        sendCordinate(session.getUserId(), (float) latitude, (float) longitude);
     }
 
     public static Bitmap clipBitmap(Bitmap bitmap) {
@@ -757,7 +761,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
 
                             double latitude = 54.5;
                             double longitude = 19.2;
-                            sendCordinate(db.getId(), (float) latitude, (float) longitude);
+                            sendCordinate(session.getUserId(), (float) latitude, (float) longitude);
                         }
                         Thread.sleep(5000);
                     }

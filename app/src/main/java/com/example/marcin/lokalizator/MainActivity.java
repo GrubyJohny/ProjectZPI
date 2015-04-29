@@ -14,6 +14,7 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -24,30 +25,17 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
 
-import com.android.volley.AuthFailureError;
-import com.android.volley.NetworkError;
-import com.android.volley.NoConnectionError;
-import com.android.volley.ParseError;
-import com.android.volley.Request;
-import com.android.volley.Response;
-import com.android.volley.ServerError;
-import com.android.volley.TimeoutError;
-import com.android.volley.VolleyError;
+import com.android.volley.*;
 import com.android.volley.toolbox.StringRequest;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.*;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
@@ -81,16 +69,24 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     private View layoutFlipper;
     private GoogleMap myMap;
     private LocationManager locationManager;
-    private Button foodPoiFilteringButton;
     private Button mainPoiButton;
     private Button clearPoiButton;
     private Button confirm;
     private Button cancel;
-    private RadioGroup radioGroupPoi;
-    private HashMap<Integer, Marker> visibleMarkers = new HashMap<Integer, Marker>();
-    private List<MarkerOptions> markers;
-    private ArrayList<MarkerOptions> markersKFC;
-    private ArrayList<MarkerOptions> markersMcDonalds;
+
+    PoiJSONParser poiBase = new PoiJSONParser();
+    private ArrayList<MarkerOptions> markersRestaurants = new ArrayList<MarkerOptions>();
+    private ArrayList<MarkerOptions> markersKfc = new ArrayList<MarkerOptions>();
+    private ArrayList<MarkerOptions> markersMcdonalds = new ArrayList<MarkerOptions>();
+    private ArrayList<MarkerOptions> markersBars = new ArrayList<MarkerOptions>();
+    private ArrayList<MarkerOptions> markersCoffee = new ArrayList<MarkerOptions>();
+    private ArrayList<MarkerOptions> markersShoppingMalls = new ArrayList<MarkerOptions>();
+    private ArrayList<MarkerOptions> markersShops = new ArrayList<MarkerOptions>();
+    private ArrayList<MarkerOptions> markersMarkets = new ArrayList<MarkerOptions>();
+    private ArrayList<MarkerOptions> markersNightClubs = new ArrayList<MarkerOptions>();
+    private ArrayList<MarkerOptions> markersParks = new ArrayList<MarkerOptions>();
+
+
     //Andoridowy obiekt przechowujący dane o położeniu(np latitude, longitude, kiedy zostało zarejestrowane)
     private Location mCurrentLocation;
     private Runnable sender;//wątek, który będzie wysyłał info o położoniu użytkownika do bazy
@@ -109,7 +105,9 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
 
+        StrictMode.setThreadPolicy(policy);
         session = new SessionManager(this);
     //    db = new SQLiteHandler(getApplicationContext());
 
@@ -143,69 +141,337 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         addListenerOnSpinner();
         addListenerOnSpinner2();
 
-        radioButtonyGrubego();
+        setupPoiButtons();
         setUpViewFlipper();
-        preparePoiPoints();
-
 
         layoutSettings = (View) findViewById(R.id.settingsLayout);
         layoutFlipper = (View) findViewById(R.id.flipperLayout);
 
         SettingButtons();
 
+        try {
+            preparePoiPoints();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
-    private void radioButtonyGrubego() {
+    private void setupPoiButtons() {
 
-        ///to nie ma być w tym miejscu
-        (findViewById(R.id.button2)).setVisibility(View.INVISIBLE);
-        (findViewById(R.id.button3)).setVisibility(View.INVISIBLE);
-        (findViewById(R.id.button4)).setVisibility(View.INVISIBLE);
-        (findViewById(R.id.button5)).setVisibility(View.INVISIBLE);
-        (findViewById(R.id.button6)).setVisibility(View.INVISIBLE);
+        (findViewById(R.id.ButtonFood)).setVisibility(View.INVISIBLE);
+        (findViewById(R.id.ButtonFoodBar)).setVisibility(View.INVISIBLE);
+        (findViewById(R.id.ButtonFoodCoffee)).setVisibility(View.INVISIBLE);
+        (findViewById(R.id.ButtonFoodKfc)).setVisibility(View.INVISIBLE);
+        (findViewById(R.id.ButtonFoodMcDonald)).setVisibility(View.INVISIBLE);
+        (findViewById(R.id.ButtonFoodRestaurant)).setVisibility(View.INVISIBLE);
+        (findViewById(R.id.ButtonShops)).setVisibility(View.INVISIBLE);
+        (findViewById(R.id.ButtonShopsStores)).setVisibility(View.INVISIBLE);
+        (findViewById(R.id.ButtonShopsMarket)).setVisibility(View.INVISIBLE);
+        (findViewById(R.id.ButtonShopsShoppingMall)).setVisibility(View.INVISIBLE);
+        (findViewById(R.id.ButtonLeisure)).setVisibility(View.INVISIBLE);
+        (findViewById(R.id.ButtonLeisureClubs)).setVisibility(View.INVISIBLE);
+        (findViewById(R.id.ButtonLeisureParks)).setVisibility(View.INVISIBLE);
+        (findViewById(R.id.ButtonMyPlaces)).setVisibility(View.INVISIBLE);
+        (findViewById(R.id.ButtonClearPoi)).setVisibility(View.INVISIBLE);
 
 
+        mainPoiButton = (Button) findViewById(R.id.buttonPOIFiltering);
 
-        final RadioButton radioAll = (RadioButton) findViewById(R.id.radioButton3);
-        radioAll.setOnClickListener(new View.OnClickListener() {
+        clearPoiButton = (Button) findViewById(R.id.ButtonClearPoi);
+        clearPoiButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 myMap.clear();
-                for (int i = 0; i < markersMcDonalds.size(); i++)
-                    myMap.addMarker(markersMcDonalds.get(i));
-
-                for (int i = 0; i < markersKFC.size(); i++)
-                    myMap.addMarker(markersKFC.get(i));
+                //TUTAJ TRZEBA DODAC JAKAS METODĘ onMapStart czy coś w tym stylu, bo nie ma możliwości,
+                // żeby usunąć kilka pojedynczych markerów, tylko trzeba całkiem mapę wyczyścić.
+                // no i chodzi o to, żeby dodać po tym czyszczeniu jakieś punkty początkowe.
+                // nie wiem czy setupMap() to dobre rozwiązanie tutaj
+                mainPoiButton.performClick();
+                setUpMap(true);
             }
 
         });
-        final RadioButton radiokfc = (RadioButton) findViewById(R.id.radioButton);
-        radiokfc.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
 
-                myMap.clear();
-                for (int i = 0; i < markersKFC.size(); i++) {
-                    myMap.addMarker(markersKFC.get(i));
+        mainPoiButton.setOnClickListener(new View.OnClickListener() {
 
+            public void onClick(View view) {
+
+                if (findViewById(R.id.ButtonFood).getVisibility() == View.INVISIBLE) {
+                    (findViewById(R.id.ButtonFood)).setVisibility(View.VISIBLE);
+                    (findViewById(R.id.ButtonShops)).setVisibility(View.VISIBLE);
+                    (findViewById(R.id.ButtonLeisure)).setVisibility(View.VISIBLE);
+                    (findViewById(R.id.ButtonMyPlaces)).setVisibility(View.VISIBLE);
+                    (findViewById(R.id.ButtonClearPoi)).setVisibility(View.VISIBLE);
+                } else {
+                    (findViewById(R.id.ButtonFood)).setVisibility(View.INVISIBLE);
+                    (findViewById(R.id.ButtonFoodBar)).setVisibility(View.INVISIBLE);
+                    (findViewById(R.id.ButtonFoodCoffee)).setVisibility(View.INVISIBLE);
+                    (findViewById(R.id.ButtonFoodKfc)).setVisibility(View.INVISIBLE);
+                    (findViewById(R.id.ButtonFoodMcDonald)).setVisibility(View.INVISIBLE);
+                    (findViewById(R.id.ButtonFoodRestaurant)).setVisibility(View.INVISIBLE);
+                    (findViewById(R.id.ButtonShops)).setVisibility(View.INVISIBLE);
+                    (findViewById(R.id.ButtonShopsStores)).setVisibility(View.INVISIBLE);
+                    (findViewById(R.id.ButtonShopsMarket)).setVisibility(View.INVISIBLE);
+                    (findViewById(R.id.ButtonShopsShoppingMall)).setVisibility(View.INVISIBLE);
+                    (findViewById(R.id.ButtonLeisure)).setVisibility(View.INVISIBLE);
+                    (findViewById(R.id.ButtonLeisureClubs)).setVisibility(View.INVISIBLE);
+                    (findViewById(R.id.ButtonLeisureParks)).setVisibility(View.INVISIBLE);
+                    (findViewById(R.id.ButtonMyPlaces)).setVisibility(View.INVISIBLE);
+                    (findViewById(R.id.ButtonClearPoi)).setVisibility(View.INVISIBLE);
                 }
             }
 
-
         });
-        final RadioButton radioMcDonalds = (RadioButton) findViewById(R.id.radioButton2);
-        radioMcDonalds.setOnClickListener(new View.OnClickListener() {
+
+        final Button myButtonFood = (Button) findViewById(R.id.ButtonFood);
+        final Button myButtonFoodBar = (Button) findViewById(R.id.ButtonFoodBar);
+        final Button myButtonFoodCoffee = (Button) findViewById(R.id.ButtonFoodCoffee);
+        final Button myButtonFoodKfc = (Button) findViewById(R.id.ButtonFoodKfc);
+        final Button myButtonFoodMcDonald = (Button) findViewById(R.id.ButtonFoodMcDonald);
+        final Button myButtonFoodRestaurant = (Button) findViewById(R.id.ButtonFoodRestaurant);
+        final Button myButtonShopsMarket = (Button) findViewById(R.id.ButtonShopsMarket);
+        final Button myButtonShopsStores = (Button) findViewById(R.id.ButtonShopsStores);
+        final Button myButtonShopsShoppingMalls = (Button) findViewById(R.id.ButtonShopsShoppingMall);
+        final Button myButtonShops = (Button) findViewById(R.id.ButtonShops);
+        final Button myButtonLeisureClubs = (Button) findViewById(R.id.ButtonLeisureClubs);
+        final Button myButtonLeisureParks = (Button) findViewById(R.id.ButtonLeisureParks);
+        final Button myButtonLeisure = (Button) findViewById(R.id.ButtonLeisure);
+
+        //  FOOOD AREA
+
+        myButtonFoodBar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 myMap.clear();
-                for (int i = 0; i < markersMcDonalds.size(); i++) {
-                    myMap.addMarker(markersMcDonalds.get(i));
+                for (int i = 0; i < markersBars.size(); i++)
+                    myMap.addMarker(markersBars.get(i));
+                setUpMap(false);
 
-                }
             }
 
         });
+
+        myButtonFoodCoffee.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                myMap.clear();
+                for (int i = 0; i < markersCoffee.size(); i++)
+                    myMap.addMarker(markersCoffee.get(i));
+                setUpMap(false);
+
+            }
+
+        });
+
+        myButtonFoodKfc.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                myMap.clear();
+                for (int i = 0; i < markersKfc.size(); i++)
+                    myMap.addMarker(markersKfc.get(i));
+                setUpMap(false);
+
+            }
+
+        });
+
+        myButtonFoodMcDonald.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                myMap.clear();
+                for (int i = 0; i < markersMcdonalds.size(); i++)
+                    myMap.addMarker(markersMcdonalds.get(i));
+                setUpMap(false);
+
+            }
+
+        });
+
+        myButtonFoodRestaurant.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                myMap.clear();
+                for (int i = 0; i < markersRestaurants.size(); i++)
+                    myMap.addMarker(markersRestaurants.get(i));
+                setUpMap(false);
+
+            }
+
+        });
+
+        myButtonFood.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(myButtonShopsMarket.getVisibility()==View.VISIBLE)
+                {
+                    (findViewById(R.id.ButtonShopsStores)).setVisibility(View.INVISIBLE);
+                    (findViewById(R.id.ButtonShopsMarket)).setVisibility(View.INVISIBLE);
+                    (findViewById(R.id.ButtonShopsShoppingMall)).setVisibility(View.INVISIBLE);
+                }
+                if(myButtonLeisureClubs.getVisibility()==View.VISIBLE)
+                {
+                    (findViewById(R.id.ButtonLeisureParks)).setVisibility(View.INVISIBLE);
+                    (findViewById(R.id.ButtonLeisureClubs)).setVisibility(View.INVISIBLE);
+                }
+
+                if(myButtonFoodBar.getVisibility()==View.INVISIBLE)
+                {
+                    (findViewById(R.id.ButtonFoodBar)).setVisibility(View.VISIBLE);
+                    (findViewById(R.id.ButtonFoodCoffee)).setVisibility(View.VISIBLE);
+                    (findViewById(R.id.ButtonFoodKfc)).setVisibility(View.VISIBLE);
+                    (findViewById(R.id.ButtonFoodMcDonald)).setVisibility(View.VISIBLE);
+                    (findViewById(R.id.ButtonFoodRestaurant)).setVisibility(View.VISIBLE);
+                }
+                else
+                {
+                    (findViewById(R.id.ButtonFoodBar)).setVisibility(View.INVISIBLE);
+                    (findViewById(R.id.ButtonFoodCoffee)).setVisibility(View.INVISIBLE);
+                    (findViewById(R.id.ButtonFoodKfc)).setVisibility(View.INVISIBLE);
+                    (findViewById(R.id.ButtonFoodMcDonald)).setVisibility(View.INVISIBLE);
+                    (findViewById(R.id.ButtonFoodRestaurant)).setVisibility(View.INVISIBLE);
+                }
+
+            }
+
+        });
+        // END OF FOOD AREA
+
+        // SHOPS AREA
+
+        myButtonShopsMarket.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                myMap.clear();
+                for (int i = 0; i < markersMarkets.size(); i++)
+                    myMap.addMarker(markersMarkets.get(i));
+                setUpMap(false);
+
+            }
+
+        });
+
+        myButtonShopsStores.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                myMap.clear();
+                for (int i = 0; i < markersShops.size(); i++)
+                    myMap.addMarker(markersShops.get(i));
+                setUpMap(false);
+
+            }
+
+        });
+
+        myButtonShopsShoppingMalls.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                myMap.clear();
+                for (int i = 0; i < markersShoppingMalls.size(); i++)
+                    myMap.addMarker(markersShoppingMalls.get(i));
+                setUpMap(false);
+
+            }
+
+        });
+
+        myButtonShops.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(myButtonFoodBar.getVisibility()==View.VISIBLE)
+                {
+                    (findViewById(R.id.ButtonFoodBar)).setVisibility(View.INVISIBLE);
+                    (findViewById(R.id.ButtonFoodCoffee)).setVisibility(View.INVISIBLE);
+                    (findViewById(R.id.ButtonFoodKfc)).setVisibility(View.INVISIBLE);
+                    (findViewById(R.id.ButtonFoodMcDonald)).setVisibility(View.INVISIBLE);
+                    (findViewById(R.id.ButtonFoodRestaurant)).setVisibility(View.INVISIBLE);
+                }
+                if(myButtonLeisureClubs.getVisibility()==View.VISIBLE)
+                {
+                    (findViewById(R.id.ButtonLeisureParks)).setVisibility(View.INVISIBLE);
+                    (findViewById(R.id.ButtonLeisureClubs)).setVisibility(View.INVISIBLE);
+                }
+
+                if(myButtonShopsMarket.getVisibility()==View.INVISIBLE)
+                {
+                    (findViewById(R.id.ButtonShopsStores)).setVisibility(View.VISIBLE);
+                    (findViewById(R.id.ButtonShopsMarket)).setVisibility(View.VISIBLE);
+                    (findViewById(R.id.ButtonShopsShoppingMall)).setVisibility(View.VISIBLE);
+                }
+                else
+                {
+                    (findViewById(R.id.ButtonShopsStores)).setVisibility(View.INVISIBLE);
+                    (findViewById(R.id.ButtonShopsMarket)).setVisibility(View.INVISIBLE);
+                    (findViewById(R.id.ButtonShopsShoppingMall)).setVisibility(View.INVISIBLE);
+                }
+
+            }
+
+        });
+        // END OF SHOPS AREA
+
+        //LEISURE AREA
+
+        myButtonLeisureClubs.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                myMap.clear();
+                for (int i = 0; i < markersNightClubs.size(); i++)
+                    myMap.addMarker(markersNightClubs.get(i));
+                setUpMap(false);
+
+            }
+
+        });
+
+        myButtonLeisureParks.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                myMap.clear();
+                for (int i = 0; i < markersParks.size(); i++)
+                    myMap.addMarker(markersParks.get(i));
+                setUpMap(false);
+
+            }
+
+        });
+
+        myButtonLeisure.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(myButtonShopsMarket.getVisibility()==View.VISIBLE)
+                {
+                    (findViewById(R.id.ButtonShopsStores)).setVisibility(View.INVISIBLE);
+                    (findViewById(R.id.ButtonShopsMarket)).setVisibility(View.INVISIBLE);
+                    (findViewById(R.id.ButtonShopsShoppingMall)).setVisibility(View.INVISIBLE);
+                }
+                if(myButtonFoodBar.getVisibility()==View.VISIBLE)
+                {
+                    (findViewById(R.id.ButtonFoodBar)).setVisibility(View.INVISIBLE);
+                    (findViewById(R.id.ButtonFoodCoffee)).setVisibility(View.INVISIBLE);
+                    (findViewById(R.id.ButtonFoodKfc)).setVisibility(View.INVISIBLE);
+                    (findViewById(R.id.ButtonFoodMcDonald)).setVisibility(View.INVISIBLE);
+                    (findViewById(R.id.ButtonFoodRestaurant)).setVisibility(View.INVISIBLE);
+                }
+
+                if(myButtonLeisureClubs.getVisibility()==View.INVISIBLE)
+                {
+                    (findViewById(R.id.ButtonLeisureClubs)).setVisibility(View.VISIBLE);
+                    (findViewById(R.id.ButtonLeisureParks)).setVisibility(View.VISIBLE);
+                }
+                else
+                {
+                    (findViewById(R.id.ButtonLeisureClubs)).setVisibility(View.INVISIBLE);
+                    (findViewById(R.id.ButtonLeisureParks)).setVisibility(View.INVISIBLE);
+                }
+
+            }
+
+        });
+
+
     }
+
 
     private void mainSpinner() {
         spinner1 = (Spinner) findViewById(R.id.spinner);
@@ -240,25 +506,6 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                 layoutFlipper.setVisibility(View.VISIBLE);
                 layoutSettings.setVisibility(View.INVISIBLE);
             }
-        });
-    }
-
-    private void addListenerOnPoiButton() {
-        foodPoiFilteringButton.setOnClickListener(new View.OnClickListener() {
-
-            public void onClick(View view) {
-
-                if (findViewById(R.id.radioButton).getVisibility() == View.INVISIBLE) {
-                    (findViewById(R.id.radioButton)).setVisibility(View.VISIBLE);
-                    (findViewById(R.id.radioButton2)).setVisibility(View.VISIBLE);
-                    (findViewById(R.id.radioButton3)).setVisibility(View.VISIBLE);
-                } else {
-                    (findViewById(R.id.radioButton)).setVisibility(View.INVISIBLE);
-                    (findViewById(R.id.radioButton2)).setVisibility(View.INVISIBLE);
-                    (findViewById(R.id.radioButton3)).setVisibility(View.INVISIBLE);
-                }
-            }
-
         });
     }
 
@@ -499,15 +746,17 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         });
     }
 
-    private void setUpMap() {
-        myMap = ((MapFragment) getFragmentManager().findFragmentById(R.id.myMapFragment)).getMap();
-        myMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-        myMap.setMyLocationEnabled(true);
+    private void setUpMap(boolean hardSetup) //dodałem parametr, który określa czy przy wywołaniu ma być animacja kamery
+    {
+
+            myMap = ((MapFragment) getFragmentManager().findFragmentById(R.id.myMapFragment)).getMap();
+            myMap.setMyLocationEnabled(true);
+            myMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
 
 
         myMap.addMarker(new MarkerOptions().position(new LatLng(51.111508, 17.060268)).title("Rondo Reagana"));
         myMap.addMarker(new MarkerOptions().position(new LatLng(51.113825, 17.065890)).title("Akademik"));
-        myMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+
 
         LatLng latLng = new LatLng(0, 0);
         Criteria criteria = new Criteria();
@@ -520,17 +769,17 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                 double latitude = mCurrentLocation.getLatitude();
                 double longitude = mCurrentLocation.getLongitude();
                 latLng = new LatLng(latitude, longitude);
-                myMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-                myMap.animateCamera(CameraUpdateFactory.zoomTo(15), 3000, null);
+                if(hardSetup) {
+                    myMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+                    myMap.animateCamera(CameraUpdateFactory.zoomTo(15), 3000, null);
+                }
             }
             else
                 Log.d(AppController.TAG,"ostania znana lokacja jest nulem");
-
-
-
-        }
+     }
 
         myMap.setOnCameraChangeListener(getCameraChangeListener());
+
     }
 
     public GoogleMap.OnCameraChangeListener getCameraChangeListener()
@@ -550,15 +799,6 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         myViewFlipper = (ViewFlipper) findViewById(R.id.viewFlipper);
         myViewFlipper.setHorizontalScrollBarEnabled(true);
 
-        // View placeHolder = findViewById(R.id.placeHolderFragment);
-
-      /*  FriendsFragment friendsFragment = FriendsFragment.newInstance("","");
-        android.support.v4.app.FragmentTransaction transaction =  getSupportFragmentManager().beginTransaction();
-        transaction.replace(R.id.placeHolderFragment, friendsFragment).commit();
-*/
-
-        //View view1 = View.inflate(this, R.layout.fragment_friends, null);
-        // myViewFlipper.addView(view1);
     }
 
 
@@ -571,7 +811,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     public void onConnected(Bundle bundle) {
         Log.d(AppController.TAG, "Podłączony do api service");
         mCurrentLocation=LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-        setUpMap();
+        setUpMap(true);
         setMapListener();
         if (mRequestingLocationUpdates) {
             startLocationUpdates();
@@ -624,87 +864,24 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         return outputBitmap;
     }
 
-    private void preparePoiPoints() {
-        //add KFC
-        markersKFC = new ArrayList<MarkerOptions>();
-        markersKFC.add(new MarkerOptions().position(new LatLng(51.088720, 16.999470)).title("KFC").icon(BitmapDescriptorFactory.fromResource(R.drawable.kfclogo)).snippet("KFC"));
-        markersKFC.add(new MarkerOptions().position(new LatLng(51.098590, 17.037649)).title("KFC").icon(BitmapDescriptorFactory.fromResource(R.drawable.kfclogo)).snippet("KFC"));
-        markersKFC.add(new MarkerOptions().position(new LatLng(51.099488, 17.028555)).title("KFC").icon(BitmapDescriptorFactory.fromResource(R.drawable.kfclogo)).snippet("KFC"));
-        markersKFC.add(new MarkerOptions().position(new LatLng(51.107786, 17.032295)).title("KFC").icon(BitmapDescriptorFactory.fromResource(R.drawable.kfclogo)).snippet("KFC"));
-        markersKFC.add(new MarkerOptions().position(new LatLng(51.108399, 17.039837)).title("KFC").icon(BitmapDescriptorFactory.fromResource(R.drawable.kfclogo)).snippet("KFC"));
-        markersKFC.add(new MarkerOptions().position(new LatLng(51.112278, 17.059493)).title("KFC").icon(BitmapDescriptorFactory.fromResource(R.drawable.kfclogo)).snippet("KFC"));
-        markersKFC.add(new MarkerOptions().position(new LatLng(51.119768, 16.989862)).title("KFC").icon(BitmapDescriptorFactory.fromResource(R.drawable.kfclogo)).snippet("KFC"));
-        markersKFC.add(new MarkerOptions().position(new LatLng(51.131706, 17.062039)).title("KFC").icon(BitmapDescriptorFactory.fromResource(R.drawable.kfclogo)).snippet("KFC"));
-        markersKFC.add(new MarkerOptions().position(new LatLng(51.142201, 17.088718)).title("KFC").icon(BitmapDescriptorFactory.fromResource(R.drawable.kfclogo)).snippet("KFC"));
+    protected void preparePoiPoints() throws IOException {
 
-        //add Mcdonalds
-        markersMcDonalds = new ArrayList<MarkerOptions>();
-        markersMcDonalds.add(new MarkerOptions().position(new LatLng(51.106616, 16.948973)).title("McDonald's").icon(BitmapDescriptorFactory.fromResource(R.drawable.mcdonaldslogo)));
-        markersMcDonalds.add(new MarkerOptions().position(new LatLng(51.047800, 16.958560)).title("McDonald's").icon(BitmapDescriptorFactory.fromResource(R.drawable.mcdonaldslogo)));
-        markersMcDonalds.add(new MarkerOptions().position(new LatLng(51.054236, 16.975421)).title("McDonald's").icon(BitmapDescriptorFactory.fromResource(R.drawable.mcdonaldslogo)));
-        markersMcDonalds.add(new MarkerOptions().position(new LatLng(51.119674, 16.988372)).title("McDonald's").icon(BitmapDescriptorFactory.fromResource(R.drawable.mcdonaldslogo)));
-        markersMcDonalds.add(new MarkerOptions().position(new LatLng(51.060817, 16.993000)).title("McDonald's").icon(BitmapDescriptorFactory.fromResource(R.drawable.mcdonaldslogo)));
-        markersMcDonalds.add(new MarkerOptions().position(new LatLng(51.118044, 16.999969)).title("McDonald's").icon(BitmapDescriptorFactory.fromResource(R.drawable.mcdonaldslogo)));
-        markersMcDonalds.add(new MarkerOptions().position(new LatLng(51.116333, 17.024023)).title("McDonald's").icon(BitmapDescriptorFactory.fromResource(R.drawable.mcdonaldslogo)));
-        markersMcDonalds.add(new MarkerOptions().position(new LatLng(51.150980, 17.026410)).title("McDonald's").icon(BitmapDescriptorFactory.fromResource(R.drawable.mcdonaldslogo)));
-        markersMcDonalds.add(new MarkerOptions().position(new LatLng(51.109436, 17.033035)).title("McDonald's").icon(BitmapDescriptorFactory.fromResource(R.drawable.mcdonaldslogo)));
-        markersMcDonalds.add(new MarkerOptions().position(new LatLng(51.108075, 17.037220)).title("McDonald's").icon(BitmapDescriptorFactory.fromResource(R.drawable.mcdonaldslogo)));
-        markersMcDonalds.add(new MarkerOptions().position(new LatLng(51.108230, 17.039610)).title("McDonald's").icon(BitmapDescriptorFactory.fromResource(R.drawable.mcdonaldslogo)));
-        markersMcDonalds.add(new MarkerOptions().position(new LatLng(51.082358, 17.048646)).title("McDonald's").icon(BitmapDescriptorFactory.fromResource(R.drawable.mcdonaldslogo)));
-        markersMcDonalds.add(new MarkerOptions().position(new LatLng(51.095464, 17.056789)).title("McDonald's").icon(BitmapDescriptorFactory.fromResource(R.drawable.mcdonaldslogo)));
-        markersMcDonalds.add(new MarkerOptions().position(new LatLng(51.112505, 17.059547)).title("McDonald's").icon(BitmapDescriptorFactory.fromResource(R.drawable.mcdonaldslogo)));
-        markersMcDonalds.add(new MarkerOptions().position(new LatLng(51.142060, 17.088680)).title("McDonald's").icon(BitmapDescriptorFactory.fromResource(R.drawable.mcdonaldslogo)));
+        Criteria criteria = new Criteria();
+        String provider = locationManager.getBestProvider(criteria, true);
+        Location myLocation = locationManager.getLastKnownLocation(provider);
 
-        //add markers
-        /*for (int i = 0; i < markersKFC.size(); i++)
-            myMap.addMarker(markersKFC.get(i));
-
-        for (int i = 0; i < markersMcDonalds.size(); i++)
-            myMap.addMarker(markersMcDonalds.get(i));*/
+        markersKfc = poiBase.getJsonWithSelectedData(0,0,new LatLng(myLocation.getLatitude(),myLocation.getLongitude()),"kfclogo");
+        markersMcdonalds = poiBase.getJsonWithSelectedData(0,1,new LatLng(myLocation.getLatitude(),myLocation.getLongitude()),"mcdonaldslogo");
+        markersRestaurants = poiBase.getJsonWithSelectedData(1, new LatLng(myLocation.getLatitude(),myLocation.getLongitude()), "restaurant" );
+        markersBars = poiBase.getJsonWithSelectedData(2, new LatLng(myLocation.getLatitude(),myLocation.getLongitude()), "bar");
+        markersCoffee = poiBase.getJsonWithSelectedData(3, new LatLng(myLocation.getLatitude(),myLocation.getLongitude()), "coffee" );
+        markersNightClubs = poiBase.getJsonWithSelectedData(4, new LatLng(myLocation.getLatitude(),myLocation.getLongitude()), "nightclub" );
+        markersParks = poiBase.getJsonWithSelectedData(5, new LatLng(myLocation.getLatitude(),myLocation.getLongitude()), "park" );
+        markersShoppingMalls= poiBase.getJsonWithSelectedData(6, new LatLng(myLocation.getLatitude(),myLocation.getLongitude()), "shoppingmall" );
+        markersShops= poiBase.getJsonWithSelectedData(7, new LatLng(myLocation.getLatitude(),myLocation.getLongitude()), "shop" );
+        markersMarkets = poiBase.getJsonWithSelectedData(8, new LatLng(myLocation.getLatitude(),myLocation.getLongitude()), "market" );
 
 
-        foodPoiFilteringButton = (Button) findViewById(R.id.button2);
-        addListenerOnPoiButton();
-
-        mainPoiButton = (Button) findViewById(R.id.buttonPOIFiltering);
-        addListenerOnPoiFilteringButton();
-
-        clearPoiButton = (Button) findViewById(R.id.button6);
-        addListenerOnClearPoiButton();
-    }
-
-    private void addListenerOnClearPoiButton() {
-        clearPoiButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                myMap.clear();
-            }
-        });
-    }
-
-    private void addListenerOnPoiFilteringButton() {
-        mainPoiButton.setOnClickListener(new View.OnClickListener() {
-
-
-
-            public void onClick(View view) {
-
-                if (findViewById(R.id.button2).getVisibility() == View.INVISIBLE) {
-                    (findViewById(R.id.button2)).setVisibility(View.VISIBLE);
-                    (findViewById(R.id.button3)).setVisibility(View.VISIBLE);
-                    (findViewById(R.id.button4)).setVisibility(View.VISIBLE);
-                    (findViewById(R.id.button5)).setVisibility(View.VISIBLE);
-                    (findViewById(R.id.button6)).setVisibility(View.VISIBLE);
-                } else {
-                    (findViewById(R.id.button2)).setVisibility(View.INVISIBLE);
-                    (findViewById(R.id.button3)).setVisibility(View.INVISIBLE);
-                    (findViewById(R.id.button4)).setVisibility(View.INVISIBLE);
-                    (findViewById(R.id.button5)).setVisibility(View.INVISIBLE);
-                    (findViewById(R.id.button6)).setVisibility(View.INVISIBLE);
-                }
-            }
-
-        });
 
     }
 
@@ -721,16 +898,16 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         myMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
-                double latitude=mCurrentLocation.getLatitude();
-                double longitude=mCurrentLocation.getLongitude();
-                LatLng origin=new LatLng(latitude,longitude);
-                latitude=marker.getPosition().latitude;
-                longitude=marker.getPosition().longitude;
-                LatLng dest=new LatLng(latitude,longitude);
+                double latitude = mCurrentLocation.getLatitude();
+                double longitude = mCurrentLocation.getLongitude();
+                LatLng origin = new LatLng(latitude, longitude);
+                latitude = marker.getPosition().latitude;
+                longitude = marker.getPosition().longitude;
+                LatLng dest = new LatLng(latitude, longitude);
 
 
-                String url=MainActivity.this.getDirectionUrl(origin,dest);
-                DownloadTask downloadTask=new DownloadTask();
+                String url = MainActivity.this.getDirectionUrl(origin, dest);
+                DownloadTask downloadTask = new DownloadTask();
                 //no to zaczynamy zabawę
                 downloadTask.execute(url);
                 return true;
@@ -792,7 +969,7 @@ private String getDirectionUrl(LatLng origin, LatLng dest){
     String url="http://maps.googleapis.com/maps/api/directions/"+output+"?"+parameters;
     return url;
 }
-    //no to pobieżmy tego jsona
+    //no to pobierzmy tego jsona
     private String downloadUrl(String strUrl) throws IOException
     {
         Log.d("co tam ",strUrl);
@@ -801,7 +978,7 @@ private String getDirectionUrl(LatLng origin, LatLng dest){
         HttpURLConnection urlConnection=null;
         try{
             URL url=new URL(strUrl);
-            //Tworzymy połęczenie przez protokuł http, żeby połączyć sie z adresem url
+            //Tworzymy połęczenie przez protokół http, żeby połączyć sie z adresem url
             urlConnection=(HttpURLConnection)url.openConnection();
             //Łączymy się z nim
             urlConnection.connect();
@@ -835,6 +1012,7 @@ private String getDirectionUrl(LatLng origin, LatLng dest){
         @Override
         protected String doInBackground(String... url)
         {
+
             //String do przechowywanie odberanych danych
             String data="";
             try{
@@ -930,39 +1108,6 @@ private String getDirectionUrl(LatLng origin, LatLng dest){
 
         }
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 }

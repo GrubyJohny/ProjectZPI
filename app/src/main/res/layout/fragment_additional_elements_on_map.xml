@@ -6,7 +6,7 @@
     <!-- TODO: Update blank fragment layout -->
 
     <Button
-        android:layout_width="wrap_content"
+        android:layout_width="100dp"
         android:layout_height="wrap_content"
         android:text="POI"
         android:id="@+id/buttonPOIFiltering"
@@ -15,89 +15,125 @@
         android:layout_marginStart="66dp"
         android:layout_marginTop="5dp" />
 
-    <RadioGroup
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:baselineAligned="false"
-        android:id="@+id/RadioGroupListaPOI"
-        android:layout_toEndOf="@+id/buttonPOIFiltering"
-        android:layout_below="@+id/buttonPOIFiltering">
-
-        <RadioButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="ALL"
-            android:id="@+id/radioButton3"
-            android:visibility="invisible"
-            android:textStyle="bold|normal"
-            android:textColor="#fffff4f0"
-            android:singleLine="true"
-            android:elegantTextHeight="true"
-            android:textSize="25dp" />
-
-        <RadioButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="KFC"
-            android:id="@+id/radioButton"
-            android:visibility="invisible"
-            android:textSize="25dp"
-            android:textStyle="bold|normal"
-            android:textColor="#fffff4f0"
-            android:singleLine="true"
-            android:elegantTextHeight="true" />
-
-        <RadioButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="McDonald&apos;s"
-            android:id="@+id/radioButton2"
-            android:visibility="invisible"
-            android:textStyle="bold|normal"
-            android:textColor="#fffff4f0"
-            android:singleLine="true"
-            android:elegantTextHeight="true"
-            android:textSize="25dp" />
-    </RadioGroup>
-
     <Button
-        android:layout_width="wrap_content"
+        android:layout_width="100dp"
         android:layout_height="wrap_content"
-        android:text="Jedzenie"
-        android:id="@+id/button2"
+        android:text="Food"
+        android:id="@+id/ButtonFood"
         android:layout_below="@+id/buttonPOIFiltering"
-        android:layout_toStartOf="@+id/RadioGroupListaPOI" />
+        android:layout_alignStart="@+id/buttonPOIFiltering" />
 
     <Button
-        android:layout_width="wrap_content"
+        android:layout_width="100dp"
         android:layout_height="wrap_content"
-        android:text="sklepy"
-        android:id="@+id/button3"
-        android:layout_below="@+id/button2"
-        android:layout_alignEnd="@+id/button2" />
+        android:text="Shops"
+        android:id="@+id/ButtonShops"
+        android:layout_below="@+id/ButtonFood"
+        android:layout_alignEnd="@+id/ButtonFood" />
 
     <Button
-        android:layout_width="wrap_content"
+        android:layout_width="100dp"
         android:layout_height="wrap_content"
-        android:text="atrakcje"
-        android:id="@+id/button4"
-        android:layout_below="@+id/button3"
-        android:layout_toStartOf="@+id/RadioGroupListaPOI" />
+        android:text="Leisure"
+        android:id="@+id/ButtonLeisure"
+        android:layout_below="@+id/ButtonShops"
+        android:layout_alignStart="@+id/ButtonShops" />
 
     <Button
-        android:layout_width="wrap_content"
+        android:layout_width="100dp"
         android:layout_height="wrap_content"
-        android:text="moje"
-        android:id="@+id/button5"
-        android:layout_below="@+id/button4"
-        android:layout_toStartOf="@+id/RadioGroupListaPOI" />
+        android:text="My places"
+        android:id="@+id/ButtonMyPlaces"
+        android:layout_below="@+id/ButtonLeisure"
+        android:layout_alignStart="@+id/ButtonLeisure" />
 
     <Button
-        android:layout_width="wrap_content"
+        android:layout_width="100dp"
         android:layout_height="wrap_content"
-        android:text="wyczyść"
-        android:id="@+id/button6"
-        android:layout_below="@+id/button5"
-        android:layout_toStartOf="@+id/RadioGroupListaPOI" />
+        android:text="clear"
+        android:id="@+id/ButtonClearPoi"
+        android:layout_below="@+id/ButtonMyPlaces"
+        android:layout_alignStart="@+id/ButtonMyPlaces" />
+
+    <Button
+        android:layout_width="120dp"
+        android:layout_height="wrap_content"
+        android:text="Bar"
+        android:id="@+id/ButtonFoodBar"
+        android:layout_below="@+id/buttonPOIFiltering"
+        android:layout_toEndOf="@+id/ButtonFood" />
+
+    <Button
+        android:layout_width="120dp"
+        android:layout_height="wrap_content"
+        android:text="Coffee"
+        android:id="@+id/ButtonFoodCoffee"
+        android:layout_below="@+id/ButtonFood"
+        android:layout_toEndOf="@+id/ButtonFood" />
+
+    <Button
+        android:layout_width="120dp"
+        android:layout_height="wrap_content"
+        android:text="KFC"
+        android:id="@+id/ButtonFoodKfc"
+        android:layout_below="@+id/ButtonShops"
+        android:layout_toEndOf="@+id/ButtonLeisure" />
+
+    <Button
+        android:layout_width="120dp"
+        android:layout_height="wrap_content"
+        android:text="McDonald&apos;s"
+        android:id="@+id/ButtonFoodMcDonald"
+        android:layout_below="@+id/ButtonFoodKfc"
+        android:layout_toEndOf="@+id/ButtonMyPlaces" />
+
+    <Button
+        android:layout_width="120dp"
+        android:layout_height="wrap_content"
+        android:text="Restaurant"
+        android:id="@+id/ButtonFoodRestaurant"
+        android:layout_below="@+id/ButtonMyPlaces"
+        android:layout_toEndOf="@+id/ButtonClearPoi" />
+
+    <Button
+        android:layout_width="120dp"
+        android:layout_height="wrap_content"
+        android:text="Store"
+        android:id="@+id/ButtonShopsStores"
+        android:layout_below="@+id/ButtonShopsShoppingMall"
+        android:layout_toEndOf="@+id/ButtonMyPlaces" />
+
+    <Button
+        android:layout_width="120dp"
+        android:layout_height="wrap_content"
+        android:text="Market"
+        android:id="@+id/ButtonShopsMarket"
+        android:layout_below="@+id/ButtonFood"
+        android:layout_toEndOf="@+id/ButtonFood" />
+
+    <Button
+        android:layout_width="120dp"
+        android:layout_height="wrap_content"
+        android:text="Shopping mall"
+        android:id="@+id/ButtonShopsShoppingMall"
+        android:singleLine="false"
+        android:layout_below="@+id/ButtonFoodCoffee"
+        android:layout_toEndOf="@+id/ButtonLeisure" />
+
+    <Button
+        android:layout_width="120dp"
+        android:layout_height="wrap_content"
+        android:text="Night Club"
+        android:id="@+id/ButtonLeisureClubs"
+        android:layout_below="@+id/ButtonShops"
+        android:layout_toEndOf="@+id/ButtonLeisure" />
+
+    <Button
+        android:layout_width="120dp"
+        android:layout_height="wrap_content"
+        android:text="Park"
+        android:id="@+id/ButtonLeisureParks"
+        android:layout_below="@+id/ButtonFoodKfc"
+        android:layout_alignStart="@+id/ButtonFoodKfc" />
 
 </RelativeLayout>

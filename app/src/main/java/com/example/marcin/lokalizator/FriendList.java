@@ -1,7 +1,5 @@
 package com.example.marcin.lokalizator;
 
-import android.app.Activity;
-import android.app.Fragment;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,6 +15,8 @@ public class FriendList extends ArrayAdapter<ListViewItem> {
 
     public FriendList(Context context, List<ListViewItem> items) {
         super(context, R.layout.one_row, items);
+
+
     }
 
     @Override
@@ -40,6 +40,9 @@ public class FriendList extends ArrayAdapter<ListViewItem> {
         ListViewItem item = getItem(position);
         viewHolder.ivIcon.setImageDrawable(item.image);
         viewHolder.tvTitle.setText(item.name);
+
+
+
 
         /*LayoutInflater inflater = context.getLayoutInflater();
         View rowView = inflater.inflate(R.layout.one_row, parent, false);

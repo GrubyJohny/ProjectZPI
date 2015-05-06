@@ -1,6 +1,7 @@
 package com.example.marcin.lokalizator;
 
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -24,6 +25,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.Toast;
@@ -42,6 +44,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -73,7 +76,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     private Button clearPoiButton;
     private Button confirm;
     private Button cancel;
-
+    private ProgressDialog pDialog;
     PoiJSONParser poiBase = new PoiJSONParser();
     private ArrayList<MarkerOptions> markersRestaurants = new ArrayList<MarkerOptions>();
     private ArrayList<MarkerOptions> markersKfc = new ArrayList<MarkerOptions>();
@@ -148,12 +151,26 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         layoutFlipper = (View) findViewById(R.id.flipperLayout);
 
         SettingButtons();
-
+/*
         try {
             preparePoiPoints();
         } catch (IOException e) {
             e.printStackTrace();
         }
+*/
+        pDialog = new ProgressDialog(this);
+        pDialog.setCancelable(false);
+
+        Button button = (Button)findViewById(R.id.button);
+        final EditText editText = (EditText)findViewById(R.id.friendEmail);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String friend = editText.getText().toString();
+                sendFriendshipRequest(session.getUserId(), friend);
+                editText.setText("");
+            }
+        });
 
     }
 
@@ -1108,6 +1125,70 @@ private String getDirectionUrl(LatLng origin, LatLng dest){
 
         }
     }
+    private void sendFriendshipRequest(final String id, final String email) {
 
+        String tag_string_req = "req_friendshipRequest";
+        pDialog.setMessage("Sending Request for Friendship");
+        showDialog();
+        final String TAG = "Friendship request";
+        StringRequest strReq = new StringRequest(Request.Method.POST, AppConfig.URL_REGISTER, new Response.Listener<String>() {
 
+            @Override
+            public void onResponse(String response) {
+                Log.d(TAG, "Friendship request Response: " + response.toString());
+                hideDialog();
+                try {
+                    JSONObject jObj = new JSONObject(response);
+                    boolean error = jObj.getBoolean("error");
+
+                    if (!error) {
+
+                        Toast.makeText(getApplicationContext(), "Pomyślnie wysłano zaproszenie", Toast.LENGTH_LONG).show();
+
+                    } else {
+
+                        String errorMsg = jObj.getString("error_msg");
+                        Toast.makeText(getApplicationContext(), errorMsg, Toast.LENGTH_LONG).show();
+                    }
+                } catch (JSONException e) {
+                    Toast.makeText(getApplicationContext(), "Exception - problem z połączeniem", Toast.LENGTH_LONG).show();
+                    e.printStackTrace();
+                }
+
+            }
+        }, new Response.ErrorListener() {
+
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e(TAG, "Friendship request Error: " + error.toString());
+
+                Toast.makeText(getApplicationContext(), error.getMessage(), Toast.LENGTH_LONG).show();
+                hideDialog();
+
+            }
+        }) {
+
+            @Override
+            protected Map<String, String> getParams() {
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("tag", "friendshipRequest");
+                params.put("sender", id);
+                params.put("receiverEmail", email);
+
+                return params;
+            }
+
+        };
+
+        AppController.getInstance().addToRequestQueue(strReq, tag_string_req);
+    }
+    private void showDialog() {
+        if (!pDialog.isShowing())
+            pDialog.show();
+    }
+
+    private void hideDialog() {
+        if (pDialog.isShowing())
+            pDialog.dismiss();
+    }
 }

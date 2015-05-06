@@ -2,11 +2,31 @@
     android:layout_width="match_parent"
     android:layout_height="fill_parent">
 
+
+    <EditText
+        android:id="@+id/friendEmail"
+        android:layout_width="200sp"
+        android:layout_height="wrap_content"
+        android:hint="@string/hint_email"
+        android:singleLine="true"
+        android:layout_below="@id/loginText"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="5dp"
+        android:layout_marginLeft="10dp"
+        android:layout_toLeftOf="@+id/button"
+
+        android:layout_alignParentLeft="true"
+        />
+
+
     <Button
         android:id="@+id/button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
         android:text="Dodaj znajomego" />
+
+
 
     <ListView
         android:id="@android:id/list"

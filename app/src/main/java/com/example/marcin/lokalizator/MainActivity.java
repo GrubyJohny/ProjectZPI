@@ -13,6 +13,7 @@ import android.graphics.Path;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.StrictMode;
@@ -31,13 +32,23 @@ import android.widget.Spinner;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
 
-import com.android.volley.*;
+import com.android.volley.AuthFailureError;
+import com.android.volley.NetworkError;
+import com.android.volley.NoConnectionError;
+import com.android.volley.ParseError;
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.ServerError;
+import com.android.volley.TimeoutError;
+import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.maps.*;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
@@ -128,7 +139,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         mGoogleApiClient.connect();
 
 
-       // new Thread(sender, "Watek do wysyłania koordynatów").start();
+        // new Thread(sender, "Watek do wysyłania koordynatów").start();
 
         mainSpinner();
         notifications();
@@ -263,7 +274,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                 myMap.clear();
                 for (int i = 0; i < markersBars.size(); i++)
                     myMap.addMarker(markersBars.get(i));
-                setUpMap(false);
+                //setUpMap(true);
 
             }
 
@@ -275,7 +286,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                 myMap.clear();
                 for (int i = 0; i < markersCoffee.size(); i++)
                     myMap.addMarker(markersCoffee.get(i));
-                setUpMap(false);
+               // setUpMap(false);
 
             }
 
@@ -433,6 +444,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
             @Override
             public void onClick(View v) {
                 myMap.clear();
+                Log.d(AppController.TAG,"ile jest klubów "+markersNightClubs.size());
                 for (int i = 0; i < markersNightClubs.size(); i++)
                     myMap.addMarker(markersNightClubs.get(i));
                 setUpMap(false);
@@ -763,10 +775,15 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         });
     }
 
-    private void setUpMap(boolean hardSetup) //dodałem parametr, który określa czy przy wywołaniu ma być animacja kamery
+    /**
+     * Komentarz do metody w stylu jaki lubi Karol
+     * @param hardSetup określa czy czy przy wywołaniu ma być animacja kamery
+     */
+    private void setUpMap(boolean hardSetup)
     {
 
             myMap = ((MapFragment) getFragmentManager().findFragmentById(R.id.myMapFragment)).getMap();
+            Log.d(AppController.TAG,"my map to"+myMap);
             myMap.setMyLocationEnabled(true);
             myMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
 
@@ -775,25 +792,34 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         myMap.addMarker(new MarkerOptions().position(new LatLng(51.113825, 17.065890)).title("Akademik"));
 
 
-        LatLng latLng = new LatLng(0, 0);
+        /*LatLng latLng = new LatLng(0, 0);
         Criteria criteria = new Criteria();
         if (criteria != null) {
             String provider = locationManager.getBestProvider(criteria, true);
-            Location myLocation = locationManager.getLastKnownLocation(provider);
+            Location myLocation = locationManager.getLastKnownLocation(provider);*/
 
 
             if(mCurrentLocation!=null) {
                 double latitude = mCurrentLocation.getLatitude();
                 double longitude = mCurrentLocation.getLongitude();
-                latLng = new LatLng(latitude, longitude);
+                LatLng latLng = new LatLng(latitude,longitude);
                 if(hardSetup) {
-                    myMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-                    myMap.animateCamera(CameraUpdateFactory.zoomTo(15), 3000, null);
+                    Log.d(AppController.TAG,"Ustawiam kamerę zgodnie z rządaniem. Szerokość na: "+latitude+" natomsiat długość: "+longitude);
+                   /*Bardzo cię przepraszam Karlo, ale musze napisać to w tym złym komentarzu.
+                   genralnie bez powodu przy uruchomieniu wypieprzało mnie na mapie na pustynię, a nie na
+                   obecną lokalizację. Generalnie nie zależało to od współrzędnych. Mogło być ustawione na
+                   Moskwe, a pokazywało okolicę Nilu. Straciłem na to z pół godziny życia. W końcy odkryłem
+                   że jak do metody moveCamera jako argument przekazęmy CameraUpdateFactory.newLatLngZoom(latLng,15),
+                   zamiast CameraUpdateFactory.newLatLng(latLng) to jest w pożatku. Nie mam pojędzie dlazego tak, ale tak było
+                   przynajmniej na moim tablecie.I wyrzuciłem animateCamera, i tak nic nie zmieniała, a tylko psuła.
+                    */
+                    myMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng,15));
+                    //myMap.animateCamera(CameraUpdateFactory.zoomTo(15),3000,null);
                 }
             }
             else
                 Log.d(AppController.TAG,"ostania znana lokacja jest nulem");
-     }
+
 
         myMap.setOnCameraChangeListener(getCameraChangeListener());
 
@@ -829,10 +855,15 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         Log.d(AppController.TAG, "Podłączony do api service");
         mCurrentLocation=LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
         setUpMap(true);
+
         setMapListener();
         if (mRequestingLocationUpdates) {
             startLocationUpdates();
-
+        }
+        try {
+            preparePoiPoints();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -883,20 +914,20 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
 
     protected void preparePoiPoints() throws IOException {
 
-        Criteria criteria = new Criteria();
+  /*      Criteria criteria = new Criteria();
         String provider = locationManager.getBestProvider(criteria, true);
-        Location myLocation = locationManager.getLastKnownLocation(provider);
-
-        markersKfc = poiBase.getJsonWithSelectedData(0,0,new LatLng(myLocation.getLatitude(),myLocation.getLongitude()),"kfclogo");
-        markersMcdonalds = poiBase.getJsonWithSelectedData(0,1,new LatLng(myLocation.getLatitude(),myLocation.getLongitude()),"mcdonaldslogo");
-        markersRestaurants = poiBase.getJsonWithSelectedData(1, new LatLng(myLocation.getLatitude(),myLocation.getLongitude()), "restaurant" );
-        markersBars = poiBase.getJsonWithSelectedData(2, new LatLng(myLocation.getLatitude(),myLocation.getLongitude()), "bar");
-        markersCoffee = poiBase.getJsonWithSelectedData(3, new LatLng(myLocation.getLatitude(),myLocation.getLongitude()), "coffee" );
-        markersNightClubs = poiBase.getJsonWithSelectedData(4, new LatLng(myLocation.getLatitude(),myLocation.getLongitude()), "nightclub" );
-        markersParks = poiBase.getJsonWithSelectedData(5, new LatLng(myLocation.getLatitude(),myLocation.getLongitude()), "park" );
-        markersShoppingMalls= poiBase.getJsonWithSelectedData(6, new LatLng(myLocation.getLatitude(),myLocation.getLongitude()), "shoppingmall" );
-        markersShops= poiBase.getJsonWithSelectedData(7, new LatLng(myLocation.getLatitude(),myLocation.getLongitude()), "shop" );
-        markersMarkets = poiBase.getJsonWithSelectedData(8, new LatLng(myLocation.getLatitude(),myLocation.getLongitude()), "market" );
+        Location mCurrentLocation = locationManager.getLastKnownLocation(provider);
+        mCurrentLocation*/
+        markersKfc = poiBase.getJsonWithSelectedData(0,0,new LatLng(mCurrentLocation.getLatitude(),mCurrentLocation.getLongitude()),"kfclogo");
+        markersMcdonalds = poiBase.getJsonWithSelectedData(0,1,new LatLng(mCurrentLocation.getLatitude(),mCurrentLocation.getLongitude()),"mcdonaldslogo");
+        markersRestaurants = poiBase.getJsonWithSelectedData(1, new LatLng(mCurrentLocation.getLatitude(),mCurrentLocation.getLongitude()), "restaurant" );
+        markersBars = poiBase.getJsonWithSelectedData(2, new LatLng(mCurrentLocation.getLatitude(),mCurrentLocation.getLongitude()), "bar");
+        markersCoffee = poiBase.getJsonWithSelectedData(3, new LatLng(mCurrentLocation.getLatitude(),mCurrentLocation.getLongitude()), "coffee" );
+        markersNightClubs = poiBase.getJsonWithSelectedData(4, new LatLng(mCurrentLocation.getLatitude(),mCurrentLocation.getLongitude()), "nightclub" );
+        markersParks = poiBase.getJsonWithSelectedData(5, new LatLng(mCurrentLocation.getLatitude(),mCurrentLocation.getLongitude()), "park" );
+        markersShoppingMalls= poiBase.getJsonWithSelectedData(6, new LatLng(mCurrentLocation.getLatitude(),mCurrentLocation.getLongitude()), "shoppingmall" );
+        markersShops= poiBase.getJsonWithSelectedData(7, new LatLng(mCurrentLocation.getLatitude(),mCurrentLocation.getLongitude()), "shop" );
+        markersMarkets = poiBase.getJsonWithSelectedData(8, new LatLng(mCurrentLocation.getLatitude(),mCurrentLocation.getLongitude()), "market" );
 
 
 
@@ -922,11 +953,16 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                 longitude = marker.getPosition().longitude;
                 LatLng dest = new LatLng(latitude, longitude);
 
+                Uri gmmIntentUri= Uri.parse("google.navigation:q="+latitude+","+longitude);
+                Intent mapIntent=new Intent(Intent.ACTION_VIEW,gmmIntentUri);
+                mapIntent.setPackage("com.google.android.apps.maps");
+                startActivity(mapIntent);
 
+/*
                 String url = MainActivity.this.getDirectionUrl(origin, dest);
                 DownloadTask downloadTask = new DownloadTask();
                 //no to zaczynamy zabawę
-                downloadTask.execute(url);
+                downloadTask.execute(url);*/
                 return true;
             }
         });

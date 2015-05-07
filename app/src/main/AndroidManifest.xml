@@ -52,7 +52,8 @@
             android:name=".MainActivity"
             android:label="GroupLoc"
             android:launchMode="singleTop"
-            android:windowSoftInputMode="adjustResize|stateHidden" />
+            android:windowSoftInputMode="adjustResize|stateHidden"
+            android:screenOrientation="portrait"/>
 
         <meta-data
             android:name="com.google.android.gms.version"

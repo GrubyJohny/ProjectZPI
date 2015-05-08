@@ -79,8 +79,13 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     private Spinner spinner2;
     private ImageButton circleButton;
     private Button noticeButton;
+    private Button messageButton;
+    private Button friendsButton;
+    private Button groupButton;
+    private Button BackToMapButton;
     private View layoutSettings;
     private View layoutFlipper;
+    private View layoutGroup;
     private GoogleMap myMap;
     private LocationManager locationManager;
     private Button mainPoiButton;
@@ -160,6 +165,40 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
 
         layoutSettings = (View) findViewById(R.id.settingsLayout);
         layoutFlipper = (View) findViewById(R.id.flipperLayout);
+        layoutGroup = (View) findViewById(R.id.groupLayout);
+
+        friendsButton = (Button) findViewById(R.id.friendsButton);
+
+        friendsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                layoutGroup.setVisibility(View.INVISIBLE);
+                myViewFlipper.setDisplayedChild(1);
+                layoutFlipper.setVisibility(View.VISIBLE);
+            }
+        });
+
+        groupButton = (Button) findViewById(R.id.groupButton);
+
+        groupButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                layoutFlipper.setVisibility(View.INVISIBLE);
+                layoutGroup.setVisibility(View.VISIBLE);
+            }
+        });
+
+        BackToMapButton = (Button) findViewById(R.id.BacktoMapButton);
+
+        BackToMapButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                layoutGroup.setVisibility(View.INVISIBLE);
+                layoutSettings.setVisibility(View.INVISIBLE);
+                myViewFlipper.setDisplayedChild(0);
+                layoutFlipper.setVisibility(View.VISIBLE);
+            }
+        });
 
         SettingButtons();
 /*
@@ -741,8 +780,9 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                     case 0:
                         break;
                     case 1:
-                        layoutSettings.setVisibility(View.VISIBLE);
                         layoutFlipper.setVisibility(View.INVISIBLE);
+                        layoutGroup.setVisibility(View.INVISIBLE);
+                        layoutSettings.setVisibility(View.VISIBLE);
                         break;
                     case 2:
                         logOut(this);
@@ -860,11 +900,11 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         if (mRequestingLocationUpdates) {
             startLocationUpdates();
         }
-        try {
+        /*try {
             preparePoiPoints();
         } catch (IOException e) {
             e.printStackTrace();
-        }
+        }*/
     }
 
     @Override

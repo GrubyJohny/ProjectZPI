@@ -22,12 +22,41 @@
         android:id="@+id/noticeButton"
         android:layout_width="30dp"
         android:layout_height="30dp"
-        android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
-        android:layout_marginRight="100dp"
+        android:layout_marginRight="10dp"
         android:layout_toLeftOf="@id/circleButton"
         android:background="@drawable/notice_button"
         android:clickable="true" />
+
+    <Button
+        android:id="@+id/messageButton"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_alignParentTop="true"
+        android:layout_marginRight="10dp"
+        android:layout_toLeftOf="@id/noticeButton"
+        android:background="@drawable/notice_button"
+        android:clickable="true" />
+
+    <Button
+        android:id="@+id/friendsButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_toLeftOf="@id/messageButton"
+        android:layout_marginRight="30dp"
+        android:text="Friends"
+        android:clickable="true" />
+
+    <Button
+        android:id="@+id/groupButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_toLeftOf="@id/friendsButton"
+        android:text="Group"
+        android:clickable="true" />
+
 
     <RelativeLayout
         android:id="@+id/flipperLayout"
@@ -81,6 +110,20 @@
             android:name="com.example.marcin.lokalizator.SettingsFragment"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/groupLayout"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_marginTop="@dimen/abc_action_bar_default_height_material"
+        android:visibility="invisible">
+
+        <fragment
+            android:id="@+id/groupFragment"
+            android:name="com.example.marcin.lokalizator.GroupFragment"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent" />
     </RelativeLayout>
 
     <Spinner

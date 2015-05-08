@@ -1,0 +1,51 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    tools:context="com.example.marcin.lokalizator.GroupFragment">
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="50dp"
+        android:text="Start a new session"
+        android:id="@+id/startSessionButton"
+        android:layout_marginTop="50dp"
+        android:layout_centerHorizontal="true"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="50dp"
+        android:text="Search for group"
+        android:id="@+id/searchGroupButton"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"
+        android:layout_below="@id/startSessionButton"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="50dp"
+        android:text="Back to map"
+        android:id="@+id/BacktoMapButton"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="50dp"/>
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/searchingGroupText"
+        android:layout_below="@+id/searchGroupButton"
+        android:layout_centerHorizontal="true"
+        android:hint="Type here name of a group"
+        android:layout_marginTop="10dp"
+        android:visibility="invisible"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="50dp"
+        android:text="Search!"
+        android:id="@+id/searchButton"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/searchingGroupText"
+        android:visibility="invisible"/>
+
+</RelativeLayout>

@@ -18,7 +18,7 @@
         android:background="@drawable/circle_button"
         android:clickable="true" />
 
-    <Button
+    <ImageButton
         android:id="@+id/noticeButton"
         android:layout_width="30dp"
         android:layout_height="30dp"
@@ -28,7 +28,7 @@
         android:background="@drawable/notice_button"
         android:clickable="true" />
 
-    <Button
+    <ImageButton
         android:id="@+id/messageButton"
         android:layout_width="30dp"
         android:layout_height="30dp"
@@ -141,6 +141,16 @@
 
     <Spinner
         android:id="@+id/spinner2"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="30dp"
+        android:layout_toStartOf="@id/noticeButton"
+        android:visibility="invisible" />
+
+    <Spinner
+        android:id="@+id/spinner3"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"

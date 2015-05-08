@@ -77,9 +77,10 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     private float lastX;
     private Spinner spinner1;
     private Spinner spinner2;
+    private Spinner spinner3;
     private ImageButton circleButton;
-    private Button noticeButton;
-    private Button messageButton;
+    private ImageButton noticeButton;
+    private ImageButton messageButton;
     private Button friendsButton;
     private Button groupButton;
     private Button BackToMapButton;
@@ -148,17 +149,34 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
 
         mainSpinner();
         notifications();
+        messages();
 
         circleButton = (ImageButton) findViewById(R.id.circleButton);
         Bitmap icon = BitmapFactory.decodeResource(getResources(), R.drawable.johny);
         Bitmap bitmap_round = clipBitmap(icon);
         circleButton.setImageBitmap(bitmap_round);
 
-        noticeButton = (Button) findViewById(R.id.noticeButton);
+        noticeButton = (ImageButton) findViewById(R.id.noticeButton);
+        /*Bitmap icon1 = BitmapFactory.decodeResource(getResources(), R.drawable. notificon);
+        Bitmap bitmap_round1 = clipBitmap(icon1);
+        noticeButton.setImageBitmap(bitmap_round1);*/
+        Bitmap bMap = BitmapFactory.decodeResource(getResources(), R.drawable.notificon);
+        Bitmap bMapScaled = Bitmap.createScaledBitmap(bMap, 100, 100, true);
+        Bitmap bitmap_round1 = clipBitmap(bMapScaled);
+
+        noticeButton.setImageBitmap(bitmap_round1);
+
+        messageButton = (ImageButton) findViewById(R.id.messageButton);
+        Bitmap bMap1 = BitmapFactory.decodeResource(getResources(), R.drawable.messageicon);
+        Bitmap bitmap_round2 = clipBitmap(bMap1);
+        Bitmap bMapScaled1 = Bitmap.createScaledBitmap(bitmap_round2, 100, 100, true);
+
+        messageButton.setImageBitmap(bMapScaled1);
 
         addListenerOnButton();
         addListenerOnSpinner();
         addListenerOnSpinner2();
+        addListenerOnSpinner3();
 
         setupPoiButtons();
         setUpViewFlipper();
@@ -173,8 +191,11 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
             @Override
             public void onClick(View v) {
                 layoutGroup.setVisibility(View.INVISIBLE);
-                myViewFlipper.setDisplayedChild(1);
+                if(myViewFlipper.getDisplayedChild() != 1) {
+                    myViewFlipper.setDisplayedChild(1);
+                }
                 layoutFlipper.setVisibility(View.VISIBLE);
+
             }
         });
 
@@ -193,10 +214,10 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         BackToMapButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                layoutGroup.setVisibility(View.INVISIBLE);
-                layoutSettings.setVisibility(View.INVISIBLE);
                 myViewFlipper.setDisplayedChild(0);
                 layoutFlipper.setVisibility(View.VISIBLE);
+                layoutGroup.setVisibility(View.INVISIBLE);
+                layoutSettings.setVisibility(View.INVISIBLE);
             }
         });
 
@@ -555,6 +576,13 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         spinner2.setAdapter(noticeButtonOptions);
     }
 
+    private void messages() {
+        spinner3 = (Spinner) findViewById(R.id.spinner3);
+        String[] spinner3Options = {"message 1", "message 2", "message 3", "message 4"};
+        ArrayAdapter<String> messageButtonOptions = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, spinner3Options);
+        spinner3.setAdapter(messageButtonOptions);
+    }
+
     public void SettingButtons() {
         confirm = (Button) findViewById(R.id.confirmSettingsButton);
 
@@ -769,6 +797,12 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                 spinner2.performClick();
             }
         });
+        messageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                spinner3.performClick();
+            }
+        });
 
     }
 
@@ -798,6 +832,25 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
 
     public void addListenerOnSpinner2() {
         spinner2.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                switch ((int) position) {
+                    case 0:
+                        //USTAWIENIA TO DO
+                        break;
+                    case 1:
+                        break;
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
+    }
+
+    public void addListenerOnSpinner3() {
+        spinner3.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 switch ((int) position) {
@@ -900,11 +953,11 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         if (mRequestingLocationUpdates) {
             startLocationUpdates();
         }
-        /*try {
+        try {
             preparePoiPoints();
         } catch (IOException e) {
             e.printStackTrace();
-        }*/
+        }
     }
 
     @Override

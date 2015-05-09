@@ -13,7 +13,6 @@ import android.graphics.Path;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.StrictMode;
@@ -95,6 +94,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     private Button cancel;
     private ProgressDialog pDialog;
     PoiJSONParser poiBase = new PoiJSONParser();
+
     private ArrayList<MarkerOptions> markersRestaurants = new ArrayList<MarkerOptions>();
     private ArrayList<MarkerOptions> markersKfc = new ArrayList<MarkerOptions>();
     private ArrayList<MarkerOptions> markersMcdonalds = new ArrayList<MarkerOptions>();
@@ -276,7 +276,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                 // no i chodzi o to, żeby dodać po tym czyszczeniu jakieś punkty początkowe.
                 // nie wiem czy setupMap() to dobre rozwiązanie tutaj
                 mainPoiButton.performClick();
-                setUpMap(true);
+                setUpMap(false);
             }
 
         });
@@ -1046,16 +1046,15 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                 longitude = marker.getPosition().longitude;
                 LatLng dest = new LatLng(latitude, longitude);
 
-                Uri gmmIntentUri= Uri.parse("google.navigation:q="+latitude+","+longitude);
+              /*  Uri gmmIntentUri= Uri.parse("google.navigation:q="+latitude+","+longitude);
                 Intent mapIntent=new Intent(Intent.ACTION_VIEW,gmmIntentUri);
                 mapIntent.setPackage("com.google.android.apps.maps");
-                startActivity(mapIntent);
+                startActivity(mapIntent);*/
 
-/*
                 String url = MainActivity.this.getDirectionUrl(origin, dest);
                 DownloadTask downloadTask = new DownloadTask();
                 //no to zaczynamy zabawę
-                downloadTask.execute(url);*/
+                downloadTask.execute(url);
                 return true;
             }
         });
@@ -1320,4 +1319,25 @@ private String getDirectionUrl(LatLng origin, LatLng dest){
         if (pDialog.isShowing())
             pDialog.dismiss();
     }
+
+
+
+
+    @Override
+    public void onBackPressed() {
+       new AlertDialog.Builder(this).
+               setTitle("Really Exit")
+               .setMessage("Are You sure you want to exit")
+               .setNegativeButton(android.R.string.no,null)
+               .setPositiveButton(android.R.string.yes,new DialogInterface.OnClickListener() {
+                   @Override
+                   public void onClick(DialogInterface dialog, int which) {
+                       MainActivity.super.onBackPressed();
+                   }
+               }).create().show();
+    }
+
+
+
+
 }

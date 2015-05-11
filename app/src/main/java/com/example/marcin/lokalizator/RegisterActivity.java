@@ -113,7 +113,7 @@ public class RegisterActivity extends Activity {
                     if (!error) {
 
 
-
+                        Toast.makeText(getApplicationContext(), "Pomyślnie zarejestrowano użytkownika", Toast.LENGTH_LONG).show();
                         Intent intent = new Intent(
                                 RegisterActivity.this,
                                 LoginActivity.class);

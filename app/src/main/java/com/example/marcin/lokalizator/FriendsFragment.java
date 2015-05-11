@@ -18,7 +18,8 @@ public class FriendsFragment extends ListFragment {
 
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
-
+    private SQLiteHandler db;
+    private static ArrayList<Friend> userFriendsList;
 
     private String mParam1;
     private String mParam2;
@@ -46,7 +47,8 @@ public class FriendsFragment extends ListFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        db = new SQLiteHandler(MainActivity.context);
+        userFriendsList = db.getAllFriends();
 
         if (getArguments() != null) {
             mParam1 = getArguments().getString(ARG_PARAM1);
@@ -56,15 +58,14 @@ public class FriendsFragment extends ListFragment {
         mItems = new ArrayList<ListViewItem>();
         Resources resources = getResources();
 
-        mItems.add(new ListViewItem(resources.getDrawable(R.drawable.image1), "Adam Grzech"));
-        mItems.add(new ListViewItem(resources.getDrawable(R.drawable.image2), "Zygmunt Bazur"));
-        mItems.add(new ListViewItem(resources.getDrawable(R.drawable.image3), "Zdzisek Spławski"));
+        for(Friend f: userFriendsList){
+            mItems.add(new ListViewItem(f.getFriendID(), resources.getDrawable(R.drawable.image3), f.getFriendName()));
+        }
 
         setListAdapter(new FriendList(getActivity(), mItems));
 
-
-
     }
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,

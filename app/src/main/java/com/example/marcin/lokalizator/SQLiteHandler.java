@@ -7,6 +7,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class SQLiteHandler extends SQLiteOpenHelper {
@@ -37,7 +38,7 @@ public class SQLiteHandler extends SQLiteOpenHelper {
                 + KEY_ID + " INTEGER PRIMARY KEY,"
                 + KEY_UID + " TEXT,"
                 + KEY_NAME + " TEXT,"
-                + KEY_EMAIL + " TEXT UNIQUE,"
+                + KEY_EMAIL + " TEXT UNIQUE"
                 + ")";
 
         db.execSQL(CREATE_LOGIN_TABLE);
@@ -122,5 +123,28 @@ public class SQLiteHandler extends SQLiteOpenHelper {
 
         Log.d(TAG, "Deleted all friends info from sqlite");
     }
+
+    public ArrayList<Friend> getAllFriends() {
+        ArrayList<Friend> friendsList = new ArrayList<Friend>();
+
+        String selectQuery = "SELECT  * FROM " + TABLE_FRIENDS;
+
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cursor = db.rawQuery(selectQuery, null);
+
+        if (cursor.moveToFirst()) {
+            do {
+                Friend friend = new Friend();
+                friend.setFriendID(Integer.parseInt(cursor.getString(0)));
+                friend.setFriendName(cursor.getString(1));
+                friend.setFriendEmail(cursor.getString(2));
+                // Adding contact to list
+                friendsList.add(friend);
+            } while (cursor.moveToNext());
+        }
+
+        return friendsList;
+    }
+
 
 }

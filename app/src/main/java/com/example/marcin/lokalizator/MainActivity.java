@@ -94,6 +94,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     private Button cancel;
     private ProgressDialog pDialog;
     PoiJSONParser poiBase = new PoiJSONParser();
+    public static Context context;
 
     private ArrayList<MarkerOptions> markersRestaurants = new ArrayList<MarkerOptions>();
     private ArrayList<MarkerOptions> markersKfc = new ArrayList<MarkerOptions>();
@@ -126,7 +127,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-
+        context = getApplicationContext();
         StrictMode.setThreadPolicy(policy);
         session = new SessionManager(this);
     //    db = new SQLiteHandler(getApplicationContext());
@@ -680,7 +681,6 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     public void logOut(AdapterView.OnItemSelectedListener view) {
 
         stopLocationUpdates();
-      //  db.deleteFriends();
 
         session.logOut();
 

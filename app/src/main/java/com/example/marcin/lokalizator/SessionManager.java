@@ -10,7 +10,7 @@ public class SessionManager {
     private static String TAG = SessionManager.class.getSimpleName();
 
     SharedPreferences pref;
-
+    SQLiteHandler db;
     Editor editor;
     Context _context;
 
@@ -28,6 +28,7 @@ public class SessionManager {
         this._context = context;
         pref = _context.getSharedPreferences(PREF_NAME, PRIVATE_MODE);
         editor = pref.edit();
+        db = new SQLiteHandler(context);
 
     }
 
@@ -82,6 +83,7 @@ public class SessionManager {
         editor.putString(KEY_NAME, "");
         editor.putString(KEY_EMAIL, "");
         editor.commit();
+        db.deleteUsers();
         Log.d(TAG, "User info removed from SharedPreferences!");
 
     }

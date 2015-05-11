@@ -47,7 +47,7 @@ public class FriendsFragment extends ListFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        db = new SQLiteHandler(MainActivity.context);
+        db = new SQLiteHandler(LoginActivity.context);
         userFriendsList = db.getAllFriends();
 
         if (getArguments() != null) {

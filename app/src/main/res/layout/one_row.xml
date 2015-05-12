@@ -1,15 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
-<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent" >
-    <TableRow>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="5dip" >
+
+    <!--  ListRow Left sied Thumbnail image -->
+    <LinearLayout android:id="@+id/linear1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="3dip"
+        android:layout_alignParentLeft="true"
+        android:layout_marginRight="5dip">
+
         <ImageView
             android:id="@+id/img"
-            android:layout_width="50dp"
-            android:layout_height="50dp"/>
+            android:layout_width="50dip"
+            android:layout_height="50dip"
+            android:src="@drawable/image3"/>
+
+    </LinearLayout>
+    <LinearLayout android:id="@+id/linear2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="3dip"
+        android:layout_marginRight="5dip"
+        android:layout_toRightOf="@+id/linear1"
+        android:orientation="vertical"
+        >
         <TextView
             android:id="@+id/txt"
             android:layout_width="wrap_content"
-            android:layout_height="50dp" />
-    </TableRow>
-</TableLayout>
+            android:layout_height="25dp"
+            android:textSize="20sp"
+            />
+        <TextView
+            android:id="@+id/emailTXT"
+            android:layout_width="wrap_content"
+            android:layout_height="20dp"
+            android:textColor="@color/input_login_hint"
+            />
+    </LinearLayout>
+</RelativeLayout>

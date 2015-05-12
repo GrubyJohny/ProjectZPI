@@ -32,6 +32,8 @@ public class FriendList extends ArrayAdapter<ListViewItem> {
             viewHolder = new ViewHolder();
             viewHolder.ivIcon = (ImageView) view.findViewById(R.id.img);
             viewHolder.tvTitle = (TextView) view.findViewById(R.id.txt);
+            viewHolder.emailText = (TextView) view.findViewById(R.id.emailTXT);
+
             view.setTag(viewHolder);
         } else {
             // recycle the already inflated view
@@ -41,6 +43,7 @@ public class FriendList extends ArrayAdapter<ListViewItem> {
         ListViewItem item = getItem(position);
         viewHolder.ivIcon.setImageDrawable(item.image);
         viewHolder.tvTitle.setText(item.name);
+        viewHolder.emailText.setText(item.email);
 
 
 
@@ -58,5 +61,6 @@ public class FriendList extends ArrayAdapter<ListViewItem> {
     private static class ViewHolder {
         ImageView ivIcon;
         TextView tvTitle;
+        TextView emailText;
     }
 }

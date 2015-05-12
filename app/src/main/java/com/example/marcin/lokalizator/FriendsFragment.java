@@ -61,7 +61,7 @@ public class FriendsFragment extends ListFragment {
         Resources resources = getResources();
 
         for(Friend f: userFriendsList){
-            mItems.add(new ListViewItem(f.getFriendID(), resources.getDrawable(R.drawable.image3), f.getFriendName()));
+            mItems.add(new ListViewItem(f.getFriendID(), resources.getDrawable(R.drawable.image3), f.getFriendName(), f.getFriendEmail()));
         }
 
         setListAdapter(new FriendList(getActivity(), mItems));
@@ -140,7 +140,7 @@ public class FriendsFragment extends ListFragment {
     public void setFriends(){
         Resources resources = getResources();
         for(Friend f: userFriendsList){
-            mItems.add(new ListViewItem(f.getFriendID(), resources.getDrawable(R.drawable.image3), f.getFriendName()));
+            mItems.add(new ListViewItem(f.getFriendID(), resources.getDrawable(R.drawable.image3), f.getFriendName(), f.getFriendEmail()));
         }
 
         setListAdapter(new FriendList(getActivity(), mItems));

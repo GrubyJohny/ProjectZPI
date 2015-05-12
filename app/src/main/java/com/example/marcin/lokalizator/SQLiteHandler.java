@@ -66,6 +66,8 @@ public class SQLiteHandler extends SQLiteOpenHelper {
         db.close();
 
         Log.d(TAG, "New friend inserted into sqlite: " + id);
+
+
     }
 
 

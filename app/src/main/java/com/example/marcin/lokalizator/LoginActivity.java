@@ -104,6 +104,7 @@ public class LoginActivity extends Activity {
                 hideDialog();
 
                 try {
+
                     JSONObject jObj = new JSONObject(response);
                     boolean error = jObj.getBoolean("error");
 
@@ -119,11 +120,10 @@ public class LoginActivity extends Activity {
                         session.setKeyUid(uid);
                         session.setKeyName(name);
                         session.setKeyEmail(email);
-                        getFriendships(session.getUserId());
 
-                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                        startActivity(intent);
-                        finish();
+
+                            getFriendships(uid);
+
 
                     } else {
 
@@ -205,6 +205,11 @@ public class LoginActivity extends Activity {
 
                             db.addFriend(uid, name, email);
                         }
+
+                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                        startActivity(intent);
+                        finish();
+
                         Toast.makeText(getApplicationContext(), "Pomyślnie odebrano listę znajomych", Toast.LENGTH_LONG).show();
 
                     } else {
@@ -234,7 +239,7 @@ public class LoginActivity extends Activity {
             protected Map<String, String> getParams() {
                 Map<String, String> params = new HashMap<String, String>();
                 params.put("tag", "friends");
-                params.put("sender", id);
+                params.put("id", id);
 
                 return params;
             }
@@ -242,6 +247,7 @@ public class LoginActivity extends Activity {
         };
 
         AppController.getInstance().addToRequestQueue(strReq, tag_string_req);
+
     }
 
 

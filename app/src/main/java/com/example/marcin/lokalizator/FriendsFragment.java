@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -47,6 +48,7 @@ public class FriendsFragment extends ListFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         db = new SQLiteHandler(LoginActivity.context);
         userFriendsList = db.getAllFriends();
 
@@ -135,5 +137,14 @@ public class FriendsFragment extends ListFragment {
         super.onDetach();
     }
 
+    public void setFriends(){
+        Resources resources = getResources();
+        for(Friend f: userFriendsList){
+            mItems.add(new ListViewItem(f.getFriendID(), resources.getDrawable(R.drawable.image3), f.getFriendName()));
+        }
+
+        setListAdapter(new FriendList(getActivity(), mItems));
+        Log.d("FriendsFragment", "Wykonano");
+    }
 
 }

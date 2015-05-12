@@ -95,7 +95,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     private ProgressDialog pDialog;
     PoiJSONParser poiBase = new PoiJSONParser();
     public static Context context;
-
+    private static List<ListViewItem> mItems;
     private ArrayList<MarkerOptions> markersRestaurants = new ArrayList<MarkerOptions>();
     private ArrayList<MarkerOptions> markersKfc = new ArrayList<MarkerOptions>();
     private ArrayList<MarkerOptions> markersMcdonalds = new ArrayList<MarkerOptions>();
@@ -244,6 +244,11 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
             }
         });
 
+
+        //FriendsFragment ff = new FriendsFragment();
+       // ff.setFriends();
+
+
     }
 
     private void setupPoiButtons() {
@@ -347,7 +352,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                 myMap.clear();
                 for (int i = 0; i < markersCoffee.size(); i++)
                     myMap.addMarker(markersCoffee.get(i));
-               // setUpMap(false);
+                // setUpMap(false);
 
             }
 
@@ -505,7 +510,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
             @Override
             public void onClick(View v) {
                 myMap.clear();
-                Log.d(AppController.TAG,"ile jest klubów "+markersNightClubs.size());
+                Log.d(AppController.TAG, "ile jest klubów " + markersNightClubs.size());
                 for (int i = 0; i < markersNightClubs.size(); i++)
                     myMap.addMarker(markersNightClubs.get(i));
                 setUpMap(false);

@@ -43,10 +43,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
-        android:layout_toLeftOf="@id/messageButton"
         android:layout_marginRight="30dp"
-        android:text="Friends"
-        android:clickable="true" />
+        android:layout_toLeftOf="@id/messageButton"
+        android:clickable="true"
+        android:text="Friends" />
 
     <Button
         android:id="@+id/groupButton"
@@ -54,8 +54,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_toLeftOf="@id/friendsButton"
-        android:text="Group"
-        android:clickable="true" />
+        android:clickable="true"
+        android:text="Group" />
 
 
     <RelativeLayout
@@ -72,7 +72,7 @@
             android:layout_alignParentStart="false"
             android:layout_alignParentTop="true"
             android:animateFirstView="true"
-            android:animateLayoutChanges="true"  >
+            android:animateLayoutChanges="true">
 
             <fragment
                 android:id="@+id/myMapFragment"
@@ -158,6 +158,69 @@
         android:layout_marginTop="30dp"
         android:layout_toStartOf="@id/noticeButton"
         android:visibility="invisible" />
+
+    <LinearLayout
+        android:id="@+id/markerLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/background_material_light"
+        android:orientation="vertical"
+        android:visibility="invisible">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Tytuł markera" />
+
+            <Button
+                android:id="@+id/closeMarkerButton"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:clickable="true"
+                android:text="X"
+                android:textSize="8dp" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <Button
+                android:id="@+id/firstButton"
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:clickable="true"
+                android:text="A" />
+
+            <Button
+                android:id="@+id/secondButton"
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:clickable="true"
+                android:text="B" />
+
+            <Button
+                android:id="@+id/thirdButton"
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:clickable="true"
+                android:text="C" />
+
+            <Button
+                android:id="@+id/fourthButton"
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:clickable="true"
+                android:text="D" />
+        </LinearLayout>
+
+    </LinearLayout>
 
 
 </RelativeLayout>

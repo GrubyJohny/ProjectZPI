@@ -86,12 +86,19 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     private View layoutSettings;
     private View layoutFlipper;
     private View layoutGroup;
+    private View layoutMarker;
     private GoogleMap myMap;
     private LocationManager locationManager;
     private Button mainPoiButton;
     private Button clearPoiButton;
     private Button confirm;
     private Button cancel;
+    private Button firstMarkerButton;
+    private Button secondMarkerButton;
+    private Button thirdMarkerButton;
+    private Button fourthMarkerButton;
+    private Button closeMarkerButton;
+    private Marker ostatniMarker;
     private ProgressDialog pDialog;
     PoiJSONParser poiBase = new PoiJSONParser();
     public static Context context;
@@ -192,6 +199,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
             @Override
             public void onClick(View v) {
                 layoutGroup.setVisibility(View.INVISIBLE);
+                layoutMarker.setVisibility(View.GONE);
                 if(myViewFlipper.getDisplayedChild() != 1) {
                     myViewFlipper.setDisplayedChild(1);
                 }
@@ -206,6 +214,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
             @Override
             public void onClick(View v) {
                 layoutFlipper.setVisibility(View.INVISIBLE);
+                layoutMarker.setVisibility(View.GONE);
                 layoutGroup.setVisibility(View.VISIBLE);
             }
         });
@@ -244,6 +253,20 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
             }
         });
 
+        layoutMarker = (View) findViewById(R.id.markerLayout);
+
+        firstMarkerButton = (Button) findViewById(R.id.firstButton);
+        secondMarkerButton = (Button) findViewById(R.id.secondButton);
+        thirdMarkerButton = (Button) findViewById(R.id.thirdButton);
+        fourthMarkerButton = (Button) findViewById(R.id.fourthButton);
+        closeMarkerButton = (Button) findViewById(R.id.closeMarkerButton);
+
+        closeMarkerButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                layoutMarker.setVisibility(View.GONE);
+            }
+        });
 
         //FriendsFragment ff = new FriendsFragment();
        // ff.setFriends();
@@ -472,28 +495,23 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         myButtonShops.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(myButtonFoodBar.getVisibility()==View.VISIBLE)
-                {
+                if (myButtonFoodBar.getVisibility() == View.VISIBLE) {
                     (findViewById(R.id.ButtonFoodBar)).setVisibility(View.INVISIBLE);
                     (findViewById(R.id.ButtonFoodCoffee)).setVisibility(View.INVISIBLE);
                     (findViewById(R.id.ButtonFoodKfc)).setVisibility(View.INVISIBLE);
                     (findViewById(R.id.ButtonFoodMcDonald)).setVisibility(View.INVISIBLE);
                     (findViewById(R.id.ButtonFoodRestaurant)).setVisibility(View.INVISIBLE);
                 }
-                if(myButtonLeisureClubs.getVisibility()==View.VISIBLE)
-                {
+                if (myButtonLeisureClubs.getVisibility() == View.VISIBLE) {
                     (findViewById(R.id.ButtonLeisureParks)).setVisibility(View.INVISIBLE);
                     (findViewById(R.id.ButtonLeisureClubs)).setVisibility(View.INVISIBLE);
                 }
 
-                if(myButtonShopsMarket.getVisibility()==View.INVISIBLE)
-                {
+                if (myButtonShopsMarket.getVisibility() == View.INVISIBLE) {
                     (findViewById(R.id.ButtonShopsStores)).setVisibility(View.VISIBLE);
                     (findViewById(R.id.ButtonShopsMarket)).setVisibility(View.VISIBLE);
                     (findViewById(R.id.ButtonShopsShoppingMall)).setVisibility(View.VISIBLE);
-                }
-                else
-                {
+                } else {
                     (findViewById(R.id.ButtonShopsStores)).setVisibility(View.INVISIBLE);
                     (findViewById(R.id.ButtonShopsMarket)).setVisibility(View.INVISIBLE);
                     (findViewById(R.id.ButtonShopsShoppingMall)).setVisibility(View.INVISIBLE);
@@ -718,6 +736,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
 
                 // if right to left swipe on screen
                 if (lastX > currentX) {
+                    layoutMarker.setVisibility(View.GONE);
                     if (myViewFlipper.getDisplayedChild() == 1)
                         break;
 
@@ -822,6 +841,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                         layoutFlipper.setVisibility(View.INVISIBLE);
                         layoutGroup.setVisibility(View.INVISIBLE);
                         layoutSettings.setVisibility(View.VISIBLE);
+                        layoutMarker.setVisibility(View.GONE);
                         break;
                     case 2:
                         logOut(this);
@@ -986,6 +1006,10 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         Log.d(AppController.TAG, "lokalizacja zostła zaktualizowana");
         float latitude=(float)location.getLatitude();
         float longitude=(float)location.getLongitude();
+        if(ostatniMarker != null) {
+            layoutMarker.setX((float) myMap.getProjection().toScreenLocation(ostatniMarker.getPosition()).x - layoutMarker.getWidth() / 2 + 40);
+            layoutMarker.setY((float) myMap.getProjection().toScreenLocation(ostatniMarker.getPosition()).y - layoutMarker.getHeight()/2 - 30);
+        }
         //Toast.makeText(getApplicationContext(), "Szerokość + " + latitude + " Długość: " + longitude, Toast.LENGTH_SHORT).show();
         sendCordinate(session.getUserId(), (float) latitude, (float) longitude);
     }
@@ -1060,6 +1084,17 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                 DownloadTask downloadTask = new DownloadTask();
                 //no to zaczynamy zabawę
                 downloadTask.execute(url);
+                return true;
+            }
+        });
+
+        myMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker){
+                ostatniMarker = marker;
+                layoutMarker.setX((float)myMap.getProjection().toScreenLocation(marker.getPosition()).x - layoutMarker.getWidth()/2 + 40);
+                layoutMarker.setY((float)myMap.getProjection().toScreenLocation(marker.getPosition()).y - layoutMarker.getHeight()/2 - 30);
+                layoutMarker.setVisibility(View.VISIBLE);
                 return true;
             }
         });

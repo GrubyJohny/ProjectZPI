@@ -760,6 +760,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
 
 
 
+
             }
         }, new Response.ErrorListener() {
             @Override
@@ -784,7 +785,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
 
                 }
 
-                Log.e("MAna", "Registration Error: " + error.getMessage());
+                Log.e("OnLocationChanged", "Notification Error: " + error.getMessage());
                 Toast.makeText(getApplicationContext(),
                         error.getMessage(), Toast.LENGTH_LONG).show();
             }

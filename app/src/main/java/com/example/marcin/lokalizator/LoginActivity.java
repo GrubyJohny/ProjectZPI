@@ -115,14 +115,13 @@ public class LoginActivity extends Activity {
                         JSONObject user = jObj.getJSONObject("user");
                         String name = user.getString("name");
                         String email = user.getString("email");
-                        String created_at = user.getString("created_at");
 
                         session.setKeyUid(uid);
                         session.setKeyName(name);
                         session.setKeyEmail(email);
 
 
-                            getFriendships(uid);
+                        getUserInfo(uid);
 
 
                     } else {
@@ -174,17 +173,17 @@ public class LoginActivity extends Activity {
             pDialog.dismiss();
     }
 
-    private void getFriendships(final String id) {
+    private void getUserInfo(final String id) {
 
         String tag_string_req = "req_friendships";
-        pDialog.setMessage("Sending Request for list of friends");
+        pDialog.setMessage("Sending Request for list of friends and notifications");
         showDialog();
-        final String TAG = "List of friends request";
+        final String TAG = "List of friends and notifications request";
         StringRequest strReq = new StringRequest(Request.Method.POST, AppConfig.URL_REGISTER, new Response.Listener<String>() {
 
             @Override
             public void onResponse(String response) {
-                Log.d(TAG, "Friendship request Response: " + response.toString());
+                Log.d(TAG, response.toString());
                 hideDialog();
                 try {
 
@@ -204,6 +203,31 @@ public class LoginActivity extends Activity {
                             email = friendObj.getString("email");
 
                             db.addFriend(uid, name, email);
+                        }
+
+                        JSONArray array2 = jObj.getJSONArray("notifications");
+                        JSONObject notObj;
+                        String senderId;
+                        String senderName;
+                        String senderEmail;
+                        String receiverId;
+                        String type;
+                        String messageId;
+                        String groupId;
+                        String createdAt;
+
+                        for(int i=0; i<array2.length(); i++){
+                            notObj = array2.getJSONObject(i);
+                            senderId = notObj.getString("senderid");
+                            senderName = notObj.getString("senderName");
+                            senderEmail = notObj.getString("senderEmail");
+                            receiverId = notObj.getString("receiverid");
+                            type = notObj.getString("type");
+                            messageId = notObj.getString("messageid");
+                            groupId = notObj.getString("groupid");
+                            createdAt = notObj.getString("created_at");
+
+                            db.addNotification(senderId, senderName, senderEmail, receiverId, type, messageId, groupId, createdAt, 0);
                         }
 
                         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
@@ -238,7 +262,7 @@ public class LoginActivity extends Activity {
             @Override
             protected Map<String, String> getParams() {
                 Map<String, String> params = new HashMap<String, String>();
-                params.put("tag", "friends");
+                params.put("tag", "startSession");
                 params.put("id", id);
 
                 return params;

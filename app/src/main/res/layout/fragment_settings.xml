@@ -32,18 +32,26 @@
                 android:textAppearance="?android:attr/textAppearanceMedium" />
 
             <Button
-                android:id="@+id/changeImgButton"
+                android:id="@+id/changeImageFromGalleryButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentTop="true"
                 android:layout_toEndOf="@+id/passwordChange"
-                android:text="Search..." />
+                android:text="from gallery" />
+
+            <Button
+                android:id="@+id/changeImageFromCameraButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_toEndOf="@+id/changeImageFromGalleryButton"
+                android:text="take photo" />
 
             <TextView
                 android:id="@+id/passwordChange"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/changeImgButton"
+                android:layout_below="@id/changeImageFromGalleryButton"
                 android:text="New Password"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
 

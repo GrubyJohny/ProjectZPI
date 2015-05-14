@@ -950,6 +950,10 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
             @Override
             public void onCameraChange(CameraPosition position)
             {
+                if(ostatniMarker != null) {
+                    layoutMarker.setX((float) myMap.getProjection().toScreenLocation(ostatniMarker.getPosition()).x - layoutMarker.getWidth() / 2 + 40);
+                    layoutMarker.setY((float) myMap.getProjection().toScreenLocation(ostatniMarker.getPosition()).y - layoutMarker.getHeight()/2 - 30);
+                }
                 //addItemsToMap(markers);
             }
         };
@@ -1006,10 +1010,10 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         Log.d(AppController.TAG, "lokalizacja zostła zaktualizowana");
         float latitude=(float)location.getLatitude();
         float longitude=(float)location.getLongitude();
-        if(ostatniMarker != null) {
+        /*if(ostatniMarker != null) {
             layoutMarker.setX((float) myMap.getProjection().toScreenLocation(ostatniMarker.getPosition()).x - layoutMarker.getWidth() / 2 + 40);
             layoutMarker.setY((float) myMap.getProjection().toScreenLocation(ostatniMarker.getPosition()).y - layoutMarker.getHeight()/2 - 30);
-        }
+        }*/
         //Toast.makeText(getApplicationContext(), "Szerokość + " + latitude + " Długość: " + longitude, Toast.LENGTH_SHORT).show();
         sendCordinate(session.getUserId(), (float) latitude, (float) longitude);
     }

@@ -17,7 +17,6 @@ public class FriendList extends ArrayAdapter<ListViewItem> {
     public FriendList(Context context, List<ListViewItem> items) {
         super(context, R.layout.one_row, items);
         Log.d("TERAZ", "Fragment z listView");
-
     }
 
     @Override

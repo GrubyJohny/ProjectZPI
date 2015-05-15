@@ -106,6 +106,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     PoiJSONParser poiBase = new PoiJSONParser();
     public static Context context;
     private static List<ListViewItem> mItems;
+    ArrayList<Notification> readNotifications = new ArrayList<Notification>();
     private ArrayList<MarkerOptions> markersRestaurants = new ArrayList<MarkerOptions>();
     private ArrayList<MarkerOptions> markersKfc = new ArrayList<MarkerOptions>();
     private ArrayList<MarkerOptions> markersMcdonalds = new ArrayList<MarkerOptions>();
@@ -158,6 +159,8 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
 
         // new Thread(sender, "Watek do wysyłania koordynatów").start();
 
+        readNotifications = db.getAllNotifications();
+
         mainSpinner();
         notifications();
         messages();
@@ -168,9 +171,6 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         circleButton.setImageBitmap(bitmap_round);
 
         noticeButton = (ImageButton) findViewById(R.id.noticeButton);
-        /*Bitmap icon1 = BitmapFactory.decodeResource(getResources(), R.drawable. notificon);
-        Bitmap bitmap_round1 = clipBitmap(icon1);
-        noticeButton.setImageBitmap(bitmap_round1);*/
         Bitmap bMap = BitmapFactory.decodeResource(getResources(), R.drawable.notificon);
         Bitmap bMapScaled = Bitmap.createScaledBitmap(bMap, 100, 100, true);
         Bitmap bitmap_round1 = clipBitmap(bMapScaled);
@@ -270,6 +270,9 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                 layoutMarker.setVisibility(View.GONE);
             }
         });
+
+
+
 
         //FriendsFragment ff = new FriendsFragment();
        // ff.setFriends();
@@ -598,8 +601,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
 
     private void notifications() {
         spinner2 = (Spinner) findViewById(R.id.spinner2);
-        String[] spinner2Options = {"notice 1", "notice 2", "notice 3", "notice 4", "notice 5", "notice 6"};
-        ArrayAdapter<String> noticeButtonOptions = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, spinner2Options);
+        NotificationAdapter noticeButtonOptions = new NotificationAdapter(this, readNotifications);
         spinner2.setAdapter(noticeButtonOptions);
     }
 
@@ -790,6 +792,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                         createdAt = notObj.getString("created_at");
 
                         db.addNotification(senderId, senderName, senderEmail, receiverId, type, messageId, groupId, createdAt, 0);
+                        readNotifications.add(new Notification(senderId, senderName, senderEmail, receiverId, type, messageId, groupId, createdAt, 0));
                     }
 
 

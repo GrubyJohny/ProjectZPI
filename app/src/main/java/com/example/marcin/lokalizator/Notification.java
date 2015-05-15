@@ -9,10 +9,28 @@ public class Notification {
     private String senderName;
     private String senderEmail;
     private String receiverId;
+
+    public String getType() {
+        return type;
+    }
+
     private String type;
     private String groupId;
     private String messageId;
+
+    public String getCreatedAt() {
+        return createdAt;
+    }
+
     private String createdAt;
+
+    public boolean isChecked() {
+        if(checked == 0)
+            return false;
+        else
+            return true;
+    }
+
     private int checked;
     private SQLiteHandler db;
 
@@ -38,10 +56,10 @@ public class Notification {
     public String toString(){
         String response = null;
 
-        if(type == "friendshipRequest"){
+        if(type.equals("friendshipRequest")){
             response = "Użytkownik " + senderName + " zaprosił Cię do znajomych";
         }
-        if(type == "friendshipAgree"){
+        if(type.equals("friendshipAgree")){
             response = "Użytkownik " + senderName + " zaakceptował Twoje zaproszenie";
         }
 

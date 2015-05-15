@@ -13,6 +13,7 @@ import android.graphics.Path;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.StrictMode;
@@ -272,7 +273,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
 
         //FriendsFragment ff = new FriendsFragment();
        // ff.setFriends();
-
+        inclizaidListenerForMarkerMenu();
 
     }
 
@@ -711,6 +712,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
 
         Intent closeIntent = new Intent(this, LoginActivity.class);
         startActivity(closeIntent);
+        finish();
     }
 
     // Method to handle touch event like left to right swap and right to left swap
@@ -1426,6 +1428,41 @@ private String getDirectionUrl(LatLng origin, LatLng dest){
                }).create().show();
     }
 
+    public void inclizaidListenerForMarkerMenu()
+    {
+        firstMarkerButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d(AppController.TAG,"odebrałem zdarzenie");
+                double latitude = mCurrentLocation.getLatitude();
+                double longitude = mCurrentLocation.getLongitude();
+                LatLng origin = new LatLng(latitude, longitude);
+                latitude = ostatniMarker.getPosition().latitude;
+                longitude = ostatniMarker.getPosition().longitude;
+                LatLng dest = new LatLng(latitude, longitude);
+                String url = MainActivity.this.getDirectionUrl(origin, dest);
+                DownloadTask downloadTask = new DownloadTask();
+                //no to zaczynamy zabawę
+                downloadTask.execute(url);
+            }
+        });
+        secondMarkerButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                double latitude = mCurrentLocation.getLatitude();
+                double longitude = mCurrentLocation.getLongitude();
+                LatLng origin = new LatLng(latitude, longitude);
+                latitude = ostatniMarker.getPosition().latitude;
+                longitude = ostatniMarker.getPosition().longitude;
+                LatLng dest = new LatLng(latitude, longitude);
+
+                Uri gmmIntentUri= Uri.parse("google.navigation:q="+latitude+","+longitude);
+                Intent mapIntent=new Intent(Intent.ACTION_VIEW,gmmIntentUri);
+                mapIntent.setPackage("com.google.android.apps.maps");
+                startActivity(mapIntent);
+            }
+        });
+    }
 
 
 

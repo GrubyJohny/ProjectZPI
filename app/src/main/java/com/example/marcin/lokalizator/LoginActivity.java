@@ -205,8 +205,8 @@ public class LoginActivity extends Activity {
                             db.addFriend(uid, name, email);
                         }
 
-                        JSONArray array2 = jObj.getJSONArray("notifications");
-                        JSONObject notObj;
+                        JSONArray array2 = jObj.getJSONArray("oldNotifications");
+                        JSONObject oldNotObj;
                         String senderId;
                         String senderName;
                         String senderEmail;
@@ -217,7 +217,25 @@ public class LoginActivity extends Activity {
                         String createdAt;
 
                         for(int i=0; i<array2.length(); i++){
-                            notObj = array2.getJSONObject(i);
+                            oldNotObj = array2.getJSONObject(i);
+                            senderId = oldNotObj.getString("senderid");
+                            senderName = oldNotObj.getString("senderName");
+                            senderEmail = oldNotObj.getString("senderEmail");
+                            receiverId = oldNotObj.getString("receiverid");
+                            type = oldNotObj.getString("type");
+                            messageId = oldNotObj.getString("messageid");
+                            groupId = oldNotObj.getString("groupid");
+                            createdAt = oldNotObj.getString("created_at");
+
+                            db.addNotification(senderId, senderName, senderEmail, receiverId, type, messageId, groupId, createdAt, 1);
+                        }
+
+                        JSONArray array3 = jObj.getJSONArray("notifications");
+                        JSONObject notObj;
+
+
+                        for(int i=0; i<array3.length(); i++){
+                            notObj = array3.getJSONObject(i);
                             senderId = notObj.getString("senderid");
                             senderName = notObj.getString("senderName");
                             senderEmail = notObj.getString("senderEmail");
@@ -235,6 +253,7 @@ public class LoginActivity extends Activity {
                         finish();
 
                         Toast.makeText(getApplicationContext(), "Pomyślnie odebrano listę znajomych", Toast.LENGTH_LONG).show();
+                        Toast.makeText(getApplicationContext(), "Pomyślnie odebrano listę powiadomień", Toast.LENGTH_LONG).show();
 
                     } else {
 

@@ -196,8 +196,12 @@ public class SQLiteHandler extends SQLiteOpenHelper {
         long id = db.insert(TABLE_NOTIFICATIONS, null, values);
         db.close();
 
-        Log.d(TAG, "New notification inserted into sqlite: " + id);
-
+        if(checked == 0) {
+            Log.d(TAG, "New notification inserted into sqlite: " + id);
+        }
+        else{
+            Log.d(TAG, "Old notification inserted into sqlite: " + id);
+        }
 
     }
 

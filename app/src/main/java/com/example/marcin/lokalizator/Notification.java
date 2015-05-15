@@ -41,6 +41,9 @@ public class Notification {
         if(type == "friendshipRequest"){
             response = "Użytkownik " + senderName + " zaprosił Cię do znajomych";
         }
+        if(type == "friendshipAgree"){
+            response = "Użytkownik " + senderName + " zaakceptował Twoje zaproszenie";
+        }
 
         return response;
     }

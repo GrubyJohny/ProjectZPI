@@ -54,6 +54,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -72,6 +73,7 @@ import java.util.Map;
 public class MainActivity extends FragmentActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, com.google.android.gms.location.LocationListener {
 
     private SessionManager session;
+    private SQLiteHandler db;
     private ViewFlipper myViewFlipper;
     private float lastX;
     private Spinner spinner1;
@@ -137,7 +139,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         context = getApplicationContext();
         StrictMode.setThreadPolicy(policy);
         session = new SessionManager(this);
-    //    db = new SQLiteHandler(getApplicationContext());
+        db = new SQLiteHandler(getApplicationContext());
 
         sender = createSendThread();
 
@@ -752,12 +754,47 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     }
 
 
-    public void sendCordinate(final String id, final float c1, final float c2) {
+    public void stayActive(final String id, final float c1, final float c2) {
         StringRequest request = new StringRequest(Request.Method.POST, AppConfig.URL_LOGIN, new Response.Listener<String>() {
             @Override
-            public void onResponse(String s) {
+            public void onResponse(String response) {
+
+                String TAG = "Sending coordinates & checking for notifications";
+                Log.d(TAG, response.toString());
+                try{
+                    JSONObject jObj = new JSONObject(response);
+                    boolean error = jObj.getBoolean("error");
+
+                    JSONArray array = jObj.getJSONArray("notifications");
+                    JSONObject notObj;
+                    String senderId;
+                    String senderName;
+                    String senderEmail;
+                    String receiverId;
+                    String type;
+                    String messageId;
+                    String groupId;
+                    String createdAt;
+
+                    for(int i=0; i<array.length(); i++){
+                        notObj = array.getJSONObject(i);
+                        senderId = notObj.getString("senderid");
+                        senderName = notObj.getString("senderName");
+                        senderEmail = notObj.getString("senderEmail");
+                        receiverId = notObj.getString("receiverid");
+                        type = notObj.getString("type");
+                        messageId = notObj.getString("messageid");
+                        groupId = notObj.getString("groupid");
+                        createdAt = notObj.getString("created_at");
+
+                        db.addNotification(senderId, senderName, senderEmail, receiverId, type, messageId, groupId, createdAt, 0);
+                    }
 
 
+
+                }catch(Exception e){
+
+                }
 
 
 
@@ -794,7 +831,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
             @Override
             protected Map<String, String> getParams() {
                 Map<String, String> params = new HashMap<>();
-                params.put("tag", "koordynaty");
+                params.put("tag", "userConnection");
                 params.put("id", id);
                 params.put("koordynat1", c1 + "");
                 params.put("koordynat2", c2 + "");
@@ -1008,7 +1045,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     @Override
     public void onLocationChanged(Location location) {
         mCurrentLocation = location;
-        Log.d(AppController.TAG, "lokalizacja zostła zaktualizowana");
+        Log.d(AppController.TAG, "Location has changed");
         float latitude=(float)location.getLatitude();
         float longitude=(float)location.getLongitude();
         /*if(ostatniMarker != null) {
@@ -1016,7 +1053,8 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
             layoutMarker.setY((float) myMap.getProjection().toScreenLocation(ostatniMarker.getPosition()).y - layoutMarker.getHeight()/2 - 30);
         }*/
         //Toast.makeText(getApplicationContext(), "Szerokość + " + latitude + " Długość: " + longitude, Toast.LENGTH_SHORT).show();
-        sendCordinate(session.getUserId(), (float) latitude, (float) longitude);
+        stayActive(session.getUserId(), (float) latitude, (float) longitude);
+
     }
 
     public static Bitmap clipBitmap(Bitmap bitmap) {
@@ -1128,7 +1166,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
 
                             double latitude = 54.5;
                             double longitude = 19.2;
-                            sendCordinate(session.getUserId(), (float) latitude, (float) longitude);
+                           // sendCordinate(session.getUserId(), (float) latitude, (float) longitude);
                         }
                         Thread.sleep(5000);
                     }
@@ -1304,56 +1342,62 @@ private String getDirectionUrl(LatLng origin, LatLng dest){
         pDialog.setMessage("Sending Request for Friendship");
         showDialog();
         final String TAG = "Friendship request";
-        StringRequest strReq = new StringRequest(Request.Method.POST, AppConfig.URL_REGISTER, new Response.Listener<String>() {
+        if(!email.equals(session.getUserEmail())) {
+            StringRequest strReq = new StringRequest(Request.Method.POST, AppConfig.URL_REGISTER, new Response.Listener<String>() {
 
-            @Override
-            public void onResponse(String response) {
-                Log.d(TAG, "Friendship request Response: " + response.toString());
-                hideDialog();
-                try {
-                    JSONObject jObj = new JSONObject(response);
-                    boolean error = jObj.getBoolean("error");
+                @Override
+                public void onResponse(String response) {
+                    Log.d(TAG, "Friendship request Response: " + response.toString());
+                    hideDialog();
+                    try {
+                        JSONObject jObj = new JSONObject(response);
+                        boolean error = jObj.getBoolean("error");
 
-                    if (!error) {
+                        if (!error) {
 
-                        Toast.makeText(getApplicationContext(), "Pomyślnie wysłano zaproszenie", Toast.LENGTH_LONG).show();
+                            Toast.makeText(getApplicationContext(), "Successfully sent invitation", Toast.LENGTH_LONG).show();
 
-                    } else {
+                        } else {
 
-                        String errorMsg = jObj.getString("error_msg");
-                        Toast.makeText(getApplicationContext(), errorMsg, Toast.LENGTH_LONG).show();
+                            String errorMsg = jObj.getString("error_msg");
+                            Toast.makeText(getApplicationContext(), errorMsg, Toast.LENGTH_LONG).show();
+                        }
+                    } catch (JSONException e) {
+                        Toast.makeText(getApplicationContext(), "Exception - problem z połączeniem", Toast.LENGTH_LONG).show();
+                        e.printStackTrace();
                     }
-                } catch (JSONException e) {
-                    Toast.makeText(getApplicationContext(), "Exception - problem z połączeniem", Toast.LENGTH_LONG).show();
-                    e.printStackTrace();
+
+                }
+            }, new Response.ErrorListener() {
+
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    Log.e(TAG, "Friendship request Error: " + error.toString());
+
+                    Toast.makeText(getApplicationContext(), error.getMessage(), Toast.LENGTH_LONG).show();
+                    hideDialog();
+
+                }
+            }) {
+
+                @Override
+                protected Map<String, String> getParams() {
+                    Map<String, String> params = new HashMap<String, String>();
+                    params.put("tag", "friendshipRequest");
+                    params.put("sender", id);
+                    params.put("receiverEmail", email);
+
+                    return params;
                 }
 
-            }
-        }, new Response.ErrorListener() {
+            };
 
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.e(TAG, "Friendship request Error: " + error.toString());
-
-                Toast.makeText(getApplicationContext(), error.getMessage(), Toast.LENGTH_LONG).show();
-                hideDialog();
-
-            }
-        }) {
-
-            @Override
-            protected Map<String, String> getParams() {
-                Map<String, String> params = new HashMap<String, String>();
-                params.put("tag", "friendshipRequest");
-                params.put("sender", id);
-                params.put("receiverEmail", email);
-
-                return params;
-            }
-
-        };
-
-        AppController.getInstance().addToRequestQueue(strReq, tag_string_req);
+            AppController.getInstance().addToRequestQueue(strReq, tag_string_req);
+        }
+        else{
+            hideDialog();
+            Toast.makeText(getApplicationContext(), "You cannot send request to yourself", Toast.LENGTH_LONG).show();
+        }
     }
     private void showDialog() {
         if (!pDialog.isShowing())

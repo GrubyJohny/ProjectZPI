@@ -2,9 +2,12 @@ package com.example.marcin.lokalizator;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -17,7 +20,10 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.StrictMode;
+import android.preference.PreferenceManager;
+import android.provider.MediaStore;
 import android.support.v4.app.FragmentActivity;
+import android.util.Base64;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -58,8 +64,21 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.DOMException;
+import org.w3c.dom.Document;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.w3c.dom.Text;
+import org.w3c.dom.UserDataHandler;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -96,6 +115,12 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     private Button clearPoiButton;
     private Button confirm;
     private Button cancel;
+    private Button changeImgFromGallery;
+    private Button changeImgFromCamera;
+    private static final int PICK_FROM_CAMERA = 1;
+    private static final int PICK_FROM_GALLERY = 2;
+    private static final int CROP_IMAGE = 3;
+    String IMAGE_PHOTO_FILENAME = "profile_photo.png";
     private Button firstMarkerButton;
     private Button secondMarkerButton;
     private Button thirdMarkerButton;
@@ -164,9 +189,23 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         mainSpinner();
         notifications();
         messages();
-
+        Bitmap icon = null;
         circleButton = (ImageButton) findViewById(R.id.circleButton);
-        Bitmap icon = BitmapFactory.decodeResource(getResources(), R.drawable.johny);
+        try {
+            File filePath = context.getFileStreamPath(IMAGE_PHOTO_FILENAME);
+            FileInputStream fi = new FileInputStream(filePath);
+            icon = BitmapFactory.decodeStream(fi);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        //w razie gdyby nie było jeszcze żadnego naszego zdjęcia, to johny ląduje na profilowym
+        if(icon==null)
+         icon = BitmapFactory.decodeResource(getResources(), R.drawable.johny);
+
+
         Bitmap bitmap_round = clipBitmap(icon);
         circleButton.setImageBitmap(bitmap_round);
 
@@ -632,6 +671,133 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                 layoutSettings.setVisibility(View.INVISIBLE);
             }
         });
+
+        changeImgFromGallery = (Button) findViewById(R.id.changeImgFromGalleryButton);
+        changeImgFromGallery.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent();
+
+                intent.setType("image/*");
+                intent.setAction(Intent.ACTION_GET_CONTENT);
+
+                intent.putExtra("crop", "true");
+                intent.putExtra("aspectX", 1);
+                intent.putExtra("aspectY", 1);
+
+                //SZCZUREK LAYOUT DESIGNER - tutaj możesz zmienić rozmiary zdjęcia które, zwraca galeria
+                intent.putExtra("outputX", 250);
+                intent.putExtra("outputY", 250);
+
+                try {
+
+                    intent.putExtra("return-data", true);
+                    startActivityForResult(Intent.createChooser(intent,
+                            "Complete action using"), PICK_FROM_GALLERY);
+
+                } catch (ActivityNotFoundException e) {
+
+                }
+            }
+
+
+        });
+
+        changeImgFromCamera = (Button) findViewById(R.id.changeImgFromCameraButton);
+        changeImgFromCamera.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+
+                intent.putExtra(MediaStore.EXTRA_OUTPUT,
+                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI.toString());
+                intent.putExtra("crop", "true");
+                intent.putExtra("aspectX", 1);
+                intent.putExtra("aspectY", 1);
+                intent.putExtra("outputX", 250);
+                intent.putExtra("outputY", 250);
+
+                try {
+
+                    intent.putExtra("return-data", true);
+                    startActivityForResult(intent, PICK_FROM_CAMERA);
+
+                } catch (ActivityNotFoundException e) {
+
+                }
+            }
+
+        });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        try {
+            if (requestCode == PICK_FROM_GALLERY) {
+                Bundle extras2 = data.getExtras();
+                if (extras2 != null) {
+                    Bitmap photo = extras2.getParcelable("data");
+                    Bitmap bitmap_round = clipBitmap(photo);
+                    circleButton.setImageBitmap(bitmap_round);
+
+                    FileOutputStream fos = context.openFileOutput(IMAGE_PHOTO_FILENAME, Context.MODE_PRIVATE);
+                    bitmap_round.compress(Bitmap.CompressFormat.PNG, 100, fos);
+                    fos.close();
+
+                    Toast.makeText(this, "Profile image changed successfully!",
+                            Toast.LENGTH_SHORT).show();
+
+                }}
+            else if (requestCode == PICK_FROM_CAMERA) {
+                Bundle extras2 = data.getExtras();
+                if (extras2 != null) {
+                    Uri uri = data.getData();
+                    Intent cropIntent = new Intent("com.android.camera.action.CROP");
+                    //indicate image type and Uri
+                    cropIntent.setDataAndType(uri, "image/*");
+                    //set crop properties
+                    cropIntent.putExtra("crop", "true");
+                    //indicate aspect of desired crop
+                    cropIntent.putExtra("aspectX", 1);
+                    cropIntent.putExtra("aspectY", 1);
+                    //indicate output X and Y
+                    cropIntent.putExtra("outputX", 250);
+                    cropIntent.putExtra("outputY", 250);
+                    //retrieve data on return
+                    cropIntent.putExtra("return-data", true);
+                    //start the activity - we handle returning in onActivityResult
+                    startActivityForResult(cropIntent, CROP_IMAGE);
+               }
+            }
+            else if(requestCode == CROP_IMAGE)
+            {
+                Bundle extras2 = data.getExtras();
+                Bitmap photo = extras2.getParcelable("data");
+
+                Bitmap bitmap_round = clipBitmap(photo);
+                circleButton.setImageBitmap(bitmap_round);
+
+                FileOutputStream fos = context.openFileOutput(IMAGE_PHOTO_FILENAME, Context.MODE_PRIVATE);
+                bitmap_round.compress(Bitmap.CompressFormat.PNG, 100, fos);
+                fos.close();
+
+                Toast.makeText(this, "Profile image changed successfully!",
+                        Toast.LENGTH_SHORT).show();
+            }
+            else
+            {
+                Toast.makeText(this, "You haven't picked Image",
+                        Toast.LENGTH_LONG).show();
+            }
+
+
+        } catch (Exception e) {
+            Toast.makeText(this, "Something went wrong", Toast.LENGTH_LONG)
+                    .show();
+        }
+
     }
 
     private void buildAlertMessageNoGps() {

@@ -6,8 +6,6 @@ import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -20,10 +18,8 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.StrictMode;
-import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.support.v4.app.FragmentActivity;
-import android.util.Base64;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -64,17 +60,8 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.w3c.dom.DOMException;
-import org.w3c.dom.Document;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.w3c.dom.Text;
-import org.w3c.dom.UserDataHandler;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -930,7 +917,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
             public void onResponse(String response) {
 
                 String TAG = "Sending coordinates & checking for notifications";
-                Log.d(TAG, response.toString());
+                //Log.d(TAG, response.toString());
                 try{
                     JSONObject jObj = new JSONObject(response);
                     boolean error = jObj.getBoolean("error");
@@ -1216,7 +1203,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     @Override
     public void onLocationChanged(Location location) {
         mCurrentLocation = location;
-        Log.d(AppController.TAG, "Location has changed");
+        //Log.d(AppController.TAG, "Location has changed");
         float latitude=(float)location.getLatitude();
         float longitude=(float)location.getLongitude();
         /*if(ostatniMarker != null) {
@@ -1629,6 +1616,18 @@ private String getDirectionUrl(LatLng origin, LatLng dest){
                 Intent mapIntent=new Intent(Intent.ACTION_VIEW,gmmIntentUri);
                 mapIntent.setPackage("com.google.android.apps.maps");
                 startActivity(mapIntent);
+            }
+        });
+        thirdMarkerButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+               String uid=session.getUserId();
+               double latitude = ostatniMarker.getPosition().latitude;
+               double longitude = ostatniMarker.getPosition().longitude;
+               String name=ostatniMarker.getTitle();
+                if(name==null)
+                    name="brak";
+                Sender.sendMarker(uid,latitude,longitude,"brak");
             }
         });
     }

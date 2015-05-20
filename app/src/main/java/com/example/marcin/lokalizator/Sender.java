@@ -12,10 +12,16 @@ import com.android.volley.ServerError;
 import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -91,6 +97,68 @@ public class Sender {
         AppController.getInstance().addToRequestQueue(request, "nowy_marker");
     }
 
+    public static void sendRequestAboutMarkers(final String id,final List<CustomMarker> forResult,final GoogleMap map)
+    {
+        final String TAG = "Getting markers";
+        Log.d(TAG, "dawaj "+id);
+        StringRequest request=new StringRequest(Request.Method.POST,AppConfig.URL_LOGIN, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
 
+                Log.d(TAG, response.toString());
+                forResult.clear();
+                try {
+                    JSONObject jObj=new JSONObject(response);
+                    JSONArray markersArray=jObj.getJSONArray("notifications");
+                    for(int i=0;i<markersArray.length();i++)
+                    {
+                        JSONObject marker=markersArray.getJSONObject(i);
+                        int markerid=marker.getInt("markerid");
+                        int uid=marker.getInt("uid");
+                        double latitude=marker.getDouble("latitude");
+                        double longitude=marker.getDouble("longitude");
+                        String name=marker.getString("name");
+                        CustomMarker customMarker =new CustomMarker(markerid+"",uid+"",latitude,longitude,name);
+                        customMarker.setSaveInBase(true);
+                        forResult.add(customMarker);
+                    }
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                Log.d(TAG, "size "+forResult.size());
+                Sender.putMarkersOnMapAgain(forResult,map);
+
+
+            }
+        },new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError volleyError) {
+                Log.d("onErrorResponse", "Wydarzyło się coś strasznego!!!!!");
+            }
+        }){
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String,String> params= new HashMap<>();
+                params.put("tag","daj_markery");
+                params.put("id",id);
+                return params;
+            }
+        };
+        AppController.getInstance().addToRequestQueue(request, "nowy_prosba");
+
+    }
+
+
+    public static void putMarkersOnMapAgain(List<CustomMarker> markers,GoogleMap myMap)
+    {
+        for(CustomMarker cM:markers)
+        {
+            myMap.addMarker(new MarkerOptions().position(new LatLng(cM.getLatitude(), cM.getLongitude())));
+
+            Log.d("put", "dodaje a jak" + cM.getLatitude()+","+cM.getLongitude());
+        }
+       //myMap.addMarker(new MarkerOptions().position(new LatLng(51.109383,17.057973)));
+    }
 
 }

@@ -145,6 +145,9 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     //Flaga mowiąca o tym czy chcemy monitorować lokalizację
     private boolean mRequestingLocationUpdates;
 
+    //Lista aktywnych znaczników
+    private List<CustomMarker> markers;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -302,6 +305,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
 
         //FriendsFragment ff = new FriendsFragment();
        // ff.setFriends();
+        markers=new ArrayList();
         inclizaidListenerForMarkerMenu();
 
     }
@@ -1630,7 +1634,18 @@ private String getDirectionUrl(LatLng origin, LatLng dest){
                 Sender.sendMarker(uid,latitude,longitude,"brak");
             }
         });
+        fourthMarkerButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                myMap.clear();
+                Sender.sendRequestAboutMarkers(session.getUserId(),markers,myMap);
+
+                Log.d("Dlaczego nie","bo size "+ markers.size());
+            }
+        });
     }
+
+
 
 
 

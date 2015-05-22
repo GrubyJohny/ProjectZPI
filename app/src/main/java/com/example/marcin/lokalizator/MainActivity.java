@@ -32,6 +32,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
@@ -117,6 +118,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     private Button closeMarkerButton;
     private Marker ostatniMarker;
     private ProgressDialog pDialog;
+    private ScrollView POIScrollView;
     PoiJSONParser poiBase = new PoiJSONParser();
     public static Context context;
     private static List<ListViewItem> mItems;
@@ -308,6 +310,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         });
 
 
+        POIScrollView = (ScrollView) findViewById(R.id.POIScroll);
 
 
         //FriendsFragment ff = new FriendsFragment();
@@ -321,21 +324,23 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
 
     private void setupPoiButtons() {
 
-        (findViewById(R.id.ButtonFood)).setVisibility(View.INVISIBLE);
+/*
+//        (findViewById(R.id.ButtonFood)).setVisibility(View.INVISIBLE);
         (findViewById(R.id.ButtonFoodBar)).setVisibility(View.INVISIBLE);
         (findViewById(R.id.ButtonFoodCoffee)).setVisibility(View.INVISIBLE);
         (findViewById(R.id.ButtonFoodKfc)).setVisibility(View.INVISIBLE);
         (findViewById(R.id.ButtonFoodMcDonald)).setVisibility(View.INVISIBLE);
         (findViewById(R.id.ButtonFoodRestaurant)).setVisibility(View.INVISIBLE);
-        (findViewById(R.id.ButtonShops)).setVisibility(View.INVISIBLE);
+        //(findViewById(R.id.ButtonShops)).setVisibility(View.INVISIBLE);
         (findViewById(R.id.ButtonShopsStores)).setVisibility(View.INVISIBLE);
         (findViewById(R.id.ButtonShopsMarket)).setVisibility(View.INVISIBLE);
         (findViewById(R.id.ButtonShopsShoppingMall)).setVisibility(View.INVISIBLE);
-        (findViewById(R.id.ButtonLeisure)).setVisibility(View.INVISIBLE);
+        //(findViewById(R.id.ButtonLeisure)).setVisibility(View.INVISIBLE);
         (findViewById(R.id.ButtonLeisureClubs)).setVisibility(View.INVISIBLE);
         (findViewById(R.id.ButtonLeisureParks)).setVisibility(View.INVISIBLE);
-        (findViewById(R.id.ButtonMyPlaces)).setVisibility(View.INVISIBLE);
-        (findViewById(R.id.ButtonClearPoi)).setVisibility(View.INVISIBLE);
+        //(findViewById(R.id.ButtonMyPlaces)).setVisibility(View.INVISIBLE);
+        //(findViewById(R.id.ButtonClearPoi)).setVisibility(View.INVISIBLE);
+*/
 
 
         mainPoiButton = (Button) findViewById(R.id.buttonPOIFiltering);
@@ -359,46 +364,63 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
 
             public void onClick(View view) {
 
-                if (findViewById(R.id.ButtonFood).getVisibility() == View.INVISIBLE) {
-                    (findViewById(R.id.ButtonFood)).setVisibility(View.VISIBLE);
+                /*if (findViewById(R.id.ButtonFoodBar).getVisibility() == View.INVISIBLE) {
+                    (findViewById(R.id.ButtonFoodBar)).setVisibility(View.VISIBLE);
+                    (findViewById(R.id.ButtonFoodCoffee)).setVisibility(View.VISIBLE);
+                    (findViewById(R.id.ButtonFoodKfc)).setVisibility(View.VISIBLE);
+                    (findViewById(R.id.ButtonFoodMcDonald)).setVisibility(View.VISIBLE);
+                    (findViewById(R.id.ButtonFoodRestaurant)).setVisibility(View.VISIBLE);
+                    (findViewById(R.id.ButtonShopsStores)).setVisibility(View.VISIBLE);
+                    (findViewById(R.id.ButtonShopsMarket)).setVisibility(View.VISIBLE);
+                    (findViewById(R.id.ButtonShopsShoppingMall)).setVisibility(View.VISIBLE);
+                    (findViewById(R.id.ButtonLeisureClubs)).setVisibility(View.VISIBLE);
+                    (findViewById(R.id.ButtonLeisureParks)).setVisibility(View.VISIBLE);
+                    (findViewById(R.id.ButtonClearPoi)).setVisibility(View.VISIBLE);
+                    *//*(findViewById(R.id.ButtonFood)).setVisibility(View.VISIBLE);
                     (findViewById(R.id.ButtonShops)).setVisibility(View.VISIBLE);
                     (findViewById(R.id.ButtonLeisure)).setVisibility(View.VISIBLE);
-                    (findViewById(R.id.ButtonMyPlaces)).setVisibility(View.VISIBLE);
-                    (findViewById(R.id.ButtonClearPoi)).setVisibility(View.VISIBLE);
+                    (findViewById(R.id.ButtonMyPlaces)).setVisibility(View.VISIBLE);*//*
                 } else {
-                    (findViewById(R.id.ButtonFood)).setVisibility(View.INVISIBLE);
+                    //(findViewById(R.id.ButtonFood)).setVisibility(View.INVISIBLE);
                     (findViewById(R.id.ButtonFoodBar)).setVisibility(View.INVISIBLE);
                     (findViewById(R.id.ButtonFoodCoffee)).setVisibility(View.INVISIBLE);
                     (findViewById(R.id.ButtonFoodKfc)).setVisibility(View.INVISIBLE);
                     (findViewById(R.id.ButtonFoodMcDonald)).setVisibility(View.INVISIBLE);
                     (findViewById(R.id.ButtonFoodRestaurant)).setVisibility(View.INVISIBLE);
-                    (findViewById(R.id.ButtonShops)).setVisibility(View.INVISIBLE);
+                    //(findViewById(R.id.ButtonShops)).setVisibility(View.INVISIBLE);
                     (findViewById(R.id.ButtonShopsStores)).setVisibility(View.INVISIBLE);
                     (findViewById(R.id.ButtonShopsMarket)).setVisibility(View.INVISIBLE);
                     (findViewById(R.id.ButtonShopsShoppingMall)).setVisibility(View.INVISIBLE);
-                    (findViewById(R.id.ButtonLeisure)).setVisibility(View.INVISIBLE);
+                    //(findViewById(R.id.ButtonLeisure)).setVisibility(View.INVISIBLE);
                     (findViewById(R.id.ButtonLeisureClubs)).setVisibility(View.INVISIBLE);
                     (findViewById(R.id.ButtonLeisureParks)).setVisibility(View.INVISIBLE);
-                    (findViewById(R.id.ButtonMyPlaces)).setVisibility(View.INVISIBLE);
+                    //(findViewById(R.id.ButtonMyPlaces)).setVisibility(View.INVISIBLE);
                     (findViewById(R.id.ButtonClearPoi)).setVisibility(View.INVISIBLE);
+                }*/
+                if((findViewById(R.id.POIButtons)).getVisibility() == View.GONE){
+                    POIScrollView.scrollTo(0,0);
+                    findViewById(R.id.POIButtons).setVisibility(View.VISIBLE);
+                }
+                else{
+                    findViewById(R.id.POIButtons).setVisibility(View.GONE);
                 }
             }
 
         });
 
-        final Button myButtonFood = (Button) findViewById(R.id.ButtonFood);
-        final Button myButtonFoodBar = (Button) findViewById(R.id.ButtonFoodBar);
-        final Button myButtonFoodCoffee = (Button) findViewById(R.id.ButtonFoodCoffee);
-        final Button myButtonFoodKfc = (Button) findViewById(R.id.ButtonFoodKfc);
-        final Button myButtonFoodMcDonald = (Button) findViewById(R.id.ButtonFoodMcDonald);
-        final Button myButtonFoodRestaurant = (Button) findViewById(R.id.ButtonFoodRestaurant);
-        final Button myButtonShopsMarket = (Button) findViewById(R.id.ButtonShopsMarket);
-        final Button myButtonShopsStores = (Button) findViewById(R.id.ButtonShopsStores);
-        final Button myButtonShopsShoppingMalls = (Button) findViewById(R.id.ButtonShopsShoppingMall);
-        final Button myButtonShops = (Button) findViewById(R.id.ButtonShops);
-        final Button myButtonLeisureClubs = (Button) findViewById(R.id.ButtonLeisureClubs);
-        final Button myButtonLeisureParks = (Button) findViewById(R.id.ButtonLeisureParks);
-        final Button myButtonLeisure = (Button) findViewById(R.id.ButtonLeisure);
+        //final Button myButtonFood = (Button) findViewById(R.id.ButtonFood);
+        final ImageButton myButtonFoodBar = (ImageButton) findViewById(R.id.ButtonFoodBar);
+        final ImageButton myButtonFoodCoffee = (ImageButton) findViewById(R.id.ButtonFoodCoffee);
+        final ImageButton myButtonFoodKfc = (ImageButton) findViewById(R.id.ButtonFoodKfc);
+        final ImageButton myButtonFoodMcDonald = (ImageButton) findViewById(R.id.ButtonFoodMcDonald);
+        final ImageButton myButtonFoodRestaurant = (ImageButton) findViewById(R.id.ButtonFoodRestaurant);
+        final ImageButton myButtonShopsMarket = (ImageButton) findViewById(R.id.ButtonShopsMarket);
+        final ImageButton myButtonShopsStores = (ImageButton) findViewById(R.id.ButtonShopsStores);
+        final ImageButton myButtonShopsShoppingMalls = (ImageButton) findViewById(R.id.ButtonShopsShoppingMall);
+        //final Button myButtonShops = (Button) findViewById(R.id.ButtonShops);
+        final ImageButton myButtonLeisureClubs = (ImageButton) findViewById(R.id.ButtonLeisureClubs);
+        final ImageButton myButtonLeisureParks = (ImageButton) findViewById(R.id.ButtonLeisureParks);
+        //final Button myButtonLeisure = (Button) findViewById(R.id.ButtonLeisure);
 
         //  FOOOD AREA
 
@@ -409,7 +431,6 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                 for (int i = 0; i < markersBars.size(); i++)
                     myMap.addMarker(markersBars.get(i));
                 //setUpMap(true);
-
             }
 
         });
@@ -430,6 +451,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
             @Override
             public void onClick(View v) {
                 myMap.clear();
+                Log.d("ROZMIAR CZEGOS: ", "" + markersKfc.size());
                 for (int i = 0; i < markersKfc.size(); i++)
                     myMap.addMarker(markersKfc.get(i));
                 setUpMap(false);
@@ -462,7 +484,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
 
         });
 
-        myButtonFood.setOnClickListener(new View.OnClickListener() {
+/*        myButtonFood.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(myButtonShopsMarket.getVisibility()==View.VISIBLE)
@@ -496,7 +518,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
 
             }
 
-        });
+        });*/
         // END OF FOOD AREA
 
         // SHOPS AREA
@@ -537,7 +559,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
 
         });
 
-        myButtonShops.setOnClickListener(new View.OnClickListener() {
+        /*myButtonShops.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (myButtonFoodBar.getVisibility() == View.VISIBLE) {
@@ -564,7 +586,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
 
             }
 
-        });
+        });*/
         // END OF SHOPS AREA
 
         //LEISURE AREA
@@ -594,7 +616,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
 
         });
 
-        myButtonLeisure.setOnClickListener(new View.OnClickListener() {
+        /*myButtonLeisure.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(myButtonShopsMarket.getVisibility()==View.VISIBLE)
@@ -625,7 +647,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
 
             }
 
-        });
+        });*/
 
 
     }
@@ -1131,7 +1153,10 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
             myMap.setMyLocationEnabled(true);
             myMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
 
-            Sender.putMarkersOnMapAgain(markers,myMap);
+            Sender.putMarkersOnMapAgain(markers, myMap);
+
+        myMap.addMarker(new MarkerOptions().position(new LatLng(51.111508, 17.060268)).title("Rondo Reagana"));
+        myMap.addMarker(new MarkerOptions().position(new LatLng(51.113825, 17.065890)).title("Akademik"));
 
 
         /*LatLng latLng = new LatLng(0, 0);
@@ -1178,6 +1203,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                     layoutMarker.setX((float) myMap.getProjection().toScreenLocation(ostatniMarker.getPosition()).x - layoutMarker.getWidth() / 2 + 40);
                     layoutMarker.setY((float) myMap.getProjection().toScreenLocation(ostatniMarker.getPosition()).y - layoutMarker.getHeight()/2 - 30);
                 }
+                findViewById(R.id.POIButtons).setVisibility(View.GONE);
                 //addItemsToMap(markers);
             }
         };
@@ -1280,9 +1306,6 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         markersShoppingMalls= poiBase.getJsonWithSelectedData(6, new LatLng(mCurrentLocation.getLatitude(),mCurrentLocation.getLongitude()), "shoppingmall" );
         markersShops= poiBase.getJsonWithSelectedData(7, new LatLng(mCurrentLocation.getLatitude(),mCurrentLocation.getLongitude()), "shop" );
         markersMarkets = poiBase.getJsonWithSelectedData(8, new LatLng(mCurrentLocation.getLatitude(),mCurrentLocation.getLongitude()), "market" );
-
-
-
     }
 
     @Override
@@ -1302,6 +1325,8 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                 MarkerDialog markerDialog=new MarkerDialog();
                 markerDialog.show(getFragmentManager(),"Marker Dialog");
 
+                myMap.addMarker(new MarkerOptions().position(latLng).draggable(true));
+                layoutMarker.setVisibility(View.GONE);
             }
         });
 
@@ -1336,6 +1361,14 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                 layoutMarker.setY((float)myMap.getProjection().toScreenLocation(marker.getPosition()).y - layoutMarker.getHeight()/2 - 30);
                 layoutMarker.setVisibility(View.VISIBLE);
                 return true;
+            }
+        });
+
+        myMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+            @Override
+            public void onMapClick(LatLng latLng) {
+                findViewById(R.id.POIButtons).setVisibility(View.GONE);
+                layoutMarker.setVisibility(View.GONE);
             }
         });
     }
@@ -1771,12 +1804,13 @@ private String getDirectionUrl(LatLng origin, LatLng dest){
         fourthMarkerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                double latitude=ostatniMarker.getPosition().latitude;
-                double longitude=ostatniMarker.getPosition().longitude;
-                CustomMarker toRemove=ToolsForMarkerList.getSpecificMarker(markers,latitude,longitude);
+                double latitude = ostatniMarker.getPosition().latitude;
+                double longitude = ostatniMarker.getPosition().longitude;
+                CustomMarker toRemove = ToolsForMarkerList.getSpecificMarker(markers, latitude, longitude);
                 markers.remove(toRemove);
                 myMap.clear();
-                Sender.putMarkersOnMapAgain(markers,myMap);
+                Sender.putMarkersOnMapAgain(markers, myMap);
+                layoutMarker.setVisibility(View.GONE);
                 /*Sender.sendRequestAboutMarkers(session.getUserId(),markers,myMap);*/
 
 

@@ -1,139 +1,156 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.example.marcin.lokalizator.AdditionalElementsOnMap">
 
-    <!-- TODO: Update blank fragment layout -->
-
     <Button
-        android:layout_width="100dp"
-        android:layout_height="wrap_content"
-        android:text="POI"
         android:id="@+id/buttonPOIFiltering"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentStart="true"
-        android:layout_marginStart="66dp"
-        android:layout_marginTop="5dp" />
-
-    <Button
-        android:layout_width="100dp"
+        android:layout_width="50dp"
         android:layout_height="wrap_content"
-        android:text="Food"
+        android:layout_alignParentRight="true"
+        android:layout_marginTop="60dp"
+        android:text="POI" />
+
+    <!--<Button
         android:id="@+id/ButtonFood"
-        android:layout_below="@+id/buttonPOIFiltering"
-        android:layout_alignStart="@+id/buttonPOIFiltering" />
-
-    <Button
         android:layout_width="100dp"
         android:layout_height="wrap_content"
-        android:text="Shops"
+        android:layout_alignStart="@+id/buttonPOIFiltering"
+        android:layout_below="@+id/buttonPOIFiltering"
+        android:text="Food" />
+
+    <Button
         android:id="@+id/ButtonShops"
-        android:layout_below="@+id/ButtonFood"
-        android:layout_alignEnd="@+id/ButtonFood" />
-
-    <Button
         android:layout_width="100dp"
         android:layout_height="wrap_content"
-        android:text="Leisure"
+        android:layout_alignEnd="@+id/ButtonFood"
+        android:layout_below="@+id/ButtonFood"
+        android:text="Shops" />
+
+    <Button
         android:id="@+id/ButtonLeisure"
-        android:layout_below="@+id/ButtonShops"
-        android:layout_alignStart="@+id/ButtonShops" />
-
-    <Button
         android:layout_width="100dp"
         android:layout_height="wrap_content"
-        android:text="My places"
+        android:layout_alignStart="@+id/ButtonShops"
+        android:layout_below="@+id/ButtonShops"
+        android:text="Leisure" />
+
+    <Button
         android:id="@+id/ButtonMyPlaces"
-        android:layout_below="@+id/ButtonLeisure"
-        android:layout_alignStart="@+id/ButtonLeisure" />
-
-    <Button
         android:layout_width="100dp"
         android:layout_height="wrap_content"
-        android:text="clear"
-        android:id="@+id/ButtonClearPoi"
-        android:layout_below="@+id/ButtonMyPlaces"
-        android:layout_alignStart="@+id/ButtonMyPlaces" />
+        android:layout_alignStart="@+id/ButtonLeisure"
+        android:layout_below="@+id/ButtonLeisure"
+        android:text="My places" />-->
 
-    <Button
-        android:layout_width="120dp"
+    <ScrollView
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Bar"
-        android:id="@+id/ButtonFoodBar"
-        android:layout_below="@+id/buttonPOIFiltering"
-        android:layout_toEndOf="@+id/ButtonFood" />
+        android:layout_alignStart="@id/buttonPOIFiltering"
+        android:layout_below="@id/buttonPOIFiltering"
+        android:layout_marginBottom="100dp"
+        android:layout_marginRight="5dp"
+        android:id="@+id/POIScroll"
+        >
 
-    <Button
-        android:layout_width="120dp"
+    <LinearLayout
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Coffee"
-        android:id="@+id/ButtonFoodCoffee"
-        android:layout_below="@+id/ButtonFood"
-        android:layout_toEndOf="@+id/ButtonFood" />
+        android:orientation="vertical"
+        android:id="@+id/POIButtons"
+        android:visibility="invisible"
+        android:background="@color/bg_main"
+        >
 
-    <Button
-        android:layout_width="120dp"
-        android:layout_height="wrap_content"
-        android:text="KFC"
-        android:id="@+id/ButtonFoodKfc"
-        android:layout_below="@+id/ButtonShops"
-        android:layout_toEndOf="@+id/ButtonLeisure" />
+        <ImageButton
+            android:id="@+id/ButtonFoodBar"
+            android:layout_width="50dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/buttonPOIFiltering"
+            android:layout_margin="2dp"
+            android:layout_toStartOf="@+id/buttonPOIFiltering"
+            android:background="@drawable/bar" />
 
-    <Button
-        android:layout_width="120dp"
-        android:layout_height="wrap_content"
-        android:text="McDonald&apos;s"
-        android:id="@+id/ButtonFoodMcDonald"
-        android:layout_below="@+id/ButtonFoodKfc"
-        android:layout_toEndOf="@+id/ButtonMyPlaces" />
+        <ImageButton
+            android:id="@+id/ButtonFoodCoffee"
+            android:layout_width="50dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/ButtonFoodBar"
+            android:layout_margin="2dp"
+            android:background="@drawable/coffee" />
 
-    <Button
-        android:layout_width="120dp"
-        android:layout_height="wrap_content"
-        android:text="Restaurant"
-        android:id="@+id/ButtonFoodRestaurant"
-        android:layout_below="@+id/ButtonMyPlaces"
-        android:layout_toEndOf="@+id/ButtonClearPoi" />
+        <ImageButton
+            android:id="@+id/ButtonFoodKfc"
+            android:layout_width="50dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/ButtonFoodCoffee"
+            android:layout_margin="2dp"
+            android:background="@drawable/kfclogo" />
 
-    <Button
-        android:layout_width="120dp"
-        android:layout_height="wrap_content"
-        android:text="Store"
-        android:id="@+id/ButtonShopsStores"
-        android:layout_below="@+id/ButtonShopsShoppingMall"
-        android:layout_toEndOf="@+id/ButtonMyPlaces" />
+        <ImageButton
+            android:id="@+id/ButtonFoodMcDonald"
+            android:layout_width="50dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/ButtonFoodKfc"
+            android:layout_margin="2dp"
+            android:background="@drawable/mcdonaldslogo" />
 
-    <Button
-        android:layout_width="120dp"
-        android:layout_height="wrap_content"
-        android:text="Market"
-        android:id="@+id/ButtonShopsMarket"
-        android:layout_below="@+id/ButtonFood"
-        android:layout_toEndOf="@+id/ButtonFood" />
+        <ImageButton
+            android:id="@+id/ButtonFoodRestaurant"
+            android:layout_width="50dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/ButtonFoodMcDonald"
+            android:layout_margin="2dp"
+            android:background="@drawable/restaurant" />
 
-    <Button
-        android:layout_width="120dp"
-        android:layout_height="wrap_content"
-        android:text="Shopping mall"
-        android:id="@+id/ButtonShopsShoppingMall"
-        android:singleLine="false"
-        android:layout_below="@+id/ButtonFoodCoffee"
-        android:layout_toEndOf="@+id/ButtonLeisure" />
+        <ImageButton
+            android:id="@+id/ButtonShopsStores"
+            android:layout_width="50dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/ButtonFoodRestaurant"
+            android:layout_margin="2dp"
+            android:background="@drawable/shop" />
 
-    <Button
-        android:layout_width="120dp"
-        android:layout_height="wrap_content"
-        android:text="Night Club"
-        android:id="@+id/ButtonLeisureClubs"
-        android:layout_below="@+id/ButtonShops"
-        android:layout_toEndOf="@+id/ButtonLeisure" />
+        <ImageButton
+            android:id="@+id/ButtonShopsMarket"
+            android:layout_width="50dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/ButtonShopsStores"
+            android:layout_margin="2dp"
+            android:background="@drawable/market" />
 
-    <Button
-        android:layout_width="120dp"
-        android:layout_height="wrap_content"
-        android:text="Park"
-        android:id="@+id/ButtonLeisureParks"
-        android:layout_below="@+id/ButtonFoodKfc"
-        android:layout_alignStart="@+id/ButtonFoodKfc" />
+        <ImageButton
+            android:id="@+id/ButtonShopsShoppingMall"
+            android:layout_width="50dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/ButtonShopsMarket"
+            android:layout_margin="2dp"
+            android:background="@drawable/shoppingmall" />
 
+        <ImageButton
+            android:id="@+id/ButtonLeisureClubs"
+            android:layout_width="50dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/ButtonShopsShoppingMall"
+            android:layout_margin="2dp"
+            android:background="@drawable/nightclub" />
+
+        <ImageButton
+            android:id="@+id/ButtonLeisureParks"
+            android:layout_width="50dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/ButtonLeisureClubs"
+            android:layout_margin="2dp"
+            android:background="@drawable/park" />
+
+        <Button
+            android:id="@+id/ButtonClearPoi"
+            android:layout_width="50dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/ButtonLeisureParks"
+            android:text="clear" />
+
+    </LinearLayout>
+    </ScrollView>
 </RelativeLayout>

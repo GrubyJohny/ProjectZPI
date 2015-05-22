@@ -11,7 +11,7 @@ public class CustomMarker {
     private double longitude;
     private String name;
     private boolean replace;
-    private boolean saveInBase;
+    private boolean saveOnServer;
 
     public CustomMarker(String markerId,String UserId,Double latitude,Double longitude,String name)
     {
@@ -21,6 +21,12 @@ public class CustomMarker {
         this.longitude=longitude;
         this.name=name;
 
+    }
+    public CustomMarker(String UserId,Double latitude,Double longitude)
+    {
+        this.UserId=UserId;
+        this.latitude=latitude;
+        this.longitude=longitude;
     }
 
     public void setMarkerId(String markerId) {
@@ -47,8 +53,8 @@ public class CustomMarker {
         this.replace = replace;
     }
 
-    public void setSaveInBase(boolean saveInBase) {
-        this.saveInBase = saveInBase;
+    public void setSaveOnServer(boolean saveOnServer) {
+        this.saveOnServer = saveOnServer;
     }
 
     public String getMarkerId() {
@@ -71,8 +77,8 @@ public class CustomMarker {
         return replace;
     }
 
-    public boolean isSaveInBase() {
-        return saveInBase;
+    public boolean isSaveOnServer() {
+        return saveOnServer;
     }
 
 

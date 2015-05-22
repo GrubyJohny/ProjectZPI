@@ -1,6 +1,8 @@
 package com.example.marcin.lokalizator;
 
+import android.content.Context;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.NetworkError;
@@ -14,12 +16,14 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,7 +33,7 @@ import java.util.Map;
  */
 public class Sender {
 
-    public static void sendMarker(final String id, final double latitude, final double longitude, final String name) {
+    public static void sendMarker(final Context context,final String id, final double latitude, final double longitude, final String name,final CustomMarker cM,final Marker m) {
         StringRequest request = new StringRequest(Request.Method.POST, AppConfig.URL_LOGIN, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
@@ -38,9 +42,17 @@ public class Sender {
                 Log.d(TAG, response.toString());
                 try{
                     JSONObject jObj = new JSONObject(response);
+
                     boolean error = jObj.getBoolean("error");
-                    if(!error)
-                        Log.d(TAG,"Wysyłanie zakończyło się sukcesem!!!");
+                    if(!error) {
+                        Log.d(TAG, "Wysyłanie zakończyło się sukcesem!!!");
+                        String id = jObj.getString("markerid");
+
+                        cM.setMarkerId(id);
+                        m.setSnippet(id);
+                        Toast.makeText(context,"Zapisano na trwałe marker z id: "+id,Toast.LENGTH_SHORT).show();
+
+                    }
                     else
                         Log.d(TAG,"Coś się spierdoliło!!!");
 
@@ -119,7 +131,7 @@ public class Sender {
                         double longitude=marker.getDouble("longitude");
                         String name=marker.getString("name");
                         CustomMarker customMarker =new CustomMarker(markerid+"",uid+"",latitude,longitude,name);
-                        customMarker.setSaveInBase(true);
+                        customMarker.setSaveOnServer(true);
                         forResult.add(customMarker);
                     }
 
@@ -149,16 +161,86 @@ public class Sender {
 
     }
 
+    public static void sendRequestAboutFriendsCoordinate(final String whereClause, final List<CustomMarker> forResult,final GoogleMap map)
+    {
+        final String TAG = "Getting friendsCoordinate";
+        Log.d(TAG, whereClause);
+        StringRequest request=new StringRequest(Request.Method.POST,AppConfig.URL_LOGIN,new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                forResult.clear();
+                Log.d(TAG, response);
+                try {
+                    JSONObject jObj=new JSONObject(response);
+                    if(!jObj.getBoolean("error"))
+                    {
+                        String question=jObj.getString("clause");
+                        Log.d(TAG, question);
+                        JSONArray array=jObj.getJSONArray("coordinates");
+                        for(int i=0;i<array.length();i++)
+                        {
+                            JSONObject friendCoordinate=array.getJSONObject(i);
+                            String id=friendCoordinate.getString("F_ID");
+                            Double latitude=friendCoordinate.getDouble("latitude");
+                            Double longitude=friendCoordinate.getDouble("longitude");
+                            CustomMarker marker=new CustomMarker(id,latitude,longitude);
+                            forResult.add(marker);
+                        }
+                    }
+                    else
+                    {
+                        Log.d(TAG, "cos poszlo nie tak");
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                Log.d(TAG,"on response, size forResult+ "+forResult.size());
+                Sender.putMarkersOnMapAgain(forResult,map);
 
+            }
+        },new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError volleyError) {
+
+            }
+        }){
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                HashMap<String,String> map=new HashMap<String,String>();
+                map.put("tag","getFriendsCoordinate");
+                map.put("where",whereClause);
+                return map;
+            }
+        };
+        AppController.getInstance().addToRequestQueue(request, "nowa_prosba");
+    }
     public static void putMarkersOnMapAgain(List<CustomMarker> markers,GoogleMap myMap)
     {
         for(CustomMarker cM:markers)
         {
-            myMap.addMarker(new MarkerOptions().position(new LatLng(cM.getLatitude(), cM.getLongitude())));
+            myMap.addMarker(new MarkerOptions().position(new LatLng(cM.getLatitude(), cM.getLongitude())).title(cM.getUserId()));
 
             Log.d("put", "dodaje a jak" + cM.getLatitude()+","+cM.getLongitude());
         }
        //myMap.addMarker(new MarkerOptions().position(new LatLng(51.109383,17.057973)));
+    }
+
+
+    public static String makeStatementAboutFriendsList(ArrayList<Friend> friendsList)
+    {
+        Friend current;
+        StringBuilder result=new StringBuilder();
+        if(!friendsList.isEmpty())
+        {
+            current=friendsList.get(0);
+            result.append("U_ID="+current.getFriendID());
+        }
+        for(int i=1;i<friendsList.size();i++)
+        {
+            current=friendsList.get(i);
+            result.append(" OR U_ID="+current.getFriendID());
+        }
+        return result.toString();
     }
 
 }

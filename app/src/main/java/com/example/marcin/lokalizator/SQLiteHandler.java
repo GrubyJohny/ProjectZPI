@@ -8,6 +8,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class SQLiteHandler extends SQLiteOpenHelper {
 
@@ -18,6 +19,7 @@ public class SQLiteHandler extends SQLiteOpenHelper {
 
     private static final String TABLE_FRIENDS = "friends";
     private static final String TABLE_NOTIFICATIONS = "notifications";
+    private static final String TABLE_MARKERS = "markers";
 
     // Friends Table Columns names
     private static final String KEY_ID = "id";
@@ -36,6 +38,15 @@ public class SQLiteHandler extends SQLiteOpenHelper {
     private static final String KEY_GROUP_ID = "groupid";
     private static final String KEY_CREATED_AT = "created_at";
     private static final String KEY_CHECKED = "checked";
+
+    //Markers Table Columns names
+    private static final String KEY_MARK_ID="markerid";
+    private static final String KEY_USER_ID="uid";
+    private static final String KEY_LATITUDE="latitude";
+    private static final String KEY_LONGITUDE="longitude";
+    private static final String KEY_MARKER_NAME="name";
+    private static final String KEY_SAVE_ON_SERVER="saveOnServer";
+
 
 
 
@@ -69,11 +80,23 @@ public class SQLiteHandler extends SQLiteOpenHelper {
                 + KEY_CHECKED + " INTEGER"
                 + ")";
 
+        String CREATE_MARKERS_TABLE = "CREATE TABLE " + TABLE_MARKERS
+                + "("
+                + KEY_MARK_ID + " INTEGER PRIMARY KEY,"
+                + KEY_USER_ID + " INTEGER,"
+                + KEY_LATITUDE + " DOUBLE,"
+                + KEY_LONGITUDE + " DOUBLE,"
+                +KEY_MARKER_NAME+" TEXT,"
+                +KEY_SAVE_ON_SERVER+" INTEGER DEFAULT 0"
+                + ")";
+
         db.execSQL(CREATE_FRIENDS_TABLE);
         db.execSQL(CREATE_NOTIFICATIONS_TABLE);
+        db.execSQL(CREATE_MARKERS_TABLE);
 
         Log.d(TAG, "Database Friends table created");
         Log.d(TAG, "Database Notifications table created");
+        Log.d(TAG, "Database Markers table created");
     }
 
     @Override
@@ -81,6 +104,7 @@ public class SQLiteHandler extends SQLiteOpenHelper {
 
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_FRIENDS);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_NOTIFICATIONS);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_MARKERS);
 
         onCreate(db);
     }
@@ -99,6 +123,36 @@ public class SQLiteHandler extends SQLiteOpenHelper {
         Log.d(TAG, "New friend inserted into sqlite: " + id);
 
 
+    }
+
+    public void addMarker(CustomMarker mark)
+    {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        String markerid=mark.getMarkerId();
+        if(markerid!=null)
+            values.put(KEY_MARK_ID,markerid);
+
+        String uid=mark.getUserId();
+        values.put(KEY_USER_ID, uid);
+
+        double latitude=mark.getLatitude();
+        values.put(KEY_LATITUDE,latitude);
+
+        double longitude=mark.getLongitude();
+        values.put(KEY_LONGITUDE,longitude);
+
+        String name=mark.getName();
+        values.put(KEY_MARKER_NAME, name);
+
+        Boolean hardSave=mark.isSaveOnServer();
+        values.put(KEY_SAVE_ON_SERVER,hardSave);
+
+        long id=db.insert(TABLE_MARKERS,null,values);
+        db.close();
+
+        Log.d(TAG, "New marker inserted into sqlite: " + id);
     }
 
 
@@ -232,6 +286,40 @@ public class SQLiteHandler extends SQLiteOpenHelper {
         db.close();
 
         Log.d(TAG, "Deleted all notifications info from sqlite");
+    }
+    public void deleteMarkers(){
+        SQLiteDatabase db=this.getWritableDatabase();
+        db.delete(TABLE_MARKERS,null,null);
+        db.close();
+
+        Log.d(TAG, "Deleted all markers from sqlite");
+    }
+
+    public List<CustomMarker> getAllMarkers() {
+        List<CustomMarker> markersList = new ArrayList<CustomMarker>();
+
+        String selectQuery = "SELECT  * FROM " + TABLE_MARKERS;
+
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cursor = db.rawQuery(selectQuery, null);
+
+        if (cursor.moveToFirst()) {
+            do {
+
+                String markerid=cursor.getString(0);
+                String uid=cursor.getString(1);
+                double latitude=cursor.getDouble(2);
+                double longitude=cursor.getDouble(3);
+                String name=cursor.getString(4);
+                boolean hardSave=(cursor.getInt(5) == 1);
+                CustomMarker customMarker = new CustomMarker(markerid,uid,latitude,longitude,name);
+                customMarker.setSaveOnServer(hardSave);
+                // Adding friend to list
+                markersList.add(customMarker);
+            } while (cursor.moveToNext());
+        }
+
+        return markersList;
     }
 
 }

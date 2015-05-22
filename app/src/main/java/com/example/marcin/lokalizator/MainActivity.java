@@ -1,6 +1,7 @@
 package com.example.marcin.lokalizator;
 
 import android.app.AlertDialog;
+import android.app.DialogFragment;
 import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
@@ -25,6 +26,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -77,7 +79,7 @@ import java.util.List;
 import java.util.Map;
 
 
-public class MainActivity extends FragmentActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, com.google.android.gms.location.LocationListener {
+public class MainActivity extends FragmentActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, com.google.android.gms.location.LocationListener, MarkerDialog.NoticeDialogListener {
 
     private SessionManager session;
     private SQLiteHandler db;
@@ -147,6 +149,9 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
 
     //Lista aktywnych znaczników
     private List<CustomMarker> markers;
+
+    //OstatniKliknietyNaMapi
+    private LatLng lastClikOnMap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -307,7 +312,9 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
 
         //FriendsFragment ff = new FriendsFragment();
        // ff.setFriends();
-        markers=new ArrayList();
+
+        //Start-up markers list
+        markers=db.getAllMarkers();
         inclizaidListenerForMarkerMenu();
 
     }
@@ -1124,9 +1131,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
             myMap.setMyLocationEnabled(true);
             myMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
 
-
-        myMap.addMarker(new MarkerOptions().position(new LatLng(51.111508, 17.060268)).title("Rondo Reagana"));
-        myMap.addMarker(new MarkerOptions().position(new LatLng(51.113825, 17.065890)).title("Akademik"));
+            Sender.putMarkersOnMapAgain(markers,myMap);
 
 
         /*LatLng latLng = new LatLng(0, 0);
@@ -1196,6 +1201,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         Log.d(AppController.TAG, "Podłączony do api service");
         mCurrentLocation=LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
         setUpMap(true);
+
 
         setMapListener();
         if (mRequestingLocationUpdates) {
@@ -1279,12 +1285,22 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
 
     }
 
+    @Override
+    protected void onDestroy() {
+        db.deleteMarkers();
+        saveToSQLiteDataBase();
+
+        super.onDestroy();
+    }
+
     public void setMapListener()
     {
         myMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
             @Override
             public void onMapLongClick(LatLng latLng) {
-                myMap.addMarker(new MarkerOptions().position(latLng).draggable(true));
+                lastClikOnMap=latLng;
+                MarkerDialog markerDialog=new MarkerDialog();
+                markerDialog.show(getFragmentManager(),"Marker Dialog");
 
             }
         });
@@ -1412,6 +1428,20 @@ private String getDirectionUrl(LatLng origin, LatLng dest){
             urlConnection.disconnect();
         }
         return data;
+    }
+
+    @Override
+    public void onDialogPositiveClick(DialogFragment dialog) {
+
+        MarkerDialog md=(MarkerDialog)dialog;
+        String name=md.getName();
+        Log.d("Marker Dialog",name);
+        myMap.addMarker(new MarkerOptions().position(lastClikOnMap).draggable(true).title(name));
+        CustomMarker mark=new CustomMarker(null,session+"",lastClikOnMap.latitude,lastClikOnMap.longitude,name);
+        markers.add(mark);
+        InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(md.getInput().getWindowToken(), 0);
+
     }
 
     //Osobne zadanie do pobierania danych
@@ -1730,21 +1760,44 @@ private String getDirectionUrl(LatLng origin, LatLng dest){
                String uid=session.getUserId();
                double latitude = ostatniMarker.getPosition().latitude;
                double longitude = ostatniMarker.getPosition().longitude;
+               CustomMarker custom= ToolsForMarkerList.getSpecificMarker(markers,latitude,longitude);
                String name=ostatniMarker.getTitle();
                 if(name==null)
                     name="brak";
-                Sender.sendMarker(uid,latitude,longitude,"brak");
+
+                Sender.sendMarker(MainActivity.this,uid,latitude,longitude,name,custom,ostatniMarker);
             }
         });
         fourthMarkerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                double latitude=ostatniMarker.getPosition().latitude;
+                double longitude=ostatniMarker.getPosition().longitude;
+                CustomMarker toRemove=ToolsForMarkerList.getSpecificMarker(markers,latitude,longitude);
+                markers.remove(toRemove);
                 myMap.clear();
-                Sender.sendRequestAboutMarkers(session.getUserId(),markers,myMap);
+                Sender.putMarkersOnMapAgain(markers,myMap);
+                /*Sender.sendRequestAboutMarkers(session.getUserId(),markers,myMap);*/
 
-                Log.d("Dlaczego nie","bo size "+ markers.size());
+
+             /*   ArrayList<Friend> friends=db.getAllFriends();
+                String whereClause=Sender.makeStatementAboutFriendsList(friends);
+
+                ArrayList<CustomMarker> friendsMarker=new ArrayList<CustomMarker>();
+                Sender.sendRequestAboutFriendsCoordinate(whereClause,friendsMarker,myMap);*/
             }
         });
+    }
+    public void saveToSQLiteDataBase(){
+        for(CustomMarker m:markers)
+        {
+            db.addMarker(m);
+        }
+    }
+
+    public void createMarkerDialog()
+    {
+
     }
 
 

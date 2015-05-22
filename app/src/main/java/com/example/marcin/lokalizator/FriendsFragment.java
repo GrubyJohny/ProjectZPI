@@ -3,6 +3,7 @@ package com.example.marcin.lokalizator;
 import android.app.Activity;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.ListFragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -20,15 +21,16 @@ public class FriendsFragment extends ListFragment {
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
     private SQLiteHandler db;
+    private static FriendList friendList;
     private static ArrayList<Friend> userFriendsList;
-
+    private static Resources resources;
+    public static FragmentActivity fragmentActivity;
     private String mParam1;
     private String mParam2;
 
 
     private static List<ListViewItem> mItems;
 
-    private ArrayList<String> listaElementow;
 
     public static FriendsFragment newInstance(String param1, String param2) {
         FriendsFragment fragment = new FriendsFragment();
@@ -45,6 +47,11 @@ public class FriendsFragment extends ListFragment {
 
     }
 
+    public static void addFriend(Friend friend){
+
+        friendList.add(new ListViewItem(friend.getFriendID(), resources.getDrawable(R.drawable.image3), friend.getFriendName(), friend.getFriendEmail()));
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -58,13 +65,14 @@ public class FriendsFragment extends ListFragment {
         }
 
         mItems = new ArrayList<ListViewItem>();
-        Resources resources = getResources();
-
+        resources = getResources();
+        fragmentActivity = getActivity();
         for(Friend f: userFriendsList){
             mItems.add(new ListViewItem(f.getFriendID(), resources.getDrawable(R.drawable.image3), f.getFriendName(), f.getFriendEmail()));
         }
 
-        setListAdapter(new FriendList(getActivity(), mItems));
+        friendList = new FriendList(fragmentActivity, mItems);
+        setListAdapter(friendList);
 
     }
 

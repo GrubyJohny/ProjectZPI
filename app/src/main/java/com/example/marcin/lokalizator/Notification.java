@@ -40,6 +40,7 @@ public class Notification {
     }
 
     public Notification(String senderId, String senderName, String senderEmail, String receiverId, String type, String messageId, String groupId, String createdAt, int checked){
+
         this.senderId = senderId;
         this.senderName = senderName;
         this.senderEmail = senderEmail;
@@ -59,13 +60,32 @@ public class Notification {
         if(type.equals("friendshipRequest")){
             response = "Użytkownik " + senderName + " zaprosił Cię do znajomych";
         }
-        if(type.equals("friendshipAgree")){
+        else if(type.equals("friendshipAgreed")){
             response = "Użytkownik " + senderName + " zaakceptował Twoje zaproszenie";
         }
+        else if(type.equals("friendshipDisagreed")){
+            response = "Użytkownik " + senderName + " odmówił Ci znajomości";
+        }
+
 
         return response;
     }
 
+    public String getSenderName(){
+        return senderName;
+    }
+
+    public String getSenderId(){
+        return senderId;
+    }
+
+    public String getSenderEmail(){
+        return senderEmail;
+    }
+
+    public String getReceiverId(){
+        return receiverId;
+    }
 
 
 }

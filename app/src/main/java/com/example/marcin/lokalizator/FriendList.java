@@ -20,6 +20,11 @@ public class FriendList extends ArrayAdapter<ListViewItem> {
     }
 
     @Override
+    public void add(ListViewItem object) {
+        super.add(object);
+    }
+
+    @Override
     public View getView(int position, View view, ViewGroup parent) {
         ViewHolder viewHolder;
         if(view == null) {

@@ -282,6 +282,8 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                 String friend = editText.getText().toString();
                 sendFriendshipRequest(session.getUserId(), friend);
                 editText.setText("");
+
+
             }
         });
 
@@ -922,7 +924,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
 
                 String TAG = "Sending coordinates & checking for notifications";
                 //Log.d(TAG, response.toString());
-                try{
+                try {
                     JSONObject jObj = new JSONObject(response);
                     boolean error = jObj.getBoolean("error");
 
@@ -937,7 +939,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                     String groupId;
                     String createdAt;
 
-                    for(int i=0; i<array.length(); i++){
+                    for (int i = 0; i < array.length(); i++) {
                         notObj = array.getJSONObject(i);
                         senderId = notObj.getString("senderid");
                         senderName = notObj.getString("senderName");
@@ -949,10 +951,25 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                         createdAt = notObj.getString("created_at");
 
                         db.addNotification(senderId, senderName, senderEmail, receiverId, type, messageId, groupId, createdAt, 0);
-                        readNotifications.add(new Notification(senderId, senderName, senderEmail, receiverId, type, messageId, groupId, createdAt, 0));
+                        readNotifications.add(0, (new Notification(senderId, senderName, senderEmail, receiverId, type, messageId, groupId, createdAt, 0)));
+                        Toast.makeText(getApplicationContext(), "You have new notification", Toast.LENGTH_LONG).show();
+                        if (type.equals("friendshipAgreed")) {
+
+                            db.addFriend(senderId, senderName, senderEmail);
+                            FriendsFragment.addFriend(new Friend(Integer.valueOf(senderId), senderName, senderEmail));
+                        } else if (type.equals("friendshipRequest")) {
+                            // final int id = Integer.valueOf(senderId);
+                            // final String n = senderName;
+                            // final String e = senderEmail;
+                            // Log.d("MOJLOG", "weszlo");
+
+
+
+
+                        }
+
+
                     }
-
-
 
                 }catch(Exception e){
 
@@ -1059,12 +1076,12 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         spinner2.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                switch ((int) position) {
-                    case 0:
-                        //USTAWIENIA TO DO
-                        break;
-                    case 1:
-                        break;
+                if(readNotifications.get(position).isChecked()){
+
+                }
+                else{
+                    onFriendshipRequest(readNotifications.get(position));
+                    Log.d("spinner.onitemclick", "notChecked");
                 }
             }
 
@@ -1073,6 +1090,8 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
             }
         });
     }
+
+
 
     public void addListenerOnSpinner3() {
         spinner3.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -1588,6 +1607,89 @@ private String getDirectionUrl(LatLng origin, LatLng dest){
                }).create().show();
     }
 
+    public void onFriendshipRequest(final Notification not) {
+        new AlertDialog.Builder(this).
+                setTitle("FriendshipRequest")
+                .setMessage("Do you want to add " + not.getSenderName() + " to your friends ?")
+                .setNegativeButton(android.R.string.no,null)
+                .setPositiveButton(android.R.string.yes,new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        if(not.getType().equals("friendshipRequest")){
+                            sendFriendshipAcceptance(session.getUserId(), not.getSenderId(), not.getSenderName(), not.getSenderEmail());
+
+
+                        }
+                    }
+                }).create().show();
+    }
+
+    private void sendFriendshipAcceptance(final String senderId, final String receiverid, String name, String email) {
+
+        String tag_string_req = "req_friendshipRequest";
+        pDialog.setMessage("Sending friendship acceptance");
+        showDialog();
+        final String TAG = "addFriend";
+        final String senderName = name;
+        final String senderEmail = email;
+            StringRequest strReq = new StringRequest(Request.Method.POST, AppConfig.URL_REGISTER, new Response.Listener<String>() {
+
+                @Override
+                public void onResponse(String response) {
+                    Log.d(TAG, "Friendship acceptance Response: " + response.toString());
+                    hideDialog();
+
+                    try {
+
+                        JSONObject jObj = new JSONObject(response);
+                        boolean error = jObj.getBoolean("error");
+
+                        if (!error) {
+
+                            Toast.makeText(getApplicationContext(), "Acceptance has been sent successfully", Toast.LENGTH_LONG).show();
+                            db.addFriend(senderId, senderName, senderEmail);
+                            FriendsFragment.addFriend(new Friend(Integer.valueOf(senderId), senderName, senderEmail));
+
+                        } else {
+
+                            String errorMsg = jObj.getString("error_msg");
+                            Toast.makeText(getApplicationContext(), errorMsg, Toast.LENGTH_LONG).show();
+                        }
+                    } catch (JSONException e) {
+                        Toast.makeText(getApplicationContext(), "Exception - problem z połączeniem", Toast.LENGTH_LONG).show();
+                        e.printStackTrace();
+                    }
+
+                }
+            }, new Response.ErrorListener() {
+
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    Log.e(TAG, "Friendship request Error: " + error.toString());
+
+                    Toast.makeText(getApplicationContext(), error.getMessage(), Toast.LENGTH_LONG).show();
+                    hideDialog();
+
+                }
+            }) {
+
+                @Override
+                protected Map<String, String> getParams() {
+                    Map<String, String> params = new HashMap<String, String>();
+                    params.put("tag", "addFriend");
+                    params.put("senderId", senderId);
+                    params.put("receiverId", receiverid);
+
+                    return params;
+                }
+
+            };
+
+            AppController.getInstance().addToRequestQueue(strReq, tag_string_req);
+        }
+
+
+
     public void inclizaidListenerForMarkerMenu()
     {
         firstMarkerButton.setOnClickListener(new View.OnClickListener() {
@@ -1644,8 +1746,6 @@ private String getDirectionUrl(LatLng origin, LatLng dest){
             }
         });
     }
-
-
 
 
 

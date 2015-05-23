@@ -3,15 +3,15 @@
     <!-- These settings headers are only used on tablets. -->
 
     <header
-        android:fragment="com.example.marcin.lokalizator.SettingsActivity$GeneralPreferenceFragment"
+        android:fragment="zpi.squad.app.grouploc.SettingsActivity$GeneralPreferenceFragment"
         android:title="@string/pref_header_general" />
 
     <header
-        android:fragment="com.example.marcin.lokalizator.SettingsActivity$NotificationPreferenceFragment"
+        android:fragment="zpi.squad.app.grouploc.SettingsActivity$NotificationPreferenceFragment"
         android:title="@string/pref_header_notifications" />
 
     <header
-        android:fragment="com.example.marcin.lokalizator.SettingsActivity$DataSyncPreferenceFragment"
+        android:fragment="zpi.squad.app.grouploc.SettingsActivity$DataSyncPreferenceFragment"
         android:title="@string/pref_header_data_sync" />
 
 </preference-headers>

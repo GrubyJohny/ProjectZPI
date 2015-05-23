@@ -90,7 +90,7 @@
 
             <fragment
                 android:id="@+id/placeHolderFragment"
-                android:name="com.example.marcin.lokalizator.FriendsFragment"
+                android:name="zpi.squad.app.grouploc.FriendsFragment"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
 
@@ -107,7 +107,7 @@
 
         <fragment
             android:id="@+id/settingsFragment"
-            android:name="com.example.marcin.lokalizator.SettingsFragment"
+            android:name="zpi.squad.app.grouploc.SettingsFragment"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
     </RelativeLayout>
@@ -121,7 +121,7 @@
 
         <fragment
             android:id="@+id/groupFragment"
-            android:name="com.example.marcin.lokalizator.GroupFragment"
+            android:name="zpi.squad.app.grouploc.GroupFragment"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent" />
     </RelativeLayout>

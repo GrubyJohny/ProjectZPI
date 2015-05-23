@@ -2,7 +2,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.marcin.lokalizator.LoginActivity">
+    tools:context="zpi.squad.app.grouploc.LoginActivity">
+
 
     <ImageView
         android:id="@+id/logo"
@@ -27,7 +28,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/hint_email"
-        android:inputType="textEmailAddress"
         android:singleLine="true"
         android:layout_below="@id/loginText"
         android:layout_centerHorizontal="true"
@@ -40,7 +40,7 @@
         android:layout_below="@id/email"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="40dp"
-        android:text="Hasło"
+        android:text="Password"
         android:textColor="@color/link_text_material_light"
         android:textSize="30dp" />
 
@@ -65,13 +65,22 @@
         android:layout_marginTop="40dp"
         android:text="@string/btn_login" />
 
-    <Button
-        android:id="@+id/btnLinkToRegisterScreen"
+    <com.facebook.login.widget.LoginButton
+        android:id="@+id/login_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/btnLogin"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="40dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="10dp" />
+
+    <Button
+        android:id="@+id/btnLinkToRegisterScreen"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/login_button"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="15dp"
         android:text="@string/btn_link_to_register"
         android:textAllCaps="false"/>
 
@@ -82,7 +91,7 @@
         android:layout_centerHorizontal="true"
         android:clickable="true"
         android:layout_marginTop="15dp"
-        android:text="Przypomnij hasło"
+        android:text="Przypomnij hasł‚o"
         android:textColor="#479123" />
 
 </RelativeLayout>

@@ -158,7 +158,6 @@ public class LoginActivity extends Activity {
                             Log.d("FEJS", facebookUserId);
 
                             registerFacebookUser(facebookUserName, facebookUserEmail, facebookUserId);
-
                         }
                     }
                 }).executeAsync();

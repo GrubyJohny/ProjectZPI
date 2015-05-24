@@ -5,6 +5,8 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.util.Log;
 
+import com.facebook.login.LoginManager;
+
 public class SessionManager {
 
     private static String TAG = SessionManager.class.getSimpleName();
@@ -85,6 +87,7 @@ public class SessionManager {
         editor.commit();
         db.deleteUsers();
         db.deleteNotifications();
+        LoginManager.getInstance().logOut();
         Log.d(TAG, "User info removed from SharedPreferences!");
 
     }

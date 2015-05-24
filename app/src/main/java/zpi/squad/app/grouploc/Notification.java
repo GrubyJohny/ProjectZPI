@@ -9,31 +9,11 @@ public class Notification {
     private String senderName;
     private String senderEmail;
     private String receiverId;
-
-    public String getType() {
-        return type;
-    }
-
     private String type;
     private String groupId;
     private String messageId;
-
-    public String getCreatedAt() {
-        return createdAt;
-    }
-
     private String createdAt;
-
-    public boolean isChecked() {
-        if(checked == 0)
-            return false;
-        else
-            return true;
-    }
-
     private int checked;
-    private SQLiteHandler db;
-
 
     public Notification(){
 
@@ -64,12 +44,13 @@ public class Notification {
             response = "Użytkownik " + senderName + " zaakceptował Twoje zaproszenie";
         }
         else if(type.equals("friendshipDisagreed")){
-            response = "Użytkownik " + senderName + " odmówił Ci znajomości";
+            response = "Użytkownik " + senderName + " odrzucił Twoje zaproszenie";
         }
 
 
         return response;
     }
+
 
     public String getSenderName(){
         return senderName;
@@ -85,6 +66,21 @@ public class Notification {
 
     public String getReceiverId(){
         return receiverId;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public boolean isChecked() {
+        if(checked == 0)
+            return false;
+        else
+            return true;
+    }
+
+    public String getCreatedAt() {
+        return createdAt;
     }
 
 

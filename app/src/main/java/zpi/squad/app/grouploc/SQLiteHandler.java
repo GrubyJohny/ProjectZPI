@@ -322,4 +322,9 @@ public class SQLiteHandler extends SQLiteOpenHelper {
         return markersList;
     }
 
+    public void setNotificationChecked(){
+
+
+    }
+
 }

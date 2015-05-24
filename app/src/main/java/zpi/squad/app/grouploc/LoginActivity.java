@@ -4,8 +4,6 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.util.Log;
@@ -14,34 +12,39 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.NetworkError;
+import com.android.volley.NoConnectionError;
+import com.android.volley.ParseError;
 import com.android.volley.Request;
 import com.android.volley.Request.Method;
 import com.android.volley.Response;
+import com.android.volley.ServerError;
+import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
+import com.facebook.AccessToken;
+import com.facebook.CallbackManager;
+import com.facebook.FacebookCallback;
+import com.facebook.FacebookException;
+import com.facebook.FacebookSdk;
+import com.facebook.GraphRequest;
+import com.facebook.GraphResponse;
+import com.facebook.login.LoginResult;
+import com.facebook.login.widget.LoginButton;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-
-import com.facebook.CallbackManager;
-import com.facebook.FacebookCallback;
-import com.facebook.FacebookException;
-import com.facebook.FacebookSdk;
-import com.facebook.login.LoginManager;
-import com.facebook.login.LoginResult;
-import com.facebook.login.widget.LoginButton;
-import com.facebook.login.widget.ProfilePictureView;
-
 
 public class LoginActivity extends Activity {
 
@@ -57,8 +60,8 @@ public class LoginActivity extends Activity {
     private CallbackManager callbackManager;
     public final String IMAGE_PHOTO_FILENAME = "profile_photo.png";
     private LoginButton loginButton;
-    private String facebookUserId;
-
+    private String facebookUserId, facebookUserEmail, facebookUserName;
+    List<String> permissions;
 
 
 
@@ -85,7 +88,7 @@ public class LoginActivity extends Activity {
         session = new SessionManager(getApplicationContext());
         db = new SQLiteHandler(getApplicationContext());
 
-       if (session.isLoggedIn()) {
+        if (session.isLoggedIn()) {
             Intent intent = new Intent(LoginActivity.this, MainActivity.class);
             startActivity(intent);
             finish();
@@ -118,130 +121,83 @@ public class LoginActivity extends Activity {
         });
 
         //facebook
-
-        //LoginManager.getInstance().logInWithReadPermissions(this, Arrays.asList("public_profile", "user_friends"));
-
-
         loginButton = (LoginButton) findViewById(R.id.login_button);
         loginButton.setText("Register with Facebook");
-
-
         loginButton.setReadPermissions("public_profile");
-        callbackManager = CallbackManager.Factory.create();
 
-        LoginManager.getInstance().registerCallback(callbackManager,
-                new FacebookCallback<LoginResult>() {
-                    @Override
-                    public void onSuccess(LoginResult loginResult) {
-
-                        facebookUserId = loginResult.getAccessToken().getUserId();
+        permissions = new ArrayList<>();
+        permissions.add("public_profile");
+        permissions.add("email");
+        permissions.add("user_birthday");
+        loginButton.setReadPermissions(permissions);
 
 
-                        //Toast.makeText(LoginActivity.this.getBaseContext(),"facebook id: "+facebookUserId,Toast.LENGTH_SHORT).show();
+        if (null == callbackManager)
+            callbackManager = CallbackManager.Factory.create();
 
-                        URL imageURL = null;
-                        try {
-                            imageURL = new URL("https://graph.facebook.com/" + facebookUserId + "/picture?width=" + 200 + "&height=" + 200);
-                        } catch (MalformedURLException e) {
-                            e.printStackTrace();
-                        }
-                        InputStream inputStream = null;
-                        try {
-                            inputStream = (InputStream) imageURL.getContent();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                        Bitmap photo = BitmapFactory.decodeStream(inputStream);
-                        Bitmap bitmap_round = photo;
-
-                        FileOutputStream fos = null;
-                        try {
-                            fos = context.openFileOutput(IMAGE_PHOTO_FILENAME, Context.MODE_PRIVATE);
-                        } catch (FileNotFoundException e) {
-                            e.printStackTrace();
-                        }
-                        bitmap_round.compress(Bitmap.CompressFormat.PNG, 100, fos);
-
-                        try {
-                            fos.close();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-
-
-                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                        startActivity(intent);
-                        finish();
-
-                    }
-
-                    @Override
-                    public void onCancel() {
-
-                    }
-
-                    @Override
-                    public void onError(FacebookException exception) {
-
-                    }
-                });
-
-
+        loginButton.registerCallback(this.callbackManager, _mcallbackLogin);
     }
 
-    /*
-    public void getProfileInformation() {
-        mAsyncRunner.request("me", new RequestListener() {
-            @Override
-            public void onComplete(String response, Object state) {
-                Log.d("Profile", response);
-                String json = response;
-                try {
-                    JSONObject profile = new JSONObject(json);
-                    // getting name of the user
-                    String name = profile.getString("name");
-                    // getting email of the user
-                    String email = profile.getString("email");
+    public final  FacebookCallback<LoginResult> _mcallbackLogin =    new FacebookCallback<LoginResult>() {
+        @Override
+        public void onSuccess(final LoginResult loginResult) {
 
-                    runOnUiThread(new Runnable() {
+            if(loginResult.getAccessToken() != null){
+                Log.i("TAG", "LoginButton FacebookCallback onSuccess token : "+ loginResult.getAccessToken().getToken());
+                GraphRequest.newMeRequest(AccessToken.getCurrentAccessToken(), new GraphRequest.GraphJSONObjectCallback() {
+                    @Override
+                    public void onCompleted(JSONObject object, GraphResponse response) {
+                        if (null != object) {
+                            Log.e("TAG", object.optString("name").toString() + " " + object.optString("first_name").toString()+" "+object.optString("email").toString());
+                            facebookUserName = object.optString("name").toString();
+                            facebookUserEmail = object.optString("email").toString();
+                            facebookUserId = loginResult.getAccessToken().getUserId();
 
-                        @Override
-                        public void run() {
-                            Toast.makeText(getApplicationContext(), "Name: " + name + "\nEmail: " + email, Toast.LENGTH_LONG).show();
+                            Log.d("FEJS", facebookUserName);
+                            Log.d("FEJS", facebookUserEmail);
+                            Log.d("FEJS", facebookUserId);
+
+                            registerFacebookUser(facebookUserName, facebookUserEmail, facebookUserId);
+
                         }
+                    }
+                }).executeAsync();
 
-                    });
 
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
             }
+        }
 
-            @Override
-            public void onIOException(IOException e, Object state) {
-            }
+        @Override
+        public void onCancel() {
+            Log.e("TAG", "LoginButton FacebookCallback onCancel");
+        }
 
-            @Override
-            public void onFileNotFoundException(FileNotFoundException e,
-                                                Object state) {
-            }
+        @Override
+        public void onError(FacebookException exception) {
+            Log.e("TAG","Exception:: "+exception.getStackTrace());
+        }
+    };
 
-            @Override
-            public void onMalformedURLException(MalformedURLException e,
-                                                Object state) {
-            }
-
-            @Override
-            public void onFacebookError(FacebookError e, Object state) {
-            }
-        });
+    public static String fromStream(InputStream in) throws IOException
+    {
+        Log.d("STRIM", in.toString());
+        BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+        StringBuilder out = new StringBuilder();
+        String newLine = System.getProperty("line.separator");
+        String line;
+        while ((line = reader.readLine()) != null) {
+            out.append(line);
+            out.append(newLine);
+        }
+        return out.toString();
     }
-*/
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        //super.onActivityResult(requestCode, resultCode, data);
+        super.onActivityResult(requestCode, resultCode, data);
         callbackManager.onActivityResult(requestCode, resultCode, data);
+
     }
+
 
     private void checkLogin(final String email, final String password) {
 
@@ -265,8 +221,9 @@ public class LoginActivity extends Activity {
                     if (!error) {
                         session.setLogin(true);
 
-                        String uid = jObj.getString("uid");
+
                         JSONObject user = jObj.getJSONObject("user");
+                        String uid = user.getString("uid");
                         String name = user.getString("name");
                         String email = user.getString("email");
 
@@ -297,7 +254,7 @@ public class LoginActivity extends Activity {
 
                 Toast.makeText(getApplicationContext(),
                                                 error.getMessage(), Toast.LENGTH_LONG).show();
-                                hideDialog();;
+                                hideDialog();
 
             }
         }) {
@@ -447,6 +404,99 @@ public class LoginActivity extends Activity {
 
     }
 
+    private void registerFacebookUser(final String name, final String email,
+                                      final String password) {
+
+        String tag_string_req = "req_register";
+        pDialog.setMessage("Registering ...");
+        showDialog();
+
+        StringRequest strReq = new StringRequest(Method.POST,
+                AppConfig.URL_REGISTER, new Response.Listener<String>() {
+
+            @Override
+            public void onResponse(String response) {
+                Log.d(TAG, "Register on server Response: " + response.toString());
+                hideDialog();
+
+                try {
+                    JSONObject jObj = new JSONObject(response);
+                    boolean error = jObj.getBoolean("error");
+                    if (!error) {
+                        Toast.makeText(getApplicationContext(), "Pomyślnie zarejestrowano użytkownika", Toast.LENGTH_LONG).show();
+
+                        session.setLogin(true);
+                        JSONObject user = jObj.getJSONObject("user");
+                        String uid = user.getString("uid");
+                        String name = user.getString("name");
+                        String email = user.getString("email");
+
+                        session.setKeyUid(uid);
+                        session.setKeyName(name);
+                        session.setKeyEmail(email);
+
+
+                        getUserInfo(uid);
+
+                    } else {
+
+                        String errorMsg = jObj.getString("error_msg");
+                        Toast.makeText(getApplicationContext(),
+                                errorMsg, Toast.LENGTH_LONG).show();
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        }, new Response.ErrorListener() {
+
+            @Override
+            public void onErrorResponse(VolleyError error) {
+
+                if (error instanceof NoConnectionError) {
+                    Log.d("NoConnectionError>", "NoConnectionError.......");
+
+                } else if (error instanceof AuthFailureError) {
+                    Log.d("AuthFailureError>", "AuthFailureError.......");
+
+                } else if (error instanceof ServerError) {
+                    Log.d("ServerError>>>>>>>>>", "ServerError.......");
+
+                } else if (error instanceof NetworkError) {
+                    Log.d("NetworkError>>>>>>>>>", "NetworkError.......");
+
+                } else if (error instanceof ParseError) {
+                    Log.d("ParseError>>>>>>>>>", "ParseError.......");
+
+                }else if (error instanceof TimeoutError) {
+                    Log.d("TimeoutError>>>>>>>>>", "TimeoutError.......");
+
+                }
+
+                Log.e(TAG, "Registration Error: " + error.getMessage());
+                Toast.makeText(getApplicationContext(),
+                        error.getMessage(), Toast.LENGTH_LONG).show();
+                hideDialog();
+            }
+        }) {
+
+            @Override
+            protected Map<String, String> getParams() {
+
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("tag", "facebook");
+                params.put("name", name);
+                params.put("email", email);
+                params.put("password", password);
+
+                return params;
+            }
+
+        };
+
+        AppController.getInstance().addToRequestQueue(strReq, tag_string_req);
+    }
 
 
 }

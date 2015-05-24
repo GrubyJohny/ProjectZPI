@@ -86,6 +86,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     private SQLiteHandler db;
     private ViewFlipper myViewFlipper;
     private float lastX;
+    protected boolean inhibit_spinner = true;
     private Spinner spinner1;
     private Spinner spinner2;
     private Spinner spinner3;
@@ -1105,12 +1106,20 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         spinner2.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                if(readNotifications.get(position).isChecked()){
+                if (inhibit_spinner) {
+                    inhibit_spinner = false;
+                }else {
 
-                }
-                else{
-                    onFriendshipRequest(readNotifications.get(position));
-                    Log.d("spinner.onitemclick", "notChecked");
+                    if (readNotifications.get(position).getType().equals("friendshipRequest") && !readNotifications.get(position).isChecked()) {
+                        onFriendshipRequest(readNotifications.get(position));
+                        Log.d("spinner.onitemclick", String.valueOf(position));
+                        Log.d("spinner.onitemclick", readNotifications.get(position).getSenderName());
+                        Log.d("spinner.onitemclick", readNotifications.get(position).getType());
+                        Log.d("spinner.onitemclick", "notChecked");
+
+                    } else {
+
+                    }
                 }
             }
 
@@ -1687,14 +1696,13 @@ private String getDirectionUrl(LatLng origin, LatLng dest){
                 }).create().show();
     }
 
-    private void sendFriendshipAcceptance(final String senderId, final String receiverid, String name, String email) {
+    private void sendFriendshipAcceptance(final String senderId, final String myreceiverid, final String mysenderName, final String mysenderEmail) {
 
         String tag_string_req = "req_friendshipRequest";
         pDialog.setMessage("Sending friendship acceptance");
         showDialog();
         final String TAG = "addFriend";
-        final String senderName = name;
-        final String senderEmail = email;
+
             StringRequest strReq = new StringRequest(Request.Method.POST, AppConfig.URL_REGISTER, new Response.Listener<String>() {
 
                 @Override
@@ -1710,8 +1718,9 @@ private String getDirectionUrl(LatLng origin, LatLng dest){
                         if (!error) {
 
                             Toast.makeText(getApplicationContext(), "Acceptance has been sent successfully", Toast.LENGTH_LONG).show();
-                            db.addFriend(senderId, senderName, senderEmail);
-                            FriendsFragment.addFriend(new Friend(Integer.valueOf(senderId), senderName, senderEmail));
+                            db.addFriend(senderId, mysenderName, mysenderEmail);
+                            FriendsFragment.addFriend(new Friend(Integer.valueOf(senderId), mysenderName, mysenderEmail));
+
 
                         } else {
 
@@ -1719,7 +1728,7 @@ private String getDirectionUrl(LatLng origin, LatLng dest){
                             Toast.makeText(getApplicationContext(), errorMsg, Toast.LENGTH_LONG).show();
                         }
                     } catch (JSONException e) {
-                        Toast.makeText(getApplicationContext(), "Exception - problem z połączeniem", Toast.LENGTH_LONG).show();
+                        Toast.makeText(getApplicationContext(), "Connection problem. Try again.", Toast.LENGTH_LONG).show();
                         e.printStackTrace();
                     }
 
@@ -1741,7 +1750,7 @@ private String getDirectionUrl(LatLng origin, LatLng dest){
                     Map<String, String> params = new HashMap<String, String>();
                     params.put("tag", "addFriend");
                     params.put("senderId", senderId);
-                    params.put("receiverId", receiverid);
+                    params.put("receiverId", myreceiverid);
 
                     return params;
                 }

@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.List;
@@ -17,7 +18,7 @@ public class NotificationAdapter extends ArrayAdapter {
     View notificationLayout;
 
     public NotificationAdapter(Context context, List<Notification> items) {
-        super(context, R.layout.notification_item, R.id.notificationTextView, items);
+        super(context, R.layout.notification_item, items);
     }
 
     @Override
@@ -32,6 +33,7 @@ public class NotificationAdapter extends ArrayAdapter {
             viewHolder = new ViewHolder();
             viewHolder.notificationTextView = (TextView) convertView.findViewById(R.id.notificationTextView);
             viewHolder.notificationDate = (TextView) convertView.findViewById(R.id.notificationDate);
+            viewHolder.notificationImg = (ImageView) convertView.findViewById(R.id.notificationImg);
 
             notificationLayout = convertView.findViewById(R.id.notificationLayout);
 
@@ -44,6 +46,7 @@ public class NotificationAdapter extends ArrayAdapter {
         Notification item = (Notification) getItem(position);
         viewHolder.notificationTextView.setText(item.toString());
         viewHolder.notificationDate.setText(item.getCreatedAt());
+        viewHolder.notificationImg.setImageResource(R.drawable.image3);
         /*if(item.isChecked())
             viewHolder.notificationLayout.setBackgroundResource(R.color.material_blue_grey_900);*/
         if(item.isChecked())
@@ -86,5 +89,6 @@ public class NotificationAdapter extends ArrayAdapter {
     private static class ViewHolder {
         TextView notificationTextView;
         TextView notificationDate;
+        ImageView notificationImg;
     }
 }

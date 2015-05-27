@@ -147,7 +147,7 @@
         android:layout_alignParentTop="true"
         android:layout_marginTop="30dp"
         android:layout_toStartOf="@id/noticeButton"
-        android:visibility="invisible" />
+        android:visibility="invisible"/>
 
     <Spinner
         android:id="@+id/spinner3"

@@ -81,8 +81,7 @@
         android:layout_below="@id/login_button"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="15dp"
-        android:text="@string/btn_link_to_register"
-        android:textAllCaps="false"/>
+        android:text="@string/btn_link_to_register"/>
 
     <TextView
         android:layout_width="wrap_content"
@@ -91,7 +90,7 @@
         android:layout_centerHorizontal="true"
         android:clickable="true"
         android:layout_marginTop="15dp"
-        android:text="Przypomnij hasł‚o"
+        android:text="Remind password"
         android:textColor="#479123" />
 
 </RelativeLayout>

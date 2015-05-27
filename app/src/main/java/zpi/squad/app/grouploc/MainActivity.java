@@ -26,6 +26,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -34,6 +35,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ScrollView;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
 
@@ -576,14 +578,59 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
 
     private void mainSpinner() {
         spinner1 = (Spinner) findViewById(R.id.spinner);
-        String[] spinnerOptions = {"Nie dotykać", "Settings", "Log out"};
-        ArrayAdapter<String> circleButtonOptions = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, spinnerOptions);
+        String[] spinnerOptions = {"", "Settings", "Log out"};
+        ArrayAdapter<String> circleButtonOptions = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, spinnerOptions){
+            @Override
+            public View getDropDownView(int position, View convertView, ViewGroup parent)
+            {
+                View v = null;
+
+                // If this is the initial dummy entry, make it hidden
+                if (position == 0) {
+                    TextView tv = new TextView(getContext());
+                    tv.setHeight(0);
+                    tv.setVisibility(View.GONE);
+                    v = tv;
+                }
+                else {
+                    // Pass convertView as null to prevent reuse of special case views
+                    v = super.getDropDownView(position, null, parent);
+                }
+
+                // Hide scroll bar because it appears sometimes unnecessarily, this does not prevent scrolling
+                parent.setVerticalScrollBarEnabled(false);
+                return v;
+            }
+        };;
         spinner1.setAdapter(circleButtonOptions);
     }
 
     private void notifications() {
         spinner2 = (Spinner) findViewById(R.id.spinner2);
-        NotificationAdapter noticeButtonOptions = new NotificationAdapter(this, readNotifications);
+        readNotifications.add(0,new Notification("","","","","","","","",0));
+        NotificationAdapter noticeButtonOptions = new NotificationAdapter(this, readNotifications){
+            @Override
+            public View getDropDownView(int position, View convertView, ViewGroup parent)
+            {
+                View v = null;
+
+                // If this is the initial dummy entry, make it hidden
+                if (position == 0) {
+                    TextView tv = new TextView(getContext());
+                    tv.setHeight(0);
+                    tv.setVisibility(View.GONE);
+                    v = tv;
+                }
+                else {
+                    // Pass convertView as null to prevent reuse of special case views
+                    v = super.getDropDownView(position, null, parent);
+                }
+
+                // Hide scroll bar because it appears sometimes unnecessarily, this does not prevent scrolling
+                parent.setVerticalScrollBarEnabled(false);
+                return v;
+            }
+        };;
         spinner2.setAdapter(noticeButtonOptions);
     }
 
@@ -998,9 +1045,11 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                         layoutGroup.setVisibility(View.INVISIBLE);
                         layoutSettings.setVisibility(View.VISIBLE);
                         layoutMarker.setVisibility(View.GONE);
+                        spinner1.setSelection(0);
                         break;
                     case 2:
                         logOut(this);
+                        spinner1.setSelection(0);
                         break;
                 }
             }
@@ -1025,11 +1074,11 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                         Log.d("spinner.onitemclick", readNotifications.get(position).getSenderName());
                         Log.d("spinner.onitemclick", readNotifications.get(position).getType());
                         Log.d("spinner.onitemclick", "notChecked");
-
                     } else {
 
                     }
                 }
+                spinner2.setSelection(0);
             }
 
             @Override

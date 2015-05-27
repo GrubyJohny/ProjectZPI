@@ -59,33 +59,6 @@ public class NotificationAdapter extends ArrayAdapter {
         return getDropDownView(position,view,parent);
     }
 
-    /*@Override
-    public View getView(int position, View view, ViewGroup parent) {
-        ViewHolder viewHolder;
-        if(view == null) {
-            // inflate the GridView item layout
-            LayoutInflater inflater = LayoutInflater.from(getContext());
-            view = inflater.inflate(R.layout.notification_item, parent, false);
-
-            // initialize the view holder
-            viewHolder = new ViewHolder();
-            viewHolder.notificationTextView = (TextView) view.findViewById(R.id.notificationTextView);
-            viewHolder.notificationDate = (TextView) view.findViewById(R.id.notificationDate);
-
-            view.setTag(viewHolder);
-        } else {
-            // recycle the already inflated view
-            viewHolder = (ViewHolder) view.getTag();
-        }
-
-        Notification item = (Notification) getItem(position);
-        viewHolder.notificationTextView.setText(item.toString());
-        viewHolder.notificationDate.setText(item.getCreatedAt());
-        *//*if(item.isChecked())
-            viewHolder.notificationTextView.setBackgroundResource(R.color.material_blue_grey_900);*//*
-        return view;
-    }*/
-
     private static class ViewHolder {
         TextView notificationTextView;
         TextView notificationDate;

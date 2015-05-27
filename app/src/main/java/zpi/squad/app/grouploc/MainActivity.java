@@ -213,19 +213,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         Bitmap bitmap_round = clipBitmap(icon);
         circleButton.setImageBitmap(bitmap_round);
 
-        noticeButton = (ImageButton) findViewById(R.id.noticeButton);
-        Bitmap bMap = BitmapFactory.decodeResource(getResources(), R.drawable.notificon);
-        Bitmap bMapScaled = Bitmap.createScaledBitmap(bMap, 100, 100, true);
-        Bitmap bitmap_round1 = clipBitmap(bMapScaled);
-
-        noticeButton.setImageBitmap(bitmap_round1);
-
-        messageButton = (ImageButton) findViewById(R.id.messageButton);
-        Bitmap bMap1 = BitmapFactory.decodeResource(getResources(), R.drawable.messageicon);
-        Bitmap bitmap_round2 = clipBitmap(bMap1);
-        Bitmap bMapScaled1 = Bitmap.createScaledBitmap(bitmap_round2, 100, 100, true);
-
-        messageButton.setImageBitmap(bMapScaled1);
+        noticeAndMessageButtons();
 
         addListenerOnButton();
         addListenerOnSpinner();
@@ -290,8 +278,6 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                 String friend = editText.getText().toString();
                 sendFriendshipRequest(session.getUserId(), friend);
                 editText.setText("");
-
-
             }
         });
 
@@ -313,14 +299,26 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
 
         POIScrollView = (ScrollView) findViewById(R.id.POIScroll);
 
-
-        //FriendsFragment ff = new FriendsFragment();
-       // ff.setFriends();
-
         //Start-up markers list
         markers=db.getAllMarkers();
         inclizaidListenerForMarkerMenu();
 
+    }
+
+    private void noticeAndMessageButtons() {
+        noticeButton = (ImageButton) findViewById(R.id.noticeButton);
+        Bitmap bMap = BitmapFactory.decodeResource(getResources(), R.drawable.notificon);
+        Bitmap bMapScaled = Bitmap.createScaledBitmap(bMap, 100, 100, true);
+        Bitmap bitmap_round1 = clipBitmap(bMapScaled);
+
+        noticeButton.setImageBitmap(bitmap_round1);
+
+        messageButton = (ImageButton) findViewById(R.id.messageButton);
+        Bitmap bMap1 = BitmapFactory.decodeResource(getResources(), R.drawable.messageicon);
+        Bitmap bitmap_round2 = clipBitmap(bMap1);
+        Bitmap bMapScaled1 = Bitmap.createScaledBitmap(bitmap_round2, 100, 100, true);
+
+        messageButton.setImageBitmap(bMapScaled1);
     }
 
     private void setupPoiButtons() {
@@ -425,41 +423,6 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                 markersSelectionChanged();
             }});
 
-/*        myButtonFood.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(myButtonShopsMarket.getVisibility()==View.VISIBLE)
-                {
-                    (findViewById(R.id.ButtonShopsStores)).setVisibility(View.INVISIBLE);
-                    (findViewById(R.id.ButtonShopsMarket)).setVisibility(View.INVISIBLE);
-                    (findViewById(R.id.ButtonShopsShoppingMall)).setVisibility(View.INVISIBLE);
-                }
-                if(myButtonLeisureClubs.getVisibility()==View.VISIBLE)
-                {
-                    (findViewById(R.id.ButtonLeisureParks)).setVisibility(View.INVISIBLE);
-                    (findViewById(R.id.ButtonLeisureClubs)).setVisibility(View.INVISIBLE);
-                }
-
-                if(myButtonFoodBar.getVisibility()==View.INVISIBLE)
-                {
-                    (findViewById(R.id.ButtonFoodBar)).setVisibility(View.VISIBLE);
-                    (findViewById(R.id.ButtonFoodCoffee)).setVisibility(View.VISIBLE);
-                    (findViewById(R.id.ButtonFoodKfc)).setVisibility(View.VISIBLE);
-                    (findViewById(R.id.ButtonFoodMcDonald)).setVisibility(View.VISIBLE);
-                    (findViewById(R.id.ButtonFoodRestaurant)).setVisibility(View.VISIBLE);
-                }
-                else
-                {
-                    (findViewById(R.id.ButtonFoodBar)).setVisibility(View.INVISIBLE);
-                    (findViewById(R.id.ButtonFoodCoffee)).setVisibility(View.INVISIBLE);
-                    (findViewById(R.id.ButtonFoodKfc)).setVisibility(View.INVISIBLE);
-                    (findViewById(R.id.ButtonFoodMcDonald)).setVisibility(View.INVISIBLE);
-                    (findViewById(R.id.ButtonFoodRestaurant)).setVisibility(View.INVISIBLE);
-                }
-
-            }
-
-        });*/
 
         myButtonShopsMarket.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -491,34 +454,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                 markersSelectionChanged();
             }});
 
-        /*myButtonShops.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (myButtonFoodBar.getVisibility() == View.VISIBLE) {
-                    (findViewById(R.id.ButtonFoodBar)).setVisibility(View.INVISIBLE);
-                    (findViewById(R.id.ButtonFoodCoffee)).setVisibility(View.INVISIBLE);
-                    (findViewById(R.id.ButtonFoodKfc)).setVisibility(View.INVISIBLE);
-                    (findViewById(R.id.ButtonFoodMcDonald)).setVisibility(View.INVISIBLE);
-                    (findViewById(R.id.ButtonFoodRestaurant)).setVisibility(View.INVISIBLE);
-                }
-                if (myButtonLeisureClubs.getVisibility() == View.VISIBLE) {
-                    (findViewById(R.id.ButtonLeisureParks)).setVisibility(View.INVISIBLE);
-                    (findViewById(R.id.ButtonLeisureClubs)).setVisibility(View.INVISIBLE);
-                }
 
-                if (myButtonShopsMarket.getVisibility() == View.INVISIBLE) {
-                    (findViewById(R.id.ButtonShopsStores)).setVisibility(View.VISIBLE);
-                    (findViewById(R.id.ButtonShopsMarket)).setVisibility(View.VISIBLE);
-                    (findViewById(R.id.ButtonShopsShoppingMall)).setVisibility(View.VISIBLE);
-                } else {
-                    (findViewById(R.id.ButtonShopsStores)).setVisibility(View.INVISIBLE);
-                    (findViewById(R.id.ButtonShopsMarket)).setVisibility(View.INVISIBLE);
-                    (findViewById(R.id.ButtonShopsShoppingMall)).setVisibility(View.INVISIBLE);
-                }
-
-            }
-
-        });*/
 
         myButtonLeisureClubs.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -538,43 +474,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
 
                 markersSelectionChanged();
             }});
-
-        /*myButtonLeisure.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(myButtonShopsMarket.getVisibility()==View.VISIBLE)
-                {
-                    (findViewById(R.id.ButtonShopsStores)).setVisibility(View.INVISIBLE);
-                    (findViewById(R.id.ButtonShopsMarket)).setVisibility(View.INVISIBLE);
-                    (findViewById(R.id.ButtonShopsShoppingMall)).setVisibility(View.INVISIBLE);
-                }
-                if(myButtonFoodBar.getVisibility()==View.VISIBLE)
-                {
-                    (findViewById(R.id.ButtonFoodBar)).setVisibility(View.INVISIBLE);
-                    (findViewById(R.id.ButtonFoodCoffee)).setVisibility(View.INVISIBLE);
-                    (findViewById(R.id.ButtonFoodKfc)).setVisibility(View.INVISIBLE);
-                    (findViewById(R.id.ButtonFoodMcDonald)).setVisibility(View.INVISIBLE);
-                    (findViewById(R.id.ButtonFoodRestaurant)).setVisibility(View.INVISIBLE);
-                }
-
-                if(myButtonLeisureClubs.getVisibility()==View.INVISIBLE)
-                {
-                    (findViewById(R.id.ButtonLeisureClubs)).setVisibility(View.VISIBLE);
-                    (findViewById(R.id.ButtonLeisureParks)).setVisibility(View.VISIBLE);
-                }
-                else
-                {
-                    (findViewById(R.id.ButtonLeisureClubs)).setVisibility(View.INVISIBLE);
-                    (findViewById(R.id.ButtonLeisureParks)).setVisibility(View.INVISIBLE);
-                }
-
-            }
-
-        });*/
-
-
-    }
-
+        }
 
     private void mainSpinner() {
         spinner1 = (Spinner) findViewById(R.id.spinner);
@@ -948,7 +848,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                         createdAt = notObj.getString("created_at");
 
                         db.addNotification(senderId, senderName, senderEmail, receiverId, type, messageId, groupId, createdAt, 0);
-                        readNotifications.add(0, (new Notification(senderId, senderName, senderEmail, receiverId, type, messageId, groupId, createdAt, 0)));
+                        readNotifications.add(1, (new Notification(senderId, senderName, senderEmail, receiverId, type, messageId, groupId, createdAt, 0)));
                         Toast.makeText(getApplicationContext(), "You have new notification", Toast.LENGTH_LONG).show();
                         if (type.equals("friendshipAgreed")) {
 

@@ -286,14 +286,13 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
             }
         });
 
-        pDialog = new ProgressDialog(getApplicationContext());
+        pDialog = new ProgressDialog(MainActivity.this);
         pDialog.setCancelable(false);
 
         POIScrollView = (ScrollView) findViewById(R.id.POIScroll);
 
         //Start-up markers list
         markers=db.getAllMarkers();
-        inclizaidListenerForMarkerMenu();
 
     }
 
@@ -1160,62 +1159,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         super.onDestroy();
     }
 
-    public void setMapListener()
-    {
-        myMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
-            @Override
-            public void onMapLongClick(LatLng latLng) {
-                lastClikOnMap=latLng;
-                MarkerDialog markerDialog=new MarkerDialog();
-                markerDialog.show(getFragmentManager(),"Marker Dialog");
 
-                myMap.addMarker(new MarkerOptions().position(latLng).draggable(true));
-                layoutMarker.setVisibility(View.GONE);
-            }
-        });
-
-        myMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
-            @Override
-            public boolean onMarkerClick(Marker marker) {
-                double latitude = mCurrentLocation.getLatitude();
-                double longitude = mCurrentLocation.getLongitude();
-                LatLng origin = new LatLng(latitude, longitude);
-                latitude = marker.getPosition().latitude;
-                longitude = marker.getPosition().longitude;
-                LatLng dest = new LatLng(latitude, longitude);
-
-              /*  Uri gmmIntentUri= Uri.parse("google.navigation:q="+latitude+","+longitude);
-                Intent mapIntent=new Intent(Intent.ACTION_VIEW,gmmIntentUri);
-                mapIntent.setPackage("com.google.android.apps.maps");
-                startActivity(mapIntent);*/
-
-                String url = MainActivity.this.getDirectionUrl(origin, dest);
-                DownloadTask downloadTask = new DownloadTask();
-                //no to zaczynamy zabawę
-                downloadTask.execute(url);
-                return true;
-            }
-        });
-
-        myMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
-            @Override
-            public boolean onMarkerClick(Marker marker){
-                ostatniMarker = marker;
-                layoutMarker.setX((float)myMap.getProjection().toScreenLocation(marker.getPosition()).x - layoutMarker.getWidth()/2 + 40);
-                layoutMarker.setY((float)myMap.getProjection().toScreenLocation(marker.getPosition()).y - layoutMarker.getHeight()/2 - 30);
-                layoutMarker.setVisibility(View.VISIBLE);
-                return true;
-            }
-        });
-
-        myMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
-            @Override
-            public void onMapClick(LatLng latLng) {
-                findViewById(R.id.POIButtons).setVisibility(View.GONE);
-                layoutMarker.setVisibility(View.GONE);
-            }
-        });
-    }
     /**
      * Metoda tworząca wątek, który w sumie i tak jest już nie potrzebny, bo za wysyłynie danych o
      * lokacji będzie odpowiedzialny ChangeLocationListener, przynajniej ten kod nie straszy już w onCreate()
@@ -1255,57 +1199,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     //Rozpoczynam pisanie kodu odpowiedzialnego za pokazanie dokładnej trasy
 
 
-    private String getDirectionUrl(LatLng origin, LatLng dest){
-        //Skąd wyruszamy
-        String str_origin="origin="+origin.latitude+","+origin.longitude;
-
-        //Quo vadis
-        String str_dest="destination="+dest.latitude+","+dest.longitude;
-        //Sensor enabled
-        String sensor="sensor=false";
-        //Składanie w całość, aby móc przekazać to web service
-        String parameters=str_origin+"&"+str_dest+"&"+sensor;
-        //Definiowanie formatu wyniku
-        String output="json";
-        //Złożenie końcowego łańcucha URL, może początek tego url warto zapisać jako stałą?
-        String url="http://maps.googleapis.com/maps/api/directions/"+output+"?"+parameters;
-        return url;
-    }
     //no to pobierzmy tego jsona
-    private String downloadUrl(String strUrl) throws IOException
-    {
-        Log.d("co tam ",strUrl);
-        String data="";
-        InputStream isStream=null;
-        HttpURLConnection urlConnection=null;
-        try{
-            URL url=new URL(strUrl);
-            //Tworzymy połęczenie przez protokół http, żeby połączyć sie z adresem url
-            urlConnection=(HttpURLConnection)url.openConnection();
-            //Łączymy się z nim
-            urlConnection.connect();
-
-            //No to teraz zczytujemy dane
-            isStream=urlConnection.getInputStream();
-            BufferedReader br=new BufferedReader(new InputStreamReader(isStream));
-            StringBuffer sb=new StringBuffer();
-
-            String line="";
-            while ((line=br.readLine())!=null)
-            {
-                sb.append(line);
-            }
-            data=sb.toString();
-            br.close();
-        }catch (Exception e) {
-            Log.d("Exception url", e.toString());
-        }
-        finally {
-            isStream.close();
-            urlConnection.disconnect();
-        }
-        return data;
-    }
 
     @Override
     public void onDialogPositiveClick(DialogFragment dialog) {
@@ -1335,114 +1229,6 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     public void onTabReselected(ActionBar.Tab tab, FragmentTransaction ft) {
 
     }
-
-    //Osobne zadanie do pobierania danych
-    private class DownloadTask extends AsyncTask<String,Void,String>
-    {
-        //Pobieranie danych w innym wątku niż ten opowiedzialny za wyświetlanie grafiki
-        @Override
-        protected String doInBackground(String... url)
-        {
-
-            //String do przechowywanie odberanych danych
-            String data="";
-            try{
-                data=MainActivity.this.downloadUrl(url[0]);
-            }catch(Exception e)
-            {
-                Log.d("Background Task",e.toString());
-            }
-            return data;
-        }
-
-        //Zrób w wątku wyświtlającym grafikę, potym jak wykonasz doInBackground
-        @Override
-        protected void onPostExecute(String result)
-        {
-            super.onPostExecute(result);
-            ParseTask parseTask=new ParseTask();
-            //wystartuj wątek przetwrzający obiekt JSON
-            parseTask.execute(result);
-        }
-    }
-
-    //A class to parse the Google Places in JSON format
-    private class ParseTask extends AsyncTask<String,Integer,List<List<HashMap<String,String>>>>
-    {
-        //Przetwrzanie danych w wątku innym niż ten odpowiedzialny za wyświetlanie grafiki
-        @Override
-        protected List<List<HashMap<String,String>>> doInBackground(String... jsonData)
-        {
-            JSONObject jObject;
-            List<List<HashMap<String,String>>> routes=null;
-            try{
-                jObject=new JSONObject(jsonData[0]);
-                DirectionsJSONParser parser=new DirectionsJSONParser();
-                //Zacznij ekstrachować dane
-                routes=parser.parse(jObject);
-
-            }catch (Exception e)
-            {
-                e.printStackTrace();
-            }
-            return routes;
-        }
-
-        //Wykonaj w wątku graficznym po wykonaniu metody doInBackground
-        @Override
-        protected void onPostExecute(List<List<HashMap<String,String>>> result)
-        {
-            ArrayList<LatLng> points=null;
-            PolylineOptions lineOptions=null;
-            MarkerOptions markerOptions=new MarkerOptions();
-            String distance="";
-            String duration;
-            if(result.size()<1)
-            {
-                Toast.makeText(MainActivity.this.getBaseContext(),"No Points",Toast.LENGTH_SHORT).show();
-                return;
-            }
-            //Odpowidzanie wszytkich możliwych tras
-            for(int i=0; i<result.size();i++)
-            {
-                points=new ArrayList<LatLng>();
-                lineOptions=new PolylineOptions();
-                //Przechodzenie i-tej drogi
-                List<HashMap<String,String>> path=result.get(i);
-                for(int j=0;j<path.size();j++)
-                {
-                    HashMap<String,String> point=path.get(j);
-                    if(j==0)
-                    {
-                        //Zczytaj dystans z listy
-                        distance=point.get("disance");
-                        continue;
-                    }else if(j==1)
-                    {
-                        //Zczytaj czas podróży
-                        duration=point.get("duration");
-                        continue;
-                    }
-                    double lat=Double.parseDouble(point.get("lat"));
-                    double lng=Double.parseDouble(point.get("lng"));
-                    LatLng position=new LatLng(lat,lng);
-                    points.add(position);
-                }
-                //Dodanie wszystkich punktów na drodze do LineOptions
-                lineOptions.addAll(points);
-                lineOptions.width(2);
-                lineOptions.color(Color.BLUE);
-
-            }
-            MainActivity.this.myMap.addPolyline(lineOptions);
-
-
-        }
-    }
-
-
-
-
 
     @Override
     public void onBackPressed() {
@@ -1550,76 +1336,6 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     }
 
 
-
-    public void inclizaidListenerForMarkerMenu()
-    {
-        firstMarkerButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.d(AppController.TAG,"odebrałem zdarzenie");
-                double latitude = mCurrentLocation.getLatitude();
-                double longitude = mCurrentLocation.getLongitude();
-                LatLng origin = new LatLng(latitude, longitude);
-                latitude = ostatniMarker.getPosition().latitude;
-                longitude = ostatniMarker.getPosition().longitude;
-                LatLng dest = new LatLng(latitude, longitude);
-                String url = MainActivity.this.getDirectionUrl(origin, dest);
-                DownloadTask downloadTask = new DownloadTask();
-                //no to zaczynamy zabawę
-                downloadTask.execute(url);
-            }
-        });
-        secondMarkerButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                double latitude = mCurrentLocation.getLatitude();
-                double longitude = mCurrentLocation.getLongitude();
-                LatLng origin = new LatLng(latitude, longitude);
-                latitude = ostatniMarker.getPosition().latitude;
-                longitude = ostatniMarker.getPosition().longitude;
-                LatLng dest = new LatLng(latitude, longitude);
-
-                Uri gmmIntentUri= Uri.parse("google.navigation:q="+latitude+","+longitude);
-                Intent mapIntent=new Intent(Intent.ACTION_VIEW,gmmIntentUri);
-                mapIntent.setPackage("com.google.android.apps.maps");
-                startActivity(mapIntent);
-            }
-        });
-        thirdMarkerButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String uid=session.getUserId();
-                double latitude = ostatniMarker.getPosition().latitude;
-                double longitude = ostatniMarker.getPosition().longitude;
-                CustomMarker custom= ToolsForMarkerList.getSpecificMarker(markers,latitude,longitude);
-                String name=ostatniMarker.getTitle();
-                if(name==null)
-                    name="brak";
-
-                Sender.sendMarker(MainActivity.this,uid,latitude,longitude,name,custom,ostatniMarker);
-            }
-        });
-        fourthMarkerButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                double latitude = ostatniMarker.getPosition().latitude;
-                double longitude = ostatniMarker.getPosition().longitude;
-                CustomMarker toRemove = ToolsForMarkerList.getSpecificMarker(markers, latitude, longitude);
-                markers.remove(toRemove);
-                myMap.clear();
-                Sender.putMarkersOnMapAgain(markers, myMap);
-                layoutMarker.setVisibility(View.GONE);
-                /*Sender.sendRequestAboutMarkers(session.getUserId(),markers,myMap);*/
-
-
-             /*   ArrayList<Friend> friends=db.getAllFriends();
-                String whereClause=Sender.makeStatementAboutFriendsList(friends);
-
-                ArrayList<CustomMarker> friendsMarker=new ArrayList<CustomMarker>();
-                Sender.sendRequestAboutFriendsCoordinate(whereClause,friendsMarker,myMap);*/
-            }
-        });
-    }
     public void saveToSQLiteDataBase(){
         for(CustomMarker m:markers)
         {

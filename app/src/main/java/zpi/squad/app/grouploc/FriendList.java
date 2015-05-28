@@ -25,6 +25,11 @@ public class FriendList extends ArrayAdapter<ListViewItem> {
     }
 
     @Override
+    public void remove(ListViewItem object){
+        super.remove(object);
+    }
+
+    @Override
     public View getView(int position, View view, ViewGroup parent) {
         ViewHolder viewHolder;
         if(view == null) {

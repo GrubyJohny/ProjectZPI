@@ -1,6 +1,7 @@
 package zpi.squad.app.grouploc;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
@@ -9,11 +10,22 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 public class FriendsFragment extends ListFragment {
@@ -21,10 +33,13 @@ public class FriendsFragment extends ListFragment {
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
     private SQLiteHandler db;
+    private static SessionManager session;
+    private ProgressDialog pDialog;
     private static FriendList friendList;
     private static ArrayList<Friend> userFriendsList;
     private static Resources resources;
     public static FragmentActivity fragmentActivity;
+    private static ListAdapter adapter;
     private String mParam1;
     private String mParam2;
 
@@ -58,6 +73,8 @@ public class FriendsFragment extends ListFragment {
 
         db = new SQLiteHandler(LoginActivity.context);
         userFriendsList = db.getAllFriends();
+        session = new SessionManager(getActivity());
+        pDialog = new ProgressDialog(getActivity());
 
         if (getArguments() != null) {
             mParam1 = getArguments().getString(ARG_PARAM1);
@@ -72,6 +89,7 @@ public class FriendsFragment extends ListFragment {
         }
 
         friendList = new FriendList(fragmentActivity, mItems);
+
         setListAdapter(friendList);
 
     }
@@ -125,8 +143,15 @@ public class FriendsFragment extends ListFragment {
     public void onListItemClick(ListView l, View v, int position, long id) {
 
         ListViewItem item = mItems.get(position);
-        Toast.makeText(getActivity(), item.name, Toast.LENGTH_SHORT).show();
+        Log.d("MOJLOG", session.getUserId());
+
+        deleteFriendship(session.getUserId(), String.valueOf(item.uid));
+        mItems.remove(position);
+        friendList.notifyDataSetChanged();
+
     }
+
+
 
 
     @Override
@@ -154,5 +179,79 @@ public class FriendsFragment extends ListFragment {
         setListAdapter(new FriendList(getActivity(), mItems));
         Log.d("FriendsFragment", "Wykonano");
     }
+
+
+    private void deleteFriendship(final String uId, final String friendId) {
+
+        String tag_string_req = "delete_friendshipRequest";
+        pDialog.setMessage("Sending Request for deleting Friendship");
+        showDialog();
+        final String TAG = "Friendship delete request";
+
+        StringRequest strReq = new StringRequest(Request.Method.POST, AppConfig.URL_REGISTER, new Response.Listener<String>() {
+
+                @Override
+                public void onResponse(String response) {
+                    Log.d(TAG, "Friendship request Response: " + response.toString());
+                    hideDialog();
+                    try {
+                        JSONObject jObj = new JSONObject(response);
+                        boolean error = jObj.getBoolean("error");
+
+                        if (!error) {
+
+                            String message = jObj.getString("error_msg");
+                            Toast.makeText(fragmentActivity, message, Toast.LENGTH_LONG).show();
+
+                        } else {
+
+                            String errorMsg = jObj.getString("error_msg");
+                            Toast.makeText(fragmentActivity, errorMsg, Toast.LENGTH_LONG).show();
+                        }
+                    } catch (JSONException e) {
+                        Toast.makeText(fragmentActivity, "Exception - Connection problem", Toast.LENGTH_LONG).show();
+                        e.printStackTrace();
+                    }
+
+                }
+            }, new Response.ErrorListener() {
+
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    Log.e(TAG, "Friendship request Error: " + error.toString());
+
+                    Toast.makeText(fragmentActivity, error.getMessage(), Toast.LENGTH_LONG).show();
+                    hideDialog();
+
+                }
+            }) {
+
+                @Override
+                protected Map<String, String> getParams() {
+                    Map<String, String> params = new HashMap<String, String>();
+                    params.put("tag", "deleteFriend");
+                    params.put("senderId", uId);
+                    params.put("receiverId", friendId);
+
+                    return params;
+                }
+
+            };
+
+            AppController.getInstance().addToRequestQueue(strReq, tag_string_req);
+
+    }
+    private void showDialog() {
+        if (!pDialog.isShowing())
+            pDialog.show();
+    }
+
+    private void hideDialog() {
+        if (pDialog.isShowing())
+            pDialog.dismiss();
+    }
+
+
+
 
 }

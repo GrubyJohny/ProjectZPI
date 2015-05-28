@@ -124,7 +124,6 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     private ScrollView POIScrollView;
     PoiJSONParser poiBase = new PoiJSONParser();
     public static Context context;
-    private static List<ListViewItem> mItems;
     ArrayList<Notification> readNotifications = new ArrayList<Notification>();
     private ArrayList<MarkerOptions> markersRestaurants = new ArrayList<MarkerOptions>();
     private ArrayList<MarkerOptions> markersKfc = new ArrayList<MarkerOptions>();
@@ -970,10 +969,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
 
                     if (readNotifications.get(position).getType().equals("friendshipRequest") && !readNotifications.get(position).isChecked()) {
                         onFriendshipRequest(readNotifications.get(position));
-                        Log.d("spinner.onitemclick", String.valueOf(position));
-                        Log.d("spinner.onitemclick", readNotifications.get(position).getSenderName());
-                        Log.d("spinner.onitemclick", readNotifications.get(position).getType());
-                        Log.d("spinner.onitemclick", "notChecked");
+
                     } else {
 
                     }

@@ -46,6 +46,9 @@ public class Notification {
         else if(type.equals("friendshipDisagreed")){
             response = "Użytkownik " + senderName + " odrzucił Twoje zaproszenie";
         }
+        else if(type.equals("friendshipCanceled")){
+            response = "Użytkownik " + senderName + " wyrzucił Cię ze znajomych";
+        }
 
 
         return response;

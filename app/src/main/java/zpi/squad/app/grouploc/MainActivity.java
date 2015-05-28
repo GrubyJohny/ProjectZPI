@@ -1,7 +1,11 @@
 package zpi.squad.app.grouploc;
 
+import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.app.DialogFragment;
+import android.app.Fragment;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
@@ -20,6 +24,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -35,9 +40,11 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ScrollView;
 import android.widget.Spinner;
+import android.widget.TabHost;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
+import android.support.v4.app.FragmentTabHost;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.NetworkError;
@@ -56,6 +63,7 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
@@ -68,12 +76,14 @@ import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
@@ -82,10 +92,12 @@ import java.util.List;
 import java.util.Map;
 
 
-public class MainActivity extends FragmentActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, com.google.android.gms.location.LocationListener, MarkerDialog.NoticeDialogListener {
+public class MainActivity extends FragmentActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, com.google.android.gms.location.LocationListener, MarkerDialog.NoticeDialogListener, ActionBar.TabListener {
 
     private SessionManager session;
+    private ProgressDialog pDialog;
     private SQLiteHandler db;
+    private View tabLayout;
     private ViewFlipper myViewFlipper;
     private float lastX;
     protected boolean inhibit_spinner = true;
@@ -98,6 +110,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     private Button friendsButton;
     private Button groupButton;
     private Button BackToMapButton;
+    private Button addFriendButton;
     private View layoutSettings;
     private View layoutFlipper;
     private View layoutGroup;
@@ -120,7 +133,9 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     private Button fourthMarkerButton;
     private Button closeMarkerButton;
     private Marker ostatniMarker;
-    private ProgressDialog pDialog;
+    private FragmentTabHost tabhost;
+    private SupportMapFragment mMapFragment;
+
     private ScrollView POIScrollView;
     PoiJSONParser poiBase = new PoiJSONParser();
     public static Context context;
@@ -144,7 +159,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     //Andoridowy obiekt przechowujący dane o położeniu(np latitude, longitude, kiedy zostało zarejestrowane)
     private Location mCurrentLocation;
     private Runnable sender;//wątek, który będzie wysyłał info o położoniu użytkownika do bazy
-   // private SQLiteHandler db;//obiekt obsługujący lokalną androidową bazę danych
+    // private SQLiteHandler db;//obiekt obsługujący lokalną androidową bazę danych
     //obiekt będący parametrem, przy wysłaniu żądania o aktualizację lokacji
     private LocationRequest mLocationRequest;
 
@@ -170,6 +185,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         StrictMode.setThreadPolicy(policy);
         session = new SessionManager(this);
         db = new SQLiteHandler(getApplicationContext());
+        tabLayout = (View) findViewById(R.id.tabLayout);
 
         sender = createSendThread();
 
@@ -183,6 +199,42 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         createLocationRequest();
         buildGoogleApiClient();
         mGoogleApiClient.connect();
+
+
+
+
+
+
+
+
+
+
+        //mMapFragment = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.myMapFragment));
+        //mMapFragment.onStart();
+        //mMapFragment.onResume();
+
+
+        tabhost = (FragmentTabHost) findViewById(android.R.id.tabhost);
+        tabhost.setup(context, getSupportFragmentManager(), android.R.id.tabcontent);
+
+        tabhost.addTab(tabhost.newTabSpec("map").setIndicator("MAP"),
+                Mapka.class, null);
+
+        /*tabhost.addTab(tabhost.newTabSpec("map").setIndicator("MAP"),
+                SupportMapFragment.class, null);*/
+        tabhost.addTab(tabhost.newTabSpec("friends").setIndicator("FRIENDS"),
+                FriendsFragment.class, null);
+        tabhost.addTab(tabhost.newTabSpec("group").setIndicator("GROUP"),
+                GroupFragment.class, null);
+
+
+
+
+
+
+
+
+
 
 
         // new Thread(sender, "Watek do wysyłania koordynatów").start();
@@ -206,8 +258,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
 
         //w razie gdyby nie było jeszcze żadnego naszego zdjęcia, to johny ląduje na profilowym
         if(icon==null)
-         icon = BitmapFactory.decodeResource(getResources(), R.drawable.johny);
-
+            icon = BitmapFactory.decodeResource(getResources(), R.drawable.johny);
 
         Bitmap bitmap_round = clipBitmap(icon);
         circleButton.setImageBitmap(bitmap_round);
@@ -219,66 +270,12 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         addListenerOnSpinner2();
         addListenerOnSpinner3();
 
-        setupPoiButtons();
-        setUpViewFlipper();
+        //setupPoiButtons();
+        //setUpViewFlipper();
 
         layoutSettings = (View) findViewById(R.id.settingsLayout);
-        layoutFlipper = (View) findViewById(R.id.flipperLayout);
-        layoutGroup = (View) findViewById(R.id.groupLayout);
-
-        friendsButton = (Button) findViewById(R.id.friendsButton);
-
-        friendsButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                layoutGroup.setVisibility(View.INVISIBLE);
-                layoutMarker.setVisibility(View.GONE);
-                if(myViewFlipper.getDisplayedChild() != 1) {
-                    myViewFlipper.setDisplayedChild(1);
-                }
-                layoutFlipper.setVisibility(View.VISIBLE);
-
-            }
-        });
-
-        groupButton = (Button) findViewById(R.id.groupButton);
-
-        groupButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                layoutFlipper.setVisibility(View.INVISIBLE);
-                layoutMarker.setVisibility(View.GONE);
-                layoutGroup.setVisibility(View.VISIBLE);
-            }
-        });
-
-        BackToMapButton = (Button) findViewById(R.id.BacktoMapButton);
-
-        BackToMapButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                myViewFlipper.setDisplayedChild(0);
-                layoutFlipper.setVisibility(View.VISIBLE);
-                layoutGroup.setVisibility(View.INVISIBLE);
-                layoutSettings.setVisibility(View.INVISIBLE);
-            }
-        });
 
         SettingButtons();
-
-        pDialog = new ProgressDialog(this);
-        pDialog.setCancelable(false);
-
-        Button button = (Button)findViewById(R.id.button);
-        final EditText editText = (EditText)findViewById(R.id.friendEmail);
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String friend = editText.getText().toString();
-                sendFriendshipRequest(session.getUserId(), friend);
-                editText.setText("");
-            }
-        });
 
         layoutMarker = (View) findViewById(R.id.markerLayout);
 
@@ -295,6 +292,8 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
             }
         });
 
+        pDialog = new ProgressDialog(getApplicationContext());
+        pDialog.setCancelable(false);
 
         POIScrollView = (ScrollView) findViewById(R.id.POIScroll);
 
@@ -375,11 +374,11 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         myButtonFoodBar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                    if(activePoiMarkers.contains(markersBars))
-                            activePoiMarkers.remove(markersBars);
-                    else    activePoiMarkers.add(markersBars);
+                if(activePoiMarkers.contains(markersBars))
+                    activePoiMarkers.remove(markersBars);
+                else    activePoiMarkers.add(markersBars);
 
-                    markersSelectionChanged();
+                markersSelectionChanged();
             }});
 
         myButtonFoodCoffee.setOnClickListener(new View.OnClickListener() {
@@ -473,7 +472,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
 
                 markersSelectionChanged();
             }});
-        }
+    }
 
     private void mainSpinner() {
         spinner1 = (Spinner) findViewById(R.id.spinner);
@@ -500,7 +499,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                 parent.setVerticalScrollBarEnabled(false);
                 return v;
             }
-        };;
+        };
         spinner1.setAdapter(circleButtonOptions);
     }
 
@@ -546,8 +545,9 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         confirm.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                layoutFlipper.setVisibility(View.VISIBLE);
+                //layoutFlipper.setVisibility(View.VISIBLE);
                 layoutSettings.setVisibility(View.INVISIBLE);
+                tabLayout.setVisibility(View.VISIBLE);
             }
         });
 
@@ -556,8 +556,9 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         cancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                layoutFlipper.setVisibility(View.VISIBLE);
+                //layoutFlipper.setVisibility(View.VISIBLE);
                 layoutSettings.setVisibility(View.INVISIBLE);
+                tabLayout.setVisibility(View.VISIBLE);
             }
         });
 
@@ -658,7 +659,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                     cropIntent.putExtra("return-data", true);
                     //start the activity - we handle returning in onActivityResult
                     startActivityForResult(cropIntent, CROP_IMAGE);
-               }
+                }
             }
             else if(requestCode == CROP_IMAGE)
             {
@@ -773,7 +774,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     }
 
     // Method to handle touch event like left to right swap and right to left swap
-    public boolean onTouchEvent(MotionEvent touchevent) {
+    /*public boolean onTouchEvent(MotionEvent touchevent) {
         switch (touchevent.getAction()) {
             // when user first touches the screen to swap
             case MotionEvent.ACTION_DOWN: {
@@ -810,7 +811,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
             }
         }
         return false;
-    }
+    }*/
 
 
     public void stayActive(final String id, final float c1, final float c2) {
@@ -940,11 +941,13 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                     case 0:
                         break;
                     case 1:
-                        layoutFlipper.setVisibility(View.INVISIBLE);
-                        layoutGroup.setVisibility(View.INVISIBLE);
+                        //layoutFlipper.setVisibility(View.INVISIBLE);
+                        //layoutGroup.setVisibility(View.INVISIBLE);
                         layoutSettings.setVisibility(View.VISIBLE);
+                        tabLayout.setVisibility(View.INVISIBLE);
                         layoutMarker.setVisibility(View.GONE);
                         spinner1.setSelection(0);
+
                         break;
                     case 2:
                         logOut(this);
@@ -1010,19 +1013,20 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
      */
     private void setUpMap(boolean hardSetup)
     {
-            myMap = ((MapFragment) getFragmentManager().findFragmentById(R.id.myMapFragment)).getMap();
-            //Log.d(AppController.TAG,"my map to"+myMap);
-            myMap.setMyLocationEnabled(true);
-            myMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
 
-            Sender.putMarkersOnMapAgain(markers, myMap);
+        myMap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.myMapFragment)).getMap();
+        //Log.d(AppController.TAG,"my map to"+myMap);
+        myMap.setMyLocationEnabled(true);
+        myMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
 
-            if(mCurrentLocation!=null) {
-                double latitude = mCurrentLocation.getLatitude();
-                double longitude = mCurrentLocation.getLongitude();
-                LatLng latLng = new LatLng(latitude,longitude);
-                if(hardSetup) {
-                    //Log.d(AppController.TAG,"Ustawiam kamerę zgodnie z rządaniem. Szerokość na: "+latitude+" natomsiat długość: "+longitude);
+        Sender.putMarkersOnMapAgain(markers, myMap);
+
+        if(mCurrentLocation!=null) {
+            double latitude = mCurrentLocation.getLatitude();
+            double longitude = mCurrentLocation.getLongitude();
+            LatLng latLng = new LatLng(latitude,longitude);
+            if(hardSetup) {
+                //Log.d(AppController.TAG,"Ustawiam kamerę zgodnie z rządaniem. Szerokość na: "+latitude+" natomsiat długość: "+longitude);
                    /*Bardzo cię przepraszam Karlo, ale musze napisać to w tym złym komentarzu.
                    genralnie bez powodu przy uruchomieniu wypieprzało mnie na mapie na pustynię, a nie na
                    obecną lokalizację. Generalnie nie zależało to od współrzędnych. Mogło być ustawione na
@@ -1031,12 +1035,12 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                    zamiast CameraUpdateFactory.newLatLng(latLng) to jest w pożatku. Nie mam pojędzie dlazego tak, ale tak było
                    przynajmniej na moim tablecie.I wyrzuciłem animateCamera, i tak nic nie zmieniała, a tylko psuła.
                     */
-                    myMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng,15));
-                    //myMap.animateCamera(CameraUpdateFactory.zoomTo(15),3000,null);
-                }
+                myMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng,15));
+                //myMap.animateCamera(CameraUpdateFactory.zoomTo(15),3000,null);
             }
-            else
-                Log.e(AppController.TAG,"ostania znana lokacja jest nulem");
+        }
+        else
+            Log.e(AppController.TAG,"ostania znana lokacja jest nulem");
 
 
         myMap.setOnCameraChangeListener(getCameraChangeListener());
@@ -1060,12 +1064,12 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         };
     }
 
-    private void setUpViewFlipper() {
+    /*private void setUpViewFlipper() {
 
         myViewFlipper = (ViewFlipper) findViewById(R.id.viewFlipper);
         myViewFlipper.setHorizontalScrollBarEnabled(true);
 
-    }
+    }*/
 
 
     /**
@@ -1077,10 +1081,10 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     public void onConnected(Bundle bundle) {
         Log.d(AppController.TAG, "Podłączony do api service");
         mCurrentLocation=LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-        setUpMap(true);
+        // setUpMap(true);
 
 
-        setMapListener();
+        //setMapListener();
         if (mRequestingLocationUpdates) {
             startLocationUpdates();
         }
@@ -1238,7 +1242,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
 
                             double latitude = 54.5;
                             double longitude = 19.2;
-                           // sendCordinate(session.getUserId(), (float) latitude, (float) longitude);
+                            // sendCordinate(session.getUserId(), (float) latitude, (float) longitude);
                         }
                         Thread.sleep(5000);
                     }
@@ -1253,22 +1257,22 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     //Rozpoczynam pisanie kodu odpowiedzialnego za pokazanie dokładnej trasy
 
 
-private String getDirectionUrl(LatLng origin, LatLng dest){
-   //Skąd wyruszamy
-    String str_origin="origin="+origin.latitude+","+origin.longitude;
+    private String getDirectionUrl(LatLng origin, LatLng dest){
+        //Skąd wyruszamy
+        String str_origin="origin="+origin.latitude+","+origin.longitude;
 
-    //Quo vadis
-    String str_dest="destination="+dest.latitude+","+dest.longitude;
-    //Sensor enabled
-    String sensor="sensor=false";
-    //Składanie w całość, aby móc przekazać to web service
-    String parameters=str_origin+"&"+str_dest+"&"+sensor;
-    //Definiowanie formatu wyniku
-    String output="json";
-   //Złożenie końcowego łańcucha URL, może początek tego url warto zapisać jako stałą?
-    String url="http://maps.googleapis.com/maps/api/directions/"+output+"?"+parameters;
-    return url;
-}
+        //Quo vadis
+        String str_dest="destination="+dest.latitude+","+dest.longitude;
+        //Sensor enabled
+        String sensor="sensor=false";
+        //Składanie w całość, aby móc przekazać to web service
+        String parameters=str_origin+"&"+str_dest+"&"+sensor;
+        //Definiowanie formatu wyniku
+        String output="json";
+        //Złożenie końcowego łańcucha URL, może początek tego url warto zapisać jako stałą?
+        String url="http://maps.googleapis.com/maps/api/directions/"+output+"?"+parameters;
+        return url;
+    }
     //no to pobierzmy tego jsona
     private String downloadUrl(String strUrl) throws IOException
     {
@@ -1316,6 +1320,21 @@ private String getDirectionUrl(LatLng origin, LatLng dest){
         markers.add(mark);
         InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(md.getInput().getWindowToken(), 0);
+
+    }
+
+    @Override
+    public void onTabSelected(ActionBar.Tab tab, FragmentTransaction ft) {
+
+    }
+
+    @Override
+    public void onTabUnselected(ActionBar.Tab tab, FragmentTransaction ft) {
+
+    }
+
+    @Override
+    public void onTabReselected(ActionBar.Tab tab, FragmentTransaction ft) {
 
     }
 
@@ -1422,94 +1441,23 @@ private String getDirectionUrl(LatLng origin, LatLng dest){
 
         }
     }
-    private void sendFriendshipRequest(final String id, final String email) {
 
-        String tag_string_req = "req_friendshipRequest";
-        pDialog.setMessage("Sending Request for Friendship");
-        showDialog();
-        final String TAG = "Friendship request";
-        if(!email.equals(session.getUserEmail())) {
-            StringRequest strReq = new StringRequest(Request.Method.POST, AppConfig.URL_REGISTER, new Response.Listener<String>() {
-
-                @Override
-                public void onResponse(String response) {
-                    Log.d(TAG, "Friendship request Response: " + response.toString());
-                    hideDialog();
-                    try {
-                        JSONObject jObj = new JSONObject(response);
-                        boolean error = jObj.getBoolean("error");
-
-                        if (!error) {
-
-                            Toast.makeText(getApplicationContext(), "Successfully sent invitation", Toast.LENGTH_LONG).show();
-
-                        } else {
-
-                            String errorMsg = jObj.getString("error_msg");
-                            Toast.makeText(getApplicationContext(), errorMsg, Toast.LENGTH_LONG).show();
-                        }
-                    } catch (JSONException e) {
-                        Toast.makeText(getApplicationContext(), "Exception - problem z połączeniem", Toast.LENGTH_LONG).show();
-                        e.printStackTrace();
-                    }
-
-                }
-            }, new Response.ErrorListener() {
-
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                    Log.e(TAG, "Friendship request Error: " + error.toString());
-
-                    Toast.makeText(getApplicationContext(), error.getMessage(), Toast.LENGTH_LONG).show();
-                    hideDialog();
-
-                }
-            }) {
-
-                @Override
-                protected Map<String, String> getParams() {
-                    Map<String, String> params = new HashMap<String, String>();
-                    params.put("tag", "friendshipRequest");
-                    params.put("sender", id);
-                    params.put("receiverEmail", email);
-
-                    return params;
-                }
-
-            };
-
-            AppController.getInstance().addToRequestQueue(strReq, tag_string_req);
-        }
-        else{
-            hideDialog();
-            Toast.makeText(getApplicationContext(), "You cannot send request to yourself", Toast.LENGTH_LONG).show();
-        }
-    }
-    private void showDialog() {
-        if (!pDialog.isShowing())
-            pDialog.show();
-    }
-
-    private void hideDialog() {
-        if (pDialog.isShowing())
-            pDialog.dismiss();
-    }
 
 
 
 
     @Override
     public void onBackPressed() {
-       new AlertDialog.Builder(this).
-               setTitle("Really Exit")
-               .setMessage("Are You sure you want to exit")
-               .setNegativeButton(android.R.string.no,null)
-               .setPositiveButton(android.R.string.yes,new DialogInterface.OnClickListener() {
-                   @Override
-                   public void onClick(DialogInterface dialog, int which) {
-                       MainActivity.super.onBackPressed();
-                   }
-               }).create().show();
+        new AlertDialog.Builder(this).
+                setTitle("Really Exit")
+                .setMessage("Are You sure you want to exit")
+                .setNegativeButton(android.R.string.no,null)
+                .setPositiveButton(android.R.string.yes,new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        MainActivity.super.onBackPressed();
+                    }
+                }).create().show();
     }
 
     public void onFriendshipRequest(final Notification not) {
@@ -1529,6 +1477,16 @@ private String getDirectionUrl(LatLng origin, LatLng dest){
                 }).create().show();
     }
 
+    private void showDialog() {
+        if (!pDialog.isShowing())
+            pDialog.show();
+    }
+
+    private void hideDialog() {
+        if (pDialog.isShowing())
+            pDialog.dismiss();
+    }
+
     private void sendFriendshipAcceptance(final String senderId, final String myreceiverid, final String mysenderName, final String mysenderEmail) {
 
         String tag_string_req = "req_friendshipRequest";
@@ -1536,62 +1494,62 @@ private String getDirectionUrl(LatLng origin, LatLng dest){
         showDialog();
         final String TAG = "addFriend";
 
-            StringRequest strReq = new StringRequest(Request.Method.POST, AppConfig.URL_REGISTER, new Response.Listener<String>() {
+        StringRequest strReq = new StringRequest(Request.Method.POST, AppConfig.URL_REGISTER, new Response.Listener<String>() {
 
-                @Override
-                public void onResponse(String response) {
-                    Log.d(TAG, "Friendship acceptance Response: " + response.toString());
-                    hideDialog();
+            @Override
+            public void onResponse(String response) {
+                Log.d(TAG, "Friendship acceptance Response: " + response.toString());
+                hideDialog();
 
-                    try {
+                try {
 
-                        JSONObject jObj = new JSONObject(response);
-                        boolean error = jObj.getBoolean("error");
+                    JSONObject jObj = new JSONObject(response);
+                    boolean error = jObj.getBoolean("error");
 
-                        if (!error) {
+                    if (!error) {
 
-                            Toast.makeText(getApplicationContext(), "Acceptance has been sent successfully", Toast.LENGTH_LONG).show();
-                            db.addFriend(senderId, mysenderName, mysenderEmail);
-                            FriendsFragment.addFriend(new Friend(Integer.valueOf(senderId), mysenderName, mysenderEmail));
+                        Toast.makeText(getApplicationContext(), "Acceptance has been sent successfully", Toast.LENGTH_LONG).show();
+                        db.addFriend(senderId, mysenderName, mysenderEmail);
+                        FriendsFragment.addFriend(new Friend(Integer.valueOf(senderId), mysenderName, mysenderEmail));
 
 
-                        } else {
+                    } else {
 
-                            String errorMsg = jObj.getString("error_msg");
-                            Toast.makeText(getApplicationContext(), errorMsg, Toast.LENGTH_LONG).show();
-                        }
-                    } catch (JSONException e) {
-                        Toast.makeText(getApplicationContext(), "Connection problem. Try again.", Toast.LENGTH_LONG).show();
-                        e.printStackTrace();
+                        String errorMsg = jObj.getString("error_msg");
+                        Toast.makeText(getApplicationContext(), errorMsg, Toast.LENGTH_LONG).show();
                     }
-
-                }
-            }, new Response.ErrorListener() {
-
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                    Log.e(TAG, "Friendship request Error: " + error.toString());
-
-                    Toast.makeText(getApplicationContext(), error.getMessage(), Toast.LENGTH_LONG).show();
-                    hideDialog();
-
-                }
-            }) {
-
-                @Override
-                protected Map<String, String> getParams() {
-                    Map<String, String> params = new HashMap<String, String>();
-                    params.put("tag", "addFriend");
-                    params.put("senderId", senderId);
-                    params.put("receiverId", myreceiverid);
-
-                    return params;
+                } catch (JSONException e) {
+                    Toast.makeText(getApplicationContext(), "Connection problem. Try again.", Toast.LENGTH_LONG).show();
+                    e.printStackTrace();
                 }
 
-            };
+            }
+        }, new Response.ErrorListener() {
 
-            AppController.getInstance().addToRequestQueue(strReq, tag_string_req);
-        }
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e(TAG, "Friendship request Error: " + error.toString());
+
+                Toast.makeText(getApplicationContext(), error.getMessage(), Toast.LENGTH_LONG).show();
+                hideDialog();
+
+            }
+        }) {
+
+            @Override
+            protected Map<String, String> getParams() {
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("tag", "addFriend");
+                params.put("senderId", senderId);
+                params.put("receiverId", myreceiverid);
+
+                return params;
+            }
+
+        };
+
+        AppController.getInstance().addToRequestQueue(strReq, tag_string_req);
+    }
 
 
 
@@ -1632,11 +1590,11 @@ private String getDirectionUrl(LatLng origin, LatLng dest){
         thirdMarkerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-               String uid=session.getUserId();
-               double latitude = ostatniMarker.getPosition().latitude;
-               double longitude = ostatniMarker.getPosition().longitude;
-               CustomMarker custom= ToolsForMarkerList.getSpecificMarker(markers,latitude,longitude);
-               String name=ostatniMarker.getTitle();
+                String uid=session.getUserId();
+                double latitude = ostatniMarker.getPosition().latitude;
+                double longitude = ostatniMarker.getPosition().longitude;
+                CustomMarker custom= ToolsForMarkerList.getSpecificMarker(markers,latitude,longitude);
+                String name=ostatniMarker.getTitle();
                 if(name==null)
                     name="brak";
 
@@ -1676,7 +1634,7 @@ private String getDirectionUrl(LatLng origin, LatLng dest){
 
     }
 
-//    klasa do przygotowania punktów poi w tle
+    //    klasa do przygotowania punktów poi w tle
     class AsyncTaskRunner extends AsyncTask<String, String, String> {
         @Override
         protected String doInBackground(String... params) {
@@ -1688,7 +1646,7 @@ private String getDirectionUrl(LatLng origin, LatLng dest){
 
             } catch (Exception e) {
                 e.printStackTrace();
-                           }
+            }
             String resp = "done";
             return resp;
         }
@@ -1697,12 +1655,12 @@ private String getDirectionUrl(LatLng origin, LatLng dest){
             // execution of result of Long time consuming operation
 
         }
-       @Override
+        @Override
         protected void onPreExecute() {
             // Things to be done before execution of long running operation. For
             // example showing ProgessDialog
         }
-       @Override
+        @Override
         protected void onProgressUpdate(String... text) {
 
             // Things to be done while execution of long running operation is in

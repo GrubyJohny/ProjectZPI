@@ -3,7 +3,8 @@ package zpi.squad.app.grouploc;
 import android.app.Activity;
 import android.net.Uri;
 import android.os.Bundle;
-import android.app.Fragment;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTabHost;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,6 +38,9 @@ public class GroupFragment extends Fragment {
     private EditText searchGroupText;
     private View layoutFlipper;
     private View layoutGroup;
+    private View layoutSettings;
+    private Button BackToMapButton;
+    private FragmentTabHost tabhost;
 
     /**
      * Use this factory method to create a new instance of
@@ -83,6 +87,9 @@ public class GroupFragment extends Fragment {
 
 
 
+
+
+
     }
 
     @Override
@@ -107,7 +114,42 @@ public class GroupFragment extends Fragment {
             }
         });
 
+        /*layoutSettings = (View) view.findViewById(R.id.settingsLayout);
+        tabhost = (FragmentTabHost) view.findViewById(android.R.id.tabhost);
 
+        BackToMapButton = (Button) getView().findViewById(R.id.BacktoMapButton);
+
+        BackToMapButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //myViewFlipper.setDisplayedChild(0);
+                //layoutFlipper.setVisibility(View.VISIBLE);
+                //layoutGroup.setVisibility(View.INVISIBLE);
+                tabhost.setCurrentTab(0);
+                layoutSettings.setVisibility(View.INVISIBLE);
+            }
+        });*/
+
+    }
+
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        layoutSettings = (View) getActivity().findViewById(R.id.settingsLayout);
+        tabhost = (FragmentTabHost) getActivity().findViewById(android.R.id.tabhost);
+
+        BackToMapButton = (Button) getView().findViewById(R.id.BacktoMapButton);
+
+        BackToMapButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //myViewFlipper.setDisplayedChild(0);
+                //layoutFlipper.setVisibility(View.VISIBLE);
+                //layoutGroup.setVisibility(View.INVISIBLE);
+                tabhost.setCurrentTab(0);
+                layoutSettings.setVisibility(View.INVISIBLE);
+            }
+        });
     }
 
     // TODO: Rename method, update argument and hook method into UI event

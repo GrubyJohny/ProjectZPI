@@ -1,0 +1,21 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/map_container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="zpi.squad.app.grouploc.Mapka">
+
+
+    <fragment
+        android:id="@+id/myMapFragment"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <include
+            layout="@layout/fragment_additional_elements_on_map"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+    </fragment>
+</FrameLayout>

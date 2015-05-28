@@ -10,6 +10,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -33,8 +35,6 @@ public class FriendsFragment extends ListFragment {
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
     private SQLiteHandler db;
-    private static SessionManager session;
-    private ProgressDialog pDialog;
     private static FriendList friendList;
     private static ArrayList<Friend> userFriendsList;
     private static Resources resources;
@@ -42,9 +42,10 @@ public class FriendsFragment extends ListFragment {
     private static ListAdapter adapter;
     private String mParam1;
     private String mParam2;
-
-
+    private MainActivity mainActivity = new MainActivity();
+    private SessionManager session;
     private static List<ListViewItem> mItems;
+    private ProgressDialog pDialog;
 
 
     public static FriendsFragment newInstance(String param1, String param2) {
@@ -62,7 +63,7 @@ public class FriendsFragment extends ListFragment {
 
     }
 
-    public static void addFriend(Friend friend){
+    public static void addFriend(Friend friend) {
 
         friendList.add(new ListViewItem(friend.getFriendID(), resources.getDrawable(R.drawable.image3), friend.getFriendName(), friend.getFriendEmail()));
     }
@@ -73,8 +74,6 @@ public class FriendsFragment extends ListFragment {
 
         db = new SQLiteHandler(LoginActivity.context);
         userFriendsList = db.getAllFriends();
-        session = new SessionManager(getActivity());
-        pDialog = new ProgressDialog(getActivity());
 
         if (getArguments() != null) {
             mParam1 = getArguments().getString(ARG_PARAM1);
@@ -89,11 +88,77 @@ public class FriendsFragment extends ListFragment {
         }
 
         friendList = new FriendList(fragmentActivity, mItems);
-
         setListAdapter(friendList);
+
+        session = new SessionManager(getActivity());
+        pDialog = new ProgressDialog(getActivity());
 
     }
 
+
+    public void sendFriendshipRequest(final String id, final String email) {
+
+        String tag_string_req = "req_friendshipRequest";
+        pDialog.setMessage("Sending Request for Friendship");
+        showDialog();
+        final String TAG = "Friendship request";
+        if(!email.equals(session.getUserEmail())) {
+            StringRequest strReq = new StringRequest(Request.Method.POST, AppConfig.URL_REGISTER, new Response.Listener<String>() {
+
+                @Override
+                public void onResponse(String response) {
+                    Log.d(TAG, "Friendship request Response: " + response.toString());
+                    hideDialog();
+                    try {
+                        JSONObject jObj = new JSONObject(response);
+                        boolean error = jObj.getBoolean("error");
+
+                        if (!error) {
+
+                            Toast.makeText(getActivity().getApplicationContext(), "Successfully sent invitation", Toast.LENGTH_LONG).show();
+
+                        } else {
+
+                            String errorMsg = jObj.getString("error_msg");
+                            Toast.makeText(getActivity().getApplicationContext(), errorMsg, Toast.LENGTH_LONG).show();
+                        }
+                    } catch (JSONException e) {
+                        Toast.makeText(getActivity().getApplicationContext(), "Exception - problem z połączeniem", Toast.LENGTH_LONG).show();
+                        e.printStackTrace();
+                    }
+
+                }
+            }, new Response.ErrorListener() {
+
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    Log.e(TAG, "Friendship request Error: " + error.toString());
+
+                    Toast.makeText(getActivity().getApplicationContext(), error.getMessage(), Toast.LENGTH_LONG).show();
+                    hideDialog();
+
+                }
+            }) {
+
+                @Override
+                protected Map<String, String> getParams() {
+                    Map<String, String> params = new HashMap<String, String>();
+                    params.put("tag", "friendshipRequest");
+                    params.put("sender", id);
+                    params.put("receiverEmail", email);
+
+                    return params;
+                }
+
+            };
+
+            AppController.getInstance().addToRequestQueue(strReq, tag_string_req);
+        }
+        else{
+            hideDialog();
+            Toast.makeText(getActivity().getApplicationContext(), "You cannot send request to yourself", Toast.LENGTH_LONG).show();
+        }
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -138,6 +203,25 @@ public class FriendsFragment extends ListFragment {
             }
         });*/
     }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        Button addFriendButton = (Button) getActivity().findViewById(R.id.addFriendButton);
+        final EditText editText = (EditText) getActivity().findViewById(R.id.friendEmail);
+        addFriendButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String friend = editText.getText().toString();
+                sendFriendshipRequest(session.getUserId(), friend);
+                editText.setText("");
+            }
+        });
+    }
+
+
+
+
 
     @Override
     public void onListItemClick(ListView l, View v, int position, long id) {

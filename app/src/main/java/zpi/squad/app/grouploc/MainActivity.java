@@ -188,48 +188,15 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
             buildAlertMessageNoGps();
         }
 
-        //Inicjalizacja mGoogleApiClient i rozpoczęcie połączenia
-        mRequestingLocationUpdates = true;
-        createLocationRequest();
-        buildGoogleApiClient();
-        mGoogleApiClient.connect();
-
-
-
-
-
-
-
-
-
-
-        //mMapFragment = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.myMapFragment));
-        //mMapFragment.onStart();
-        //mMapFragment.onResume();
-
-
         tabhost = (FragmentTabHost) findViewById(android.R.id.tabhost);
         tabhost.setup(context, getSupportFragmentManager(), android.R.id.tabcontent);
 
         tabhost.addTab(tabhost.newTabSpec("map").setIndicator("MAP"),
                 Mapka.class, null);
-
-        /*tabhost.addTab(tabhost.newTabSpec("map").setIndicator("MAP"),
-                SupportMapFragment.class, null);*/
         tabhost.addTab(tabhost.newTabSpec("friends").setIndicator("FRIENDS"),
                 FriendsFragment.class, null);
         tabhost.addTab(tabhost.newTabSpec("group").setIndicator("GROUP"),
                 GroupFragment.class, null);
-
-
-
-
-
-
-
-
-
-
 
         // new Thread(sender, "Watek do wysyłania koordynatów").start();
 
@@ -263,9 +230,6 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         addListenerOnSpinner();
         addListenerOnSpinner2();
         addListenerOnSpinner3();
-
-        //setupPoiButtons();
-        //setUpViewFlipper();
 
         layoutSettings = (View) findViewById(R.id.settingsLayout);
 
@@ -310,161 +274,6 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         Bitmap bMapScaled1 = Bitmap.createScaledBitmap(bitmap_round2, 100, 100, true);
 
         messageButton.setImageBitmap(bMapScaled1);
-    }
-
-    private void setupPoiButtons() {
-
-        mainPoiButton = (Button) findViewById(R.id.buttonPOIFiltering);
-
-        clearPoiButton = (Button) findViewById(R.id.ButtonClearPoi);
-        clearPoiButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                myMap.clear();
-                activePoiMarkers.clear();
-                mainPoiButton.performClick();
-                Sender.putMarkersOnMapAgain(markers, myMap);
-                //setUpMap(false);
-            }
-
-        });
-
-        mainPoiButton.setOnClickListener(new View.OnClickListener() {
-
-            public void onClick(View view) {
-
-                if((findViewById(R.id.POIButtons)).getVisibility() == View.GONE){
-
-                    if(!poiIsUpToDate) {
-                        AsyncTaskRunner runner = new AsyncTaskRunner();
-                        runner.execute();
-
-                    }
-                    POIScrollView.scrollTo(0,0);
-                    findViewById(R.id.POIButtons).setVisibility(View.VISIBLE);
-                }
-                else{
-                    findViewById(R.id.POIButtons).setVisibility(View.GONE);
-                }
-            }
-
-        });
-
-        //final Button myButtonFood = (Button) findViewById(R.id.ButtonFood);
-        final ImageButton myButtonFoodBar = (ImageButton) findViewById(R.id.ButtonFoodBar);
-        final ImageButton myButtonFoodCoffee = (ImageButton) findViewById(R.id.ButtonFoodCoffee);
-        final ImageButton myButtonFoodKfc = (ImageButton) findViewById(R.id.ButtonFoodKfc);
-        final ImageButton myButtonFoodMcDonald = (ImageButton) findViewById(R.id.ButtonFoodMcDonald);
-        final ImageButton myButtonFoodRestaurant = (ImageButton) findViewById(R.id.ButtonFoodRestaurant);
-        final ImageButton myButtonShopsMarket = (ImageButton) findViewById(R.id.ButtonShopsMarket);
-        final ImageButton myButtonShopsStores = (ImageButton) findViewById(R.id.ButtonShopsStores);
-        final ImageButton myButtonShopsShoppingMalls = (ImageButton) findViewById(R.id.ButtonShopsShoppingMall);
-        //final Button myButtonShops = (Button) findViewById(R.id.ButtonShops);
-        final ImageButton myButtonLeisureClubs = (ImageButton) findViewById(R.id.ButtonLeisureClubs);
-        final ImageButton myButtonLeisureParks = (ImageButton) findViewById(R.id.ButtonLeisureParks);
-        //final Button myButtonLeisure = (Button) findViewById(R.id.ButtonLeisure);
-
-        myButtonFoodBar.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(activePoiMarkers.contains(markersBars))
-                    activePoiMarkers.remove(markersBars);
-                else    activePoiMarkers.add(markersBars);
-
-                markersSelectionChanged();
-            }});
-
-        myButtonFoodCoffee.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(activePoiMarkers.contains(markersCoffee))
-                    activePoiMarkers.remove(markersCoffee);
-                else    activePoiMarkers.add(markersCoffee);
-
-                markersSelectionChanged();
-            }});
-
-        myButtonFoodKfc.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(activePoiMarkers.contains(markersKfc))
-                    activePoiMarkers.remove(markersKfc);
-                else    activePoiMarkers.add(markersKfc);
-
-                markersSelectionChanged();
-            }});
-
-        myButtonFoodMcDonald.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(activePoiMarkers.contains(markersMcdonalds))
-                    activePoiMarkers.remove(markersMcdonalds);
-                else    activePoiMarkers.add(markersMcdonalds);
-
-                markersSelectionChanged();
-            }});
-
-        myButtonFoodRestaurant.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(activePoiMarkers.contains(markersRestaurants))
-                    activePoiMarkers.remove(markersRestaurants);
-                else    activePoiMarkers.add(markersRestaurants);
-
-                markersSelectionChanged();
-            }});
-
-
-        myButtonShopsMarket.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(activePoiMarkers.contains(markersMarkets))
-                    activePoiMarkers.remove(markersMarkets);
-                else    activePoiMarkers.add(markersMarkets);
-
-                markersSelectionChanged();
-            }});
-
-        myButtonShopsStores.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(activePoiMarkers.contains(markersShops))
-                    activePoiMarkers.remove(markersShops);
-                else    activePoiMarkers.add(markersShops);
-
-                markersSelectionChanged();
-            }});
-
-        myButtonShopsShoppingMalls.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(activePoiMarkers.contains(markersShoppingMalls))
-                    activePoiMarkers.remove(markersShoppingMalls);
-                else    activePoiMarkers.add(markersShoppingMalls);
-
-                markersSelectionChanged();
-            }});
-
-
-
-        myButtonLeisureClubs.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(activePoiMarkers.contains(markersNightClubs))
-                    activePoiMarkers.remove(markersNightClubs);
-                else    activePoiMarkers.add(markersNightClubs);
-
-                markersSelectionChanged();
-            }});
-        myButtonLeisureParks.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(activePoiMarkers.contains(markersParks))
-                    activePoiMarkers.remove(markersParks);
-                else    activePoiMarkers.add(markersParks);
-
-                markersSelectionChanged();
-            }});
     }
 
     private void mainSpinner() {
@@ -702,28 +511,6 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
 
     }
 
-    /**
-     * Ot metoda, na szybko inicjalizująca obiekt mLocationRequest
-     */
-    private void createLocationRequest() {
-        mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(10000);
-        mLocationRequest.setFastestInterval(5000);
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-    }
-
-    /**
-     * Inicjalizuje obiekt mGoogleApiClient
-     * takim fajnym łańcuszkiem wywołań
-     */
-    protected synchronized void buildGoogleApiClient() {
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .addApi(LocationServices.API)
-                .build();
-    }
-
     //Startujemy nasłuchiwanie zmian lokacji
     protected void startLocationUpdates() {
         LocationServices.FusedLocationApi
@@ -765,47 +552,6 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         startActivity(closeIntent);
         finish();
     }
-
-    // Method to handle touch event like left to right swap and right to left swap
-    /*public boolean onTouchEvent(MotionEvent touchevent) {
-        switch (touchevent.getAction()) {
-            // when user first touches the screen to swap
-            case MotionEvent.ACTION_DOWN: {
-                lastX = touchevent.getX();
-                break;
-            }
-            case MotionEvent.ACTION_UP: {
-                float currentX = touchevent.getX();
-
-                // if left to right swipe on screen
-                if (lastX < currentX) {
-                    // If no more View/Child to flip
-                    if (myViewFlipper.getDisplayedChild() == 0)
-                        break;
-
-                    myViewFlipper.setInAnimation(this, R.anim.slide_in_from_left);
-                    myViewFlipper.setOutAnimation(this, R.anim.slide_out_to_right);
-
-                    myViewFlipper.showNext();
-                }
-
-                // if right to left swipe on screen
-                if (lastX > currentX) {
-                    layoutMarker.setVisibility(View.GONE);
-                    if (myViewFlipper.getDisplayedChild() == 1)
-                        break;
-
-                    myViewFlipper.setInAnimation(this, R.anim.slide_in_from_right);
-                    myViewFlipper.setOutAnimation(this, R.anim.slide_out_to_left);
-
-                    myViewFlipper.showPrevious();
-                }
-                break;
-            }
-        }
-        return false;
-    }*/
-
 
     public void stayActive(final String id, final float c1, final float c2) {
         StringRequest request = new StringRequest(Request.Method.POST, AppConfig.URL_LOGIN, new Response.Listener<String>() {
@@ -906,7 +652,6 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         AppController.getInstance().addToRequestQueue(request, "request_coordinates");
     }
 
-
     public void addListenerOnButton() {
 
         circleButton.setOnClickListener(new View.OnClickListener() {
@@ -927,7 +672,6 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                 spinner3.performClick();
             }
         });
-
     }
 
     public void addListenerOnSpinner() {
@@ -938,13 +682,10 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                     case 0:
                         break;
                     case 1:
-                        //layoutFlipper.setVisibility(View.INVISIBLE);
-                        //layoutGroup.setVisibility(View.INVISIBLE);
                         layoutSettings.setVisibility(View.VISIBLE);
                         tabLayout.setVisibility(View.INVISIBLE);
                         layoutMarker.setVisibility(View.GONE);
                         spinner1.setSelection(0);
-
                         break;
                     case 2:
                         logOut(this);
@@ -952,7 +693,6 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                         break;
                 }
             }
-
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
             }
@@ -1005,71 +745,6 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     }
 
     /**
-     * Komentarz do metody w stylu jaki lubi Karol
-     * @param hardSetup określa czy czy przy wywołaniu ma być animacja kamery
-     */
-    private void setUpMap(boolean hardSetup)
-    {
-
-        myMap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.myMapFragment)).getMap();
-        //Log.d(AppController.TAG,"my map to"+myMap);
-        myMap.setMyLocationEnabled(true);
-        myMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
-
-        Sender.putMarkersOnMapAgain(markers, myMap);
-
-        if(mCurrentLocation!=null) {
-            double latitude = mCurrentLocation.getLatitude();
-            double longitude = mCurrentLocation.getLongitude();
-            LatLng latLng = new LatLng(latitude,longitude);
-            if(hardSetup) {
-                //Log.d(AppController.TAG,"Ustawiam kamerę zgodnie z rządaniem. Szerokość na: "+latitude+" natomsiat długość: "+longitude);
-                   /*Bardzo cię przepraszam Karlo, ale musze napisać to w tym złym komentarzu.
-                   genralnie bez powodu przy uruchomieniu wypieprzało mnie na mapie na pustynię, a nie na
-                   obecną lokalizację. Generalnie nie zależało to od współrzędnych. Mogło być ustawione na
-                   Moskwe, a pokazywało okolicę Nilu. Straciłem na to z pół godziny życia. W końcy odkryłem
-                   że jak do metody moveCamera jako argument przekazęmy CameraUpdateFactory.newLatLngZoom(latLng,15),
-                   zamiast CameraUpdateFactory.newLatLng(latLng) to jest w pożatku. Nie mam pojędzie dlazego tak, ale tak było
-                   przynajmniej na moim tablecie.I wyrzuciłem animateCamera, i tak nic nie zmieniała, a tylko psuła.
-                    */
-                myMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng,15));
-                //myMap.animateCamera(CameraUpdateFactory.zoomTo(15),3000,null);
-            }
-        }
-        else
-            Log.e(AppController.TAG,"ostania znana lokacja jest nulem");
-
-
-        myMap.setOnCameraChangeListener(getCameraChangeListener());
-
-    }
-
-    public GoogleMap.OnCameraChangeListener getCameraChangeListener()
-    {
-        return new GoogleMap.OnCameraChangeListener()
-        {
-            @Override
-            public void onCameraChange(CameraPosition position)
-            {
-                if(ostatniMarker != null) {
-                    layoutMarker.setX((float) myMap.getProjection().toScreenLocation(ostatniMarker.getPosition()).x - layoutMarker.getWidth() / 2 + 40);
-                    layoutMarker.setY((float) myMap.getProjection().toScreenLocation(ostatniMarker.getPosition()).y - layoutMarker.getHeight()/2 - 30);
-                }
-                findViewById(R.id.POIButtons).setVisibility(View.GONE);
-                //addItemsToMap(markers);
-            }
-        };
-    }
-
-    /*private void setUpViewFlipper() {
-
-        myViewFlipper = (ViewFlipper) findViewById(R.id.viewFlipper);
-        myViewFlipper.setHorizontalScrollBarEnabled(true);
-
-    }*/
-
-
-    /**
      * Tutaj definiujemy jakie operacje mają się odbyć po połączeniu z google service
      *
      * @param bundle - obiekt zawieta ewentualne dane zwracane przez usługę
@@ -1108,10 +783,6 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         //Log.d(AppController.TAG, "Location has changed");
         float latitude=(float)location.getLatitude();
         float longitude=(float)location.getLongitude();
-        /*if(ostatniMarker != null) {
-            layoutMarker.setX((float) myMap.getProjection().toScreenLocation(ostatniMarker.getPosition()).x - layoutMarker.getWidth() / 2 + 40);
-            layoutMarker.setY((float) myMap.getProjection().toScreenLocation(ostatniMarker.getPosition()).y - layoutMarker.getHeight()/2 - 30);
-        }*/
         //Toast.makeText(getApplicationContext(), "Szerokość + " + latitude + " Długość: " + longitude, Toast.LENGTH_SHORT).show();
         stayActive(session.getUserId(), (float) latitude, (float) longitude);
 
@@ -1135,20 +806,6 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         canvas.clipPath(path);
         canvas.drawBitmap(bitmap, 0, 0, null);
         return outputBitmap;
-    }
-
-    protected void preparePoiPoints() throws IOException {
-
-        markersKfc = poiBase.getJsonWithSelectedData(0,0,new LatLng(mCurrentLocation.getLatitude(),mCurrentLocation.getLongitude()),"kfclogo");
-        markersMcdonalds = poiBase.getJsonWithSelectedData(0,1,new LatLng(mCurrentLocation.getLatitude(),mCurrentLocation.getLongitude()),"mcdonaldslogo");
-        markersRestaurants = poiBase.getJsonWithSelectedData(1, new LatLng(mCurrentLocation.getLatitude(),mCurrentLocation.getLongitude()), "restaurant" );
-        markersBars = poiBase.getJsonWithSelectedData(2, new LatLng(mCurrentLocation.getLatitude(),mCurrentLocation.getLongitude()), "bar");
-        markersCoffee = poiBase.getJsonWithSelectedData(3, new LatLng(mCurrentLocation.getLatitude(),mCurrentLocation.getLongitude()), "coffee" );
-        markersNightClubs = poiBase.getJsonWithSelectedData(4, new LatLng(mCurrentLocation.getLatitude(),mCurrentLocation.getLongitude()), "nightclub" );
-        markersParks = poiBase.getJsonWithSelectedData(5, new LatLng(mCurrentLocation.getLatitude(),mCurrentLocation.getLongitude()), "park" );
-        markersShoppingMalls= poiBase.getJsonWithSelectedData(6, new LatLng(mCurrentLocation.getLatitude(),mCurrentLocation.getLongitude()), "shoppingmall" );
-        markersShops= poiBase.getJsonWithSelectedData(7, new LatLng(mCurrentLocation.getLatitude(),mCurrentLocation.getLongitude()), "shop" );
-        markersMarkets = poiBase.getJsonWithSelectedData(8, new LatLng(mCurrentLocation.getLatitude(),mCurrentLocation.getLongitude()), "market" );
     }
 
     @Override
@@ -1342,58 +999,4 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
             db.addMarker(m);
         }
     }
-
-    public void createMarkerDialog()
-    {
-
-    }
-
-    //    klasa do przygotowania punktów poi w tle
-    class AsyncTaskRunner extends AsyncTask<String, String, String> {
-        @Override
-        protected String doInBackground(String... params) {
-            try {
-
-                preparePoiPoints();
-                Log.d("POI JOHNY", "poi gotowe");
-                poiIsUpToDate = true;
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            String resp = "done";
-            return resp;
-        }
-        @Override
-        protected void onPostExecute(String result) {
-            // execution of result of Long time consuming operation
-
-        }
-        @Override
-        protected void onPreExecute() {
-            // Things to be done before execution of long running operation. For
-            // example showing ProgessDialog
-        }
-        @Override
-        protected void onProgressUpdate(String... text) {
-
-            // Things to be done while execution of long running operation is in
-            // progress. For example updating ProgessDialog
-        }
-    }
-
-    private void markersSelectionChanged()
-    {
-        myMap.clear();
-
-        for(ArrayList<MarkerOptions> marks : activePoiMarkers)
-        {
-            for(int i=0; i<marks.size(); i++)
-                myMap.addMarker(marks.get(i));
-        }
-
-        //tutaj dodaję jeszcze markery od Pana Sanczo (bo chyba powinny być wyświetlane zawsze)
-        Sender.putMarkersOnMapAgain(markers, myMap);
-    }
-
 }

@@ -3,8 +3,6 @@ package zpi.squad.app.grouploc;
 import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.app.DialogFragment;
-import android.app.Fragment;
-import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
@@ -23,28 +21,25 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.StrictMode;
+import android.os.Vibrator;
 import android.provider.MediaStore;
-import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentTabHost;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ScrollView;
 import android.widget.Spinner;
-import android.widget.TabHost;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
-import android.support.v4.app.FragmentTabHost;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.NetworkError;
@@ -62,7 +57,6 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
@@ -76,14 +70,12 @@ import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
@@ -97,6 +89,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     private SessionManager session;
     private ProgressDialog pDialog;
     private SQLiteHandler db;
+    Vibrator v;
     private View tabLayout;
     private ViewFlipper myViewFlipper;
     private float lastX;
@@ -182,6 +175,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         setContentView(R.layout.activity_main);
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         context = getApplicationContext();
+        v = (Vibrator) getApplicationContext().getSystemService(Context.VIBRATOR_SERVICE);
         StrictMode.setThreadPolicy(policy);
         session = new SessionManager(this);
         db = new SQLiteHandler(getApplicationContext());
@@ -846,7 +840,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                         messageId = notObj.getString("messageid");
                         groupId = notObj.getString("groupid");
                         createdAt = notObj.getString("created_at");
-
+                        v.vibrate(500);
                         db.addNotification(senderId, senderName, senderEmail, receiverId, type, messageId, groupId, createdAt, 0);
                         readNotifications.add(1, (new Notification(senderId, senderName, senderEmail, receiverId, type, messageId, groupId, createdAt, 0)));
                         Toast.makeText(getApplicationContext(), "You have new notification", Toast.LENGTH_LONG).show();
@@ -854,7 +848,11 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
 
                             db.addFriend(senderId, senderName, senderEmail);
                             FriendsFragment.addFriend(new Friend(Integer.valueOf(senderId), senderName, senderEmail));
-                        } else if (type.equals("friendshipRequest")) {
+                        }
+                        else if (type.equals("friendshipCanceled")) {
+                            FriendsFragment.removeItem(senderEmail);
+                        }
+                        else if (type.equals("friendshipRequest")) {
                             // final int id = Integer.valueOf(senderId);
                             // final String n = senderName;
                             // final String e = senderEmail;

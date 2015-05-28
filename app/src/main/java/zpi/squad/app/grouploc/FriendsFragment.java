@@ -337,5 +337,18 @@ public class FriendsFragment extends ListFragment {
 
 
 
+    public static void removeItem(String senderEmail){
+
+        Log.e("Liczba znajomych", String.valueOf(mItems.size()));
+        for(ListViewItem item: mItems){
+            if(item.email.equals(senderEmail)){
+                mItems.remove(item);
+            }
+        }
+        Log.e("Liczba znajomych", String.valueOf(mItems.size()));
+        friendList.notifyDataSetChanged();
+    }
+
+
 
 }

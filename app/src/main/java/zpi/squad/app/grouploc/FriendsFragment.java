@@ -2,6 +2,7 @@ package zpi.squad.app.grouploc;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
@@ -39,7 +40,7 @@ public class FriendsFragment extends ListFragment {
     private SessionManager session;
     private static List<ListViewItem> mItems;
     private ProgressDialog pDialog;
-
+    private Context context;
 
 
     public FriendsFragment() {
@@ -67,17 +68,19 @@ public class FriendsFragment extends ListFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        context = getActivity().getApplicationContext();
+        resources = getActivity().getResources();
         db = new SQLiteHandler(LoginActivity.context);
         session = new SessionManager(getActivity());
         pDialog = new ProgressDialog(getActivity());
 
         userFriendsList = db.getAllFriends();
         mItems = new ArrayList<ListViewItem>();
-        resources = getResources();
+
 
         for(Friend f: userFriendsList){
             mItems.add(new ListViewItem(f.getFriendID(), resources.getDrawable(R.drawable.image3), f.getFriendName(), f.getFriendEmail()));
+
         }
 
         friendList = new FriendList(getActivity(), mItems);
@@ -88,6 +91,7 @@ public class FriendsFragment extends ListFragment {
     }
 
     public static void addFriend(Friend friend) {
+
 
         friendList.add(new ListViewItem(friend.getFriendID(), resources.getDrawable(R.drawable.image3), friend.getFriendName(), friend.getFriendEmail()));
     }

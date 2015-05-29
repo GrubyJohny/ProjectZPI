@@ -49,6 +49,7 @@ import com.android.volley.ServerError;
 import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
+import com.facebook.FacebookSdk;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationRequest;
@@ -81,8 +82,6 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     private SQLiteHandler db;
     Vibrator v;
     private View tabLayout;
-    private ViewFlipper myViewFlipper;
-    private float lastX;
     protected boolean inhibit_spinner = true;
     private Spinner spinner1;
     private Spinner spinner2;
@@ -95,7 +94,6 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     private Button BackToMapButton;
     private Button addFriendButton;
     private View layoutSettings;
-    private View layoutFlipper;
     private View layoutGroup;
     private View layoutMarker;
     private GoogleMap myMap;
@@ -117,27 +115,13 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     private Button closeMarkerButton;
     private Marker ostatniMarker;
     private FragmentTabHost tabhost;
-    private SupportMapFragment mMapFragment;
+    public final String FACEBOOK_PROFILE_IMAGE = "facebook_profile_image.png";
 
     private ScrollView POIScrollView;
     PoiJSONParser poiBase = new PoiJSONParser();
     public static Context context;
     ArrayList<Notification> readNotifications = new ArrayList<Notification>();
-    private ArrayList<MarkerOptions> markersRestaurants = new ArrayList<MarkerOptions>();
-    private ArrayList<MarkerOptions> markersKfc = new ArrayList<MarkerOptions>();
-    private ArrayList<MarkerOptions> markersMcdonalds = new ArrayList<MarkerOptions>();
-    private ArrayList<MarkerOptions> markersBars = new ArrayList<MarkerOptions>();
-    private ArrayList<MarkerOptions> markersCoffee = new ArrayList<MarkerOptions>();
-    private ArrayList<MarkerOptions> markersShoppingMalls = new ArrayList<MarkerOptions>();
-    private ArrayList<MarkerOptions> markersShops = new ArrayList<MarkerOptions>();
-    private ArrayList<MarkerOptions> markersMarkets = new ArrayList<MarkerOptions>();
-    private ArrayList<MarkerOptions> markersNightClubs = new ArrayList<MarkerOptions>();
-    private ArrayList<MarkerOptions> markersParks = new ArrayList<MarkerOptions>();
-    //lista aktywnych markerów poi, które mają być wyświetlane na mapie
-    private ArrayList<ArrayList<MarkerOptions>> activePoiMarkers = new ArrayList<>();
-    //żeby nie trzeba było za każdym razem generować poi;
-    //przy ruchu kamerą jednak chyba trzeba będzie coś z tym jeszcze pokombinować
-    private boolean poiIsUpToDate = false;
+
 
     //Andoridowy obiekt przechowujący dane o położeniu(np latitude, longitude, kiedy zostało zarejestrowane)
     private Location mCurrentLocation;
@@ -167,16 +151,20 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         context = getApplicationContext();
         v = (Vibrator) getApplicationContext().getSystemService(Context.VIBRATOR_SERVICE);
         StrictMode.setThreadPolicy(policy);
-        session = new SessionManager(this);
+        createLocationRequest();
+        buildGoogleApiClient();
+        mGoogleApiClient.connect();
+        session = new SessionManager(getApplicationContext());
         db = new SQLiteHandler(getApplicationContext());
         tabLayout = (View) findViewById(R.id.tabLayout);
 
         sender = createSendThread();
-
+        mRequestingLocationUpdates = true;
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
             buildAlertMessageNoGps();
         }
+
 
         tabhost = (FragmentTabHost) findViewById(android.R.id.tabhost);
         tabhost.setup(context, getSupportFragmentManager(), android.R.id.tabcontent);
@@ -188,32 +176,14 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         tabhost.addTab(tabhost.newTabSpec("group").setIndicator("GROUP"),
                 GroupFragment.class, null);
 
-        // new Thread(sender, "Watek do wysyłania koordynatów").start();
+         new Thread(sender, "Watek do wysyłania koordynatów").start();
 
         readNotifications = db.getAllNotifications();
 
         mainSpinner();
         notifications();
         messages();
-        Bitmap icon = null;
-        circleButton = (ImageButton) findViewById(R.id.circleButton);
-        try {
-            File filePath = context.getFileStreamPath(IMAGE_PHOTO_FILENAME);
-            FileInputStream fi = new FileInputStream(filePath);
-            icon = BitmapFactory.decodeStream(fi);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        //w razie gdyby nie było jeszcze żadnego naszego zdjęcia, to johny ląduje na profilowym
-        if(icon==null)
-            icon = BitmapFactory.decodeResource(getResources(), R.drawable.johny);
-
-        Bitmap bitmap_round = clipBitmap(icon);
-        circleButton.setImageBitmap(bitmap_round);
-
+        setupCircleButtonWithProfileImage();
         noticeAndMessageButtons();
 
         addListenerOnButton();
@@ -247,6 +217,45 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
 
         //Start-up markers list
         markers=db.getAllMarkers();
+
+
+
+    }
+
+    private void createLocationRequest() {
+        mLocationRequest = new LocationRequest();
+        mLocationRequest.setInterval(10000);
+        mLocationRequest.setFastestInterval(5000);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+    }
+    private void setupCircleButtonWithProfileImage() {
+        Bitmap icon = null;
+        circleButton = (ImageButton) findViewById(R.id.circleButton);
+        try {
+
+            File filePath = context.getFileStreamPath(FACEBOOK_PROFILE_IMAGE);
+            FileInputStream fi = new FileInputStream(filePath);
+            icon = BitmapFactory.decodeStream(fi);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            File filePath = context.getFileStreamPath(IMAGE_PHOTO_FILENAME);
+            FileInputStream fi = null;
+            try {
+                fi = new FileInputStream(filePath);
+            } catch (FileNotFoundException e1) {
+                e1.printStackTrace();
+            }
+            icon = BitmapFactory.decodeStream(fi);
+        }
+
+
+        //w razie gdyby nie byĹ‚o jeszcze ĹĽadnego naszego zdjÄ™cia, to johny lÄ…duje na profilowym
+        if(icon==null)
+            icon = BitmapFactory.decodeResource(getResources(), R.drawable.coffee);
+
+
+        Bitmap bitmap_round = clipBitmap(icon);
+        circleButton.setImageBitmap(bitmap_round);
 
     }
 
@@ -538,6 +547,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
 
         session.logOut();
 
+
         Intent closeIntent = new Intent(this, LoginActivity.class);
         startActivity(closeIntent);
         finish();
@@ -742,6 +752,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     @Override
     public void onConnected(Bundle bundle) {
         Log.d(AppController.TAG, "Podłączony do api service");
+
         mCurrentLocation=LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
         // setUpMap(true);
 
@@ -875,6 +886,13 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     @Override
     public void onTabReselected(ActionBar.Tab tab, FragmentTransaction ft) {
 
+    }
+
+    protected synchronized void buildGoogleApiClient() {
+        mGoogleApiClient = new GoogleApiClient.Builder(getApplicationContext())
+                .addConnectionCallbacks(this)
+                .addApi(LocationServices.API)
+                .build();
     }
 
     @Override

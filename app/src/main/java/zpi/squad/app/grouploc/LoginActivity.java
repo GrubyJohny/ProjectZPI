@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.util.Log;
@@ -38,9 +40,15 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.MalformedURLException;
+import java.net.SocketException;
+import java.net.SocketTimeoutException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -58,7 +66,8 @@ public class LoginActivity extends Activity {
     private SQLiteHandler db;
     public static Context context;
     private CallbackManager callbackManager;
-    public final String IMAGE_PHOTO_FILENAME = "profile_photo.png";
+    public final String FACEBOOK_PROFILE_IMAGE = "facebook_profile_image.png";
+    private Bitmap bitmap;
     private LoginButton loginButton;
     private String facebookUserId, facebookUserEmail, facebookUserName;
     List<String> permissions;
@@ -158,6 +167,31 @@ public class LoginActivity extends Activity {
                             Log.d("FEJS", facebookUserId);
 
                             registerFacebookUser(facebookUserName, facebookUserEmail, facebookUserId);
+
+                            //jeszcze zdjęcie
+
+                            try {
+                                bitmap = getFacebookProfilePicture(facebookUserId);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                            Bitmap photo = bitmap;
+
+                            FileOutputStream fos = null;
+                            try {
+                                fos = context.openFileOutput(FACEBOOK_PROFILE_IMAGE, Context.MODE_PRIVATE);
+                            } catch (FileNotFoundException e) {
+                                e.printStackTrace();
+                            }
+                            photo.compress(Bitmap.CompressFormat.PNG, 100, fos);
+                            try {
+                                fos.close();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+
+                            Toast.makeText(LoginActivity.this, "Profile image saved successfully!",
+                                    Toast.LENGTH_SHORT).show();
                         }
                     }
                 }).executeAsync();
@@ -176,6 +210,21 @@ public class LoginActivity extends Activity {
             Log.e("TAG","Exception:: "+exception.getStackTrace());
         }
     };
+
+
+
+    public static Bitmap getFacebookProfilePicture(String userID) throws SocketException, SocketTimeoutException, MalformedURLException, IOException, Exception
+    {
+        String imageURL;
+
+        Bitmap bitmap = null;
+        imageURL = "https://graph.facebook.com/"+userID+"/picture?width=200&length=200";
+        InputStream in = (InputStream) new URL(imageURL).getContent();
+        bitmap = BitmapFactory.decodeStream(in);
+
+        return bitmap;
+    }
+
 
     public static String fromStream(InputStream in) throws IOException
     {

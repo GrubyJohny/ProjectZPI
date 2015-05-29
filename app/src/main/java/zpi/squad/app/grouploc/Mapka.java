@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.location.Location;
+import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.support.v4.app.FragmentManager;
 import android.net.Uri;
@@ -28,6 +29,7 @@ import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
@@ -47,7 +49,7 @@ import java.util.HashMap;
 import java.util.List;
 
 
-public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbacks {
+public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbacks{
 
     private SupportMapFragment fragment;
     private GoogleMap myMap;
@@ -69,10 +71,8 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
     private ArrayList<MarkerOptions> markersMarkets = new ArrayList<MarkerOptions>();
     private ArrayList<MarkerOptions> markersNightClubs = new ArrayList<MarkerOptions>();
     private ArrayList<MarkerOptions> markersParks = new ArrayList<MarkerOptions>();
-    //lista aktywnych markerów poi, które maj¹ byæ wyœwietlane na mapie
+    private ArrayList<MarkerOptions> markersFriends = new ArrayList<MarkerOptions>();
     private ArrayList<ArrayList<MarkerOptions>> activePoiMarkers = new ArrayList<>();
-    //¿eby nie trzeba by³o za ka¿dym razem generowaæ poi;
-    //przy ruchu kamer¹ jednak chyba trzeba bêdzie coœ z tym jeszcze pokombinowaæ
     private boolean poiIsUpToDate = false;
     private Location mCurrentLocation;
 
@@ -87,7 +87,7 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
     Resources res;
 
     private boolean mRequestingLocationUpdates;
-
+    private LocationManager locationManager;
     private LocationRequest mLocationRequest;
     private Button firstMarkerButton;
     private Button secondMarkerButton;
@@ -100,23 +100,28 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        res = getResources();
+        //res = getResources();
 
         layoutMarker = (View) getActivity().findViewById(R.id.markerLayout);
         context = getActivity().getApplicationContext();
         db = new SQLiteHandler(getActivity().getApplicationContext());
         markers=db.getAllMarkers();
 
-        mRequestingLocationUpdates = true;
+
+        //mRequestingLocationUpdates = true;
         createLocationRequest();
         buildGoogleApiClient();
         mGoogleApiClient.connect();
-        mCurrentLocation=LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
 
-        session = new SessionManager(getActivity());
+
+        session = new SessionManager(getActivity().getApplicationContext());
+
+
     }
 
     private void setupPoiButtons() {
+
+
 
         mainPoiButton = (Button) getActivity().findViewById(R.id.buttonPOIFiltering);
 
@@ -137,9 +142,10 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
 
         mainPoiButton.setOnClickListener(new View.OnClickListener() {
 
+
             public void onClick(View view) {
 
-                if((getActivity().findViewById(R.id.POIButtons)).getVisibility() == View.GONE){
+                  if((getActivity().findViewById(R.id.POIButtons)).getVisibility() == View.GONE){
 
                     if(!poiIsUpToDate) {
                         AsyncTaskRunner runner = new AsyncTaskRunner();
@@ -283,7 +289,10 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
                 myMap.addMarker(marks.get(i));
         }
 
-        //tutaj dodajê jeszcze markery od Pana Sanczo (bo chyba powinny byæ wyœwietlane zawsze)
+        for(int i=0; i<markersFriends.size(); i++)
+            myMap.addMarker(markersFriends.get(i));
+
+
         Sender.putMarkersOnMapAgain(markers, myMap);
     }
 
@@ -368,7 +377,7 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
             }
         });
 
-        setUpMap(true);
+        setUpMap(false);
         setMapListener();
         setupPoiButtons();
 
@@ -421,7 +430,7 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
                 longitude = marker.getPosition().longitude;
                 LatLng dest = new LatLng(latitude, longitude);
 
-              /*  Uri gmmIntentUri= Uri.parse("google.navigation:q="+latitude+","+longitude);
+             /*   Uri gmmIntentUri= Uri.parse("google.navigation:q="+latitude+","+longitude);
                 Intent mapIntent=new Intent(Intent.ACTION_VIEW,gmmIntentUri);
                 mapIntent.setPackage("com.google.android.apps.maps");
                 startActivity(mapIntent);*/
@@ -456,11 +465,12 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
 
     private void setUpMap(boolean hardSetup) {
 
+
         myMap = ((SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.myMapFragment)).getMap();
         //Log.d(AppController.TAG,"my map to"+myMap);
         myMap.setMyLocationEnabled(true);
-        myMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
 
+        myMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
 
         Sender.putMarkersOnMapAgain(markers, myMap);
 
@@ -509,15 +519,26 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
     public void onConnected(Bundle bundle) {
         Log.d(AppController.TAG, "Podlaczony do api service");
         mCurrentLocation= LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-        //  setUpMap(true);
+          setUpMap(true);
 
 
         //setMapListener();
-        /*if (mRequestingLocationUpdates) {
-            startLocationUpdates();
-        }*/
+        if (mRequestingLocationUpdates) {
+           // startLocationUpdates();
+        }
+    }
+/*
+    //Startujemy nas³uchiwanie zmian lokacji
+    protected void startLocationUpdates() {
+        LocationServices.FusedLocationApi
+                .requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
     }
 
+    //Zatrzymujemy nas³uchiwanie o zmianach lokacji
+    protected void stopLocationUpdates() {
+        LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
+    }
+*/
     @Override
     public void onConnectionSuspended(int i) {
 
@@ -671,6 +692,8 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
 
         }
     }
+
+
 
     private String getDirectionUrl(LatLng origin, LatLng dest){
         //Sk¹d wyruszamy

@@ -1,7 +1,6 @@
 package zpi.squad.app.grouploc;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,7 +15,7 @@ public class FriendList extends ArrayAdapter<ListViewItem> {
 
     public FriendList(Context context, List<ListViewItem> items) {
         super(context, R.layout.one_row, items);
-        Log.d("TERAZ", "Fragment z listView");
+
     }
 
     @Override
@@ -24,10 +23,6 @@ public class FriendList extends ArrayAdapter<ListViewItem> {
         super.add(object);
     }
 
-    @Override
-    public void remove(ListViewItem object){
-        super.remove(object);
-    }
 
     @Override
     public View getView(int position, View view, ViewGroup parent) {

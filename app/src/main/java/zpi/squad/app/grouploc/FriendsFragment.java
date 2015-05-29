@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.res.Resources;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.ListFragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -12,7 +11,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -38,28 +36,54 @@ public class FriendsFragment extends ListFragment {
     private static FriendList friendList;
     private static ArrayList<Friend> userFriendsList;
     private static Resources resources;
-    public static FragmentActivity fragmentActivity;
-    private static ListAdapter adapter;
-    private String mParam1;
-    private String mParam2;
-    private MainActivity mainActivity = new MainActivity();
     private SessionManager session;
     private static List<ListViewItem> mItems;
     private ProgressDialog pDialog;
 
 
-    public static FriendsFragment newInstance(String param1, String param2) {
-        FriendsFragment fragment = new FriendsFragment();
-
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
 
     public FriendsFragment() {
         // Required empty public constructor
+
+    }
+
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        Button addFriendButton = (Button) getActivity().findViewById(R.id.addFriendButton);
+        final EditText editText = (EditText) getActivity().findViewById(R.id.friendEmail);
+        addFriendButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String friend = editText.getText().toString();
+                sendFriendshipRequest(session.getUserId(), friend);
+                editText.setText("");
+            }
+        });
+    }
+
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        db = new SQLiteHandler(LoginActivity.context);
+        session = new SessionManager(getActivity());
+        pDialog = new ProgressDialog(getActivity());
+
+        userFriendsList = db.getAllFriends();
+        mItems = new ArrayList<ListViewItem>();
+        resources = getResources();
+
+        for(Friend f: userFriendsList){
+            mItems.add(new ListViewItem(f.getFriendID(), resources.getDrawable(R.drawable.image3), f.getFriendName(), f.getFriendEmail()));
+        }
+
+        friendList = new FriendList(getActivity(), mItems);
+        setListAdapter(friendList);
+
+
 
     }
 
@@ -68,31 +92,28 @@ public class FriendsFragment extends ListFragment {
         friendList.add(new ListViewItem(friend.getFriendID(), resources.getDrawable(R.drawable.image3), friend.getFriendName(), friend.getFriendEmail()));
     }
 
+
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public void onListItemClick(ListView l, View v, int position, long id) {
 
-        db = new SQLiteHandler(LoginActivity.context);
-        userFriendsList = db.getAllFriends();
+        ListViewItem item = mItems.get(position);
+        Log.d("MOJLOG", session.getUserId());
 
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+        deleteFriendship(session.getUserId(), String.valueOf(item.uid), position);
+
+    }
+
+
+    public static void removeItem(String senderEmail){
+
+        Log.e("Liczba znajomych", String.valueOf(mItems.size()));
+        for(ListViewItem item: mItems){
+            if(item.email.equals(senderEmail)){
+                mItems.remove(item);
+            }
         }
-
-        mItems = new ArrayList<ListViewItem>();
-        resources = getResources();
-        fragmentActivity = getActivity();
-        for(Friend f: userFriendsList){
-            mItems.add(new ListViewItem(f.getFriendID(), resources.getDrawable(R.drawable.image3), f.getFriendName(), f.getFriendEmail()));
-        }
-
-        friendList = new FriendList(fragmentActivity, mItems);
-        setListAdapter(friendList);
-
-        session = new SessionManager(getActivity());
-        pDialog = new ProgressDialog(getActivity());
-
+        Log.e("Liczba znajomych", String.valueOf(mItems.size()));
+        friendList.notifyDataSetChanged();
     }
 
 
@@ -160,6 +181,82 @@ public class FriendsFragment extends ListFragment {
         }
     }
 
+
+    private void deleteFriendship(final String uId, final String friendId, final int position) {
+
+        String tag_string_req = "delete_friendshipRequest";
+        pDialog.setMessage("Sending Request for deleting Friendship");
+        showDialog();
+        final String TAG = "Friendship delete request";
+
+        StringRequest strReq = new StringRequest(Request.Method.POST, AppConfig.URL_REGISTER, new Response.Listener<String>() {
+
+                @Override
+                public void onResponse(String response) {
+                    Log.d(TAG, "Friendship request Response: " + response.toString());
+                    hideDialog();
+                    try {
+                        JSONObject jObj = new JSONObject(response);
+                        boolean error = jObj.getBoolean("error");
+
+                        if (!error) {
+
+                            String message = jObj.getString("msg");
+                            Toast.makeText(getActivity(), message, Toast.LENGTH_LONG).show();
+                            mItems.remove(position);
+                            friendList.notifyDataSetChanged();
+
+                        } else {
+
+                            String errorMsg = jObj.getString("error_msg");
+                            Toast.makeText(getActivity(), errorMsg, Toast.LENGTH_LONG).show();
+                        }
+                    } catch (JSONException e) {
+                        Toast.makeText(getActivity(), "Didn't erased because of connection problem", Toast.LENGTH_LONG).show();
+                        e.printStackTrace();
+                    }
+
+                }
+            }, new Response.ErrorListener() {
+
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    Log.e(TAG, "Friendship request Error: " + error.toString());
+
+                    Toast.makeText(getActivity(), error.getMessage(), Toast.LENGTH_LONG).show();
+                    hideDialog();
+
+                }
+            }) {
+
+                @Override
+                protected Map<String, String> getParams() {
+                    Map<String, String> params = new HashMap<String, String>();
+                    params.put("tag", "deleteFriend");
+                    params.put("senderId", uId);
+                    params.put("receiverId", friendId);
+
+                    return params;
+                }
+
+            };
+
+            AppController.getInstance().addToRequestQueue(strReq, tag_string_req);
+
+    }
+
+    private void showDialog() {
+        if (!pDialog.isShowing())
+            pDialog.show();
+    }
+
+    private void hideDialog() {
+        if (pDialog.isShowing())
+            pDialog.dismiss();
+    }
+
+
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -181,61 +278,19 @@ public class FriendsFragment extends ListFragment {
         getListView().setDividerHeight(2);
 
 
-        /*listaElementow = new ArrayList<String>();
-        listaElementow.add("Pajac");
-        listaElementow.add("Pajac");
-        listaElementow.add("Pajac");
-        listaElementow.add("Pajac");
-        listaElementow.add("idiota");
-        listaElementow.add("idiota");
-
-
-        //adapter = new ArrayAdapter<String>(getActivity().getApplicationContext(), R.layout.one_row, R.id.txt, listaElementow);
-        getListView().setAdapter(adapter);
-        //lista = (ListView) view.findViewById(R.id.listView);
-        ((BaseAdapter) getListView().getAdapter()).notifyDataSetChanged();
-
-        getListView().setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View viewClicked,int position, long id) {
-                if(getActivity()!=null)
-                    Toast.makeText(getActivity(), "Click on element list position = "+position, Toast.LENGTH_SHORT).show();
-            }
-        });*/
-    }
-
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        Button addFriendButton = (Button) getActivity().findViewById(R.id.addFriendButton);
-        final EditText editText = (EditText) getActivity().findViewById(R.id.friendEmail);
-        addFriendButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String friend = editText.getText().toString();
-                sendFriendshipRequest(session.getUserId(), friend);
-                editText.setText("");
-            }
-        });
     }
 
 
 
+    public static FriendsFragment newInstance(String param1, String param2) {
+        FriendsFragment fragment = new FriendsFragment();
 
-
-    @Override
-    public void onListItemClick(ListView l, View v, int position, long id) {
-
-        ListViewItem item = mItems.get(position);
-        Log.d("MOJLOG", session.getUserId());
-
-        deleteFriendship(session.getUserId(), String.valueOf(item.uid));
-        mItems.remove(position);
-        friendList.notifyDataSetChanged();
-
+        Bundle args = new Bundle();
+        args.putString(ARG_PARAM1, param1);
+        args.putString(ARG_PARAM2, param2);
+        fragment.setArguments(args);
+        return fragment;
     }
-
-
 
 
     @Override
@@ -253,102 +308,6 @@ public class FriendsFragment extends ListFragment {
     public void onDetach() {
         super.onDetach();
     }
-
-    public void setFriends(){
-        Resources resources = getResources();
-        for(Friend f: userFriendsList){
-            mItems.add(new ListViewItem(f.getFriendID(), resources.getDrawable(R.drawable.image3), f.getFriendName(), f.getFriendEmail()));
-        }
-
-        setListAdapter(new FriendList(getActivity(), mItems));
-        Log.d("FriendsFragment", "Wykonano");
-    }
-
-
-    private void deleteFriendship(final String uId, final String friendId) {
-
-        String tag_string_req = "delete_friendshipRequest";
-        pDialog.setMessage("Sending Request for deleting Friendship");
-        showDialog();
-        final String TAG = "Friendship delete request";
-
-        StringRequest strReq = new StringRequest(Request.Method.POST, AppConfig.URL_REGISTER, new Response.Listener<String>() {
-
-                @Override
-                public void onResponse(String response) {
-                    Log.d(TAG, "Friendship request Response: " + response.toString());
-                    hideDialog();
-                    try {
-                        JSONObject jObj = new JSONObject(response);
-                        boolean error = jObj.getBoolean("error");
-
-                        if (!error) {
-
-                            String message = jObj.getString("error_msg");
-                            Toast.makeText(fragmentActivity, message, Toast.LENGTH_LONG).show();
-
-                        } else {
-
-                            String errorMsg = jObj.getString("error_msg");
-                            Toast.makeText(fragmentActivity, errorMsg, Toast.LENGTH_LONG).show();
-                        }
-                    } catch (JSONException e) {
-                        Toast.makeText(fragmentActivity, "Exception - Connection problem", Toast.LENGTH_LONG).show();
-                        e.printStackTrace();
-                    }
-
-                }
-            }, new Response.ErrorListener() {
-
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                    Log.e(TAG, "Friendship request Error: " + error.toString());
-
-                    Toast.makeText(fragmentActivity, error.getMessage(), Toast.LENGTH_LONG).show();
-                    hideDialog();
-
-                }
-            }) {
-
-                @Override
-                protected Map<String, String> getParams() {
-                    Map<String, String> params = new HashMap<String, String>();
-                    params.put("tag", "deleteFriend");
-                    params.put("senderId", uId);
-                    params.put("receiverId", friendId);
-
-                    return params;
-                }
-
-            };
-
-            AppController.getInstance().addToRequestQueue(strReq, tag_string_req);
-
-    }
-    private void showDialog() {
-        if (!pDialog.isShowing())
-            pDialog.show();
-    }
-
-    private void hideDialog() {
-        if (pDialog.isShowing())
-            pDialog.dismiss();
-    }
-
-
-
-    public static void removeItem(String senderEmail){
-
-        Log.e("Liczba znajomych", String.valueOf(mItems.size()));
-        for(ListViewItem item: mItems){
-            if(item.email.equals(senderEmail)){
-                mItems.remove(item);
-            }
-        }
-        Log.e("Liczba znajomych", String.valueOf(mItems.size()));
-        friendList.notifyDataSetChanged();
-    }
-
 
 
 }

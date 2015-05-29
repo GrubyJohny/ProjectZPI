@@ -14,14 +14,15 @@
         android:layout_alignParentTop="true"
         android:background="@drawable/circle_button"
         android:clickable="true"
-        android:paddingRight="@dimen/activity_horizontal_margin" />
+        android:layout_marginRight="@dimen/activity_horizontal_margin"
+          />
 
     <ImageButton
         android:id="@+id/noticeButton"
         android:layout_width="30dp"
         android:layout_height="30dp"
         android:layout_alignParentTop="true"
-        android:layout_marginRight="10dp"
+        android:layout_marginRight="20dp"
         android:layout_toLeftOf="@id/circleButton"
         android:background="@drawable/notice_button"
         android:clickable="true" />
@@ -31,7 +32,7 @@
         android:layout_width="30dp"
         android:layout_height="30dp"
         android:layout_alignParentTop="true"
-        android:layout_marginRight="10dp"
+        android:layout_marginRight="20dp"
         android:layout_toLeftOf="@id/noticeButton"
         android:background="@drawable/notice_button"
         android:clickable="true" />

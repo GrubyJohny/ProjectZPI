@@ -3,6 +3,7 @@ package zpi.squad.app.grouploc;
 import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.app.Fragment;
+import android.inputmethodservice.Keyboard;
 import android.support.v4.app.DialogFragment;
 import android.app.FragmentTransaction;
 import android.app.ProgressDialog;
@@ -31,13 +32,16 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ScrollView;
 import android.widget.Spinner;
+import android.widget.TabHost;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
@@ -79,7 +83,7 @@ import java.util.Map;
 
 
 public class MainActivity extends FragmentActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
-        com.google.android.gms.location.LocationListener,MarkerDialog.NoticeDialogListener, ActionBar.TabListener {
+        com.google.android.gms.location.LocationListener,MarkerDialog.NoticeDialogListener {
 
     private SessionManager session;
     private ProgressDialog pDialog;
@@ -101,6 +105,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     private View layoutGroup;
     private View layoutMarker;
     private GoogleMap myMap;
+    EditText searchingGroupText;
     private LocationManager locationManager;
     private Button mainPoiButton;
     private Button clearPoiButton;
@@ -172,15 +177,9 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
             buildAlertMessageNoGps();
         }
 
-        tabhost = (FragmentTabHost) findViewById(android.R.id.tabhost);
-        tabhost.setup(context, getSupportFragmentManager(), android.R.id.tabcontent);
+        searchingGroupText = (EditText) findViewById(R.id.searchingGroupText);
 
-        tabhost.addTab(tabhost.newTabSpec("map").setIndicator("MAP"),
-                Mapka.class, null);
-        tabhost.addTab(tabhost.newTabSpec("friends").setIndicator("FRIENDS"),
-                FriendsFragment.class, null);
-        tabhost.addTab(tabhost.newTabSpec("group").setIndicator("GROUP"),
-                GroupFragment.class, null);
+        tabhostInit();
 
          new Thread(sender, "Watek do wysyłania koordynatów").start();
 
@@ -223,6 +222,27 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
 
         //Start-up markers list
         markers=db.getAllMarkers();
+    }
+
+    private void tabhostInit() {
+        tabhost = (FragmentTabHost) findViewById(android.R.id.tabhost);
+        tabhost.setup(context, getSupportFragmentManager(), android.R.id.tabcontent);
+
+        tabhost.addTab(tabhost.newTabSpec("map").setIndicator("MAP"),
+                Mapka.class, null);
+        tabhost.addTab(tabhost.newTabSpec("friends").setIndicator("FRIENDS"),
+                FriendsFragment.class, null);
+        tabhost.addTab(tabhost.newTabSpec("group").setIndicator("GROUP"),
+                GroupFragment.class, null);
+
+        tabhost.setOnTabChangedListener(new TabHost.OnTabChangeListener() {
+            @Override
+            public void onTabChanged(String tabId) {
+                layoutMarker.setVisibility(View.GONE);
+                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(tabhost.getApplicationWindowToken(), 0);
+            }
+        });
     }
 
     private void createLocationRequest() {
@@ -687,8 +707,8 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                         break;
                     case 1:
                         layoutSettings.setVisibility(View.VISIBLE);
-                        tabLayout.setVisibility(View.INVISIBLE);
                         layoutMarker.setVisibility(View.GONE);
+                        tabLayout.setVisibility(View.INVISIBLE);
                         spinner1.setSelection(0);
                         break;
                     case 2:
@@ -876,21 +896,6 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         imm.hideSoftInputFromWindow(md.getInput().getWindowToken(), 0);
 
     }*/
-
-    @Override
-    public void onTabSelected(ActionBar.Tab tab, FragmentTransaction ft) {
-
-    }
-
-    @Override
-    public void onTabUnselected(ActionBar.Tab tab, FragmentTransaction ft) {
-
-    }
-
-    @Override
-    public void onTabReselected(ActionBar.Tab tab, FragmentTransaction ft) {
-
-    }
 
     protected synchronized void buildGoogleApiClient() {
         mGoogleApiClient = new GoogleApiClient.Builder(getApplicationContext())

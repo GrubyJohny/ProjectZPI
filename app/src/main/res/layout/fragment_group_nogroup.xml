@@ -9,7 +9,7 @@
         android:layout_height="50dp"
         android:text="Start a new session"
         android:id="@+id/startSessionButton"
-        android:layout_marginTop="50dp"
+        android:layout_marginTop="30dp"
         android:layout_centerHorizontal="true"/>
 
     <Button
@@ -21,21 +21,13 @@
         android:layout_marginTop="20dp"
         android:layout_below="@id/startSessionButton"/>
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="50dp"
-        android:text="Back to map"
-        android:id="@+id/BacktoMapButton"
-        android:layout_centerHorizontal="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginBottom="50dp"/>
-
     <EditText
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/searchingGroupText"
         android:layout_below="@+id/searchGroupButton"
         android:layout_centerHorizontal="true"
+        android:singleLine="true"
         android:hint="Type here name of a group"
         android:layout_marginTop="10dp"
         android:visibility="invisible"/>
@@ -48,5 +40,15 @@
         android:layout_centerHorizontal="true"
         android:layout_below="@id/searchingGroupText"
         android:visibility="invisible"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="50dp"
+        android:text="Back to map"
+        android:layout_below="@id/searchButton"
+        android:id="@+id/BacktoMapButton"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="100dp"
+        android:layout_marginBottom="50dp"/>
 
 </RelativeLayout>

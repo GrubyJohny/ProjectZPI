@@ -53,7 +53,7 @@ import java.util.HashMap;
 import java.util.List;
 
 
-public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbacks{
+public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbacks {
 
     private SupportMapFragment fragment;
 
@@ -121,7 +121,7 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
         context = getActivity().getApplicationContext();
         globalVariable = (AppController) getActivity().getApplicationContext();
         db = new SQLiteHandler(getActivity().getApplicationContext());
-        markers=db.getAllMarkers();
+        markers = db.getAllMarkers();
 
 
         //mRequestingLocationUpdates = true;
@@ -136,7 +136,6 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
     }
 
     private void setupPoiButtons() {
-
 
 
         mainPoiButton = (Button) getActivity().findViewById(R.id.buttonPOIFiltering);
@@ -160,18 +159,18 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
 
 
             public void onClick(View view) {
+                layoutMarker.setVisibility(View.GONE);
 
-                  if((getActivity().findViewById(R.id.POIButtons)).getVisibility() == View.GONE){
+                if ((getActivity().findViewById(R.id.POIButtons)).getVisibility() == View.GONE) {
 
-                    if(!poiIsUpToDate) {
+                    if (!poiIsUpToDate) {
                         AsyncTaskRunner runner = new AsyncTaskRunner();
                         runner.execute();
 
                     }
-                    POIScrollView.scrollTo(0,0);
+                    POIScrollView.scrollTo(0, 0);
                     getActivity().findViewById(R.id.POIButtons).setVisibility(View.VISIBLE);
-                }
-                else{
+                } else {
                     getActivity().findViewById(R.id.POIButtons).setVisibility(View.GONE);
                 }
             }
@@ -179,15 +178,15 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
         });
 
         changeMapTypeButton = (Button) getActivity().findViewById(R.id.changeMapTypeButton);
+        changeMapTypeButton.setText("Normal");
 
         changeMapTypeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(globalVariable.getMyMap().getMapType() == GoogleMap.MAP_TYPE_HYBRID){
+                if (globalVariable.getMyMap().getMapType() == GoogleMap.MAP_TYPE_HYBRID) {
                     globalVariable.getMyMap().setMapType(GoogleMap.MAP_TYPE_NORMAL);
                     changeMapTypeButton.setText("Hybrid");
-                }
-                else{
+                } else {
                     globalVariable.getMyMap().setMapType(GoogleMap.MAP_TYPE_HYBRID);
                     changeMapTypeButton.setText("Normal");
                 }
@@ -212,123 +211,129 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
         myButtonFoodBar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(activePoiMarkers.contains(markersBars))
+                if (activePoiMarkers.contains(markersBars))
                     activePoiMarkers.remove(markersBars);
-                else    activePoiMarkers.add(markersBars);
+                else activePoiMarkers.add(markersBars);
 
                 markersSelectionChanged();
-            }});
+            }
+        });
 
         myButtonFoodCoffee.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(activePoiMarkers.contains(markersCoffee))
+                if (activePoiMarkers.contains(markersCoffee))
                     activePoiMarkers.remove(markersCoffee);
-                else    activePoiMarkers.add(markersCoffee);
+                else activePoiMarkers.add(markersCoffee);
 
                 markersSelectionChanged();
-            }});
+            }
+        });
 
         myButtonFoodKfc.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(activePoiMarkers.contains(markersKfc))
+                if (activePoiMarkers.contains(markersKfc))
                     activePoiMarkers.remove(markersKfc);
-                else    activePoiMarkers.add(markersKfc);
+                else activePoiMarkers.add(markersKfc);
 
                 markersSelectionChanged();
-            }});
+            }
+        });
 
         myButtonFoodMcDonald.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(activePoiMarkers.contains(markersMcdonalds))
+                if (activePoiMarkers.contains(markersMcdonalds))
                     activePoiMarkers.remove(markersMcdonalds);
-                else    activePoiMarkers.add(markersMcdonalds);
+                else activePoiMarkers.add(markersMcdonalds);
 
                 markersSelectionChanged();
-            }});
+            }
+        });
 
         myButtonFoodRestaurant.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(activePoiMarkers.contains(markersRestaurants))
+                if (activePoiMarkers.contains(markersRestaurants))
                     activePoiMarkers.remove(markersRestaurants);
-                else    activePoiMarkers.add(markersRestaurants);
+                else activePoiMarkers.add(markersRestaurants);
 
                 markersSelectionChanged();
-            }});
+            }
+        });
 
 
         myButtonShopsMarket.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(activePoiMarkers.contains(markersMarkets))
+                if (activePoiMarkers.contains(markersMarkets))
                     activePoiMarkers.remove(markersMarkets);
-                else    activePoiMarkers.add(markersMarkets);
+                else activePoiMarkers.add(markersMarkets);
 
                 markersSelectionChanged();
-            }});
+            }
+        });
 
         myButtonShopsStores.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(activePoiMarkers.contains(markersShops))
+                if (activePoiMarkers.contains(markersShops))
                     activePoiMarkers.remove(markersShops);
-                else    activePoiMarkers.add(markersShops);
+                else activePoiMarkers.add(markersShops);
 
                 markersSelectionChanged();
-            }});
+            }
+        });
 
         myButtonShopsShoppingMalls.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(activePoiMarkers.contains(markersShoppingMalls))
+                if (activePoiMarkers.contains(markersShoppingMalls))
                     activePoiMarkers.remove(markersShoppingMalls);
-                else    activePoiMarkers.add(markersShoppingMalls);
+                else activePoiMarkers.add(markersShoppingMalls);
 
                 markersSelectionChanged();
-            }});
-
+            }
+        });
 
 
         myButtonLeisureClubs.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(activePoiMarkers.contains(markersNightClubs))
+                if (activePoiMarkers.contains(markersNightClubs))
                     activePoiMarkers.remove(markersNightClubs);
-                else    activePoiMarkers.add(markersNightClubs);
+                else activePoiMarkers.add(markersNightClubs);
 
                 markersSelectionChanged();
-            }});
+            }
+        });
         myButtonLeisureParks.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(activePoiMarkers.contains(markersParks))
+                if (activePoiMarkers.contains(markersParks))
                     activePoiMarkers.remove(markersParks);
-                else    activePoiMarkers.add(markersParks);
+                else activePoiMarkers.add(markersParks);
 
                 markersSelectionChanged();
-            }});
+            }
+        });
     }
 
-    private void markersSelectionChanged()
-    {
+    private void markersSelectionChanged() {
         globalVariable.getMyMap().clear();
 
-        for(ArrayList<MarkerOptions> marks : activePoiMarkers)
-        {
-            for(int i=0; i<marks.size(); i++)
+        for (ArrayList<MarkerOptions> marks : activePoiMarkers) {
+            for (int i = 0; i < marks.size(); i++)
                 globalVariable.getMyMap().addMarker(marks.get(i));
         }
 
-        for(int i=0; i<markersFriends.size(); i++)
+        for (int i = 0; i < markersFriends.size(); i++)
             globalVariable.getMyMap().addMarker(markersFriends.get(i));
 
 
         Sender.putMarkersOnMapAgain(markers, globalVariable.getMyMap());
     }
-
 
 
     class AsyncTaskRunner extends AsyncTask<String, String, String> {
@@ -346,16 +351,19 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
             String resp = "done";
             return resp;
         }
+
         @Override
         protected void onPostExecute(String result) {
             // execution of result of Long time consuming operation
 
         }
+
         @Override
         protected void onPreExecute() {
             // Things to be done before execution of long running operation. For
             // example showing ProgessDialog
         }
+
         @Override
         protected void onProgressUpdate(String... text) {
 
@@ -431,17 +439,18 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
 
     protected void preparePoiPoints() throws IOException {
 
-        markersKfc = poiBase.getJsonWithSelectedData(0,0,new LatLng(mCurrentLocation.getLatitude(),mCurrentLocation.getLongitude()),"kfclogo");
-        markersMcdonalds = poiBase.getJsonWithSelectedData(0,1,new LatLng(mCurrentLocation.getLatitude(),mCurrentLocation.getLongitude()),"mcdonaldslogo");
-        markersRestaurants = poiBase.getJsonWithSelectedData(1, new LatLng(mCurrentLocation.getLatitude(),mCurrentLocation.getLongitude()), "restaurant" );
-        markersBars = poiBase.getJsonWithSelectedData(2, new LatLng(mCurrentLocation.getLatitude(),mCurrentLocation.getLongitude()), "bar");
-        markersCoffee = poiBase.getJsonWithSelectedData(3, new LatLng(mCurrentLocation.getLatitude(),mCurrentLocation.getLongitude()), "coffee" );
-        markersNightClubs = poiBase.getJsonWithSelectedData(4, new LatLng(mCurrentLocation.getLatitude(),mCurrentLocation.getLongitude()), "nightclub" );
-        markersParks = poiBase.getJsonWithSelectedData(5, new LatLng(mCurrentLocation.getLatitude(),mCurrentLocation.getLongitude()), "park" );
-        markersShoppingMalls= poiBase.getJsonWithSelectedData(6, new LatLng(mCurrentLocation.getLatitude(),mCurrentLocation.getLongitude()), "shoppingmall" );
-        markersShops= poiBase.getJsonWithSelectedData(7, new LatLng(mCurrentLocation.getLatitude(),mCurrentLocation.getLongitude()), "shop" );
-        markersMarkets = poiBase.getJsonWithSelectedData(8, new LatLng(mCurrentLocation.getLatitude(),mCurrentLocation.getLongitude()), "market" );
+        markersKfc = poiBase.getJsonWithSelectedData(0, 0, new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()), "kfclogo");
+        markersMcdonalds = poiBase.getJsonWithSelectedData(0, 1, new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()), "mcdonaldslogo");
+        markersRestaurants = poiBase.getJsonWithSelectedData(1, new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()), "restaurant");
+        markersBars = poiBase.getJsonWithSelectedData(2, new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()), "bar");
+        markersCoffee = poiBase.getJsonWithSelectedData(3, new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()), "coffee");
+        markersNightClubs = poiBase.getJsonWithSelectedData(4, new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()), "nightclub");
+        markersParks = poiBase.getJsonWithSelectedData(5, new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()), "park");
+        markersShoppingMalls = poiBase.getJsonWithSelectedData(6, new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()), "shoppingmall");
+        markersShops = poiBase.getJsonWithSelectedData(7, new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()), "shop");
+        markersMarkets = poiBase.getJsonWithSelectedData(8, new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()), "market");
     }
+
     public void setMapListener() {
         globalVariable.getMyMap().setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
             @Override
@@ -482,8 +491,9 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
             @Override
             public boolean onMarkerClick(Marker marker) {
                 ostatniMarker = marker;
-                layoutMarker.setX((float) globalVariable.getMyMap().getProjection().toScreenLocation(marker.getPosition()).x - layoutMarker.getWidth() / 2 + 40);
-                layoutMarker.setY((float) globalVariable.getMyMap().getProjection().toScreenLocation(marker.getPosition()).y - layoutMarker.getHeight() / 2 - 30);
+                layoutMarker.setX((float) globalVariable.getMyMap().getProjection().toScreenLocation(marker.getPosition()).x - layoutMarker.getWidth() / 2);
+                layoutMarker.setY((float) globalVariable.getMyMap().getProjection().toScreenLocation(marker.getPosition()).y - layoutMarker.getHeight() + 180);
+                getActivity().findViewById(R.id.POIButtons).setVisibility(View.GONE);
                 layoutMarker.setVisibility(View.VISIBLE);
                 return true;
             }
@@ -526,16 +536,13 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
 
     }
 
-    public GoogleMap.OnCameraChangeListener getCameraChangeListener()
-    {
-        return new GoogleMap.OnCameraChangeListener()
-        {
+    public GoogleMap.OnCameraChangeListener getCameraChangeListener() {
+        return new GoogleMap.OnCameraChangeListener() {
             @Override
-            public void onCameraChange(CameraPosition position)
-            {
-                if(ostatniMarker != null) {
-                    layoutMarker.setX((float) globalVariable.getMyMap().getProjection().toScreenLocation(ostatniMarker.getPosition()).x - layoutMarker.getWidth() / 2 + 40);
-                    layoutMarker.setY((float) globalVariable.getMyMap().getProjection().toScreenLocation(ostatniMarker.getPosition()).y - layoutMarker.getHeight()/2 - 30);
+            public void onCameraChange(CameraPosition position) {
+                if (ostatniMarker != null) {
+                    layoutMarker.setX((float) globalVariable.getMyMap().getProjection().toScreenLocation(ostatniMarker.getPosition()).x - layoutMarker.getWidth() / 2);
+                    layoutMarker.setY((float) globalVariable.getMyMap().getProjection().toScreenLocation(ostatniMarker.getPosition()).y - layoutMarker.getHeight() + 180);
                 }
                 getActivity().findViewById(R.id.POIButtons).setVisibility(View.GONE);
                 //addItemsToMap(markers);
@@ -553,27 +560,28 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
     @Override
     public void onConnected(Bundle bundle) {
         Log.d(AppController.TAG, "Podlaczony do api service");
-        mCurrentLocation= LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-          setUpMap(true);
+        mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+        setUpMap(true);
 
 
         //setMapListener();
         if (mRequestingLocationUpdates) {
-           // startLocationUpdates();
+            // startLocationUpdates();
         }
     }
-/*
-    //Startujemy nas³uchiwanie zmian lokacji
-    protected void startLocationUpdates() {
-        LocationServices.FusedLocationApi
-                .requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
-    }
 
-    //Zatrzymujemy nas³uchiwanie o zmianach lokacji
-    protected void stopLocationUpdates() {
-        LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
-    }
-*/
+    /*
+        //Startujemy nas³uchiwanie zmian lokacji
+        protected void startLocationUpdates() {
+            LocationServices.FusedLocationApi
+                    .requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
+        }
+
+        //Zatrzymujemy nas³uchiwanie o zmianach lokacji
+        protected void stopLocationUpdates() {
+            LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
+        }
+    */
     @Override
     public void onConnectionSuspended(int i) {
 
@@ -592,86 +600,76 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
     }*/
 
 
-    private String downloadUrl(String strUrl) throws IOException
-    {
-        Log.d("co tam ",strUrl);
-        String data="";
-        InputStream isStream=null;
-        HttpURLConnection urlConnection=null;
-        try{
-            URL url=new URL(strUrl);
+    private String downloadUrl(String strUrl) throws IOException {
+        Log.d("co tam ", strUrl);
+        String data = "";
+        InputStream isStream = null;
+        HttpURLConnection urlConnection = null;
+        try {
+            URL url = new URL(strUrl);
             //Tworzymy po³êczenie przez protokó³ http, ¿eby po³¹czyæ sie z adresem url
-            urlConnection=(HttpURLConnection)url.openConnection();
+            urlConnection = (HttpURLConnection) url.openConnection();
             //£¹czymy siê z nim
             urlConnection.connect();
 
             //No to teraz zczytujemy dane
-            isStream=urlConnection.getInputStream();
-            BufferedReader br=new BufferedReader(new InputStreamReader(isStream));
-            StringBuffer sb=new StringBuffer();
+            isStream = urlConnection.getInputStream();
+            BufferedReader br = new BufferedReader(new InputStreamReader(isStream));
+            StringBuffer sb = new StringBuffer();
 
-            String line="";
-            while ((line=br.readLine())!=null)
-            {
+            String line = "";
+            while ((line = br.readLine()) != null) {
                 sb.append(line);
             }
-            data=sb.toString();
+            data = sb.toString();
             br.close();
-        }catch (Exception e) {
+        } catch (Exception e) {
             Log.d("Exception url", e.toString());
-        }
-        finally {
+        } finally {
             isStream.close();
             urlConnection.disconnect();
         }
         return data;
     }
 
-    private class DownloadTask extends AsyncTask<String,Void,String>
-    {
+    private class DownloadTask extends AsyncTask<String, Void, String> {
         //Pobieranie danych w innym w¹tku ni¿ ten opowiedzialny za wyœwietlanie grafiki
         @Override
-        protected String doInBackground(String... url)
-        {
+        protected String doInBackground(String... url) {
 
             //String do przechowywanie odberanych danych
-            String data="";
-            try{
-                data=downloadUrl(url[0]);
-            }catch(Exception e)
-            {
-                Log.d("Background Task",e.toString());
+            String data = "";
+            try {
+                data = downloadUrl(url[0]);
+            } catch (Exception e) {
+                Log.d("Background Task", e.toString());
             }
             return data;
         }
 
         //Zrób w w¹tku wyœwitlaj¹cym grafikê, potym jak wykonasz doInBackground
         @Override
-        protected void onPostExecute(String result)
-        {
+        protected void onPostExecute(String result) {
             super.onPostExecute(result);
-            ParseTask parseTask=new ParseTask();
+            ParseTask parseTask = new ParseTask();
             //wystartuj w¹tek przetwrzaj¹cy obiekt JSON
             parseTask.execute(result);
         }
     }
 
-    private class ParseTask extends AsyncTask<String,Integer,List<List<HashMap<String,String>>>>
-    {
+    private class ParseTask extends AsyncTask<String, Integer, List<List<HashMap<String, String>>>> {
         //Przetwrzanie danych w w¹tku innym ni¿ ten odpowiedzialny za wyœwietlanie grafiki
         @Override
-        protected List<List<HashMap<String,String>>> doInBackground(String... jsonData)
-        {
+        protected List<List<HashMap<String, String>>> doInBackground(String... jsonData) {
             JSONObject jObject;
-            List<List<HashMap<String,String>>> routes=null;
-            try{
-                jObject=new JSONObject(jsonData[0]);
-                DirectionsJSONParser parser=new DirectionsJSONParser();
+            List<List<HashMap<String, String>>> routes = null;
+            try {
+                jObject = new JSONObject(jsonData[0]);
+                DirectionsJSONParser parser = new DirectionsJSONParser();
                 //Zacznij ekstrachowaæ dane
-                routes=parser.parse(jObject);
+                routes = parser.parse(jObject);
 
-            }catch (Exception e)
-            {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
             return routes;
@@ -679,41 +677,36 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
 
         //Wykonaj w w¹tku graficznym po wykonaniu metody doInBackground
         @Override
-        protected void onPostExecute(List<List<HashMap<String,String>>> result)
-        {
-            ArrayList<LatLng> points=null;
-            PolylineOptions lineOptions=null;
-            MarkerOptions markerOptions=new MarkerOptions();
-            String distance="";
+        protected void onPostExecute(List<List<HashMap<String, String>>> result) {
+            ArrayList<LatLng> points = null;
+            PolylineOptions lineOptions = null;
+            MarkerOptions markerOptions = new MarkerOptions();
+            String distance = "";
             String duration;
-            if(result.size()<1) {
+            if (result.size() < 1) {
                 Toast.makeText(getActivity().getBaseContext(), "No Points", Toast.LENGTH_SHORT).show();
                 return;
             }
             //Odpowidzanie wszytkich mo¿liwych tras
-            for(int i=0; i<result.size();i++)
-            {
-                points=new ArrayList<LatLng>();
-                lineOptions=new PolylineOptions();
+            for (int i = 0; i < result.size(); i++) {
+                points = new ArrayList<LatLng>();
+                lineOptions = new PolylineOptions();
                 //Przechodzenie i-tej drogi
-                List<HashMap<String,String>> path=result.get(i);
-                for(int j=0;j<path.size();j++)
-                {
-                    HashMap<String,String> point=path.get(j);
-                    if(j==0)
-                    {
+                List<HashMap<String, String>> path = result.get(i);
+                for (int j = 0; j < path.size(); j++) {
+                    HashMap<String, String> point = path.get(j);
+                    if (j == 0) {
                         //Zczytaj dystans z listy
-                        distance=point.get("disance");
+                        distance = point.get("disance");
                         continue;
-                    }else if(j==1)
-                    {
+                    } else if (j == 1) {
                         //Zczytaj czas podró¿y
-                        duration=point.get("duration");
+                        duration = point.get("duration");
                         continue;
                     }
-                    double lat=Double.parseDouble(point.get("lat"));
-                    double lng=Double.parseDouble(point.get("lng"));
-                    LatLng position=new LatLng(lat,lng);
+                    double lat = Double.parseDouble(point.get("lat"));
+                    double lng = Double.parseDouble(point.get("lng"));
+                    LatLng position = new LatLng(lat, lng);
                     points.add(position);
                 }
                 //Dodanie wszystkich punktów na drodze do LineOptions
@@ -729,26 +722,24 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
     }
 
 
-
-    private String getDirectionUrl(LatLng origin, LatLng dest){
+    private String getDirectionUrl(LatLng origin, LatLng dest) {
         //Sk¹d wyruszamy
-        String str_origin="origin="+origin.latitude+","+origin.longitude;
+        String str_origin = "origin=" + origin.latitude + "," + origin.longitude;
 
         //Quo vadis
-        String str_dest="destination="+dest.latitude+","+dest.longitude;
+        String str_dest = "destination=" + dest.latitude + "," + dest.longitude;
         //Sensor enabled
-        String sensor="sensor=false";
+        String sensor = "sensor=false";
         //Sk³adanie w ca³oœæ, aby móc przekazaæ to web service
-        String parameters=str_origin+"&"+str_dest+"&"+sensor;
+        String parameters = str_origin + "&" + str_dest + "&" + sensor;
         //Definiowanie formatu wyniku
-        String output="json";
+        String output = "json";
         //Z³o¿enie koñcowego ³añcucha URL, mo¿e pocz¹tek tego url warto zapisaæ jako sta³¹?
-        String url="http://maps.googleapis.com/maps/api/directions/"+output+"?"+parameters;
+        String url = "http://maps.googleapis.com/maps/api/directions/" + output + "?" + parameters;
         return url;
     }
 
-    public void inclizaidListenerForMarkerMenu()
-    {
+    public void inclizaidListenerForMarkerMenu() {
         firstMarkerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

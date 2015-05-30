@@ -5,54 +5,32 @@
     tools:context="zpi.squad.app.grouploc.AdditionalElementsOnMap">
 
     <Button
+        android:id="@+id/changeMapTypeButton"
+        android:layout_width="70dp"
+        android:layout_height="40dp"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentBottom="true"
+        android:layout_margin="5dp"
+        android:textSize="5pt"
+        android:text="Normal"/>
+
+    <Button
         android:id="@+id/buttonPOIFiltering"
-        android:layout_width="50dp"
+        android:layout_width="60dp"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:layout_marginTop="60dp"
-        android:text="POI" />
-
-    <!--<Button
-        android:id="@+id/ButtonFood"
-        android:layout_width="100dp"
-        android:layout_height="wrap_content"
-        android:layout_alignStart="@+id/buttonPOIFiltering"
-        android:layout_below="@+id/buttonPOIFiltering"
-        android:text="Food" />
-
-    <Button
-        android:id="@+id/ButtonShops"
-        android:layout_width="100dp"
-        android:layout_height="wrap_content"
-        android:layout_alignEnd="@+id/ButtonFood"
-        android:layout_below="@+id/ButtonFood"
-        android:text="Shops" />
-
-    <Button
-        android:id="@+id/ButtonLeisure"
-        android:layout_width="100dp"
-        android:layout_height="wrap_content"
-        android:layout_alignStart="@+id/ButtonShops"
-        android:layout_below="@+id/ButtonShops"
-        android:text="Leisure" />
-
-    <Button
-        android:id="@+id/ButtonMyPlaces"
-        android:layout_width="100dp"
-        android:layout_height="wrap_content"
-        android:layout_alignStart="@+id/ButtonLeisure"
-        android:layout_below="@+id/ButtonLeisure"
-        android:text="My places" />-->
+        android:text="POI"
+        android:textSize="10pt"/>
 
     <ScrollView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignStart="@id/buttonPOIFiltering"
+        android:layout_alignParentRight="true"
         android:layout_below="@id/buttonPOIFiltering"
         android:layout_marginBottom="100dp"
-        android:layout_marginRight="5dp"
-        android:id="@+id/POIScroll"
-        >
+        android:paddingRight="3dp"
+        android:id="@+id/POIScroll">
 
     <LinearLayout
         android:layout_width="wrap_content"
@@ -60,8 +38,7 @@
         android:orientation="vertical"
         android:id="@+id/POIButtons"
         android:visibility="invisible"
-        android:background="@color/bg_main"
-        >
+        android:background="@color/bg_main">
 
         <ImageButton
             android:id="@+id/ButtonFoodBar"
@@ -149,7 +126,8 @@
             android:layout_width="50dp"
             android:layout_height="wrap_content"
             android:layout_below="@+id/ButtonLeisureParks"
-            android:text="clear" />
+            android:text="clear"
+            android:textSize="4pt"/>
 
     </LinearLayout>
     </ScrollView>

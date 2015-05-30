@@ -1,7 +1,9 @@
 package zpi.squad.app.grouploc;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Color;
@@ -101,10 +103,13 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
     private Button thirdMarkerButton;
     private Button fourthMarkerButton;
     private Button closeMarkerButton;
+    private Button changeMapTypeButton;
     private SessionManager session;
 
     AppController globalVariable;
 
+    private static final CharSequence[] MAP_TYPE_ITEMS =
+            {"Road Map", "Hybrid", "Satellite", "Terrain"};
 
 
     @Override
@@ -171,6 +176,23 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
                 }
             }
 
+        });
+
+        changeMapTypeButton = (Button) getActivity().findViewById(R.id.changeMapTypeButton);
+
+        changeMapTypeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(globalVariable.getMyMap().getMapType() == GoogleMap.MAP_TYPE_HYBRID){
+                    globalVariable.getMyMap().setMapType(GoogleMap.MAP_TYPE_NORMAL);
+                    changeMapTypeButton.setText("Hybrid");
+                }
+                else{
+                    globalVariable.getMyMap().setMapType(GoogleMap.MAP_TYPE_HYBRID);
+                    changeMapTypeButton.setText("Normal");
+                }
+                //showMapTypeSelectorDialog();
+            }
         });
 
         //final Button myButtonFood = (Button) findViewById(R.id.ButtonFood);
@@ -696,7 +718,7 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
                 }
                 //Dodanie wszystkich punktów na drodze do LineOptions
                 lineOptions.addAll(points);
-                lineOptions.width(2);
+                lineOptions.width(8);
                 lineOptions.color(Color.BLUE);
 
             }
@@ -739,6 +761,7 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
                 LatLng dest = new LatLng(latitude, longitude);
                 String url = getDirectionUrl(origin, dest);
                 DownloadTask downloadTask = new DownloadTask();
+                layoutMarker.setVisibility(View.GONE);
                 //no to zaczynamy zabawê
                 downloadTask.execute(url);
             }
@@ -752,6 +775,7 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
                 latitude = ostatniMarker.getPosition().latitude;
                 longitude = ostatniMarker.getPosition().longitude;
                 LatLng dest = new LatLng(latitude, longitude);
+                layoutMarker.setVisibility(View.GONE);
 
                 Uri gmmIntentUri = Uri.parse("google.navigation:q=" + latitude + "," + longitude);
                 Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
@@ -769,6 +793,7 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
                 String name = ostatniMarker.getTitle();
                 if (name == null)
                     name = "brak";
+                layoutMarker.setVisibility(View.GONE);
 
                 Sender.sendMarker(getActivity().getApplicationContext(), uid, latitude, longitude, name, custom, ostatniMarker);
             }
@@ -793,6 +818,49 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
                 Sender.sendRequestAboutFriendsCoordinate(whereClause,friendsMarker,myMap);*/
             }
         });
+    }
+
+    private void showMapTypeSelectorDialog() {
+        // Prepare the dialog by setting up a Builder.
+        final String fDialogTitle = "Select Map Type";
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setTitle(fDialogTitle);
+
+        // Find the current map type to pre-check the item representing the current state.
+        int checkItem = globalVariable.getMyMap().getMapType() - 1;
+
+        // Add an OnClickListener to the dialog, so that the selection will be handled.
+        builder.setSingleChoiceItems(
+                MAP_TYPE_ITEMS,
+                checkItem,
+                new DialogInterface.OnClickListener() {
+
+                    public void onClick(DialogInterface dialog, int item) {
+                        // Locally create a finalised object.
+
+                        // Perform an action depending on which item was selected.
+                        switch (item) {
+                            case 1:
+                                globalVariable.getMyMap().setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+                                break;
+                            case 2:
+                                globalVariable.getMyMap().setMapType(GoogleMap.MAP_TYPE_TERRAIN);
+                                break;
+                            case 3:
+                                globalVariable.getMyMap().setMapType(GoogleMap.MAP_TYPE_HYBRID);
+                                break;
+                            default:
+                                globalVariable.getMyMap().setMapType(GoogleMap.MAP_TYPE_NORMAL);
+                        }
+                        dialog.dismiss();
+                    }
+                }
+        );
+
+        // Build the dialog and show it.
+        AlertDialog fMapTypeDialog = builder.create();
+        fMapTypeDialog.setCanceledOnTouchOutside(true);
+        fMapTypeDialog.show();
     }
 
 }

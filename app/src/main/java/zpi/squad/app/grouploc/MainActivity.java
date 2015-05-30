@@ -264,16 +264,16 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         noticeButton = (ImageButton) findViewById(R.id.noticeButton);
         Bitmap bMap = BitmapFactory.decodeResource(getResources(), R.drawable.notificon);
         Bitmap bMapScaled = Bitmap.createScaledBitmap(bMap, 100, 100, true);
-        Bitmap bitmap_round1 = clipBitmap(bMapScaled);
+        Bitmap bitmap_round = clipBitmap(bMapScaled);
 
-        noticeButton.setImageBitmap(bitmap_round1);
+        noticeButton.setImageBitmap(bitmap_round);
 
         messageButton = (ImageButton) findViewById(R.id.messageButton);
         Bitmap bMap1 = BitmapFactory.decodeResource(getResources(), R.drawable.messageicon);
-        Bitmap bitmap_round2 = clipBitmap(bMap1);
-        Bitmap bMapScaled1 = Bitmap.createScaledBitmap(bitmap_round2, 100, 100, true);
+        Bitmap bMapScaled1 = Bitmap.createScaledBitmap(bMap1, 100, 100, true);
+        Bitmap bitmap_round1 = clipBitmap(bMapScaled1);
 
-        messageButton.setImageBitmap(bMapScaled1);
+        messageButton.setImageBitmap(bitmap_round1);
     }
 
     private void mainSpinner() {

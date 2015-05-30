@@ -3,65 +3,81 @@
     android:id="@+id/mainLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".MainActivity">
 
-    <ImageButton
-        android:id="@+id/circleButton"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginRight="@dimen/activity_horizontal_margin"
-        android:background="@drawable/circle_button"
-        android:clickable="true" />
+    <RelativeLayout
+        android:id="@+id/panelLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/btn_login">
 
-    <ImageButton
-        android:id="@+id/noticeButton"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
-        android:layout_alignParentTop="true"
-        android:layout_marginRight="20dp"
-        android:layout_toLeftOf="@id/circleButton"
-        android:background="@drawable/notice_button"
-        android:clickable="true" />
+        <ImageButton
+            android:id="@+id/circleButton"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="5dp"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="@dimen/activity_horizontal_margin"
+            android:background="@drawable/circle_button"
+            android:clickable="true" />
 
-    <ImageButton
-        android:id="@+id/messageButton"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
-        android:layout_alignParentTop="true"
-        android:layout_marginRight="20dp"
-        android:layout_toLeftOf="@id/noticeButton"
-        android:background="@drawable/notice_button"
-        android:clickable="true" />
+        <ImageButton
+            android:id="@+id/noticeButton"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginRight="20dp"
+            android:layout_centerVertical="true"
+            android:layout_toLeftOf="@id/circleButton"
+            android:background="@drawable/notice_button"
+            android:clickable="true" />
+
+        <ImageButton
+            android:id="@+id/messageButton"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginRight="20dp"
+            android:layout_centerVertical="true"
+            android:layout_toLeftOf="@id/noticeButton"
+            android:background="@drawable/notice_button"
+            android:clickable="true" />
+
+    </RelativeLayout>
 
     <LinearLayout
         android:id="@+id/tabLayout"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/panelLayout">
 
         <android.support.v4.app.FragmentTabHost
             android:id="@android:id/tabhost"
             android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:layout_marginTop="50dp">
+            android:layout_height="fill_parent">
 
             <LinearLayout
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
                 android:orientation="vertical">
 
+                <LinearLayout
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/panel">
+
                 <TabWidget
                     android:id="@android:id/tabs"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"></TabWidget>
+                    android:layout_height="50dp"
+                    android:gravity="bottom"/>
+
+                </LinearLayout>
 
                 <FrameLayout
                     android:id="@android:id/tabcontent"
                     android:layout_width="fill_parent"
                     android:layout_height="fill_parent"
-                    android:paddingTop="3dp">
+                    android:paddingTop="1dp">
 
                 </FrameLayout>
 
@@ -91,11 +107,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
-        android:layout_alignStart="@id/circleButton"
-        android:layout_below="@id/circleButton"
-        android:layout_marginTop="50dp"
-        android:layout_toStartOf="@id/circleButton"
-        android:gravity="right"
+        android:layout_marginTop="55dp"
+        android:layout_below="@id/panelLayout"
         android:visibility="invisible" />
 
     <Spinner
@@ -104,8 +117,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
-        android:layout_marginTop="30dp"
-        android:layout_toStartOf="@id/noticeButton"
+        android:layout_marginTop="50dp"
         android:visibility="invisible" />
 
     <Spinner
@@ -114,8 +126,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
-        android:layout_marginTop="30dp"
-        android:layout_toStartOf="@id/noticeButton"
+        android:layout_marginTop="50dp"
         android:visibility="invisible" />
 
     <LinearLayout

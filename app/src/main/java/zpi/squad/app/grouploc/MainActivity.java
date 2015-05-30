@@ -431,7 +431,9 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                 Bundle extras2 = data.getExtras();
                 if (extras2 != null) {
                     Bitmap photo = extras2.getParcelable("data");
-                    Bitmap bitmap_round = clipBitmap(photo);
+
+                    Bitmap bMapScaled = Bitmap.createScaledBitmap(photo, 150, 150, true);
+                    Bitmap bitmap_round = clipBitmap(bMapScaled);
                     circleButton.setImageBitmap(bitmap_round);
 
                     FileOutputStream fos = context.openFileOutput(IMAGE_PHOTO_FILENAME, Context.MODE_PRIVATE);
@@ -468,7 +470,8 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                 Bundle extras2 = data.getExtras();
                 Bitmap photo = extras2.getParcelable("data");
 
-                Bitmap bitmap_round = clipBitmap(photo);
+                Bitmap bMapScaled = Bitmap.createScaledBitmap(photo, 150, 150, true);
+                Bitmap bitmap_round = clipBitmap(bMapScaled);
                 circleButton.setImageBitmap(bitmap_round);
 
                 FileOutputStream fos = context.openFileOutput(IMAGE_PHOTO_FILENAME, Context.MODE_PRIVATE);

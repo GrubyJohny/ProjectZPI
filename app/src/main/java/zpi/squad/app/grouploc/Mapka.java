@@ -8,6 +8,7 @@ import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.AsyncTask;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
 import android.net.Uri;
 import android.os.Bundle;
@@ -17,6 +18,7 @@ import android.view.InflateException;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ScrollView;
@@ -52,7 +54,12 @@ import java.util.List;
 public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbacks{
 
     private SupportMapFragment fragment;
-    private GoogleMap myMap;
+
+    public GoogleMap getMyMap() {
+        return myMap;
+    }
+
+    public GoogleMap myMap;
     private static View view;
     //OstatniKliknietyNaMapi
     private LatLng lastClikOnMap;
@@ -96,6 +103,9 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
     private Button closeMarkerButton;
     private SessionManager session;
 
+    AppController globalVariable;
+
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -104,6 +114,7 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
 
         layoutMarker = (View) getActivity().findViewById(R.id.markerLayout);
         context = getActivity().getApplicationContext();
+        globalVariable = (AppController) getActivity().getApplicationContext();
         db = new SQLiteHandler(getActivity().getApplicationContext());
         markers=db.getAllMarkers();
 
@@ -129,10 +140,10 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
         clearPoiButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                myMap.clear();
+                globalVariable.getMyMap().clear();
                 activePoiMarkers.clear();
                 mainPoiButton.performClick();
-                Sender.putMarkersOnMapAgain(markers, myMap);
+                Sender.putMarkersOnMapAgain(markers, globalVariable.getMyMap());
                 //setUpMap(false);
             }
 
@@ -281,20 +292,22 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
 
     private void markersSelectionChanged()
     {
-        myMap.clear();
+        globalVariable.getMyMap().clear();
 
         for(ArrayList<MarkerOptions> marks : activePoiMarkers)
         {
             for(int i=0; i<marks.size(); i++)
-                myMap.addMarker(marks.get(i));
+                globalVariable.getMyMap().addMarker(marks.get(i));
         }
 
         for(int i=0; i<markersFriends.size(); i++)
-            myMap.addMarker(markersFriends.get(i));
+            globalVariable.getMyMap().addMarker(markersFriends.get(i));
 
 
-        Sender.putMarkersOnMapAgain(markers, myMap);
+        Sender.putMarkersOnMapAgain(markers, globalVariable.getMyMap());
     }
+
+
 
     class AsyncTaskRunner extends AsyncTask<String, String, String> {
         @Override
@@ -388,8 +401,8 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
     @Override
     public void onResume() {
         super.onResume();
-        if (myMap == null) {
-            myMap = fragment.getMap();
+        if (globalVariable.getMyMap() == null) {
+            globalVariable.setMyMap(fragment.getMap());
             //map.addMarker(new MarkerOptions().position(new LatLng(0, 0)));
         }
     }
@@ -408,19 +421,19 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
         markersMarkets = poiBase.getJsonWithSelectedData(8, new LatLng(mCurrentLocation.getLatitude(),mCurrentLocation.getLongitude()), "market" );
     }
     public void setMapListener() {
-        myMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
+        globalVariable.getMyMap().setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
             @Override
             public void onMapLongClick(LatLng latLng) {
-                lastClikOnMap = latLng;
+                globalVariable.setLastClikOnMap(latLng);
                 MarkerDialog markerDialog = new MarkerDialog();
-                //MarkerDialog.show(getChildFragmentManager(), "Marker Dialog");
+                markerDialog.show(getChildFragmentManager(), "Marker Dialog");
 
-                myMap.addMarker(new MarkerOptions().position(latLng).draggable(true));
+                globalVariable.getMyMap().addMarker(new MarkerOptions().position(latLng).draggable(true));
                 layoutMarker.setVisibility(View.GONE);
             }
         });
 
-        myMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+        globalVariable.getMyMap().setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
                 double latitude = mCurrentLocation.getLatitude();
@@ -443,18 +456,18 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
             }
         });
 
-        myMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+        globalVariable.getMyMap().setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
                 ostatniMarker = marker;
-                layoutMarker.setX((float) myMap.getProjection().toScreenLocation(marker.getPosition()).x - layoutMarker.getWidth() / 2 + 40);
-                layoutMarker.setY((float) myMap.getProjection().toScreenLocation(marker.getPosition()).y - layoutMarker.getHeight() / 2 - 30);
+                layoutMarker.setX((float) globalVariable.getMyMap().getProjection().toScreenLocation(marker.getPosition()).x - layoutMarker.getWidth() / 2 + 40);
+                layoutMarker.setY((float) globalVariable.getMyMap().getProjection().toScreenLocation(marker.getPosition()).y - layoutMarker.getHeight() / 2 - 30);
                 layoutMarker.setVisibility(View.VISIBLE);
                 return true;
             }
         });
 
-        myMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+        globalVariable.getMyMap().setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
             public void onMapClick(LatLng latLng) {
                 getActivity().findViewById(R.id.POIButtons).setVisibility(View.GONE);
@@ -466,13 +479,13 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
     private void setUpMap(boolean hardSetup) {
 
 
-        myMap = ((SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.myMapFragment)).getMap();
+        globalVariable.setMyMap(((SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.myMapFragment)).getMap());
         //Log.d(AppController.TAG,"my map to"+myMap);
-        myMap.setMyLocationEnabled(true);
+        globalVariable.getMyMap().setMyLocationEnabled(true);
 
-        myMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+        globalVariable.getMyMap().setMapType(GoogleMap.MAP_TYPE_HYBRID);
 
-        Sender.putMarkersOnMapAgain(markers, myMap);
+        Sender.putMarkersOnMapAgain(markers, globalVariable.getMyMap());
 
         if (mCurrentLocation != null) {
             double latitude = mCurrentLocation.getLatitude();
@@ -480,14 +493,14 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
             LatLng latLng = new LatLng(latitude, longitude);
             if (hardSetup) {
 
-                myMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15));
+                globalVariable.getMyMap().moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15));
                 //myMap.animateCamera(CameraUpdateFactory.zoomTo(15),3000,null);
             }
         } else
             Log.e(AppController.TAG, "ostania znana lokacja jest nulem");
 
 
-        myMap.setOnCameraChangeListener(getCameraChangeListener());
+        globalVariable.getMyMap().setOnCameraChangeListener(getCameraChangeListener());
 
     }
 
@@ -499,8 +512,8 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
             public void onCameraChange(CameraPosition position)
             {
                 if(ostatniMarker != null) {
-                    layoutMarker.setX((float) myMap.getProjection().toScreenLocation(ostatniMarker.getPosition()).x - layoutMarker.getWidth() / 2 + 40);
-                    layoutMarker.setY((float) myMap.getProjection().toScreenLocation(ostatniMarker.getPosition()).y - layoutMarker.getHeight()/2 - 30);
+                    layoutMarker.setX((float) globalVariable.getMyMap().getProjection().toScreenLocation(ostatniMarker.getPosition()).x - layoutMarker.getWidth() / 2 + 40);
+                    layoutMarker.setY((float) globalVariable.getMyMap().getProjection().toScreenLocation(ostatniMarker.getPosition()).y - layoutMarker.getHeight()/2 - 30);
                 }
                 getActivity().findViewById(R.id.POIButtons).setVisibility(View.GONE);
                 //addItemsToMap(markers);
@@ -687,7 +700,7 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
                 lineOptions.color(Color.BLUE);
 
             }
-            myMap.addPolyline(lineOptions);
+            globalVariable.getMyMap().addPolyline(lineOptions);
 
 
         }
@@ -717,7 +730,7 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
         firstMarkerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d(AppController.TAG,"odebra³em zdarzenie");
+                Log.d(AppController.TAG, "odebra³em zdarzenie");
                 double latitude = mCurrentLocation.getLatitude();
                 double longitude = mCurrentLocation.getLongitude();
                 LatLng origin = new LatLng(latitude, longitude);
@@ -740,8 +753,8 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
                 longitude = ostatniMarker.getPosition().longitude;
                 LatLng dest = new LatLng(latitude, longitude);
 
-                Uri gmmIntentUri= Uri.parse("google.navigation:q="+latitude+","+longitude);
-                Intent mapIntent=new Intent(Intent.ACTION_VIEW,gmmIntentUri);
+                Uri gmmIntentUri = Uri.parse("google.navigation:q=" + latitude + "," + longitude);
+                Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
                 mapIntent.setPackage("com.google.android.apps.maps");
                 startActivity(mapIntent);
             }
@@ -749,15 +762,15 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
         thirdMarkerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String uid=session.getUserId();
+                String uid = session.getUserId();
                 double latitude = ostatniMarker.getPosition().latitude;
                 double longitude = ostatniMarker.getPosition().longitude;
-                CustomMarker custom= ToolsForMarkerList.getSpecificMarker(markers,latitude,longitude);
-                String name=ostatniMarker.getTitle();
-                if(name==null)
-                    name="brak";
+                CustomMarker custom = ToolsForMarkerList.getSpecificMarker(markers, latitude, longitude);
+                String name = ostatniMarker.getTitle();
+                if (name == null)
+                    name = "brak";
 
-                Sender.sendMarker(getActivity().getApplicationContext(),uid,latitude,longitude,name,custom,ostatniMarker);
+                Sender.sendMarker(getActivity().getApplicationContext(), uid, latitude, longitude, name, custom, ostatniMarker);
             }
         });
         fourthMarkerButton.setOnClickListener(new View.OnClickListener() {
@@ -767,8 +780,8 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
                 double longitude = ostatniMarker.getPosition().longitude;
                 CustomMarker toRemove = ToolsForMarkerList.getSpecificMarker(markers, latitude, longitude);
                 markers.remove(toRemove);
-                myMap.clear();
-                Sender.putMarkersOnMapAgain(markers, myMap);
+                globalVariable.getMyMap().clear();
+                Sender.putMarkersOnMapAgain(markers, globalVariable.getMyMap());
                 layoutMarker.setVisibility(View.GONE);
                 /*Sender.sendRequestAboutMarkers(session.getUserId(),markers,myMap);*/
 
@@ -781,4 +794,5 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
             }
         });
     }
+
 }

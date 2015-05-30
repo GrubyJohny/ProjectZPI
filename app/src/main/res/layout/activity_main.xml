@@ -12,16 +12,16 @@
         android:layout_height="50dp"
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
+        android:layout_marginRight="@dimen/activity_horizontal_margin"
         android:background="@drawable/circle_button"
-        android:clickable="true"
-        android:paddingRight="@dimen/activity_horizontal_margin" />
+        android:clickable="true" />
 
     <ImageButton
         android:id="@+id/noticeButton"
         android:layout_width="30dp"
         android:layout_height="30dp"
         android:layout_alignParentTop="true"
-        android:layout_marginRight="10dp"
+        android:layout_marginRight="20dp"
         android:layout_toLeftOf="@id/circleButton"
         android:background="@drawable/notice_button"
         android:clickable="true" />
@@ -31,40 +31,16 @@
         android:layout_width="30dp"
         android:layout_height="30dp"
         android:layout_alignParentTop="true"
-        android:layout_marginRight="10dp"
+        android:layout_marginRight="20dp"
         android:layout_toLeftOf="@id/noticeButton"
         android:background="@drawable/notice_button"
         android:clickable="true" />
-
-    <!--<Button
-        android:id="@+id/friendsButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_marginRight="30dp"
-        android:layout_toLeftOf="@id/messageButton"
-        android:clickable="true"
-        android:text="Friends" />
-
-    <Button
-        android:id="@+id/groupButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_toLeftOf="@id/friendsButton"
-        android:clickable="true"
-        android:text="Group" />-->
-
-    <!--<RelativeLayout
-        android:id="@+id/flipperLayout"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:layout_marginTop="@dimen/abc_action_bar_default_height_material">-->
 
     <LinearLayout
         android:id="@+id/tabLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
+
         <android.support.v4.app.FragmentTabHost
             android:id="@android:id/tabhost"
             android:layout_width="fill_parent"
@@ -79,121 +55,21 @@
                 <TabWidget
                     android:id="@android:id/tabs"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                    <!--<TextView
-                        android:layout_width="100dp"
-                        android:layout_height="fill_parent"
-                        android:tag="tab1"
-                        android:text="MAP"
-                        android:textSize="12sp" />-->
-
-                </TabWidget>
+                    android:layout_height="wrap_content"></TabWidget>
 
                 <FrameLayout
                     android:id="@android:id/tabcontent"
                     android:layout_width="fill_parent"
                     android:layout_height="fill_parent"
-                    android:paddingTop="3dp"
-                    >
-
-                    <!--<LinearLayout
-                        android:id="@+id/jakis"
-                        android:layout_width="fill_parent"
-                        android:layout_height="fill_parent"
-                        android:visibility="gone">
-
-                    <fragment
-                        android:id="@+id/myMapFragment"
-                        android:name="com.google.android.gms.maps.SupportMapFragment"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content">
-
-                        <include
-                            layout="@layout/fragment_additional_elements_on_map"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content" />
-
-                    </fragment>
-                    </LinearLayout>-->
-
-                    <!--<fragment
-                        android:id="@+id/placeHolderFragment"
-                        android:name="zpi.squad.app.grouploc.FriendsFragment"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content" />
-
-                    <fragment
-                        android:id="@+id/groupFragment"
-                        android:name="zpi.squad.app.grouploc.GroupFragment"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content" />-->
+                    android:paddingTop="3dp">
 
                 </FrameLayout>
 
             </LinearLayout>
 
-            <!--<fragment
-                android:id="@+id/myMapFragment"
-                android:name="com.google.android.gms.maps.MapFragment"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
-
-                <include
-                    layout="@layout/fragment_additional_elements_on_map"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
-
-            </fragment>
-
-            <fragment
-                android:id="@+id/placeHolderFragment"
-                android:name="zpi.squad.app.grouploc.FriendsFragment"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-
-            <fragment
-                android:id="@+id/groupFragment"
-                android:name="zpi.squad.app.grouploc.GroupFragment"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />-->
-
         </android.support.v4.app.FragmentTabHost>
+        -->
     </LinearLayout>
-
-    <!--<ViewFlipper
-        android:id="@+id/viewFlipper"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentStart="false"
-        android:layout_alignParentTop="true"
-        android:animateFirstView="true"
-        android:animateLayoutChanges="true">
-
-        <fragment
-            android:id="@+id/myMapFragment"
-            android:name="com.google.android.gms.maps.MapFragment"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
-
-            <include
-                layout="@layout/fragment_additional_elements_on_map"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-
-        </fragment>
-
-
-        <fragment
-            android:id="@+id/placeHolderFragment"
-            android:name="zpi.squad.app.grouploc.FriendsFragment"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-
-    </ViewFlipper>-->
-
-    <!--</RelativeLayout>-->
 
     <RelativeLayout
         android:id="@+id/settingsLayout"
@@ -209,20 +85,6 @@
             android:layout_height="wrap_content"
             tools:layout="@layout/fragment_settings" />
     </RelativeLayout>
-
-    <!--<RelativeLayout
-        android:id="@+id/groupLayout"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:layout_marginTop="@dimen/abc_action_bar_default_height_material"
-        android:visibility="invisible">
-
-        <fragment
-            android:id="@+id/groupFragment"
-            android:name="zpi.squad.app.grouploc.GroupFragment"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent" />
-    </RelativeLayout>-->
 
     <Spinner
         android:id="@+id/spinner"

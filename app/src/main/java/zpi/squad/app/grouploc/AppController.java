@@ -7,6 +7,8 @@ import android.text.TextUtils;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.model.LatLng;
 
 public class AppController extends Application {
 
@@ -15,6 +17,9 @@ public class AppController extends Application {
     private RequestQueue mRequestQueue;
 
     private static AppController mInstance;
+
+    private LatLng lastClikOnMap;
+    private GoogleMap myMap;
 
     @Override
     public void onCreate() {
@@ -48,5 +53,20 @@ public class AppController extends Application {
         if (mRequestQueue != null) {
             mRequestQueue.cancelAll(tag);
         }
+    }
+
+    public GoogleMap getMyMap() {
+        return myMap;
+    }
+
+    public void setMyMap(GoogleMap myMap) {
+        this.myMap = myMap;
+    }
+    public void setLastClikOnMap(LatLng lastClikOnMap) {
+        this.lastClikOnMap = lastClikOnMap;
+    }
+
+    public LatLng getLastClikOnMap() {
+        return lastClikOnMap;
     }
 }

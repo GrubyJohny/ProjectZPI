@@ -71,25 +71,6 @@ public class GroupFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
-
-        /*layoutFlipper = (View) getView().findViewById(R.id.flipperLayout);
-        layoutGroup = (View) getView().findViewById(R.id.groupLayout);
-
-        BackToMap = (Button) getView().findViewById(R.id.BacktoMapButton);
-
-        BackToMap.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                layoutGroup.setVisibility(View.INVISIBLE);
-                layoutFlipper.setVisibility(View.VISIBLE);
-            }
-        });*/
-
-
-
-
-
-
     }
 
     @Override
@@ -113,22 +94,6 @@ public class GroupFragment extends Fragment {
                 searchButton.setVisibility(View.VISIBLE);
             }
         });
-
-        /*layoutSettings = (View) view.findViewById(R.id.settingsLayout);
-        tabhost = (FragmentTabHost) view.findViewById(android.R.id.tabhost);
-
-        BackToMapButton = (Button) getView().findViewById(R.id.BacktoMapButton);
-
-        BackToMapButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //myViewFlipper.setDisplayedChild(0);
-                //layoutFlipper.setVisibility(View.VISIBLE);
-                //layoutGroup.setVisibility(View.INVISIBLE);
-                tabhost.setCurrentTab(0);
-                layoutSettings.setVisibility(View.INVISIBLE);
-            }
-        });*/
 
     }
 

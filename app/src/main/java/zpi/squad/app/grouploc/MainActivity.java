@@ -937,7 +937,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
             pDialog.dismiss();
     }
 
-    private void sendFriendshipAcceptance(final String senderId, final String myreceiverid, final String mysenderName, final String mysenderEmail) {
+    private void sendFriendshipAcceptance(final String senderId, final String myreceiverid, final String receiverName, final String receiverEmail) {
 
         String tag_string_req = "req_friendshipRequest";
         pDialog.setMessage("Sending friendship acceptance");
@@ -959,8 +959,8 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                     if (!error) {
 
                         Toast.makeText(getApplicationContext(), "Acceptance has been sent successfully", Toast.LENGTH_LONG).show();
-                        db.addFriend(senderId, mysenderName, mysenderEmail);
-                        FriendsFragment.addFriend(new Friend(Integer.valueOf(senderId), mysenderName, mysenderEmail));
+                        db.addFriend(myreceiverid, receiverName, receiverEmail);
+                        FriendsFragment.addFriend(new Friend(Integer.valueOf(myreceiverid), receiverName, receiverEmail));
 
 
                     } else {

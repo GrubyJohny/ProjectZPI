@@ -92,8 +92,9 @@ public class FriendsFragment extends ListFragment {
 
     public static void addFriend(Friend friend) {
 
-
-        friendList.add(new ListViewItem(friend.getFriendID(), resources.getDrawable(R.drawable.image3), friend.getFriendName(), friend.getFriendEmail()));
+        mItems.add(new ListViewItem(friend.getFriendID(), resources.getDrawable(R.drawable.image3), friend.getFriendName(), friend.getFriendEmail()));
+        friendList.notifyDataSetChanged();
+        //friendList.add(new ListViewItem(friend.getFriendID(), resources.getDrawable(R.drawable.image3), friend.getFriendName(), friend.getFriendEmail()));
     }
 
 
@@ -101,9 +102,10 @@ public class FriendsFragment extends ListFragment {
     public void onListItemClick(ListView l, View v, int position, long id) {
 
         ListViewItem item = mItems.get(position);
-        Log.d("MOJLOG", session.getUserId());
+        Log.d("MOJLOG", ""+item.uid);
 
         deleteFriendship(session.getUserId(), String.valueOf(item.uid), position);
+        Log.d("MOJLOG", String.valueOf(item.uid));
 
     }
 

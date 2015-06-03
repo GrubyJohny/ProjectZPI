@@ -10,6 +10,8 @@ import com.android.volley.toolbox.Volley;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
 
+import java.util.ArrayList;
+
 public class AppController extends Application {
 
     public static final String TAG = AppController.class.getSimpleName();
@@ -20,11 +22,13 @@ public class AppController extends Application {
 
     private LatLng lastClikOnMap;
     private GoogleMap myMap;
+    private ArrayList<CustomMarker> markers;
 
     @Override
     public void onCreate() {
         super.onCreate();
         mInstance = this;
+        markers=new ArrayList<CustomMarker>();
     }
 
     public static synchronized AppController getInstance() {
@@ -68,5 +72,14 @@ public class AppController extends Application {
 
     public LatLng getLastClikOnMap() {
         return lastClikOnMap;
+    }
+
+    public void addToMarkers(CustomMarker mark){
+        markers.add(mark);
+
+    }
+    public ArrayList<CustomMarker> getMarkers()
+    {
+        return markers;
     }
 }

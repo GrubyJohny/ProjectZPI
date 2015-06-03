@@ -40,7 +40,8 @@ public class SQLiteHandler extends SQLiteOpenHelper {
     private static final String KEY_CHECKED = "checked";
 
     //Markers Table Columns names
-    private static final String KEY_MARK_ID="markerid";
+    private static final String KEY_MARK_ID_SQLITE="markerid_internal";
+    private static final String KEY_MARK_ID_MYSQL="markerid_extrenal";
     private static final String KEY_USER_ID="uid";
     private static final String KEY_LATITUDE="latitude";
     private static final String KEY_LONGITUDE="longitude";
@@ -82,7 +83,8 @@ public class SQLiteHandler extends SQLiteOpenHelper {
 
         String CREATE_MARKERS_TABLE = "CREATE TABLE " + TABLE_MARKERS
                 + "("
-                + KEY_MARK_ID + " INTEGER PRIMARY KEY,"
+                + KEY_MARK_ID_SQLITE + " INTEGER PRIMARY KEY,"
+                +KEY_MARK_ID_MYSQL+" INTEGER,"
                 + KEY_USER_ID + " INTEGER,"
                 + KEY_LATITUDE + " DOUBLE,"
                 + KEY_LONGITUDE + " DOUBLE,"
@@ -125,14 +127,14 @@ public class SQLiteHandler extends SQLiteOpenHelper {
 
     }
 
-    public void addMarker(CustomMarker mark)
+    public long addMarker(CustomMarker mark)
     {
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
-        String markerid=mark.getMarkerId();
-        if(markerid!=null)
-            values.put(KEY_MARK_ID,markerid);
+        String markerid=mark.getMarkerIdMySQL();
+
+        values.put(KEY_MARK_ID_MYSQL,markerid);
 
         String uid=mark.getUserId();
         values.put(KEY_USER_ID, uid);
@@ -150,9 +152,11 @@ public class SQLiteHandler extends SQLiteOpenHelper {
         values.put(KEY_SAVE_ON_SERVER,hardSave);
 
         long id=db.insert(TABLE_MARKERS,null,values);
+        mark.setMarkerIdSQLite(Long.toString(id));
         db.close();
 
         Log.d(TAG, "New marker inserted into sqlite: " + id);
+        return id;
     }
 
 
@@ -306,13 +310,14 @@ public class SQLiteHandler extends SQLiteOpenHelper {
         if (cursor.moveToFirst()) {
             do {
 
-                String markerid=cursor.getString(0);
-                String uid=cursor.getString(1);
-                double latitude=cursor.getDouble(2);
-                double longitude=cursor.getDouble(3);
-                String name=cursor.getString(4);
-                boolean hardSave=(cursor.getInt(5) == 1);
-                CustomMarker customMarker = new CustomMarker(markerid,uid,latitude,longitude,name);
+                String markeridInternal=cursor.getString(0);
+                String marekerIdExternal=cursor.getColumnName(1);
+                String uid=cursor.getString(2);
+                double latitude=cursor.getDouble(3);
+                double longitude=cursor.getDouble(4);
+                String name=cursor.getString(5);
+                boolean hardSave=(cursor.getInt(6) == 1);
+                CustomMarker customMarker = new CustomMarker(marekerIdExternal,markeridInternal,uid,latitude,longitude,name);
                 customMarker.setSaveOnServer(hardSave);
                 // Adding friend to list
                 markersList.add(customMarker);

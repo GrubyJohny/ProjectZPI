@@ -48,7 +48,7 @@ public class Sender {
                         Log.d(TAG, "Wysyłanie zakończyło się sukcesem!!!");
                         String id = jObj.getString("markerid");
 
-                        cM.setMarkerId(id);
+                        cM.setMarkerIdMySQL(id);
                         m.setSnippet(id);
                         Toast.makeText(context,"Zapisano na trwałe marker z id: "+id,Toast.LENGTH_SHORT).show();
 
@@ -222,9 +222,48 @@ public class Sender {
 
             Log.d("put", "dodaje a jak" + cM.getLatitude()+","+cM.getLongitude());
         }
-       //myMap.addMarker(new MarkerOptions().position(new LatLng(51.109383,17.057973)));
+        //myMap.addMarker(new MarkerOptions().position(new LatLng(51.109383,17.057973)));
     }
 
+    public static void sendRequestAboutRemoveMarker(final String id, final GoogleMap myMap, final List<CustomMarker> markers)
+    {
+        StringRequest request=new StringRequest(Request.Method.POST,AppConfig.URL_LOGIN,new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                Log.d("DELETE MARKER", response);
+                try {
+                    JSONObject jsonObject=new JSONObject(response);
+                    boolean error=jsonObject.getBoolean("error");
+                    if(!error)
+                    {
+                        myMap.clear();
+                        putMarkersOnMapAgain(markers,myMap);
+                        Log.d("DELETE MARKER","Wszystko przebiegło zgodnie z planem");
+                    }
+                    else{
+                        Log.d("DELETE MARKER","Uwaga, niechciany bład");
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        },new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError volleyError) {
+
+            }
+        }){
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String,String> param=new HashMap<String,String>();
+                param.put("tag","delete_marker");
+                param.put("id",id);
+                return param;
+            }
+        };
+        AppController.getInstance().addToRequestQueue(request, "nowa_prosba");
+    }
 
     public static String makeStatementAboutFriendsList(ArrayList<Friend> friendsList)
     {

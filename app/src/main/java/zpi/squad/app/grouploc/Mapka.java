@@ -105,7 +105,7 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
         context = getActivity().getApplicationContext();
         db = new SQLiteHandler(getActivity().getApplicationContext());
         markers=db.getAllMarkers();
-
+        AppController.getInstance().setMarkers(markers);
         mRequestingLocationUpdates = true;
         createLocationRequest();
         buildGoogleApiClient();
@@ -367,8 +367,8 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
             }
         });
 
-        setUpMap(true);
-        setMapListener();
+
+
         setupPoiButtons();
 
         inclizaidListenerForMarkerMenu();
@@ -476,7 +476,6 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
     private void setUpMap(boolean hardSetup) {
 
         myMap = ((SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.myMapFragment)).getMap();
-        //Log.d(AppController.TAG,"my map to"+myMap);
         myMap.setMyLocationEnabled(true);
         myMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
 
@@ -528,8 +527,8 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
     public void onConnected(Bundle bundle) {
         Log.d(AppController.TAG, "Podlaczony do api service");
         mCurrentLocation= LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-        //  setUpMap(true);
-
+         setUpMap(true);
+        setMapListener();
 
         //setMapListener();
         /*if (mRequestingLocationUpdates) {
@@ -767,8 +766,11 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
                 Log.d("REMOVE_MARKER","SQLite id "+markerIdSQLITE);
                 CustomMarker toRemove = ToolsForMarkerList.getSpecificMarker(markers,markerIdSQLITE);
                 markers.remove(toRemove);
+                boolean znacznik=db.removeMarker(markerIdSQLITE);
+                Log.d("REMOVE_MARKER"," Operacja usuwania zakończyła się sukcesem"+znacznik);
                 if(toRemove.isSaveOnServer())
                 {
+                    Log.d("REMOVE_MARKER","Usuwam z serwera");
                     Sender.sendRequestAboutRemoveMarker(markerIdMySql,myMap,markers);
                 }
                 myMap.clear();

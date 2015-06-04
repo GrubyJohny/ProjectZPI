@@ -311,7 +311,7 @@ public class SQLiteHandler extends SQLiteOpenHelper {
             do {
 
                 String markeridInternal=cursor.getString(0);
-                String marekerIdExternal=cursor.getColumnName(1);
+                String marekerIdExternal=cursor.getString(1);
                 String uid=cursor.getString(2);
                 double latitude=cursor.getDouble(3);
                 double longitude=cursor.getDouble(4);
@@ -326,7 +326,31 @@ public class SQLiteHandler extends SQLiteOpenHelper {
 
         return markersList;
     }
+    public boolean removeMarker(String id)
+    {
+        Log.d("SQLite delete","Chce usunąć "+id);
+        SQLiteDatabase db = this.getWritableDatabase();
 
+        String selectQuery = "SELECT  * FROM " + TABLE_MARKERS;
+        Cursor cursor = db.rawQuery(selectQuery, null);
+        Log.d("SQLite delete","stan przed usuwaniem");
+        if (cursor.moveToFirst()) {
+            do {
+             Log.d("SQLite delete","SQLite ID "+cursor.getString(0));
+            } while (cursor.moveToNext());
+        }
+
+        boolean usun=db.delete(TABLE_MARKERS,KEY_MARK_ID_SQLITE+"="+id,null)>0;
+        Log.d("SQLite delete","stan po domniemanym  usuwaniu");
+        cursor = db.rawQuery(selectQuery, null);
+        if (cursor.moveToFirst()) {
+            do {
+                Log.d("SQLite delete","SQLite ID "+cursor.getString(0));
+            } while (cursor.moveToNext());
+        }
+
+        return usun;
+    }
     public void setNotificationChecked(){
 
 

@@ -70,7 +70,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 
@@ -154,8 +153,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     //Flaga mowiąca o tym czy chcemy monitorować lokalizację
     private boolean mRequestingLocationUpdates;
 
-    //Lista aktywnych znaczników użtkownika
-    private List<CustomMarker> markers;
+
 
     //OstatniKliknietyNaMapi
     private LatLng lastClikOnMap;
@@ -801,13 +799,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         return outputBitmap;
     }
 
-    @Override
-    protected void onDestroy() {
-        db.deleteMarkers();
 
-
-        super.onDestroy();
-    }
 
 
     /**
@@ -859,9 +851,24 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         Log.d("Marker Dialog",name);
        Log.d("Marker Dialog","myMap "+globalController.getMyMap());
        Log.d("Marker Dialog","my LatLong "+lastClikOnMap);
-        globalController.getMyMap().addMarker(new MarkerOptions().position(lastClikOnMap).draggable(true).title(name));
-        CustomMarker mark=new CustomMarker(null,session+"",lastClikOnMap.latitude,lastClikOnMap.longitude,name);
-        globalController.addToMarkers(mark);
+
+
+
+
+        CustomMarker nowyMarker=new CustomMarker(null,session.getUserId(),lastClikOnMap.latitude,lastClikOnMap.longitude,name);
+        globalController.addToMarkers(nowyMarker);
+       long id= db.addMarker(nowyMarker);
+
+       nowyMarker.setMarkerIdSQLite(Long.toString(id));
+
+       String markerIdExtrenal="NULL";
+       String markerIdInteler=Long.toString(id);
+
+       globalController.getMyMap().addMarker(new MarkerOptions().position(lastClikOnMap).draggable(true).title(name).snippet(markerIdExtrenal+","+markerIdInteler));
+
+       Log.d("ADD_MARKER",markerIdExtrenal+","+markerIdInteler);
+
+
         InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(md.getInput().getWindowToken(), 0);
 
@@ -986,6 +993,10 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
 
         AppController.getInstance().addToRequestQueue(strReq, tag_string_req);
     }
+
+
+
+
 
 
 

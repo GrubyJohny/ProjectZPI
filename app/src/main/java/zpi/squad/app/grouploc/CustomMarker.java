@@ -14,19 +14,19 @@ public class CustomMarker {
     private boolean replace;
     private boolean saveOnServer;
 
-    public CustomMarker(String markerId,String UserId,Double latitude,Double longitude,String name)
+    public CustomMarker(String mySqlID,String UserId,Double latitude,Double longitude,String name)
     {
-        this.markerIdMySQL =markerId;
+        this.markerIdMySQL =mySqlID;
         this.UserId=UserId;
         this.latitude=latitude;
         this.longitude=longitude;
         this.name=name;
 
     }
-    public CustomMarker(String markerIdMySQL,String markerId,String UserId,Double latitude,Double longitude,String name)
+    public CustomMarker(String markerIdMySQL,String sqlLiteID,String UserId,Double latitude,Double longitude,String name)
     {
         this.markerIdMySQL=markerIdMySQL;
-        this.markerIdMySQL =markerId;
+        this.markerIdSQLite =sqlLiteID;
         this.UserId=UserId;
         this.latitude=latitude;
         this.longitude=longitude;

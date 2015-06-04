@@ -39,18 +39,26 @@ public class Sender {
             public void onResponse(String response) {
 
                 String TAG = "Sending markers";
-                Log.d(TAG, response.toString());
+                Log.d(TAG, "Odpowiedź "+response);
                 try{
                     JSONObject jObj = new JSONObject(response);
 
                     boolean error = jObj.getBoolean("error");
                     if(!error) {
+                        String mySqlID=jObj.getString("markerid");
                         Log.d(TAG, "Wysyłanie zakończyło się sukcesem!!!");
-                        String id = jObj.getString("markerid");
+
+                        Log.d("PUT", "mySqlID ustawiony dla tej instancji customMarkera to "+mySqlID);
+                        String markerIdExtrenal=(mySqlID==null||mySqlID.equals(""))?"NULL":mySqlID;
+                        String sqliteID=cM.getMarkerIdSQLite();
+                        Log.d("PUT", "sqLiteID ustawiony dla tej instancji customMarkera to "+sqliteID);
+                        String markerIdInteler=(sqliteID==null||sqliteID.equals(""))? "NULL":sqliteID;
+                        String snippet=markerIdExtrenal+","+markerIdInteler;
 
                         cM.setMarkerIdMySQL(id);
-                        m.setSnippet(id);
-                        Toast.makeText(context,"Zapisano na trwałe marker z id: "+id,Toast.LENGTH_SHORT).show();
+                        cM.setSaveOnServer(true);
+                        m.setSnippet(snippet);
+                        Toast.makeText(context,"Zapisano na trwałe marker z id: "+mySqlID,Toast.LENGTH_SHORT).show();
 
                     }
                     else
@@ -58,7 +66,8 @@ public class Sender {
 
 
                 }catch(Exception e){
-
+                    e.printStackTrace();
+                Log.d("big error","Wyłapałem błędem w łep");
                 }
 
 
@@ -218,9 +227,16 @@ public class Sender {
     {
         for(CustomMarker cM:markers)
         {
-            myMap.addMarker(new MarkerOptions().position(new LatLng(cM.getLatitude(), cM.getLongitude())).title(cM.getUserId()));
+            String mySqlID=cM.getMarkerIdMySQL();
+            Log.d("PUT", "mySqlID ustawiony dla tej instancji customMarkera to "+mySqlID);
+            String markerIdExtrenal=(mySqlID==null||mySqlID.equals(""))?"NULL":mySqlID;
+            String sqliteID=cM.getMarkerIdSQLite();
+            Log.d("PUT", "sqLiteID ustawiony dla tej instancji customMarkera to "+sqliteID);
+            String markerIdInteler=(sqliteID==null||sqliteID.equals(""))? "NULL":sqliteID;
+            String snippet=markerIdExtrenal+","+markerIdInteler;
+            myMap.addMarker(new MarkerOptions().position(new LatLng(cM.getLatitude(), cM.getLongitude())).title(cM.getName()).snippet(snippet));
 
-            Log.d("put", "dodaje a jak" + cM.getLatitude()+","+cM.getLongitude());
+            Log.d("PUT", "Snippet ustawiony dla tej instancji customMarkera to "+snippet);
         }
         //myMap.addMarker(new MarkerOptions().position(new LatLng(51.109383,17.057973)));
     }

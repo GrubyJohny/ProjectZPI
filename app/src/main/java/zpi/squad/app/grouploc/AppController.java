@@ -3,14 +3,13 @@ package zpi.squad.app.grouploc;
 import android.app.Application;
 import android.text.TextUtils;
 
-
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
 
-import java.util.ArrayList;
+import java.util.List;
 
 public class AppController extends Application {
 
@@ -22,13 +21,13 @@ public class AppController extends Application {
 
     private LatLng lastClikOnMap;
     private GoogleMap myMap;
-    private ArrayList<CustomMarker> markers;
+    private List<CustomMarker> markers;
 
     @Override
     public void onCreate() {
         super.onCreate();
         mInstance = this;
-        markers=new ArrayList<CustomMarker>();
+
     }
 
     public static synchronized AppController getInstance() {
@@ -78,7 +77,10 @@ public class AppController extends Application {
         markers.add(mark);
 
     }
-    public ArrayList<CustomMarker> getMarkers()
+    public void setMarkers(List<CustomMarker> markers){
+        this.markers=markers;
+    }
+    public List<CustomMarker> getMarkers()
     {
         return markers;
     }

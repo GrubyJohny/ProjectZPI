@@ -752,7 +752,7 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
                 if(name==null)
                     name="brak";
 
-                Sender.sendMarker(getActivity().getApplicationContext(),uid,latitude,longitude,name,custom,ostatniMarker);
+                Sender.sendMarker(getActivity().getApplicationContext(),custom,ostatniMarker,db);
             }
         });
         fourthMarkerButton.setOnClickListener(new View.OnClickListener() {

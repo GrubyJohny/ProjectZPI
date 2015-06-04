@@ -281,6 +281,8 @@ public class LoginActivity extends Activity {
 
 
                         getUserInfo(uid);
+                        AppController global=AppController.getInstance();
+                      //  Sender.sendRequestAboutMarkers(uid,global.getMarkers(),global.getMyMap());
 
 
                     } else {
@@ -406,6 +408,26 @@ public class LoginActivity extends Activity {
 
                             db.addNotification(senderId, senderName, senderEmail, receiverId, type, messageId, groupId, createdAt, 0);
                         }
+
+                        JSONArray markersArray=jObj.getJSONArray("markers");
+                        for(int i=0;i<markersArray.length();i++)
+
+                        {
+                            Log.d(TAG,"a jjajajjajjjjajajaj");
+                            JSONObject marker=markersArray.getJSONObject(i);
+                            int markerid=marker.getInt("markerid");
+                            uid= Integer.toString(marker.getInt("uid"));
+                            double latitude=marker.getDouble("latitude");
+                            double longitude=marker.getDouble("longitude");
+                            name=marker.getString("name");
+                            CustomMarker customMarker =new CustomMarker(markerid+"",uid+"",latitude,longitude,name);
+                            customMarker.setSaveOnServer(true);
+                            long SQLiteID=db.addMarker(customMarker);
+                            customMarker.setMarkerIdSQLite(Long.toString(SQLiteID));
+                            AppController.getInstance().addToMarkers(customMarker);
+                        }
+
+                 
 
                         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                         startActivity(intent);

@@ -535,7 +535,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
 
     public void logOut(AdapterView.OnItemSelectedListener view) {
 
-        stopLocationUpdates();
+        //stopLocationUpdates();
 
         session.logOut();
 

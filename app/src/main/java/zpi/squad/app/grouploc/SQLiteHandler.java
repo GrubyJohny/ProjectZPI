@@ -356,4 +356,14 @@ public class SQLiteHandler extends SQLiteOpenHelper {
 
     }
 
+    public boolean updateExternalId(String sqlLite,String mySqlID)
+    {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues uv=new ContentValues();
+        uv.put(KEY_MARK_ID_MYSQL,mySqlID);
+        uv.put(KEY_SAVE_ON_SERVER,true);
+        int numberOfEfectet=db.update(TABLE_MARKERS,uv,KEY_MARK_ID_SQLITE+"="+sqlLite,null);
+        return numberOfEfectet>0;
+    }
+
 }

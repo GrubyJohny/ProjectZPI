@@ -33,7 +33,7 @@ import java.util.Map;
  */
 public class Sender {
 
-    public static void sendMarker(final Context context,final String id, final double latitude, final double longitude, final String name,final CustomMarker cM,final Marker m) {
+    public static void sendMarker(final Context context,final CustomMarker cM,final Marker m,final SQLiteHandler db) {
         StringRequest request = new StringRequest(Request.Method.POST, AppConfig.URL_LOGIN, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
@@ -55,9 +55,10 @@ public class Sender {
                         String markerIdInteler=(sqliteID==null||sqliteID.equals(""))? "NULL":sqliteID;
                         String snippet=markerIdExtrenal+","+markerIdInteler;
 
-                        cM.setMarkerIdMySQL(id);
+                        cM.setMarkerIdMySQL(mySqlID);
                         cM.setSaveOnServer(true);
                         m.setSnippet(snippet);
+                        db.updateExternalId(cM.getMarkerIdSQLite(),mySqlID);
                         Toast.makeText(context,"Zapisano na trwałe marker z id: "+mySqlID,Toast.LENGTH_SHORT).show();
 
                     }
@@ -105,10 +106,10 @@ public class Sender {
             protected Map<String, String> getParams() {
                 Map<String, String> params = new HashMap<>();
                 params.put("tag", "nowy_marker");
-                params.put("id", id);
-                params.put("latitude", latitude + "");
-                params.put("longitude", longitude + "");
-                params.put("name",name);
+                params.put("id", cM.getUserId());
+                params.put("latitude",Double.toString(cM.getLatitude()));
+                params.put("longitude",Double.toString(cM.getLongitude()));
+                params.put("name",cM.getName());
 
                 return params;
             }
@@ -130,7 +131,7 @@ public class Sender {
                 forResult.clear();
                 try {
                     JSONObject jObj=new JSONObject(response);
-                    JSONArray markersArray=jObj.getJSONArray("notifications");
+                    JSONArray markersArray=jObj.getJSONArray("markers");
                     for(int i=0;i<markersArray.length();i++)
                     {
                         JSONObject marker=markersArray.getJSONObject(i);

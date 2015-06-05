@@ -215,7 +215,7 @@ public class LoginActivity extends Activity {
         String imageURL;
 
         Bitmap bitmap = null;
-        imageURL = "https://graph.facebook.com/" + userID + "/picture?width=200&length=200";
+        imageURL = "https://graph.facebook.com/" + userID + "/picture?width=300&length=300";
         InputStream in = (InputStream) new URL(imageURL).getContent();
         bitmap = BitmapFactory.decodeStream(in);
 

@@ -15,10 +15,10 @@
             android:id="@+id/circleButton"
             android:layout_width="50dp"
             android:layout_height="50dp"
-            android:layout_marginTop="5dp"
-            android:layout_marginBottom="5dp"
             android:layout_alignParentRight="true"
+            android:layout_marginBottom="5dp"
             android:layout_marginRight="@dimen/activity_horizontal_margin"
+            android:layout_marginTop="5dp"
             android:background="@drawable/circle_button"
             android:clickable="true" />
 
@@ -26,8 +26,8 @@
             android:id="@+id/noticeButton"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:layout_marginRight="20dp"
             android:layout_centerVertical="true"
+            android:layout_marginRight="20dp"
             android:layout_toLeftOf="@id/circleButton"
             android:background="@drawable/notice_button"
             android:clickable="true" />
@@ -36,8 +36,8 @@
             android:id="@+id/messageButton"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:layout_marginRight="20dp"
             android:layout_centerVertical="true"
+            android:layout_marginRight="20dp"
             android:layout_toLeftOf="@id/noticeButton"
             android:background="@drawable/notice_button"
             android:clickable="true" />
@@ -61,15 +61,16 @@
                 android:orientation="vertical">
 
                 <LinearLayout
+                    android:id="@+id/tabss"
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
                     android:background="@color/panel">
 
-                <TabWidget
-                    android:id="@android:id/tabs"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="bottom"/>
+                    <TabWidget
+                        android:id="@android:id/tabs"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="bottom" />
 
                 </LinearLayout>
 
@@ -107,8 +108,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
-        android:layout_marginTop="55dp"
         android:layout_below="@id/panelLayout"
+        android:layout_marginTop="55dp"
         android:visibility="invisible" />
 
     <Spinner
@@ -135,7 +136,9 @@
         android:layout_height="wrap_content"
         android:background="@color/background_material_light"
         android:orientation="vertical"
-        android:visibility="invisible">
+        android:visibility="invisible"
+        android:divider="@drawable/divider"
+        android:showDividers="middle">
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -164,31 +167,44 @@
 
             <Button
                 android:id="@+id/firstButton"
-                android:layout_width="50dp"
-                android:layout_height="wrap_content"
+                android:layout_width="45dp"
+                android:layout_height="45dp"
                 android:clickable="true"
-                android:text="A" />
+                android:background="@drawable/polyline" />
+            <View
+                android:layout_width="1dp"
+                android:layout_height="match_parent"
+                android:background="#f6f6f6" />
 
             <Button
                 android:id="@+id/secondButton"
-                android:layout_width="50dp"
-                android:layout_height="wrap_content"
+                android:layout_width="48dp"
+                android:layout_height="45dp"
                 android:clickable="true"
-                android:text="B" />
+                android:background="@drawable/navigation" />
+
+            <View
+                android:layout_width="1dp"
+                android:layout_height="match_parent"
+                android:background="#f6f6f6" />
 
             <Button
                 android:id="@+id/thirdButton"
-                android:layout_width="50dp"
-                android:layout_height="wrap_content"
-                android:clickable="true"
-                android:text="C" />
+                android:layout_width="51dp"
+                android:layout_height="51dp"
+                android:background="@drawable/checkmark"
+                android:clickable="true" />
+            <View
+                android:layout_width="1dp"
+                android:layout_height="match_parent"
+                android:background="#f6f6f6" />
 
             <Button
                 android:id="@+id/fourthButton"
                 android:layout_width="50dp"
-                android:layout_height="wrap_content"
+                android:layout_height="50dp"
                 android:clickable="true"
-                android:text="D" />
+                android:background="@drawable/delete"/>
         </LinearLayout>
 
     </LinearLayout>

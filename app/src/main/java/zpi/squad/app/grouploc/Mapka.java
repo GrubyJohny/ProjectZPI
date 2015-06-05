@@ -83,6 +83,7 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
 
     private Marker ostatniMarker;
     private View layoutMarker;
+    private View tabs;
 
 
     private List<CustomMarker> markers;
@@ -107,6 +108,9 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
     private static final CharSequence[] MAP_TYPE_ITEMS =
             {"Road Map", "Hybrid", "Satellite", "Terrain"};
 
+    int width;
+    int height;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -114,6 +118,7 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
         //res = getResources();
 
         layoutMarker = (View) getActivity().findViewById(R.id.markerLayout);
+        tabs = (View) getActivity().findViewById(R.id.tabss);
         context = getActivity().getApplicationContext();
         globalVariable = (AppController) getActivity().getApplicationContext();
         db = new SQLiteHandler(getActivity().getApplicationContext());
@@ -128,6 +133,9 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
         mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
 
         session = new SessionManager(getActivity().getApplicationContext());
+
+        width = context.getResources().getDisplayMetrics().widthPixels;
+        height = context.getResources().getDisplayMetrics().heightPixels;
     }
 
     private void setupPoiButtons() {
@@ -179,9 +187,11 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
             @Override
             public void onClick(View v) {
                 if (globalVariable.getMyMap().getMapType() == GoogleMap.MAP_TYPE_HYBRID) {
+                    layoutMarker.setBackgroundColor(Color.LTGRAY);
                     globalVariable.getMyMap().setMapType(GoogleMap.MAP_TYPE_NORMAL);
                     changeMapTypeButton.setText("Hybrid");
                 } else {
+                    layoutMarker.setBackgroundColor(Color.parseColor("#EEEEEE"));
                     globalVariable.getMyMap().setMapType(GoogleMap.MAP_TYPE_HYBRID);
                     changeMapTypeButton.setText("Normal");
                 }
@@ -453,7 +463,7 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
                 globalVariable.setLastClikOnMap(latLng);
                 MarkerDialog markerDialog = new MarkerDialog();
                 markerDialog.show(getChildFragmentManager(), "Marker Dialog");
-                /*//Ca³a procedura dodania nowego markera
+                /*//Caï¿½a procedura dodania nowego markera
                 CustomMarker nowyMarker=new CustomMarker(latLng.latitude,latLng.longitude,"narazie brak");
                 long id= db.addMarker(nowyMarker);
                 nowyMarker.setMarkerIdSQLite(Long.toString(id));
@@ -551,8 +561,12 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
             @Override
             public void onCameraChange(CameraPosition position) {
                 if (ostatniMarker != null) {
-                    layoutMarker.setX((float) globalVariable.getMyMap().getProjection().toScreenLocation(ostatniMarker.getPosition()).x - layoutMarker.getWidth() / 2);
-                    layoutMarker.setY((float) globalVariable.getMyMap().getProjection().toScreenLocation(ostatniMarker.getPosition()).y - layoutMarker.getHeight() + 180);
+                    if (/*layoutMarker.getX() < 0 || */layoutMarker.getY() < (tabs.getY() + tabs.getMeasuredHeight()*2) /*|| layoutMarker.getX() + layoutMarker.getWidth() > width || layoutMarker.getY() + layoutMarker.getHeight() > height*/) {
+                        layoutMarker.setVisibility(View.GONE);
+                    } else {
+                        layoutMarker.setX((float) globalVariable.getMyMap().getProjection().toScreenLocation(ostatniMarker.getPosition()).x - layoutMarker.getWidth() / 2);
+                        layoutMarker.setY((float) globalVariable.getMyMap().getProjection().toScreenLocation(ostatniMarker.getPosition()).y - layoutMarker.getHeight() + 180);
+                    }
                 }
                 getActivity().findViewById(R.id.POIButtons).setVisibility(View.GONE);
                 //addItemsToMap(markers);
@@ -580,13 +594,13 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
     }
 
     /*
-        //Startujemy nas³uchiwanie zmian lokacji
+        //Startujemy nasï¿½uchiwanie zmian lokacji
         protected void startLocationUpdates() {
             LocationServices.FusedLocationApi
                     .requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
         }
 
-        //Zatrzymujemy nas³uchiwanie o zmianach lokacji
+        //Zatrzymujemy nasï¿½uchiwanie o zmianach lokacji
         protected void stopLocationUpdates() {
             LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
         }
@@ -616,9 +630,9 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
         HttpURLConnection urlConnection = null;
         try {
             URL url = new URL(strUrl);
-            //Tworzymy po³êczenie przez protokó³ http, ¿eby po³¹czyæ sie z adresem url
+            //Tworzymy poï¿½ï¿½czenie przez protokï¿½ http, ï¿½eby poï¿½ï¿½czyï¿½ sie z adresem url
             urlConnection = (HttpURLConnection) url.openConnection();
-            //£¹czymy siê z nim
+            //ï¿½ï¿½czymy siï¿½ z nim
             urlConnection.connect();
 
             //No to teraz zczytujemy dane
@@ -642,7 +656,7 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
     }
 
     private class DownloadTask extends AsyncTask<String, Void, String> {
-        //Pobieranie danych w innym w¹tku ni¿ ten opowiedzialny za wyœwietlanie grafiki
+        //Pobieranie danych w innym wï¿½tku niï¿½ ten opowiedzialny za wyï¿½wietlanie grafiki
         @Override
         protected String doInBackground(String... url) {
 
@@ -656,18 +670,18 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
             return data;
         }
 
-        //Zrób w w¹tku wyœwitlaj¹cym grafikê, potym jak wykonasz doInBackground
+        //Zrï¿½b w wï¿½tku wyï¿½witlajï¿½cym grafikï¿½, potym jak wykonasz doInBackground
         @Override
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
             ParseTask parseTask = new ParseTask();
-            //wystartuj w¹tek przetwrzaj¹cy obiekt JSON
+            //wystartuj wï¿½tek przetwrzajï¿½cy obiekt JSON
             parseTask.execute(result);
         }
     }
 
     private class ParseTask extends AsyncTask<String, Integer, List<List<HashMap<String, String>>>> {
-        //Przetwrzanie danych w w¹tku innym ni¿ ten odpowiedzialny za wyœwietlanie grafiki
+        //Przetwrzanie danych w wï¿½tku innym niï¿½ ten odpowiedzialny za wyï¿½wietlanie grafiki
         @Override
         protected List<List<HashMap<String, String>>> doInBackground(String... jsonData) {
             JSONObject jObject;
@@ -675,7 +689,7 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
             try {
                 jObject = new JSONObject(jsonData[0]);
                 DirectionsJSONParser parser = new DirectionsJSONParser();
-                //Zacznij ekstrachowaæ dane
+                //Zacznij ekstrachowaï¿½ dane
                 routes = parser.parse(jObject);
 
             } catch (Exception e) {
@@ -684,7 +698,7 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
             return routes;
         }
 
-        //Wykonaj w w¹tku graficznym po wykonaniu metody doInBackground
+        //Wykonaj w wï¿½tku graficznym po wykonaniu metody doInBackground
         @Override
         protected void onPostExecute(List<List<HashMap<String, String>>> result) {
             ArrayList<LatLng> points = null;
@@ -696,7 +710,7 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
                 Toast.makeText(getActivity().getBaseContext(), "No Points", Toast.LENGTH_SHORT).show();
                 return;
             }
-            //Odpowidzanie wszytkich mo¿liwych tras
+            //Odpowidzanie wszytkich moï¿½liwych tras
             for (int i = 0; i < result.size(); i++) {
                 points = new ArrayList<LatLng>();
                 lineOptions = new PolylineOptions();
@@ -709,7 +723,7 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
                         distance = point.get("disance");
                         continue;
                     } else if (j == 1) {
-                        //Zczytaj czas podró¿y
+                        //Zczytaj czas podrï¿½y
                         duration = point.get("duration");
                         continue;
                     }
@@ -718,7 +732,7 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
                     LatLng position = new LatLng(lat, lng);
                     points.add(position);
                 }
-                //Dodanie wszystkich punktów na drodze do LineOptions
+                //Dodanie wszystkich punktï¿½w na drodze do LineOptions
                 lineOptions.addAll(points);
                 lineOptions.width(8);
                 lineOptions.color(Color.BLUE);
@@ -732,18 +746,18 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
 
 
     private String getDirectionUrl(LatLng origin, LatLng dest) {
-        //Sk¹d wyruszamy
+        //Skï¿½d wyruszamy
         String str_origin = "origin=" + origin.latitude + "," + origin.longitude;
 
         //Quo vadis
         String str_dest = "destination=" + dest.latitude + "," + dest.longitude;
         //Sensor enabled
         String sensor = "sensor=false";
-        //Sk³adanie w ca³oœæ, aby móc przekazaæ to web service
+        //Skï¿½adanie w caï¿½oï¿½ï¿½, aby mï¿½c przekazaï¿½ to web service
         String parameters = str_origin + "&" + str_dest + "&" + sensor;
         //Definiowanie formatu wyniku
         String output = "json";
-        //Z³o¿enie koñcowego ³añcucha URL, mo¿e pocz¹tek tego url warto zapisaæ jako sta³¹?
+        //Zï¿½oï¿½enie koï¿½cowego ï¿½aï¿½cucha URL, moï¿½e poczï¿½tek tego url warto zapisaï¿½ jako staï¿½ï¿½?
         String url = "http://maps.googleapis.com/maps/api/directions/" + output + "?" + parameters;
         return url;
     }
@@ -752,7 +766,7 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
         firstMarkerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d(AppController.TAG, "odebra³em zdarzenie");
+                Log.d(AppController.TAG, "odebraï¿½em zdarzenie");
                 double latitude = mCurrentLocation.getLatitude();
                 double longitude = mCurrentLocation.getLongitude();
                 LatLng origin = new LatLng(latitude, longitude);
@@ -762,7 +776,7 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
                 String url = getDirectionUrl(origin, dest);
                 DownloadTask downloadTask = new DownloadTask();
                 layoutMarker.setVisibility(View.GONE);
-                //no to zaczynamy zabawê
+                //no to zaczynamy zabawï¿½
                 downloadTask.execute(url);
             }
         });
@@ -795,7 +809,7 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
                     name = "brak";
                 layoutMarker.setVisibility(View.GONE);
 
-                Sender.sendMarker(getActivity().getApplicationContext(),custom,ostatniMarker,db);
+                Sender.sendMarker(getActivity().getApplicationContext(), custom, ostatniMarker, db);
             }
         });
         fourthMarkerButton.setOnClickListener(new View.OnClickListener() {
@@ -810,7 +824,7 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
                 CustomMarker toRemove = ToolsForMarkerList.getSpecificMarker(markers, markerIdSQLITE);
                 markers.remove(toRemove);
                 boolean znacznik = db.removeMarker(markerIdSQLITE);
-                Log.d("REMOVE_MARKER", " Operacja usuwania zakoñczy³a siê sukcesem" + znacznik);
+                Log.d("REMOVE_MARKER", " Operacja usuwania zakoï¿½czyï¿½a siï¿½ sukcesem" + znacznik);
                 if (toRemove.isSaveOnServer()) {
                     Log.d("REMOVE_MARKER", "Usuwam z serwera");
                     Sender.sendRequestAboutRemoveMarker(markerIdMySql, globalVariable.getMyMap(), markers);

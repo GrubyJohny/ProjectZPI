@@ -274,7 +274,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
 
         //w razie gdyby nie byĹ‚o jeszcze ĹĽadnego naszego zdjÄ™cia, to johny lÄ…duje na profilowym
         if (icon == null)
-            icon = BitmapFactory.decodeResource(getResources(), R.drawable.coffee);
+            icon = BitmapFactory.decodeResource(getResources(), R.drawable.image3);
 
         Bitmap bMapScaled = Bitmap.createScaledBitmap(icon, 150, 150, true);
         Bitmap bitmap_round = clipBitmap(bMapScaled);
@@ -366,7 +366,8 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         confirm.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //layoutFlipper.setVisibility(View.VISIBLE);
+                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(tabhost.getApplicationWindowToken(), 0);
                 layoutSettings.setVisibility(View.INVISIBLE);
                 tabLayout.setVisibility(View.VISIBLE);
 
@@ -385,23 +386,15 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                         String data = FACEBOOK_PROFILE_IMAGE;
 
                         FileInputStream in = new FileInputStream(new File(data));
-                        boolean result = con.storeFile("/"+session.getUserId()+".png", in);
+                        boolean result = con.storeFile("/" + session.getUserId() + ".png", in);
                         in.close();
                         if (result) Log.v("moj upload", "succeeded");
                         con.logout();
                         con.disconnect();
                     }
-                }
-                catch(Exception e)
-                {
+                } catch (Exception e) {
                     Log.e("ERROR FTP", e.getMessage());
                 }
-
-
-
-
-
-
 
 
             }
@@ -412,7 +405,8 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         cancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //layoutFlipper.setVisibility(View.VISIBLE);
+                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(tabhost.getApplicationWindowToken(), 0);
                 layoutSettings.setVisibility(View.INVISIBLE);
                 tabLayout.setVisibility(View.VISIBLE);
             }

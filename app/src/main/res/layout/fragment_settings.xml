@@ -22,68 +22,86 @@
         android:orientation="vertical">
 
         <RelativeLayout
-            android:layout_width="fill_parent"
+            android:layout_width="match_parent"
             android:layout_height="fill_parent">
 
             <TextView
                 android:id="@+id/changeImgText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
                 android:text="Change avatar"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:textSize="10pt" />
+        </RelativeLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
             <Button
                 android:id="@+id/changeImgFromGalleryButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentTop="true"
-                android:layout_toEndOf="@+id/passwordChange"
+                android:layout_centerInParent="true"
+                android:layout_weight="0.5"
                 android:text="From gallery" />
 
             <Button
                 android:id="@+id/changeImgFromCameraButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentTop="true"
-                android:layout_toEndOf="@+id/changeImgFromGalleryButton"
+                android:layout_centerInParent="true"
+                android:layout_weight="0.5"
                 android:text="Take photo" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="5dp">
 
             <TextView
                 android:id="@+id/passwordChange"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/changeImgFromGalleryButton"
-                android:text="New Password"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
+                android:text="New password"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:textSize="10pt"
+                android:gravity="center"/>
 
             <EditText
                 android:id="@+id/passwordChangeEdit"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_alignTop="@+id/passwordChange"
-                android:layout_toEndOf="@+id/passwordChange2"
                 android:ems="10"
-                android:inputType="textPassword" />
+                android:inputType="textPassword"
+                android:elegantTextHeight="false"
+                android:singleLine="false" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="5dp">
 
             <TextView
                 android:id="@+id/passwordChange2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentStart="true"
-                android:layout_below="@+id/passwordChangeEdit"
                 android:text="New password again"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
+                android:textSize="10pt"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:gravity="center"/>
 
             <EditText
                 android:id="@+id/passwordChangeEdit2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/passwordChangeEdit"
-                android:layout_toRightOf="@id/passwordChange2"
                 android:ems="10"
                 android:inputType="textPassword" />
 
-        </RelativeLayout>
+        </LinearLayout>
 
     </LinearLayout>
 

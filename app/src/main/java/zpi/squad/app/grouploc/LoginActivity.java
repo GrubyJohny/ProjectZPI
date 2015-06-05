@@ -73,7 +73,6 @@ public class LoginActivity extends Activity {
     List<String> permissions;
 
 
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
 
@@ -147,17 +146,17 @@ public class LoginActivity extends Activity {
         loginButton.registerCallback(this.callbackManager, _mcallbackLogin);
     }
 
-    public final  FacebookCallback<LoginResult> _mcallbackLogin =    new FacebookCallback<LoginResult>() {
+    public final FacebookCallback<LoginResult> _mcallbackLogin = new FacebookCallback<LoginResult>() {
         @Override
         public void onSuccess(final LoginResult loginResult) {
 
-            if(loginResult.getAccessToken() != null){
-                Log.i("TAG", "LoginButton FacebookCallback onSuccess token : "+ loginResult.getAccessToken().getToken());
+            if (loginResult.getAccessToken() != null) {
+                Log.i("TAG", "LoginButton FacebookCallback onSuccess token : " + loginResult.getAccessToken().getToken());
                 GraphRequest.newMeRequest(AccessToken.getCurrentAccessToken(), new GraphRequest.GraphJSONObjectCallback() {
                     @Override
                     public void onCompleted(JSONObject object, GraphResponse response) {
                         if (null != object) {
-                            Log.e("TAG", object.optString("name").toString() + " " + object.optString("first_name").toString()+" "+object.optString("email").toString());
+                            Log.e("TAG", object.optString("name").toString() + " " + object.optString("first_name").toString() + " " + object.optString("email").toString());
                             facebookUserName = object.optString("name").toString();
                             facebookUserEmail = object.optString("email").toString();
                             facebookUserId = loginResult.getAccessToken().getUserId();
@@ -207,18 +206,16 @@ public class LoginActivity extends Activity {
 
         @Override
         public void onError(FacebookException exception) {
-            Log.e("TAG","Exception:: "+exception.getStackTrace());
+            Log.e("TAG", "Exception:: " + exception.getStackTrace());
         }
     };
 
 
-
-    public static Bitmap getFacebookProfilePicture(String userID) throws SocketException, SocketTimeoutException, MalformedURLException, IOException, Exception
-    {
+    public static Bitmap getFacebookProfilePicture(String userID) throws SocketException, SocketTimeoutException, MalformedURLException, IOException, Exception {
         String imageURL;
 
         Bitmap bitmap = null;
-        imageURL = "https://graph.facebook.com/"+userID+"/picture?width=200&length=200";
+        imageURL = "https://graph.facebook.com/" + userID + "/picture?width=200&length=200";
         InputStream in = (InputStream) new URL(imageURL).getContent();
         bitmap = BitmapFactory.decodeStream(in);
 
@@ -226,8 +223,7 @@ public class LoginActivity extends Activity {
     }
 
 
-    public static String fromStream(InputStream in) throws IOException
-    {
+    public static String fromStream(InputStream in) throws IOException {
         Log.d("STRIM", in.toString());
         BufferedReader reader = new BufferedReader(new InputStreamReader(in));
         StringBuilder out = new StringBuilder();
@@ -239,6 +235,7 @@ public class LoginActivity extends Activity {
         }
         return out.toString();
     }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -281,6 +278,8 @@ public class LoginActivity extends Activity {
 
 
                         getUserInfo(uid);
+                        AppController globalVariable = AppController.getInstance();
+                        //  Sender.sendRequestAboutMarkers(uid,globalVariable.getMarkers(),globalVariable.getMyMap());
 
 
                     } else {
@@ -301,8 +300,8 @@ public class LoginActivity extends Activity {
                 Log.e(TAG, "Login Error: " + error.toString());
 
                 Toast.makeText(getApplicationContext(),
-                                                error.getMessage(), Toast.LENGTH_LONG).show();
-                                hideDialog();
+                        error.getMessage(), Toast.LENGTH_LONG).show();
+                hideDialog();
 
             }
         }) {
@@ -355,7 +354,7 @@ public class LoginActivity extends Activity {
                         String uid;
                         String name;
                         String email;
-                        for(int i=0; i<array.length(); i++){
+                        for (int i = 0; i < array.length(); i++) {
                             friendObj = array.getJSONObject(i);
                             uid = friendObj.getString("uid");
                             name = friendObj.getString("name");
@@ -375,7 +374,7 @@ public class LoginActivity extends Activity {
                         String groupId;
                         String createdAt;
 
-                        for(int i=0; i<array2.length(); i++){
+                        for (int i = 0; i < array2.length(); i++) {
                             oldNotObj = array2.getJSONObject(i);
                             senderId = oldNotObj.getString("senderid");
                             senderName = oldNotObj.getString("senderName");
@@ -393,7 +392,7 @@ public class LoginActivity extends Activity {
                         JSONObject notObj;
 
 
-                        for(int i=0; i<array3.length(); i++){
+                        for (int i = 0; i < array3.length(); i++) {
                             notObj = array3.getJSONObject(i);
                             senderId = notObj.getString("senderid");
                             senderName = notObj.getString("senderName");
@@ -405,6 +404,24 @@ public class LoginActivity extends Activity {
                             createdAt = notObj.getString("created_at");
 
                             db.addNotification(senderId, senderName, senderEmail, receiverId, type, messageId, groupId, createdAt, 0);
+                        }
+
+                        JSONArray markersArray = jObj.getJSONArray("markers");
+                        for (int i = 0; i < markersArray.length(); i++)
+
+                        {
+                            Log.d(TAG, "a jjajajjajjjjajajaj");
+                            JSONObject marker = markersArray.getJSONObject(i);
+                            int markerid = marker.getInt("markerid");
+                            uid = Integer.toString(marker.getInt("uid"));
+                            double latitude = marker.getDouble("latitude");
+                            double longitude = marker.getDouble("longitude");
+                            name = marker.getString("name");
+                            CustomMarker customMarker = new CustomMarker(markerid + "", uid + "", latitude, longitude, name);
+                            customMarker.setSaveOnServer(true);
+                            long SQLiteID = db.addMarker(customMarker);
+                            customMarker.setMarkerIdSQLite(Long.toString(SQLiteID));
+                            AppController.getInstance().addToMarkers(customMarker);
                         }
 
                         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
@@ -517,7 +534,7 @@ public class LoginActivity extends Activity {
                 } else if (error instanceof ParseError) {
                     Log.d("ParseError>>>>>>>>>", "ParseError.......");
 
-                }else if (error instanceof TimeoutError) {
+                } else if (error instanceof TimeoutError) {
                     Log.d("TimeoutError>>>>>>>>>", "TimeoutError.......");
 
                 }

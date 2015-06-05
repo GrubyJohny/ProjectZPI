@@ -5,7 +5,8 @@ package zpi.squad.app.grouploc;
  */
 public class CustomMarker {
 
-    private String markerId;
+    private String markerIdMySQL;
+    private String markerIdSQLite;
     private String UserId;
     private double latitude;
     private double longitude;
@@ -13,24 +14,43 @@ public class CustomMarker {
     private boolean replace;
     private boolean saveOnServer;
 
-    public CustomMarker(String markerId,String UserId,Double latitude,Double longitude,String name)
-    {
-        this.markerId=markerId;
-        this.UserId=UserId;
-        this.latitude=latitude;
-        this.longitude=longitude;
-        this.name=name;
+    public CustomMarker(String mySqlID,String UserId,Double latitude,Double longitude,String name) {
+        this.markerIdMySQL = mySqlID;
+        this.UserId = UserId;
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.name = name;
 
     }
-    public CustomMarker(String UserId,Double latitude,Double longitude)
-    {
-        this.UserId=UserId;
-        this.latitude=latitude;
-        this.longitude=longitude;
+
+    public CustomMarker(String markerIdMySQL, String sqlLiteID, String UserId, Double latitude, Double longitude, String name) {
+        this.markerIdMySQL = markerIdMySQL;
+        this.markerIdSQLite =sqlLiteID;
+        this.UserId = UserId;
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.name = name;
+
     }
 
-    public void setMarkerId(String markerId) {
-        this.markerId = markerId;
+    public CustomMarker(String markerId, Double latitude, Double longitude) {
+        this.markerIdMySQL = markerId;
+        this.latitude = latitude;
+        this.longitude = longitude;
+
+
+    }
+
+    public CustomMarker(Double latitude, Double longitude, String name) {
+
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.name = name;
+    }
+
+
+    public void setMarkerIdMySQL(String markerIdMySQL) {
+        this.markerIdMySQL = markerIdMySQL;
     }
 
     public void setUserId(String userId) {
@@ -57,8 +77,8 @@ public class CustomMarker {
         this.saveOnServer = saveOnServer;
     }
 
-    public String getMarkerId() {
-        return markerId;
+    public String getMarkerIdMySQL() {
+        return markerIdMySQL;
     }
 
     public double getLatitude() {
@@ -82,12 +102,16 @@ public class CustomMarker {
     }
 
 
-
     public String getUserId() {
         return UserId;
     }
 
+    public String getMarkerIdSQLite() {
+        return markerIdSQLite;
+    }
 
-
+    public void setMarkerIdSQLite(String markerIdSQLite) {
+        this.markerIdSQLite = markerIdSQLite;
+    }
 
 }

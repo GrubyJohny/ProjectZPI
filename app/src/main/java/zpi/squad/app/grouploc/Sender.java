@@ -33,34 +33,42 @@ import java.util.Map;
  */
 public class Sender {
 
-    public static void sendMarker(final Context context,final String id, final double latitude, final double longitude, final String name,final CustomMarker cM,final Marker m) {
+    public static void sendMarker(final Context context, final CustomMarker cM, final Marker m, final SQLiteHandler db) {
         StringRequest request = new StringRequest(Request.Method.POST, AppConfig.URL_LOGIN, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
 
                 String TAG = "Sending markers";
-                Log.d(TAG, response.toString());
-                try{
+                Log.d(TAG, "Odpowiedź " + response);
+                try {
                     JSONObject jObj = new JSONObject(response);
 
                     boolean error = jObj.getBoolean("error");
-                    if(!error) {
+                    if (!error) {
+                        String mySqlID = jObj.getString("markerid");
                         Log.d(TAG, "Wysyłanie zakończyło się sukcesem!!!");
-                        String id = jObj.getString("markerid");
 
-                        cM.setMarkerId(id);
-                        m.setSnippet(id);
-                        Toast.makeText(context,"Zapisano na trwałe marker z id: "+id,Toast.LENGTH_SHORT).show();
+                        Log.d("PUT", "mySqlID ustawiony dla tej instancji customMarkera to " + mySqlID);
+                        String markerIdExtrenal = (mySqlID == null || mySqlID.equals("")) ? "NULL" : mySqlID;
+                        String sqliteID = cM.getMarkerIdSQLite();
+                        Log.d("PUT", "sqLiteID ustawiony dla tej instancji customMarkera to " + sqliteID);
+                        String markerIdInteler = (sqliteID == null || sqliteID.equals("")) ? "NULL" : sqliteID;
+                        String snippet = markerIdExtrenal + "," + markerIdInteler;
 
-                    }
-                    else
-                        Log.d(TAG,"Coś się spierdoliło!!!");
+                        cM.setMarkerIdMySQL(mySqlID);
+                        cM.setSaveOnServer(true);
+                        m.setSnippet(snippet);
+                        db.updateExternalId(cM.getMarkerIdSQLite(), mySqlID);
+                        Toast.makeText(context, "Zapisano na trwałe marker z id: " + mySqlID, Toast.LENGTH_SHORT).show();
+
+                    } else
+                        Log.d(TAG, "Coś się spierdoliło!!!");
 
 
-                }catch(Exception e){
-
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    Log.d("big error", "Wyłapałem błędem w łep");
                 }
-
 
 
             }
@@ -96,10 +104,10 @@ public class Sender {
             protected Map<String, String> getParams() {
                 Map<String, String> params = new HashMap<>();
                 params.put("tag", "nowy_marker");
-                params.put("id", id);
-                params.put("latitude", latitude + "");
-                params.put("longitude", longitude + "");
-                params.put("name",name);
+                params.put("id", cM.getUserId());
+                params.put("latitude", Double.toString(cM.getLatitude()));
+                params.put("longitude", Double.toString(cM.getLongitude()));
+                params.put("name", cM.getName());
 
                 return params;
             }
@@ -109,28 +117,26 @@ public class Sender {
         AppController.getInstance().addToRequestQueue(request, "nowy_marker");
     }
 
-    public static void sendRequestAboutMarkers(final String id,final List<CustomMarker> forResult,final GoogleMap map)
-    {
+    public static void sendRequestAboutMarkers(final String id, final List<CustomMarker> forResult, final GoogleMap map) {
         final String TAG = "Getting markers";
-        Log.d(TAG, "dawaj "+id);
-        StringRequest request=new StringRequest(Request.Method.POST,AppConfig.URL_LOGIN, new Response.Listener<String>() {
+        Log.d(TAG, "dawaj " + id);
+        StringRequest request = new StringRequest(Request.Method.POST, AppConfig.URL_LOGIN, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
 
                 Log.d(TAG, response.toString());
                 forResult.clear();
                 try {
-                    JSONObject jObj=new JSONObject(response);
-                    JSONArray markersArray=jObj.getJSONArray("notifications");
-                    for(int i=0;i<markersArray.length();i++)
-                    {
-                        JSONObject marker=markersArray.getJSONObject(i);
-                        int markerid=marker.getInt("markerid");
-                        int uid=marker.getInt("uid");
-                        double latitude=marker.getDouble("latitude");
-                        double longitude=marker.getDouble("longitude");
-                        String name=marker.getString("name");
-                        CustomMarker customMarker =new CustomMarker(markerid+"",uid+"",latitude,longitude,name);
+                    JSONObject jObj = new JSONObject(response);
+                    JSONArray markersArray=jObj.getJSONArray("markers");
+                    for (int i = 0; i < markersArray.length(); i++) {
+                        JSONObject marker = markersArray.getJSONObject(i);
+                        int markerid = marker.getInt("markerid");
+                        int uid = marker.getInt("uid");
+                        double latitude = marker.getDouble("latitude");
+                        double longitude = marker.getDouble("longitude");
+                        String name = marker.getString("name");
+                        CustomMarker customMarker = new CustomMarker(markerid + "", uid + "", latitude, longitude, name);
                         customMarker.setSaveOnServer(true);
                         forResult.add(customMarker);
                     }
@@ -138,22 +144,22 @@ public class Sender {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-                Log.d(TAG, "size "+forResult.size());
-                Sender.putMarkersOnMapAgain(forResult,map);
+                Log.d(TAG, "size " + forResult.size());
+                Sender.putMarkersOnMapAgain(forResult, map);
 
 
             }
-        },new Response.ErrorListener() {
+        }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError volleyError) {
                 Log.d("onErrorResponse", "Wydarzyło się coś strasznego!!!!!");
             }
-        }){
+        }) {
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
-                Map<String,String> params= new HashMap<>();
-                params.put("tag","daj_markery");
-                params.put("id",id);
+                Map<String, String> params = new HashMap<>();
+                params.put("tag", "daj_markery");
+                params.put("id", id);
                 return params;
             }
         };
@@ -161,84 +167,117 @@ public class Sender {
 
     }
 
-    public static void sendRequestAboutFriendsCoordinate(final String whereClause, final List<CustomMarker> forResult,final GoogleMap map)
-    {
+    public static void sendRequestAboutFriendsCoordinate(final String whereClause, final List<CustomMarker> forResult, final GoogleMap map) {
         final String TAG = "Getting friendsCoordinate";
         Log.d(TAG, whereClause);
-        StringRequest request=new StringRequest(Request.Method.POST,AppConfig.URL_LOGIN,new Response.Listener<String>() {
+        StringRequest request = new StringRequest(Request.Method.POST, AppConfig.URL_LOGIN, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
                 forResult.clear();
                 Log.d(TAG, response);
                 try {
-                    JSONObject jObj=new JSONObject(response);
-                    if(!jObj.getBoolean("error"))
-                    {
-                        String question=jObj.getString("clause");
+                    JSONObject jObj = new JSONObject(response);
+                    if (!jObj.getBoolean("error")) {
+                        String question = jObj.getString("clause");
                         Log.d(TAG, question);
-                        JSONArray array=jObj.getJSONArray("coordinates");
-                        for(int i=0;i<array.length();i++)
-                        {
-                            JSONObject friendCoordinate=array.getJSONObject(i);
-                            String id=friendCoordinate.getString("F_ID");
-                            Double latitude=friendCoordinate.getDouble("latitude");
-                            Double longitude=friendCoordinate.getDouble("longitude");
-                            CustomMarker marker=new CustomMarker(id,latitude,longitude);
+                        JSONArray array = jObj.getJSONArray("coordinates");
+                        for (int i = 0; i < array.length(); i++) {
+                            JSONObject friendCoordinate = array.getJSONObject(i);
+                            String id = friendCoordinate.getString("F_ID");
+                            Double latitude = friendCoordinate.getDouble("latitude");
+                            Double longitude = friendCoordinate.getDouble("longitude");
+                            CustomMarker marker = new CustomMarker(id, latitude, longitude);
                             forResult.add(marker);
                         }
-                    }
-                    else
-                    {
+                    } else {
                         Log.d(TAG, "cos poszlo nie tak");
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-                Log.d(TAG,"on response, size forResult+ "+forResult.size());
-                Sender.putMarkersOnMapAgain(forResult,map);
+                Log.d(TAG, "on response, size forResult+ " + forResult.size());
+                Sender.putMarkersOnMapAgain(forResult, map);
 
             }
-        },new Response.ErrorListener() {
+        }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError volleyError) {
 
             }
-        }){
+        }) {
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
-                HashMap<String,String> map=new HashMap<String,String>();
-                map.put("tag","getFriendsCoordinate");
-                map.put("where",whereClause);
+                HashMap<String, String> map = new HashMap<String, String>();
+                map.put("tag", "getFriendsCoordinate");
+                map.put("where", whereClause);
                 return map;
             }
         };
         AppController.getInstance().addToRequestQueue(request, "nowa_prosba");
     }
-    public static void putMarkersOnMapAgain(List<CustomMarker> markers,GoogleMap myMap)
-    {
-        for(CustomMarker cM:markers)
-        {
-            myMap.addMarker(new MarkerOptions().position(new LatLng(cM.getLatitude(), cM.getLongitude())).title(cM.getUserId()));
 
-            Log.d("put", "dodaje a jak" + cM.getLatitude()+","+cM.getLongitude());
+    public static void putMarkersOnMapAgain(List<CustomMarker> markers, GoogleMap myMap) {
+        for (CustomMarker cM : markers) {
+            String mySqlID = cM.getMarkerIdMySQL();
+            Log.d("PUT", "mySqlID ustawiony dla tej instancji customMarkera to " + mySqlID);
+            String markerIdExtrenal = (mySqlID == null || mySqlID.equals("")) ? "NULL" : mySqlID;
+            String sqliteID = cM.getMarkerIdSQLite();
+            Log.d("PUT", "sqLiteID ustawiony dla tej instancji customMarkera to " + sqliteID);
+            String markerIdInteler = (sqliteID == null || sqliteID.equals("")) ? "NULL" : sqliteID;
+            String snippet = markerIdExtrenal + "," + markerIdInteler;
+            myMap.addMarker(new MarkerOptions().position(new LatLng(cM.getLatitude(), cM.getLongitude())).title(cM.getName()).snippet(snippet));
+
+            Log.d("PUT", "Snippet ustawiony dla tej instancji customMarkera to " + snippet);
         }
-       //myMap.addMarker(new MarkerOptions().position(new LatLng(51.109383,17.057973)));
     }
 
+    public static void sendRequestAboutRemoveMarker(final String id, final GoogleMap myMap, final List<CustomMarker> markers) {
+        StringRequest request = new StringRequest(Request.Method.POST, AppConfig.URL_LOGIN, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                Log.d("DELETE MARKER", response);
+                try {
+                    JSONObject jsonObject = new JSONObject(response);
+                    boolean error = jsonObject.getBoolean("error");
+                    if (!error) {
+                        myMap.clear();
+                        putMarkersOnMapAgain(markers, myMap);
+                        Log.d("DELETE MARKER", "Wszystko przebiegło zgodnie z planem");
+                    } else {
+                        Log.d("DELETE MARKER", "Uwaga, niechciany bład");
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
 
-    public static String makeStatementAboutFriendsList(ArrayList<Friend> friendsList)
-    {
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError volleyError) {
+
+            }
+        }) {
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String, String> param = new HashMap<String, String>();
+                param.put("tag", "delete_marker");
+                param.put("id", id);
+                return param;
+            }
+        };
+        AppController.getInstance().addToRequestQueue(request, "nowa_prosba");
+    }
+
+    public static String makeStatementAboutFriendsList(ArrayList<Friend> friendsList) {
         Friend current;
-        StringBuilder result=new StringBuilder();
-        if(!friendsList.isEmpty())
-        {
-            current=friendsList.get(0);
-            result.append("U_ID="+current.getFriendID());
+        StringBuilder result = new StringBuilder();
+        if (!friendsList.isEmpty()) {
+            current = friendsList.get(0);
+            result.append("U_ID=" + current.getFriendID());
         }
-        for(int i=1;i<friendsList.size();i++)
-        {
-            current=friendsList.get(i);
-            result.append(" OR U_ID="+current.getFriendID());
+        for (int i = 1; i < friendsList.size(); i++) {
+            current = friendsList.get(i);
+            result.append(" OR U_ID=" + current.getFriendID());
         }
         return result.toString();
     }

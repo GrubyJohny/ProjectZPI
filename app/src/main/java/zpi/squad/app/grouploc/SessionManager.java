@@ -87,6 +87,7 @@ public class SessionManager {
         editor.commit();
         db.deleteUsers();
         db.deleteNotifications();
+        db.deleteMarkers();
         LoginManager.getInstance().logOut();
         Log.d(TAG, "User info removed from SharedPreferences!");
 

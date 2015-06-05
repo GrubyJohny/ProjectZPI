@@ -70,6 +70,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.Text;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -83,7 +84,7 @@ import java.util.Map;
 
 
 public class MainActivity extends FragmentActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
-        com.google.android.gms.location.LocationListener,MarkerDialog.NoticeDialogListener {
+        com.google.android.gms.location.LocationListener, MarkerDialog.NoticeDialogListener {
 
     private SessionManager session;
     private ProgressDialog pDialog;
@@ -146,9 +147,6 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     //Flaga mowiąca o tym czy chcemy monitorować lokalizację
     private boolean mRequestingLocationUpdates;
 
-    //Lista aktywnych znaczników użtkownika
-    private List<CustomMarker> markers;
-
     //OstatniKliknietyNaMapi
     private LatLng lastClikOnMap;
 
@@ -181,7 +179,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
 
         tabhostInit();
 
-         new Thread(sender, "Watek do wysyłania koordynatów").start();
+        new Thread(sender, "Watek do wysyłania koordynatów").start();
 
         readNotifications = db.getAllNotifications();
 
@@ -221,7 +219,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         POIScrollView = (ScrollView) findViewById(R.id.POIScroll);
 
         //Start-up markers list
-        markers=db.getAllMarkers();
+        //markers = db.getAllMarkers();
     }
 
     private void tabhostInit() {
@@ -251,6 +249,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         mLocationRequest.setFastestInterval(5000);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
     }
+
     private void setupCircleButtonWithProfileImage() {
         Bitmap icon = null;
         circleButton = (ImageButton) findViewById(R.id.circleButton);
@@ -271,7 +270,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         }
 
         //w razie gdyby nie byĹ‚o jeszcze ĹĽadnego naszego zdjÄ™cia, to johny lÄ…duje na profilowym
-        if(icon==null)
+        if (icon == null)
             icon = BitmapFactory.decodeResource(getResources(), R.drawable.coffee);
 
         Bitmap bMapScaled = Bitmap.createScaledBitmap(icon, 150, 150, true);
@@ -299,10 +298,9 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     private void mainSpinner() {
         spinner1 = (Spinner) findViewById(R.id.spinner);
         String[] spinnerOptions = {"", "Settings", "Log out"};
-        ArrayAdapter<String> circleButtonOptions = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, spinnerOptions){
+        ArrayAdapter<String> circleButtonOptions = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, spinnerOptions) {
             @Override
-            public View getDropDownView(int position, View convertView, ViewGroup parent)
-            {
+            public View getDropDownView(int position, View convertView, ViewGroup parent) {
                 View v = null;
 
                 // If this is the initial dummy entry, make it hidden
@@ -311,8 +309,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                     tv.setHeight(0);
                     tv.setVisibility(View.GONE);
                     v = tv;
-                }
-                else {
+                } else {
                     // Pass convertView as null to prevent reuse of special case views
                     v = super.getDropDownView(position, null, parent);
                 }
@@ -327,11 +324,10 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
 
     private void notifications() {
         spinner2 = (Spinner) findViewById(R.id.spinner2);
-        readNotifications.add(0,new Notification("","","","","","","","",0));
-        NotificationAdapter noticeButtonOptions = new NotificationAdapter(this, readNotifications){
+        readNotifications.add(0, new Notification("", "", "", "", "", "", "", "", 0));
+        NotificationAdapter noticeButtonOptions = new NotificationAdapter(this, readNotifications) {
             @Override
-            public View getDropDownView(int position, View convertView, ViewGroup parent)
-            {
+            public View getDropDownView(int position, View convertView, ViewGroup parent) {
                 View v = null;
 
                 // If this is the initial dummy entry, make it hidden
@@ -340,8 +336,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                     tv.setHeight(0);
                     tv.setVisibility(View.GONE);
                     v = tv;
-                }
-                else {
+                } else {
                     // Pass convertView as null to prevent reuse of special case views
                     v = super.getDropDownView(position, null, parent);
                 }
@@ -350,7 +345,8 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                 parent.setVerticalScrollBarEnabled(false);
                 return v;
             }
-        };;
+        };
+        ;
         spinner2.setAdapter(noticeButtonOptions);
     }
 
@@ -463,8 +459,8 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                     Toast.makeText(this, "Profile image changed successfully!",
                             Toast.LENGTH_SHORT).show();
 
-                }}
-            else if (requestCode == PICK_FROM_CAMERA) {
+                }
+            } else if (requestCode == PICK_FROM_CAMERA) {
                 Bundle extras2 = data.getExtras();
                 if (extras2 != null) {
                     Uri uri = data.getData();
@@ -484,9 +480,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                     //start the activity - we handle returning in onActivityResult
                     startActivityForResult(cropIntent, CROP_IMAGE);
                 }
-            }
-            else if(requestCode == CROP_IMAGE)
-            {
+            } else if (requestCode == CROP_IMAGE) {
                 Bundle extras2 = data.getExtras();
                 Bitmap photo = extras2.getParcelable("data");
 
@@ -500,9 +494,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
 
                 Toast.makeText(this, "Profile image changed successfully!",
                         Toast.LENGTH_SHORT).show();
-            }
-            else
-            {
+            } else {
                 Toast.makeText(this, "You haven't picked Image",
                         Toast.LENGTH_LONG).show();
             }
@@ -567,7 +559,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
 
     public void logOut(AdapterView.OnItemSelectedListener view) {
 
-        stopLocationUpdates();
+        //stopLocationUpdates();
 
         session.logOut();
 
@@ -617,11 +609,9 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
 
                             db.addFriend(senderId, senderName, senderEmail);
                             FriendsFragment.addFriend(new Friend(Integer.valueOf(senderId), senderName, senderEmail));
-                        }
-                        else if (type.equals("friendshipCanceled")) {
+                        } else if (type.equals("friendshipCanceled")) {
                             FriendsFragment.removeItem(senderEmail);
-                        }
-                        else if (type.equals("friendshipRequest")) {
+                        } else if (type.equals("friendshipRequest")) {
                             // final int id = Integer.valueOf(senderId);
                             // final String n = senderName;
                             // final String e = senderEmail;
@@ -629,7 +619,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                         }
                     }
 
-                }catch(Exception e){
+                } catch (Exception e) {
                 }
             }
         }, new Response.ErrorListener() {
@@ -702,7 +692,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         spinner1.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                switch ( position) {
+                switch (position) {
                     case 0:
                         break;
                     case 1:
@@ -717,6 +707,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                         break;
                 }
             }
+
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
             }
@@ -748,7 +739,6 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     }
 
 
-
     public void addListenerOnSpinner3() {
         spinner3.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -777,7 +767,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     public void onConnected(Bundle bundle) {
         Log.d(AppController.TAG, "Podłączony do api service");
 
-        mCurrentLocation=LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+        mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
         // setUpMap(true);
 
 
@@ -806,8 +796,8 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     public void onLocationChanged(Location location) {
         mCurrentLocation = location;
         //Log.d(AppController.TAG, "Location has changed");
-        float latitude=(float)location.getLatitude();
-        float longitude=(float)location.getLongitude();
+        float latitude = (float) location.getLatitude();
+        float longitude = (float) location.getLongitude();
         //Toast.makeText(getApplicationContext(), "Szerokość + " + latitude + " Długość: " + longitude, Toast.LENGTH_SHORT).show();
         stayActive(session.getUserId(), (float) latitude, (float) longitude);
 
@@ -833,22 +823,13 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         return outputBitmap;
     }
 
-    @Override
-    protected void onDestroy() {
-        db.deleteMarkers();
-        saveToSQLiteDataBase();
-
-        super.onDestroy();
-    }
-
-
     /**
      * Metoda tworząca wątek, który w sumie i tak jest już nie potrzebny, bo za wysyłynie danych o
      * lokacji będzie odpowiedzialny ChangeLocationListener, przynajniej ten kod nie straszy już w onCreate()
+     *
      * @return Wątek, który ma za zadanie wysyłać co pięć sekund współrzędne do bazy danych
      */
-    private Runnable createSendThread()
-    {
+    private Runnable createSendThread() {
         return new Runnable() {
             @Override
             public void run() {
@@ -878,25 +859,6 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         };
     }
 
-    //Rozpoczynam pisanie kodu odpowiedzialnego za pokazanie dokładnej trasy
-
-
-    //no to pobierzmy tego jsona
-
-   /* @Override
-    public void onDialogPositiveClick(DialogFragment dialog) {
-
-        MarkerDialog md=(MarkerDialog) dialog;
-        String name=md.getName();
-        Log.d("Marker Dialog",name);
-        myMap.addMarker(new MarkerOptions().position(lastClikOnMap).draggable(true).title(name));
-        CustomMarker mark=new CustomMarker(null,session+"",lastClikOnMap.latitude,lastClikOnMap.longitude,name);
-        markers.add(mark);
-        InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.hideSoftInputFromWindow(md.getInput().getWindowToken(), 0);
-
-    }*/
-
     protected synchronized void buildGoogleApiClient() {
         mGoogleApiClient = new GoogleApiClient.Builder(getApplicationContext())
                 .addConnectionCallbacks(this)
@@ -909,8 +871,8 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         new AlertDialog.Builder(this).
                 setTitle("Really Exit")
                 .setMessage("Are You sure you want to exit")
-                .setNegativeButton(android.R.string.no,null)
-                .setPositiveButton(android.R.string.yes,new DialogInterface.OnClickListener() {
+                .setNegativeButton(android.R.string.no, null)
+                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         MainActivity.super.onBackPressed();
@@ -922,11 +884,11 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         new AlertDialog.Builder(this).
                 setTitle("FriendshipRequest")
                 .setMessage("Do you want to add " + not.getSenderName() + " to your friends ?")
-                .setNegativeButton(android.R.string.no,null)
-                .setPositiveButton(android.R.string.yes,new DialogInterface.OnClickListener() {
+                .setNegativeButton(android.R.string.no, null)
+                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        if(not.getType().equals("friendshipRequest")){
+                        if (not.getType().equals("friendshipRequest")) {
                             sendFriendshipAcceptance(session.getUserId(), not.getSenderId(), not.getSenderName(), not.getSenderEmail());
 
 
@@ -1009,27 +971,25 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         AppController.getInstance().addToRequestQueue(strReq, tag_string_req);
     }
 
-
-    public void saveToSQLiteDataBase(){
-        for(CustomMarker m:markers)
-        {
-            db.addMarker(m);
-            System.out.println("MARKER ZAPISYWANY: " + m);
-        }
-    }
-
     @Override
     public void onDialogPositiveClick(android.support.v4.app.DialogFragment dialog) {
 
-        MarkerDialog md=(MarkerDialog) dialog;
-        String name=md.getName();
+        MarkerDialog md = (MarkerDialog) dialog;
+        String name = md.getName();
         Log.d("Marker Dialog", name);
-        globalVariable.getMyMap().addMarker(new MarkerOptions().position(globalVariable.getLastClikOnMap()).draggable(true).title(name));
-        CustomMarker mark=new CustomMarker(null,session+"",globalVariable.getLastClikOnMap().latitude,globalVariable.getLastClikOnMap().longitude,name);
-        markers.add(mark);
-        for(CustomMarker m: markers)
-            System.out.println("MARKER: " + m);
-        InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+        Log.d("Marker Dialog", "myMap " + globalVariable.getMyMap());
+        Log.d("Marker Dialog", "my LatLong " + globalVariable.getLastClikOnMap());
+
+
+        CustomMarker nowyMarker = new CustomMarker(null, session.getUserId(), globalVariable.getLastClikOnMap().latitude, globalVariable.getLastClikOnMap().longitude, name);
+        globalVariable.addToMarkers(nowyMarker);
+        long id = db.addMarker(nowyMarker);
+        nowyMarker.setMarkerIdSQLite(Long.toString(id));
+        String markerIdExtrenal = "NULL";
+        String markerIdInteler = Long.toString(id);
+        globalVariable.getMyMap().addMarker(new MarkerOptions().position(globalVariable.getLastClikOnMap()).draggable(true).title(name).snippet(markerIdExtrenal + "," + markerIdInteler));
+        Log.d("ADD_MARKER", markerIdExtrenal + "," + markerIdInteler);
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(md.getInput().getWindowToken(), 0);
     }
 }

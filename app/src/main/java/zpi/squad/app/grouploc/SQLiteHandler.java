@@ -40,15 +40,13 @@ public class SQLiteHandler extends SQLiteOpenHelper {
     private static final String KEY_CHECKED = "checked";
 
     //Markers Table Columns names
-    private static final String KEY_MARK_ID="markerid";
-    private static final String KEY_USER_ID="uid";
-    private static final String KEY_LATITUDE="latitude";
-    private static final String KEY_LONGITUDE="longitude";
-    private static final String KEY_MARKER_NAME="name";
-    private static final String KEY_SAVE_ON_SERVER="saveOnServer";
-
-
-
+    private static final String KEY_MARK_ID_SQLITE = "markerid_internal";
+    private static final String KEY_MARK_ID_MYSQL = "markerid_extrenal";
+    private static final String KEY_USER_ID = "uid";
+    private static final String KEY_LATITUDE = "latitude";
+    private static final String KEY_LONGITUDE = "longitude";
+    private static final String KEY_MARKER_NAME = "name";
+    private static final String KEY_SAVE_ON_SERVER = "saveOnServer";
 
 
     public SQLiteHandler(Context context) {
@@ -82,12 +80,13 @@ public class SQLiteHandler extends SQLiteOpenHelper {
 
         String CREATE_MARKERS_TABLE = "CREATE TABLE " + TABLE_MARKERS
                 + "("
-                + KEY_MARK_ID + " INTEGER PRIMARY KEY,"
+                + KEY_MARK_ID_SQLITE + " INTEGER PRIMARY KEY,"
+                + KEY_MARK_ID_MYSQL + " INTEGER,"
                 + KEY_USER_ID + " INTEGER,"
                 + KEY_LATITUDE + " DOUBLE,"
                 + KEY_LONGITUDE + " DOUBLE,"
-                +KEY_MARKER_NAME+" TEXT,"
-                +KEY_SAVE_ON_SERVER+" INTEGER DEFAULT 0"
+                + KEY_MARKER_NAME + " TEXT,"
+                + KEY_SAVE_ON_SERVER + " INTEGER DEFAULT 0"
                 + ")";
 
         db.execSQL(CREATE_FRIENDS_TABLE);
@@ -125,34 +124,35 @@ public class SQLiteHandler extends SQLiteOpenHelper {
 
     }
 
-    public void addMarker(CustomMarker mark)
-    {
+    public long addMarker(CustomMarker mark) {
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
-        String markerid=mark.getMarkerId();
-        if(markerid!=null)
-            values.put(KEY_MARK_ID,markerid);
+        String markerid = mark.getMarkerIdMySQL();
 
-        String uid=mark.getUserId();
+        values.put(KEY_MARK_ID_MYSQL, markerid);
+
+        String uid = mark.getUserId();
         values.put(KEY_USER_ID, uid);
 
-        double latitude=mark.getLatitude();
-        values.put(KEY_LATITUDE,latitude);
+        double latitude = mark.getLatitude();
+        values.put(KEY_LATITUDE, latitude);
 
-        double longitude=mark.getLongitude();
-        values.put(KEY_LONGITUDE,longitude);
+        double longitude = mark.getLongitude();
+        values.put(KEY_LONGITUDE, longitude);
 
-        String name=mark.getName();
+        String name = mark.getName();
         values.put(KEY_MARKER_NAME, name);
 
-        Boolean hardSave=mark.isSaveOnServer();
-        values.put(KEY_SAVE_ON_SERVER,hardSave);
+        Boolean hardSave = mark.isSaveOnServer();
+        values.put(KEY_SAVE_ON_SERVER, hardSave);
 
-        long id=db.insert(TABLE_MARKERS,null,values);
+        long id = db.insert(TABLE_MARKERS, null, values);
+        mark.setMarkerIdSQLite(Long.toString(id));
         db.close();
 
         Log.d(TAG, "New marker inserted into sqlite: " + id);
+        return id;
     }
 
 
@@ -165,9 +165,9 @@ public class SQLiteHandler extends SQLiteOpenHelper {
 
         cursor.moveToFirst();
 
-            friend.setFriendID(Integer.parseInt(cursor.getString(1)));
-            friend.setFriendName(cursor.getString(2));
-            friend.setFriendEmail(cursor.getString(3));
+        friend.setFriendID(Integer.parseInt(cursor.getString(1)));
+        friend.setFriendName(cursor.getString(2));
+        friend.setFriendEmail(cursor.getString(3));
 
         cursor.close();
         db.close();
@@ -186,19 +186,17 @@ public class SQLiteHandler extends SQLiteOpenHelper {
         return rowCount;
     }
 
-    public  String getId() {
-                String countQuery = "SELECT "+ KEY_UID + " FROM " + TABLE_FRIENDS;
-                SQLiteDatabase db = this.getReadableDatabase();
-                Cursor cursor = db.rawQuery(countQuery, null);
-                cursor.moveToFirst();
-                String ID_U= cursor.getString(0);
-                db.close();
-                cursor.close();
+    public String getId() {
+        String countQuery = "SELECT " + KEY_UID + " FROM " + TABLE_FRIENDS;
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(countQuery, null);
+        cursor.moveToFirst();
+        String ID_U = cursor.getString(0);
+        db.close();
+        cursor.close();
 
-            return ID_U;
+        return ID_U;
     }
-
-
 
 
     public void deleteUsers() {
@@ -250,10 +248,9 @@ public class SQLiteHandler extends SQLiteOpenHelper {
         long id = db.insert(TABLE_NOTIFICATIONS, null, values);
         db.close();
 
-        if(checked == 0) {
+        if (checked == 0) {
             Log.d(TAG, "New notification inserted into sqlite: " + id);
-        }
-        else{
+        } else {
             Log.d(TAG, "Old notification inserted into sqlite: " + id);
         }
 
@@ -270,7 +267,7 @@ public class SQLiteHandler extends SQLiteOpenHelper {
 
         if (cursor.moveToFirst()) {
             do {
-                Notification notificaion = new Notification(cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4), cursor.getString(5), cursor.getString(6), cursor.getString(7), cursor.getString(8),cursor.getInt(6));
+                Notification notificaion = new Notification(cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4), cursor.getString(5), cursor.getString(6), cursor.getString(7), cursor.getString(8), cursor.getInt(6));
 
                 // Adding notification to list
                 notificationsList.add(0, notificaion);
@@ -287,9 +284,10 @@ public class SQLiteHandler extends SQLiteOpenHelper {
 
         Log.d(TAG, "Deleted all notifications info from sqlite");
     }
-    public void deleteMarkers(){
-        SQLiteDatabase db=this.getWritableDatabase();
-        db.delete(TABLE_MARKERS,null,null);
+
+    public void deleteMarkers() {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete(TABLE_MARKERS, null, null);
         db.close();
 
         Log.d(TAG, "Deleted all markers from sqlite");
@@ -305,14 +303,14 @@ public class SQLiteHandler extends SQLiteOpenHelper {
 
         if (cursor.moveToFirst()) {
             do {
-
-                String markerid=cursor.getString(0);
-                String uid=cursor.getString(1);
-                double latitude=cursor.getDouble(2);
-                double longitude=cursor.getDouble(3);
-                String name=cursor.getString(4);
-                boolean hardSave=(cursor.getInt(5) == 1);
-                CustomMarker customMarker = new CustomMarker(markerid,uid,latitude,longitude,name);
+                String markeridInternal = cursor.getString(0);
+                String marekerIdExternal = cursor.getString(1);
+                String uid = cursor.getString(2);
+                double latitude = cursor.getDouble(3);
+                double longitude = cursor.getDouble(4);
+                String name = cursor.getString(5);
+                boolean hardSave = (cursor.getInt(6) == 1);
+                CustomMarker customMarker = new CustomMarker(marekerIdExternal, markeridInternal, uid, latitude, longitude, name);
                 customMarker.setSaveOnServer(hardSave);
                 // Adding friend to list
                 markersList.add(customMarker);
@@ -322,9 +320,41 @@ public class SQLiteHandler extends SQLiteOpenHelper {
         return markersList;
     }
 
-    public void setNotificationChecked(){
+    public boolean removeMarker(String id) {
+        Log.d("SQLite delete", "Chce usun¹æ " + id);
+        SQLiteDatabase db = this.getWritableDatabase();
 
+        String selectQuery = "SELECT  * FROM " + TABLE_MARKERS;
+        Cursor cursor = db.rawQuery(selectQuery, null);
+        Log.d("SQLite delete", "stan przed usuwaniem");
+        if (cursor.moveToFirst()) {
+            do {
+                Log.d("SQLite delete", "SQLite ID " + cursor.getString(0));
+            } while (cursor.moveToNext());
+        }
 
+        boolean usun = db.delete(TABLE_MARKERS, KEY_MARK_ID_SQLITE + "=" + id, null) > 0;
+        Log.d("SQLite delete", "stan po domniemanym  usuwaniu");
+        cursor = db.rawQuery(selectQuery, null);
+        if (cursor.moveToFirst()) {
+            do {
+                Log.d("SQLite delete", "SQLite ID " + cursor.getString(0));
+            } while (cursor.moveToNext());
+        }
+
+        return usun;
+    }
+
+    public void setNotificationChecked() {
+    }
+
+    public boolean updateExternalId(String sqlLite, String mySqlID) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues uv = new ContentValues();
+        uv.put(KEY_MARK_ID_MYSQL, mySqlID);
+        uv.put(KEY_SAVE_ON_SERVER, true);
+        int numberOfEfectet = db.update(TABLE_MARKERS, uv, KEY_MARK_ID_SQLITE + "=" + sqlLite, null);
+        return numberOfEfectet > 0;
     }
 
 }

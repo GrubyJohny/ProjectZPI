@@ -24,6 +24,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ScrollView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -57,11 +58,6 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
 
     private SupportMapFragment fragment;
 
-    public GoogleMap getMyMap() {
-        return myMap;
-    }
-
-    public GoogleMap myMap;
     private static View view;
     //OstatniKliknietyNaMapi
     private LatLng lastClikOnMap;
@@ -122,17 +118,16 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
         globalVariable = (AppController) getActivity().getApplicationContext();
         db = new SQLiteHandler(getActivity().getApplicationContext());
         markers = db.getAllMarkers();
+        globalVariable.setMarkers(markers);
 
 
         //mRequestingLocationUpdates = true;
         createLocationRequest();
         buildGoogleApiClient();
         mGoogleApiClient.connect();
-
+        mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
 
         session = new SessionManager(getActivity().getApplicationContext());
-
-
     }
 
     private void setupPoiButtons() {
@@ -458,6 +453,18 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
                 globalVariable.setLastClikOnMap(latLng);
                 MarkerDialog markerDialog = new MarkerDialog();
                 markerDialog.show(getChildFragmentManager(), "Marker Dialog");
+                /*//Ca³a procedura dodania nowego markera
+                CustomMarker nowyMarker=new CustomMarker(latLng.latitude,latLng.longitude,"narazie brak");
+                long id= db.addMarker(nowyMarker);
+                nowyMarker.setMarkerIdSQLite(Long.toString(id));
+                markers.add(nowyMarker);
+                String markerIdExtrenal="NULL";
+                String markerIdInteler=Long.toString(id);
+                Log.d("ADD_MARKER",markerIdExtrenal","markerIdInteler);
+                //nowyMarker.setMarkerIdSQLite(Long.toSt);
+               // markerDialog.show(getFragmentManager(),"");
+
+                myMap.addMarker(new MarkerOptions().position(latLng).draggable(true).snippet(markerIdExtrenal","markerIdInteler));*/
 
                 globalVariable.getMyMap().addMarker(new MarkerOptions().position(latLng).draggable(true));
                 layoutMarker.setVisibility(View.GONE);
@@ -493,6 +500,9 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
                 ostatniMarker = marker;
                 layoutMarker.setX((float) globalVariable.getMyMap().getProjection().toScreenLocation(marker.getPosition()).x - layoutMarker.getWidth() / 2);
                 layoutMarker.setY((float) globalVariable.getMyMap().getProjection().toScreenLocation(marker.getPosition()).y - layoutMarker.getHeight() + 180);
+                TextView name = (TextView) layoutMarker.findViewById(R.id.titleOfMarker);
+                Log.d("tittle", name + "");
+                name.setText(marker.getTitle());
                 getActivity().findViewById(R.id.POIButtons).setVisibility(View.GONE);
                 layoutMarker.setVisibility(View.VISIBLE);
                 return true;
@@ -562,9 +572,8 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
         Log.d(AppController.TAG, "Podlaczony do api service");
         mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
         setUpMap(true);
+        setMapListener();
 
-
-        //setMapListener();
         if (mRequestingLocationUpdates) {
             // startLocationUpdates();
         }
@@ -780,33 +789,38 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
                 String uid = session.getUserId();
                 double latitude = ostatniMarker.getPosition().latitude;
                 double longitude = ostatniMarker.getPosition().longitude;
-                CustomMarker custom = ToolsForMarkerList.getSpecificMarker(markers, latitude, longitude);
+                CustomMarker custom = ToolsForMarkerList.getSpecificMarkerByLatitudeAndLongitude(markers, latitude, longitude);
                 String name = ostatniMarker.getTitle();
                 if (name == null)
                     name = "brak";
                 layoutMarker.setVisibility(View.GONE);
 
-                Sender.sendMarker(getActivity().getApplicationContext(), uid, latitude, longitude, name, custom, ostatniMarker);
+                Sender.sendMarker(getActivity().getApplicationContext(),custom,ostatniMarker,db);
             }
         });
         fourthMarkerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                double latitude = ostatniMarker.getPosition().latitude;
-                double longitude = ostatniMarker.getPosition().longitude;
-                CustomMarker toRemove = ToolsForMarkerList.getSpecificMarker(markers, latitude, longitude);
+                String snippet = ostatniMarker.getSnippet();
+                String[] ids = snippet.split(",");
+                String markerIdMySql = ids[0];
+                String markerIdSQLITE = ids[1];
+                Log.d("REMOVE_MARKER", "MySQL id " + markerIdMySql);
+                Log.d("REMOVE_MARKER", "SQLite id " + markerIdSQLITE);
+                CustomMarker toRemove = ToolsForMarkerList.getSpecificMarker(markers, markerIdSQLITE);
                 markers.remove(toRemove);
+                boolean znacznik = db.removeMarker(markerIdSQLITE);
+                Log.d("REMOVE_MARKER", " Operacja usuwania zakoñczy³a siê sukcesem" + znacznik);
+                if (toRemove.isSaveOnServer()) {
+                    Log.d("REMOVE_MARKER", "Usuwam z serwera");
+                    Sender.sendRequestAboutRemoveMarker(markerIdMySql, globalVariable.getMyMap(), markers);
+                }
                 globalVariable.getMyMap().clear();
                 Sender.putMarkersOnMapAgain(markers, globalVariable.getMyMap());
                 layoutMarker.setVisibility(View.GONE);
                 /*Sender.sendRequestAboutMarkers(session.getUserId(),markers,myMap);*/
 
 
-             /*   ArrayList<Friend> friends=db.getAllFriends();
-                String whereClause=Sender.makeStatementAboutFriendsList(friends);
-
-                ArrayList<CustomMarker> friendsMarker=new ArrayList<CustomMarker>();
-                Sender.sendRequestAboutFriendsCoordinate(whereClause,friendsMarker,myMap);*/
             }
         });
     }

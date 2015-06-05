@@ -5,7 +5,7 @@ android {
         config {
             keyAlias 'key'
             keyPassword 'password'
-            storeFile file('C:/Users/Slawek/AndroidStudioProjects/ProjectZPI/key.jks')
+            storeFile file('C:/Users/Marcin/Android Studio Projects/ProjectZPI605/ProjectZPI/key.jks')
             storePassword 'password'
         }
     }
@@ -39,4 +39,5 @@ dependencies {
     compile 'com.android.support:appcompat-v7:21.0.3'
     compile 'com.android.support:support-v4:21.0.3'
     compile 'com.facebook.android:facebook-android-sdk:4.1.2'
+    compile files('commons-net-ftp-2.0.jar')
 }

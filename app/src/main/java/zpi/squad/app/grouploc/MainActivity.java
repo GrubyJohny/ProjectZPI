@@ -67,6 +67,8 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import org.apache.commons.net.ftp.FTP;
+import org.apache.commons.net.ftp.FTPClient;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -125,7 +127,8 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     private Button closeMarkerButton;
     private Marker ostatniMarker;
     private FragmentTabHost tabhost;
-    public final String FACEBOOK_PROFILE_IMAGE = "facebook_profile_image.png";
+    public final String FACEBOOK_PROFILE_IMAGE = "/storage/emulated/0/pikczer.png";
+
 
     private ScrollView POIScrollView;
     PoiJSONParser poiBase = new PoiJSONParser();
@@ -254,7 +257,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         Bitmap icon = null;
         circleButton = (ImageButton) findViewById(R.id.circleButton);
         try {
-            File filePath = context.getFileStreamPath(FACEBOOK_PROFILE_IMAGE);
+            File filePath = new File(FACEBOOK_PROFILE_IMAGE);
             FileInputStream fi = new FileInputStream(filePath);
             icon = BitmapFactory.decodeStream(fi);
         } catch (FileNotFoundException e) {
@@ -366,6 +369,41 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                 //layoutFlipper.setVisibility(View.VISIBLE);
                 layoutSettings.setVisibility(View.INVISIBLE);
                 tabLayout.setVisibility(View.VISIBLE);
+
+                //chwilowo tutaj ląduje wysyłanie zdjęcia na serwer ftp
+
+                //upload zdjecia do ftp
+                FTPClient con = null;
+
+                try {
+                    con = new FTPClient();
+                    con.connect("ftp.marcinta.webd.pl");
+
+                    if (con.login("grouploc@marcinta.webd.pl", "grouploc2015")) {
+                        con.enterLocalPassiveMode(); // important!
+                        con.setFileType(FTP.BINARY_FILE_TYPE);
+                        String data = FACEBOOK_PROFILE_IMAGE;
+
+                        FileInputStream in = new FileInputStream(new File(data));
+                        boolean result = con.storeFile("/"+session.getUserId()+".png", in);
+                        in.close();
+                        if (result) Log.v("moj upload", "succeeded");
+                        con.logout();
+                        con.disconnect();
+                    }
+                }
+                catch(Exception e)
+                {
+                    Log.e("ERROR FTP", e.getMessage());
+                }
+
+
+
+
+
+
+
+
             }
         });
 

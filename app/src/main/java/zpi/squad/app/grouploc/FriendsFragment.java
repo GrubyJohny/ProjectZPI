@@ -4,6 +4,9 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.util.Log;
@@ -20,9 +23,14 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 
+import org.apache.commons.net.ftp.FTP;
+import org.apache.commons.net.ftp.FTPClient;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -79,9 +87,15 @@ public class FriendsFragment extends ListFragment {
 
 
         for(Friend f: userFriendsList){
-            mItems.add(new ListViewItem(f.getFriendID(), resources.getDrawable(R.drawable.image3), f.getFriendName(), f.getFriendEmail()));
+            Drawable ico = getFriendPhoto(f.getFriendID());
+            Bitmap bitmap = ((BitmapDrawable) ico).getBitmap();
+// Scale it to 50 x 50
+            Drawable d = new BitmapDrawable(getResources(), Bitmap.createScaledBitmap(bitmap, 50, 50, true));
+// Set your new, scaled drawable "d"
+            mItems.add(new ListViewItem(f.getFriendID(), d==null?resources.getDrawable(R.drawable.image3):d, f.getFriendName(), f.getFriendEmail()));
 
         }
+
 
         friendList = new FriendList(getActivity(), mItems);
         setListAdapter(friendList);
@@ -315,5 +329,61 @@ public class FriendsFragment extends ListFragment {
         super.onDetach();
     }
 
+
+    private Drawable getFriendPhoto(int friendID)
+    {
+
+        //download photo from ftp
+        Bitmap icon = null;
+        FTPClient con = null;
+
+        try
+        {
+            con = new FTPClient();
+            con.connect("ftp.marcinta.webd.pl");
+
+            if (con.login("grouploc@marcinta.webd.pl", "grouploc2015"))
+            {
+                con.enterLocalPassiveMode(); // important!
+                con.setFileType(FTP.BINARY_FILE_TYPE);
+
+                OutputStream out = new FileOutputStream(new File("/storage/emulated/0/"+friendID+".png"));
+                boolean result = con.retrieveFile(friendID+".png", out);
+                out.close();
+                if (result) Log.v("moj download", "succeeded");
+                con.logout();
+                con.disconnect();
+
+
+            }
+
+
+        }
+        catch (Exception e)
+        {
+            Log.v("download result","failed");
+            e.printStackTrace();
+        }
+/*
+            File filePath = new File("/storage/emulated/0/"+f.getFriendID()+".png");
+            FileInputStream fi = null;
+            try {
+                fi = new FileInputStream(filePath);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+
+            icon = BitmapFactory.decodeStream(fi);
+*/
+        Log.d("PRZED DRAWABLE", "OK");
+        Drawable ico = Drawable.createFromPath("/storage/emulated/0/"+friendID+".png");
+
+
+        Log.d("PRAWDA", "" + (ico != null));
+
+        return ico==null?resources.getDrawable(R.drawable.image3):ico;
+
+
+    }
 
 }

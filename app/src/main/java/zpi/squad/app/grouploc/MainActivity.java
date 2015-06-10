@@ -865,9 +865,9 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
 
         final Path path = new Path();
         path.addCircle(
-                (float) (bWidth / 2)
-                , (float) (bHeight / 2)
-                , (float) Math.min(bWidth, (bHeight / 2))
+                (float) (width / 2)
+                , (float) (height / 2)
+                , (float) Math.min(width, (height / 2))
                 , Path.Direction.CCW);
 
         final Canvas canvas = new Canvas(outputBitmap);

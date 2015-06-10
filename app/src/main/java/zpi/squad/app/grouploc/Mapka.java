@@ -805,7 +805,7 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
                 String name = ostatniMarker.getTitle();
                 if (name == null)
                     name = "brak";
-
+                layoutMarker.setVisibility(View.GONE);
 
                 Sender.shareMarker(getActivity().getApplicationContext(), uid, name, Double.toString(latitude), Double.toString(longitude));
             }

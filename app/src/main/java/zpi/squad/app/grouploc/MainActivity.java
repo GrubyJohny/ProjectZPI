@@ -166,6 +166,8 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
             buildAlertMessageNoGps();
         }
 
+        circleButton = (ImageButton) findViewById(R.id.circleButton);
+
         searchingGroupText = (EditText) findViewById(R.id.searchingGroupText);
 
         tabhostInit();
@@ -243,7 +245,6 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
 
     private void setupCircleButtonWithProfileImage() {
         Bitmap icon = null;
-        circleButton = (ImageButton) findViewById(R.id.circleButton);
         try {
             File filePath = new File(FACEBOOK_PROFILE_IMAGE);
             FileInputStream fi = new FileInputStream(filePath);
@@ -264,8 +265,8 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         if (icon == null)
             icon = BitmapFactory.decodeResource(getResources(), R.drawable.image3);
 
-        Bitmap bMapScaled = Bitmap.createScaledBitmap(icon, 150, 150, true);
-        Bitmap bitmap_round = clipBitmap(bMapScaled);
+        //Bitmap bMapScaled = Bitmap.createScaledBitmap(icon, 150, 150, true);
+        Bitmap bitmap_round = clipBitmap(icon, circleButton);
         circleButton.setImageBitmap(bitmap_round);
 
     }
@@ -274,14 +275,14 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         noticeButton = (ImageButton) findViewById(R.id.noticeButton);
         Bitmap bMap = BitmapFactory.decodeResource(getResources(), R.drawable.notificon);
         Bitmap bMapScaled = Bitmap.createScaledBitmap(bMap, 100, 100, true);
-        Bitmap bitmap_round = clipBitmap(bMapScaled);
+        Bitmap bitmap_round = clipBitmap(bMapScaled, noticeButton);
 
         noticeButton.setImageBitmap(bitmap_round);
 
         messageButton = (ImageButton) findViewById(R.id.messageButton);
         Bitmap bMap1 = BitmapFactory.decodeResource(getResources(), R.drawable.messageicon);
         Bitmap bMapScaled1 = Bitmap.createScaledBitmap(bMap1, 100, 100, true);
-        Bitmap bitmap_round1 = clipBitmap(bMapScaled1);
+        Bitmap bitmap_round1 = clipBitmap(bMapScaled1, messageButton);
 
         messageButton.setImageBitmap(bitmap_round1);
     }
@@ -469,7 +470,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                     Bitmap photo = extras2.getParcelable("data");
 
                     Bitmap bMapScaled = Bitmap.createScaledBitmap(photo, 150, 150, true);
-                    Bitmap bitmap_round = clipBitmap(bMapScaled);
+                    Bitmap bitmap_round = clipBitmap(bMapScaled, circleButton);
                     circleButton.setImageBitmap(bitmap_round);
 
                     FileOutputStream fos = context.openFileOutput(IMAGE_PHOTO_FILENAME, Context.MODE_PRIVATE);
@@ -504,8 +505,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                 Bundle extras2 = data.getExtras();
                 Bitmap photo = extras2.getParcelable("data");
 
-                Bitmap bMapScaled = Bitmap.createScaledBitmap(photo, 150, 150, true);
-                Bitmap bitmap_round = clipBitmap(bMapScaled);
+                Bitmap bitmap_round = clipBitmap(photo, circleButton);
                 circleButton.setImageBitmap(bitmap_round);
 
                 FileOutputStream fos = context.openFileOutput(IMAGE_PHOTO_FILENAME, Context.MODE_PRIVATE);
@@ -709,7 +709,6 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                 params.put("id", id);
                 params.put("koordynat1", c1 + "");
                 params.put("koordynat2", c2 + "");
-
                 return params;
             }
         };
@@ -854,18 +853,21 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
 
     }
 
-    public static Bitmap clipBitmap(Bitmap bitmap) {
+    public Bitmap clipBitmap(Bitmap bitmap, ImageButton x) {
         if (bitmap == null)
             return null;
-        final int width = bitmap.getWidth();
-        final int height = bitmap.getHeight();
+        final int bWidth = bitmap.getWidth();
+        final int bHeight = bitmap.getHeight();
+
+        final int width = x.getLayoutParams().width;
+        final int height = x.getLayoutParams().height;
         final Bitmap outputBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
 
         final Path path = new Path();
         path.addCircle(
-                (float) (width / 2)
-                , (float) (height / 2)
-                , (float) Math.min(width, (height / 2))
+                (float) (bWidth / 2)
+                , (float) (bHeight / 2)
+                , (float) Math.min(bWidth, (bHeight / 2))
                 , Path.Direction.CCW);
 
         final Canvas canvas = new Canvas(outputBitmap);

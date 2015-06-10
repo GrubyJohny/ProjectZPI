@@ -115,7 +115,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     private Button closeMarkerButton;
     private Marker ostatniMarker;
     private FragmentTabHost tabhost;
-    public final String FACEBOOK_PROFILE_IMAGE = "/storage/emulated/0/pikczer.png";
+    public final String FACEBOOK_PROFILE_IMAGE = "pikczer.png";
 
 
     private ScrollView POIScrollView;

@@ -66,7 +66,7 @@ public class LoginActivity extends Activity {
     private SQLiteHandler db;
     public static Context context;
     private CallbackManager callbackManager;
-    public final String FACEBOOK_PROFILE_IMAGE = "facebook_profile_image.png";
+    public final String FACEBOOK_PROFILE_IMAGE = "pikczer.png";
     private Bitmap bitmap;
     private LoginButton loginButton;
     private String facebookUserId, facebookUserEmail, facebookUserName;

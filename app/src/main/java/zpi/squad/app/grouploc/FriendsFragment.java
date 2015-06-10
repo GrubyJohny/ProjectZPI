@@ -87,7 +87,9 @@ public class FriendsFragment extends ListFragment {
 
 
         for(Friend f: userFriendsList){
+            Log.e("przed getFriendPhoto", ""+f.getFriendID());
             Drawable ico = getFriendPhoto(f.getFriendID());
+            Log.e("przed getFriendPhoto", ""+f.getFriendID());
             Bitmap bitmap = ((BitmapDrawable) ico).getBitmap();
 // Scale it to 50 x 50
             Drawable d = new BitmapDrawable(getResources(), Bitmap.createScaledBitmap(bitmap, 50, 50, true));
@@ -340,15 +342,16 @@ public class FriendsFragment extends ListFragment {
         try
         {
             con = new FTPClient();
-            con.connect("ftp.marcinta.webd.pl");
-
-            if (con.login("grouploc@marcinta.webd.pl", "grouploc2015"))
+            con.connect("ftp.wariat92.linuxpl.eu");
+            Log.e("przed getFriendPhoto", "wszedl");
+            if (con.login("appUser@wariat92.linuxpl.eu", "grouploc2015"))
             {
                 con.enterLocalPassiveMode(); // important!
                 con.setFileType(FTP.BINARY_FILE_TYPE);
-
-                OutputStream out = new FileOutputStream(new File("/storage/emulated/0/"+friendID+".png"));
+                Log.e("przed getFriendPhoto", "wszedl2" + friendID);
+                OutputStream out = new FileOutputStream(new File(friendID+".png"));
                 boolean result = con.retrieveFile(friendID+".png", out);
+                Log.e("przed getFriendPhoto", ""+result);
                 out.close();
                 if (result) Log.v("moj download", "succeeded");
                 con.logout();

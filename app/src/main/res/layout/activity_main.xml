@@ -24,8 +24,8 @@
 
         <ImageButton
             android:id="@+id/noticeButton"
-            android:layout_width="35dp"
-            android:layout_height="35dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:layout_centerVertical="true"
             android:layout_marginRight="20dp"
             android:layout_toLeftOf="@id/circleButton"
@@ -34,8 +34,8 @@
 
         <ImageButton
             android:id="@+id/messageButton"
-            android:layout_width="35dp"
-            android:layout_height="35dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:layout_centerVertical="true"
             android:layout_marginRight="20dp"
             android:layout_toLeftOf="@id/noticeButton"

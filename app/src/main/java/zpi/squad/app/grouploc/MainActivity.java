@@ -20,6 +20,7 @@ import android.os.Vibrator;
 import android.provider.MediaStore;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTabHost;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -274,14 +275,14 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     private void noticeAndMessageButtons() {
         noticeButton = (ImageButton) findViewById(R.id.noticeButton);
         Bitmap bMap = BitmapFactory.decodeResource(getResources(), R.drawable.notificon);
-        Bitmap bMapScaled = Bitmap.createScaledBitmap(bMap, 100, 100, true);
+        Bitmap bMapScaled = Bitmap.createScaledBitmap(bMap, 150, 150, true);
         Bitmap bitmap_round = clipBitmap(bMapScaled, noticeButton);
 
         noticeButton.setImageBitmap(bitmap_round);
 
         messageButton = (ImageButton) findViewById(R.id.messageButton);
         Bitmap bMap1 = BitmapFactory.decodeResource(getResources(), R.drawable.messageicon);
-        Bitmap bMapScaled1 = Bitmap.createScaledBitmap(bMap1, 100, 100, true);
+        Bitmap bMapScaled1 = Bitmap.createScaledBitmap(bMap1, 150, 150, true);
         Bitmap bitmap_round1 = clipBitmap(bMapScaled1, messageButton);
 
         messageButton.setImageBitmap(bitmap_round1);
@@ -469,8 +470,8 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                 if (extras2 != null) {
                     Bitmap photo = extras2.getParcelable("data");
 
-                    Bitmap bMapScaled = Bitmap.createScaledBitmap(photo, 150, 150, true);
-                    Bitmap bitmap_round = clipBitmap(bMapScaled, circleButton);
+                    //Bitmap bMapScaled = Bitmap.createScaledBitmap(photo, 150, 150, true);
+                    Bitmap bitmap_round = clipBitmap(photo, circleButton);
                     circleButton.setImageBitmap(bitmap_round);
 
                     FileOutputStream fos = context.openFileOutput(IMAGE_PHOTO_FILENAME, Context.MODE_PRIVATE);
@@ -856,12 +857,19 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     public Bitmap clipBitmap(Bitmap bitmap, ImageButton x) {
         if (bitmap == null)
             return null;
+        final int width = x.getLayoutParams().width;
+        final int height = x.getLayoutParams().height;
+        bitmap = bitmap.createScaledBitmap(bitmap,width,height,true);
+
         final int bWidth = bitmap.getWidth();
         final int bHeight = bitmap.getHeight();
 
-        final int width = x.getLayoutParams().width;
-        final int height = x.getLayoutParams().height;
-        final Bitmap outputBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+        System.out.println("WYMIARY " + width + "," + height + " ; bitmapa " + bWidth + ", " + bHeight);
+
+        DisplayMetrics metrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(metrics);
+
+        final Bitmap outputBitmap = Bitmap.createBitmap(metrics,width, height, Bitmap.Config.ARGB_8888);
 
         final Path path = new Path();
         path.addCircle(

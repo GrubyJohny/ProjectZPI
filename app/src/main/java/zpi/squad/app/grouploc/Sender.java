@@ -282,4 +282,45 @@ public class Sender {
         return result.toString();
     }
 
+    public static void shareMarker(final Context context, final String uid, final String name, final String latitude, final String longitude) {
+        final String TAG = "Sharing marker to friends";
+
+        StringRequest request = new StringRequest(Request.Method.POST, AppConfig.URL_LOGIN, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+
+                Log.d(TAG, response);
+                try {
+                    JSONObject jObj = new JSONObject(response);
+                    if (!jObj.getBoolean("error")) {
+                        Toast.makeText(context, "Marker sent successfully", Toast.LENGTH_SHORT);
+                    } else {
+                        Log.d(TAG, "Sharing marker problem");
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError volleyError) {
+
+            }
+        }) {
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                HashMap<String, String> map = new HashMap<String, String>();
+                map.put("tag", "shareMarker");
+                map.put("uid", uid);
+                map.put("name", name);
+                map.put("latitude", latitude);
+                map.put("longitude", longitude);
+                return map;
+            }
+        };
+        AppController.getInstance().addToRequestQueue(request, "share marker");
+    }
+
 }

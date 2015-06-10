@@ -79,6 +79,11 @@ public class AppController extends Application {
 
     }
 
+    public void addNewMarker(CustomMarker marker){
+        markers.add(marker);
+       // Sender.putMarkersOnMapAgain(markers, myMap);
+    }
+
     public void setMarkers(List<CustomMarker> markers) {
         this.markers = markers;
     }

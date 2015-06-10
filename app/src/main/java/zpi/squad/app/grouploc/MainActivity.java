@@ -1,11 +1,6 @@
 package zpi.squad.app.grouploc;
 
-import android.app.ActionBar;
 import android.app.AlertDialog;
-import android.app.Fragment;
-import android.inputmethodservice.Keyboard;
-import android.support.v4.app.DialogFragment;
-import android.app.FragmentTransaction;
 import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
@@ -23,8 +18,6 @@ import android.os.Bundle;
 import android.os.StrictMode;
 import android.os.Vibrator;
 import android.provider.MediaStore;
-//import android.support.v7.app.AppCompatActivity;
-import android.support.v7.app.ActionBarActivity;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTabHost;
 import android.util.Log;
@@ -32,7 +25,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -44,7 +36,6 @@ import android.widget.Spinner;
 import android.widget.TabHost;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.ViewFlipper;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.NetworkError;
@@ -56,13 +47,11 @@ import com.android.volley.ServerError;
 import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
-import com.facebook.FacebookSdk;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -72,17 +61,16 @@ import org.apache.commons.net.ftp.FTPClient;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.w3c.dom.Text;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+
+//import android.support.v7.app.AppCompatActivity;
 
 
 public class MainActivity extends FragmentActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
@@ -607,10 +595,19 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
             public void onResponse(String response) {
 
                 String TAG = "Sending coordinates & checking for notifications";
-                //Log.d(TAG, response.toString());
+                Log.d(TAG, response.toString());
                 try {
                     JSONObject jObj = new JSONObject(response);
                     boolean error = jObj.getBoolean("error");
+
+                    JSONArray markersArray = jObj.getJSONArray("markers");
+                    JSONObject markerObj;
+                    CustomMarker myMarker;
+                    String mySqlId;
+                    String userId;
+                    Double latitude;
+                    Double longitude;
+                    String markerName;
 
                     JSONArray array = jObj.getJSONArray("notifications");
                     JSONObject notObj;
@@ -621,7 +618,25 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                     String type;
                     String messageId;
                     String groupId;
+                    //String markerId;
                     String createdAt;
+
+
+
+                    for(int i=0; i < markersArray.length(); i++){
+                        markerObj = markersArray.getJSONObject(i);
+                        mySqlId = markerObj.getString("mysqlid");
+                        userId = markerObj.getString("userid");
+                        latitude = markerObj.getDouble("latitude");
+                        longitude = markerObj.getDouble("longitude");
+                        markerName = markerObj.getString("markername");
+
+                        myMarker = new CustomMarker(mySqlId, userId, latitude, longitude, markerName);
+                        db.addMarker(myMarker);
+                        globalVariable.addNewMarker(myMarker);
+
+
+                    }
 
                     for (int i = 0; i < array.length(); i++) {
                         notObj = array.getJSONObject(i);
@@ -632,6 +647,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                         type = notObj.getString("type");
                         messageId = notObj.getString("messageid");
                         groupId = notObj.getString("groupid");
+                        //markerId = notObj.getString("markerid");
                         createdAt = notObj.getString("created_at");
                         v.vibrate(500);
                         db.addNotification(senderId, senderName, senderEmail, receiverId, type, messageId, groupId, createdAt, 0);
@@ -641,13 +657,16 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
 
                             db.addFriend(senderId, senderName, senderEmail);
                             FriendsFragment.addFriend(new Friend(Integer.valueOf(senderId), senderName, senderEmail));
-                        } else if (type.equals("friendshipCanceled")) {
+                        }
+                        else if (type.equals("friendshipCanceled")) {
                             FriendsFragment.removeItem(senderEmail);
-                        } else if (type.equals("friendshipRequest")) {
-                            // final int id = Integer.valueOf(senderId);
-                            // final String n = senderName;
-                            // final String e = senderEmail;
-                            // Log.d("MOJLOG", "weszlo");
+                        }
+                        else if (type.equals("friendshipRequest")) {
+
+
+                        }
+                        else if (type.equals("shareMarker")) {
+
                         }
                     }
 

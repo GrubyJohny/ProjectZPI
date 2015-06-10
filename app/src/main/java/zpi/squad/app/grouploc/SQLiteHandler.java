@@ -120,6 +120,7 @@ public class SQLiteHandler extends SQLiteOpenHelper {
         db.close();
 
         Log.d(TAG, "New friend inserted into sqlite: " + id);
+        Log.d(TAG, "To tutaj  " + id);
 
 
     }
@@ -321,7 +322,7 @@ public class SQLiteHandler extends SQLiteOpenHelper {
     }
 
     public boolean removeMarker(String id) {
-        Log.d("SQLite delete", "Chce usun¹æ " + id);
+        Log.d("SQLite delete", "Chce usunï¿½ï¿½ " + id);
         SQLiteDatabase db = this.getWritableDatabase();
 
         String selectQuery = "SELECT  * FROM " + TABLE_MARKERS;

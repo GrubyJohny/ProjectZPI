@@ -188,6 +188,18 @@
                 android:layout_height="match_parent"
                 android:background="#f6f6f6" />
 
+            <View
+                android:layout_width="1dp"
+                android:layout_height="match_parent"
+                android:background="#f6f6f6" />
+
+            <Button
+                android:id="@+id/fifthButton"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:clickable="true"
+                android:background="@drawable/share"/>
+
             <Button
                 android:id="@+id/thirdButton"
                 android:layout_width="51dp"

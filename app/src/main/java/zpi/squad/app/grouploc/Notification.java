@@ -49,6 +49,9 @@ public class Notification {
         else if(type.equals("friendshipCanceled")){
             response = "Użytkownik " + senderName + " wyrzucił Cię ze znajomych";
         }
+        else if(type.equals("shareMarker")){
+            response = "Użykownik " + senderName + " udostępnił Ci nowy punkt na mapie";
+        }
 
 
         return response;

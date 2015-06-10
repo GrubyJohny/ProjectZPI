@@ -1,6 +1,5 @@
 package zpi.squad.app.grouploc;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -9,18 +8,16 @@ import android.content.res.Resources;
 import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationManager;
-import android.os.AsyncTask;
-import android.support.v4.app.DialogFragment;
-import android.support.v4.app.FragmentManager;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.util.Log;
 import android.view.InflateException;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ScrollView;
@@ -30,11 +27,9 @@ import android.widget.Toast;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
@@ -99,6 +94,7 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
     private Button secondMarkerButton;
     private Button thirdMarkerButton;
     private Button fourthMarkerButton;
+    private Button fifthMarkerButton;
     private Button closeMarkerButton;
     private Button changeMapTypeButton;
     private SessionManager session;
@@ -416,6 +412,7 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
         secondMarkerButton = (Button) getActivity().findViewById(R.id.secondButton);
         thirdMarkerButton = (Button) getActivity().findViewById(R.id.thirdButton);
         fourthMarkerButton = (Button) getActivity().findViewById(R.id.fourthButton);
+        fifthMarkerButton = (Button) getActivity().findViewById(R.id.fifthButton);
         closeMarkerButton = (Button) getActivity().findViewById(R.id.closeMarkerButton);
 
         closeMarkerButton.setOnClickListener(new View.OnClickListener() {
@@ -797,6 +794,24 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
                 startActivity(mapIntent);
             }
         });
+
+        fifthMarkerButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String uid = session.getUserId();
+                double latitude = ostatniMarker.getPosition().latitude;
+                double longitude = ostatniMarker.getPosition().longitude;
+                CustomMarker custom = ToolsForMarkerList.getSpecificMarkerByLatitudeAndLongitude(markers, latitude, longitude);
+                String name = ostatniMarker.getTitle();
+                if (name == null)
+                    name = "brak";
+
+
+                Sender.shareMarker(getActivity().getApplicationContext(), uid, name, Double.toString(latitude), Double.toString(longitude));
+            }
+        });
+
+
         thirdMarkerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

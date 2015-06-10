@@ -421,7 +421,6 @@ public class LoginActivity extends Activity {
                             customMarker.setSaveOnServer(true);
                             long SQLiteID = db.addMarker(customMarker);
                             customMarker.setMarkerIdSQLite(Long.toString(SQLiteID));
-                            AppController.getInstance().addToMarkers(customMarker);
                         }
 
                         Intent intent = new Intent(LoginActivity.this, MainActivity.class);

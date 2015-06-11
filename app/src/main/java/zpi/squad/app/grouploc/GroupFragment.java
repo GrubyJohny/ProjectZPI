@@ -36,8 +36,6 @@ public class GroupFragment extends Fragment {
     private Button searchGroupButton;
     private Button searchButton;
     private EditText searchGroupText;
-    private View layoutFlipper;
-    private View layoutGroup;
     private View layoutSettings;
     private Button BackToMapButton;
     private FragmentTabHost tabhost;
@@ -108,9 +106,6 @@ public class GroupFragment extends Fragment {
         BackToMapButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //myViewFlipper.setDisplayedChild(0);
-                //layoutFlipper.setVisibility(View.VISIBLE);
-                //layoutGroup.setVisibility(View.INVISIBLE);
                 tabhost.setCurrentTab(0);
                 layoutSettings.setVisibility(View.INVISIBLE);
             }

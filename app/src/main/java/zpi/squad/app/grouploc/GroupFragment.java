@@ -1,6 +1,8 @@
 package zpi.squad.app.grouploc;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -11,15 +13,11 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 
+import com.google.android.gms.maps.GoogleMap;
 
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link GroupFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link GroupFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
+import java.util.ArrayList;
+import java.util.List;
+
 public class GroupFragment extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -39,16 +37,13 @@ public class GroupFragment extends Fragment {
     private View layoutSettings;
     private Button BackToMapButton;
     private FragmentTabHost tabhost;
+    GroupAdapter groupAdapter;
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment GroupFragment.
-     */
-    // TODO: Rename and change types and number of parameters
+    private List<GroupList> groups;
+
+    //private static final String[] Groups =
+      //      {"Road Map", "Hybrid", "Satellite", "Terrain"};
+
     public static GroupFragment newInstance(String param1, String param2) {
         GroupFragment fragment = new GroupFragment();
         Bundle args = new Bundle();
@@ -69,6 +64,8 @@ public class GroupFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+
+
     }
 
     @Override
@@ -85,6 +82,8 @@ public class GroupFragment extends Fragment {
         searchGroupText = (EditText) view.findViewById(R.id.searchingGroupText);
         searchButton = (Button) view.findViewById(R.id.searchButton);
 
+
+
         searchGroupButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -93,6 +92,14 @@ public class GroupFragment extends Fragment {
             }
         });
 
+
+
+        searchButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showMapTypeSelectorDialog();
+            }
+        });
     }
 
     public void onActivityCreated(Bundle savedInstanceState) {
@@ -110,6 +117,25 @@ public class GroupFragment extends Fragment {
                 layoutSettings.setVisibility(View.INVISIBLE);
             }
         });
+
+        groups = new ArrayList<GroupList>();
+        groups.add(new GroupList(1, "Jakaś", 1, "Jakiś", "25.05.2015"));
+        groups.add(new GroupList(2, "GroupLoc", 2, "Inny", "26.05.2015"));
+        groups.add(new GroupList(3, "Grill", 3, "Jeszcze inny", "27.05.2015"));
+        groups.add(new GroupList(1, "Jakaś", 1, "Jakiś", "25.05.2015"));
+        groups.add(new GroupList(2, "GroupLoc", 2, "Inny", "26.05.2015"));
+        groups.add(new GroupList(3, "Grill", 3, "Jeszcze inny", "27.05.2015"));
+        groups.add(new GroupList(1, "Jakaś", 1, "Jakiś", "25.05.2015"));
+        groups.add(new GroupList(2, "GroupLoc", 2, "Inny", "26.05.2015"));
+        groups.add(new GroupList(3, "Grill", 3, "Jeszcze inny", "27.05.2015"));
+        groups.add(new GroupList(1, "Jakaś", 1, "Jakiś", "25.05.2015"));
+        groups.add(new GroupList(2, "GroupLoc", 2, "Inny", "26.05.2015"));
+        groups.add(new GroupList(3, "Grill", 3, "Jeszcze inny", "27.05.2015"));
+        groups.add(new GroupList(1, "Jakaś", 1, "Jakiś", "25.05.2015"));
+        groups.add(new GroupList(2, "GroupLoc", 2, "Inny", "26.05.2015"));
+        groups.add(new GroupList(3, "Grill", 3, "Jeszcze inny", "27.05.2015"));
+        groupAdapter = new GroupAdapter(getActivity().getApplicationContext(), groups);
+
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -149,6 +175,45 @@ public class GroupFragment extends Fragment {
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         public void onFragmentInteraction(Uri uri);
+    }
+
+    private void showMapTypeSelectorDialog() {
+        // Prepare the dialog by setting up a Builder.
+        final String fDialogTitle = "Choose group";
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setTitle(fDialogTitle);
+
+        // Find the current map type to pre-check the item representing the current state.
+        int checkItem = 0;
+
+        // Add an OnClickListener to the dialog, so that the selection will be handled.
+        builder.setSingleChoiceItems(
+                groupAdapter,
+                checkItem,
+                new DialogInterface.OnClickListener() {
+
+                    public void onClick(DialogInterface dialog, int item) {
+                        // Locally create a finalised object.
+
+                        // Perform an action depending on which item was selected.
+                        switch (item) {
+                            case 1:
+                                break;
+                            case 2:
+                                break;
+                            case 3:
+                                break;
+                            default:
+                        }
+                        dialog.dismiss();
+                    }
+                }
+        );
+
+        // Build the dialog and show it.
+        AlertDialog fMapTypeDialog = builder.create();
+        fMapTypeDialog.setCanceledOnTouchOutside(true);
+        fMapTypeDialog.show();
     }
 
 }

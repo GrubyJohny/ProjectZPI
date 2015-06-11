@@ -9,7 +9,7 @@
         android:id="@+id/panelLayout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@color/btn_login">
+        android:background="@color/panel_blue2">
 
         <ImageButton
             android:id="@+id/circleButton"
@@ -24,8 +24,8 @@
 
         <ImageButton
             android:id="@+id/noticeButton"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="38dp"
+            android:layout_height="38dp"
             android:layout_centerVertical="true"
             android:layout_marginRight="20dp"
             android:layout_toLeftOf="@id/circleButton"
@@ -34,8 +34,8 @@
 
         <ImageButton
             android:id="@+id/messageButton"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="38dp"
+            android:layout_height="38dp"
             android:layout_centerVertical="true"
             android:layout_marginRight="20dp"
             android:layout_toLeftOf="@id/noticeButton"
@@ -64,7 +64,7 @@
                     android:id="@+id/tabss"
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
-                    android:background="@color/panel">
+                    android:background="@color/panel_tabs">
 
                     <TabWidget
                         android:id="@android:id/tabs"

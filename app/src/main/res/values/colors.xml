@@ -15,5 +15,9 @@
     <color name="lbl_name">#333333</color>
     <color name="btn_logut_bg">#ff6861</color>
     <color name="panel">#FFBB33</color>
+    <color name="panel_blue">#5CDEFF</color>
+    <color name="panel_blue1">#3EC4FF</color>
+    <color name="panel_tabs">#ABABAB</color>
+    <color name="panel_blue2">#4eb0fb</color>
 
 </resources>

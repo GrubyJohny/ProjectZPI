@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationManager;
@@ -30,6 +32,7 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
@@ -119,8 +122,12 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
         globalVariable = (AppController) getActivity().getApplicationContext();
         db = new SQLiteHandler(getActivity().getApplicationContext());
         markers = db.getAllMarkers();
-        globalVariable.setMarkers(markers);
+        for(CustomMarker m : markers){
+            if(m.isSaveOnServer()){
 
+            }
+        }
+        globalVariable.setMarkers(markers);
 
         //mRequestingLocationUpdates = true;
         createLocationRequest();
@@ -473,7 +480,7 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
 
                 myMap.addMarker(new MarkerOptions().position(latLng).draggable(true).snippet(markerIdExtrenal","markerIdInteler));*/
 
-                globalVariable.getMyMap().addMarker(new MarkerOptions().position(latLng).draggable(true));
+                globalVariable.getMyMap().addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromResource(R.drawable.mapmarkerhi)).position(latLng).draggable(true));
                 layoutMarker.setVisibility(View.GONE);
             }
         });
@@ -500,6 +507,7 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
                 return true;
             }
         });
+
 
         globalVariable.getMyMap().setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
@@ -823,6 +831,7 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
                 if (name == null)
                     name = "brak";
                 layoutMarker.setVisibility(View.GONE);
+                ostatniMarker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.mapmarkerhiblue));
 
                 Sender.sendMarker(getActivity().getApplicationContext(), custom, ostatniMarker, db);
             }

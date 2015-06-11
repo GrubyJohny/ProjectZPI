@@ -1,5 +1,9 @@
 package zpi.squad.app.grouploc;
 
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.Marker;
+
 /**
  * Created by sanczo on 2015-05-20.
  */
@@ -113,5 +117,6 @@ public class CustomMarker {
     public void setMarkerIdSQLite(String markerIdSQLite) {
         this.markerIdSQLite = markerIdSQLite;
     }
+
 
 }

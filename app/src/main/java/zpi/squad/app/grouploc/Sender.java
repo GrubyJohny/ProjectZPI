@@ -15,6 +15,7 @@ import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -225,8 +226,16 @@ public class Sender {
             Log.d("PUT", "sqLiteID ustawiony dla tej instancji customMarkera to " + sqliteID);
             String markerIdInteler = (sqliteID == null || sqliteID.equals("")) ? "NULL" : sqliteID;
             String snippet = markerIdExtrenal + "," + markerIdInteler;
-            myMap.addMarker(new MarkerOptions().position(new LatLng(cM.getLatitude(), cM.getLongitude())).title(cM.getName()).snippet(snippet));
 
+            if(cM.getName().contains("(od ")){
+                myMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromResource(R.drawable.mapmarkerhigreen)).position(new LatLng(cM.getLatitude(), cM.getLongitude())).title(cM.getName()).snippet(snippet));
+            }
+            else if(cM.isSaveOnServer()) {
+                myMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromResource(R.drawable.mapmarkerhiblue)).position(new LatLng(cM.getLatitude(), cM.getLongitude())).title(cM.getName()).snippet(snippet));
+            }
+            else{
+                myMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromResource(R.drawable.mapmarkerhi)).position(new LatLng(cM.getLatitude(), cM.getLongitude())).title(cM.getName()).snippet(snippet));
+            }
             Log.d("PUT", "Snippet ustawiony dla tej instancji customMarkera to " + snippet);
         }
     }

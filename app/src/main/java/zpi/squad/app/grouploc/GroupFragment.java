@@ -3,16 +3,20 @@ package zpi.squad.app.grouploc;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTabHost;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
@@ -51,9 +55,6 @@ public class GroupFragment extends Fragment {
     private static GroupAdapter groupAdapter;
 
     private static List<GroupList> groups;
-
-    //private static final String[] Groups =
-      //      {"Road Map", "Hybrid", "Satellite", "Terrain"};
 
     public static GroupFragment newInstance(String param1, String param2) {
         GroupFragment fragment = new GroupFragment();
@@ -111,8 +112,7 @@ public class GroupFragment extends Fragment {
                 groups = new ArrayList<GroupList>();
                 groupAdapter = new GroupAdapter(getActivity(), groups);
                 getGroupsByName(getActivity(), groupAdapter, searchGroupText.getText().toString());
-
-                showMapTypeSelectorDialog();
+                showGroupSelectorDialog();
 
             }
         });
@@ -143,14 +143,13 @@ public class GroupFragment extends Fragment {
                             gid = gObj.getInt("gid");
                             gname = gObj.getString("gname");
                             adminId = gObj.getInt("adminid");
-                            adminName = gObj.getString("adminName");
-                            created_at = gObj.getString("created_at");
+                            adminName = "Admin: " + gObj.getString("adminName");
+                            created_at = "Utworzona: " + gObj.getString("created_at");
                             Log.e("group added. Id:", ""+(gid));
                             GroupList group = new GroupList(gid, gname, adminId, adminName, created_at);
                             groupAdapter.add(group);
 
                         }
-
 
                     } else {
                         Log.d(TAG, "Getting list of groups problem");
@@ -240,11 +239,21 @@ public class GroupFragment extends Fragment {
         public void onFragmentInteraction(Uri uri);
     }
 
-    public void showMapTypeSelectorDialog() {
+    public void showGroupSelectorDialog() {
         // Prepare the dialog by setting up a Builder.
         final String fDialogTitle = "Choose group";
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setTitle(fDialogTitle);
+
+        TextView title = new TextView(getActivity().getApplicationContext());
+// You Can Customise your Title here
+        title.setText("Choose group");
+        title.setBackgroundColor(Color.DKGRAY);
+        title.setPadding(15, 15, 15, 15);
+        title.setGravity(Gravity.CENTER);
+        title.setTextColor(Color.WHITE);
+        title.setTextSize(22);
+        builder.setCustomTitle(title);
+        //builder.setTitle(fDialogTitle);
 
         // Find the current map type to pre-check the item representing the current state.
         int checkItem = 0;
@@ -255,19 +264,13 @@ public class GroupFragment extends Fragment {
                 checkItem,
                 new DialogInterface.OnClickListener() {
 
-                    public void onClick(DialogInterface dialog, int item) {
-                        // Locally create a finalised object.
+                    public void onClick(DialogInterface dialog, int position) {
 
-                        // Perform an action depending on which item was selected.
-                        switch (item) {
-                            case 1:
-                                break;
-                            case 2:
-                                break;
-                            case 3:
-                                break;
-                            default:
-                        }
+                        GroupList item = groups.get(position);
+
+
+                        Toast.makeText(getActivity().getApplicationContext(), "You chose group: " + item.getGroupName(), Toast.LENGTH_LONG).show();
+
                         dialog.dismiss();
                     }
                 }

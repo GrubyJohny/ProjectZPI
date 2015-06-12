@@ -33,6 +33,7 @@ import java.util.Map;
  * Created by sanczo on 2015-05-18.
  */
 public class Sender {
+    private static HashMap<String,Marker> friends = new HashMap<String,Marker>();
 
     public static void sendMarker(final Context context, final CustomMarker cM, final Marker m, final SQLiteHandler db) {
         StringRequest request = new StringRequest(Request.Method.POST, AppConfig.URL_LOGIN, new Response.Listener<String>() {
@@ -168,13 +169,12 @@ public class Sender {
 
     }
 
-    public static void sendRequestAboutFriendsCoordinate(final String whereClause, final List<CustomMarker> forResult, final GoogleMap map) {
+    public static void sendRequestAboutFriendsCoordinate(final String whereClause, final GoogleMap map) {
         final String TAG = "Getting friendsCoordinate";
         Log.d(TAG, whereClause);
         StringRequest request = new StringRequest(Request.Method.POST, AppConfig.URL_LOGIN, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
-                forResult.clear();
                 Log.d(TAG, response);
                 try {
                     JSONObject jObj = new JSONObject(response);
@@ -183,12 +183,32 @@ public class Sender {
                         Log.d(TAG, question);
                         JSONArray array = jObj.getJSONArray("coordinates");
                         for (int i = 0; i < array.length(); i++) {
-                            JSONObject friendCoordinate = array.getJSONObject(i);
+                            JSONObject friendCoordinate =
+                                    array.getJSONObject(i);
                             String id = friendCoordinate.getString("F_ID");
-                            Double latitude = friendCoordinate.getDouble("latitude");
-                            Double longitude = friendCoordinate.getDouble("longitude");
-                            CustomMarker marker = new CustomMarker(id, latitude, longitude);
-                            forResult.add(marker);
+                            Double latitude =
+                                    friendCoordinate.getDouble("latitude");
+                            Double longitude =
+                                    friendCoordinate.getDouble("longitude");
+                            String name=friendCoordinate.getString("F_name");
+                            String data=friendCoordinate.getString("data");
+                            LatLng latLng=new LatLng(latitude,longitude);
+
+
+
+                            if(friends.containsKey(id))
+                            {
+                                //tylko aktualizuj współrzędne
+                                Marker oldFriendMarker= friends.get(id);
+                                oldFriendMarker.setPosition(latLng);
+                            }
+                            else
+                            {
+                                //dodaj nowy marker
+                                Marker dodany= map.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromResource(R.drawable.image5)).title(name).position(latLng));
+                                friends.put(id,dodany);
+                            }
+
                         }
                     } else {
                         Log.d(TAG, "cos poszlo nie tak");
@@ -196,8 +216,8 @@ public class Sender {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-                Log.d(TAG, "on response, size forResult+ " + forResult.size());
-                Sender.putMarkersOnMapAgain(forResult, map);
+                Log.d(TAG, "on response, size forResult+ " + friends.size());
+
 
             }
         }, new Response.ErrorListener() {

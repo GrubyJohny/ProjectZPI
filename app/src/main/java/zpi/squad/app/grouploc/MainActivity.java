@@ -6,6 +6,7 @@ import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -17,9 +18,11 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.os.Vibrator;
+import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTabHost;
+import android.util.Base64;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Menu;
@@ -110,7 +113,6 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     private static final int PICK_FROM_CAMERA = 1;
     private static final int PICK_FROM_GALLERY = 2;
     private static final int CROP_IMAGE = 3;
-    String IMAGE_PHOTO_FILENAME = "profile_photo.png";
     private Button firstMarkerButton;
     private Button secondMarkerButton;
     private Button thirdMarkerButton;
@@ -143,6 +145,12 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
 
     //OstatniKliknietyNaMapi
     private LatLng lastClikOnMap;
+
+    public static final String IMAGE_PHOTO_FILENAME = "facebook_profile_photo";
+
+    SharedPreferences.Editor edit;
+    SharedPreferences shre;
+    Bitmap profilePicture;
 
     AppController globalVariable;
 
@@ -248,25 +256,29 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
 
     private void setupCircleButtonWithProfileImage() {
         Bitmap icon = null;
-        try {
-            File filePath = new File(FACEBOOK_PROFILE_IMAGE);
-            FileInputStream fi = new FileInputStream(filePath);
-            icon = BitmapFactory.decodeStream(fi);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-            File filePath = context.getFileStreamPath(IMAGE_PHOTO_FILENAME);
-            FileInputStream fi = null;
-            try {
-                fi = new FileInputStream(filePath);
-            } catch (FileNotFoundException e1) {
-                e1.printStackTrace();
-            }
-            icon = BitmapFactory.decodeStream(fi);
+        SharedPreferences shre = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        String previouslyEncodedImage;
+        if(!shre.getString("image_data", "").isEmpty()) {
+            previouslyEncodedImage =shre.getString("image_data", "");
         }
+        else previouslyEncodedImage = shre.getString("facebook_image_data","");
 
-        //w razie gdyby nie byĹ‚o jeszcze ĹĽadnego naszego zdjÄ™cia, to johny lÄ…duje na profilowym
+
+        if( !previouslyEncodedImage.equalsIgnoreCase("") ){
+
+            byte[] b = Base64.decode(previouslyEncodedImage, Base64.DEFAULT);
+            profilePicture = BitmapFactory.decodeByteArray(b, 0, b.length);
+
+        }
+        //uploadProfileImageToFTP();
+
+        icon = profilePicture;
+
+
+        //w razie gdyby nie bylo zadnego zdjecia, to dziwny domyslny ryj laduje na profilowym
         if (icon == null)
             icon = BitmapFactory.decodeResource(getResources(), R.drawable.image3);
+
 
         //Bitmap bMapScaled = Bitmap.createScaledBitmap(icon, 150, 150, true);
         Bitmap bitmap_round = clipBitmap(icon, circleButton);
@@ -851,6 +863,9 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         //Log.d(AppController.TAG, "Location has changed");
         float latitude = (float) location.getLatitude();
         float longitude = (float) location.getLongitude();
+        String whereClusere= Sender.makeStatementAboutFriendsList(db.getAllFriends());;
+        Log.d("pobieranie znajomych",whereClusere);
+        Sender.sendRequestAboutFriendsCoordinate(whereClusere,AppController.getInstance().getMyMap());
         //Toast.makeText(getApplicationContext(), "Szerokość + " + latitude + " Długość: " + longitude, Toast.LENGTH_SHORT).show();
         stayActive(session.getUserId(), (float) latitude, (float) longitude);
 

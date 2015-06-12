@@ -328,6 +328,18 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
         });
     }
 
+    private void hideSomeOptionsFromMarker() {
+        thirdMarkerButton.setVisibility(View.GONE);
+        fourthMarkerButton.setVisibility(View.GONE);
+        fifthMarkerButton.setVisibility(View.GONE);
+    }
+
+    private void showSomeOptionsFromMarker() {
+        thirdMarkerButton.setVisibility(View.VISIBLE);
+        fourthMarkerButton.setVisibility(View.VISIBLE);
+        fifthMarkerButton.setVisibility(View.VISIBLE);
+    }
+
     private void markersSelectionChanged() {
         globalVariable.getMyMap().clear();
 

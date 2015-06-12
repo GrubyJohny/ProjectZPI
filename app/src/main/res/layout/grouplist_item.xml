@@ -2,9 +2,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/groupListLay"
     android:layout_width="match_parent"
-    android:layout_height="55dp"
-    android:orientation="horizontal"
-    android:paddingLeft="5dp">
+    android:layout_height="wrap_content"
+    android:orientation="horizontal">
 
     <LinearLayout
         android:id="@+id/group"
@@ -13,34 +12,35 @@
         android:layout_gravity="center_vertical"
         android:gravity="center_vertical"
         android:orientation="vertical"
-        android:paddingLeft="5dp">
+        android:paddingLeft="5dp"
+        android:paddingRight="5dp">
 
         <TextView
             android:id="@+id/groupName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Byle co" />
+            android:text="Byle co"
+            android:textSize="20sp" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
 
-            <TextView
-                android:id="@+id/groupDate"
-                android:layout_width="wrap_content"
-                android:layout_height="20dp"
-                android:text="jakaś data"
-                android:textColor="@color/input_login_hint" />
+        <TextView
+            android:id="@+id/groupDate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="jakaś data"
+            android:textColor="@color/input_login_hint" />
 
-            <TextView
-                android:id="@+id/groupAdmin"
-                android:layout_width="wrap_content"
-                android:layout_height="20dp"
-                android:layout_marginLeft="50dp"
-                android:text="admin"
-                android:textColor="@color/input_login_hint" />
+        <TextView
+            android:id="@+id/groupAdmin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="admin"
+            android:textColor="@color/input_login_hint" />
 
-        </LinearLayout>
 
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="2dp"
+            android:background="#000000" />
     </LinearLayout>
 </LinearLayout>

@@ -7,16 +7,27 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTabHost;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 
-import com.google.android.gms.maps.GoogleMap;
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class GroupFragment extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
@@ -37,9 +48,9 @@ public class GroupFragment extends Fragment {
     private View layoutSettings;
     private Button BackToMapButton;
     private FragmentTabHost tabhost;
-    GroupAdapter groupAdapter;
+    private static GroupAdapter groupAdapter;
 
-    private List<GroupList> groups;
+    private static List<GroupList> groups;
 
     //private static final String[] Groups =
       //      {"Road Map", "Hybrid", "Satellite", "Terrain"};
@@ -97,10 +108,79 @@ public class GroupFragment extends Fragment {
         searchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                groups = new ArrayList<GroupList>();
+                groupAdapter = new GroupAdapter(getActivity(), groups);
+                getGroupsByName(getActivity(), groupAdapter, searchGroupText.getText().toString());
+
                 showMapTypeSelectorDialog();
+
             }
         });
     }
+
+    public static void getGroupsByName(final Activity activity, final GroupAdapter adapter, final String text) {
+        final String TAG = "Requesting for list of groups";
+
+        StringRequest request = new StringRequest(Request.Method.POST, AppConfig.URL_LOGIN, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+
+                Log.d(TAG, response);
+
+                try {
+                    JSONObject jObj = new JSONObject(response);
+                    if (!jObj.getBoolean("error")) {
+                        JSONArray jsonGroups = jObj.getJSONArray("groups");
+                        JSONObject gObj;
+                        int gid;
+                        String gname;
+                        int adminId;
+                        String adminName;
+                        String created_at;
+
+                        for(int i=0; i<jsonGroups.length(); i++){
+                            gObj = jsonGroups.getJSONObject(i);
+                            gid = gObj.getInt("gid");
+                            gname = gObj.getString("gname");
+                            adminId = gObj.getInt("adminid");
+                            adminName = gObj.getString("adminName");
+                            created_at = gObj.getString("created_at");
+                            Log.e("group added. Id:", ""+(gid));
+                            groupAdapter.add(new GroupList(gid, gname, adminId, adminName, created_at));
+
+                        }
+
+
+
+
+
+                    } else {
+                        Log.d(TAG, "Getting list of groups problem");
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError volleyError) {
+
+            }
+        }) {
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                HashMap<String, String> map = new HashMap<String, String>();
+                map.put("tag", "listOfGroupsRequest");
+                map.put("namePart", text);
+
+                return map;
+            }
+        };
+        AppController.getInstance().addToRequestQueue(request, "listOfGroupsRequest");
+    }
+
 
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
@@ -118,23 +198,8 @@ public class GroupFragment extends Fragment {
             }
         });
 
-        groups = new ArrayList<GroupList>();
-        groups.add(new GroupList(1, "Jakaś", 1, "Jakiś", "25.05.2015"));
-        groups.add(new GroupList(2, "GroupLoc", 2, "Inny", "26.05.2015"));
-        groups.add(new GroupList(3, "Grill", 3, "Jeszcze inny", "27.05.2015"));
-        groups.add(new GroupList(1, "Jakaś", 1, "Jakiś", "25.05.2015"));
-        groups.add(new GroupList(2, "GroupLoc", 2, "Inny", "26.05.2015"));
-        groups.add(new GroupList(3, "Grill", 3, "Jeszcze inny", "27.05.2015"));
-        groups.add(new GroupList(1, "Jakaś", 1, "Jakiś", "25.05.2015"));
-        groups.add(new GroupList(2, "GroupLoc", 2, "Inny", "26.05.2015"));
-        groups.add(new GroupList(3, "Grill", 3, "Jeszcze inny", "27.05.2015"));
-        groups.add(new GroupList(1, "Jakaś", 1, "Jakiś", "25.05.2015"));
-        groups.add(new GroupList(2, "GroupLoc", 2, "Inny", "26.05.2015"));
-        groups.add(new GroupList(3, "Grill", 3, "Jeszcze inny", "27.05.2015"));
-        groups.add(new GroupList(1, "Jakaś", 1, "Jakiś", "25.05.2015"));
-        groups.add(new GroupList(2, "GroupLoc", 2, "Inny", "26.05.2015"));
-        groups.add(new GroupList(3, "Grill", 3, "Jeszcze inny", "27.05.2015"));
-        groupAdapter = new GroupAdapter(getActivity().getApplicationContext(), groups);
+
+
 
     }
 
@@ -177,7 +242,7 @@ public class GroupFragment extends Fragment {
         public void onFragmentInteraction(Uri uri);
     }
 
-    private void showMapTypeSelectorDialog() {
+    public void showMapTypeSelectorDialog() {
         // Prepare the dialog by setting up a Builder.
         final String fDialogTitle = "Choose group";
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());

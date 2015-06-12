@@ -169,14 +169,13 @@ public class Sender {
 
     }
 
-    public static void sendRequestAboutFriendsCoordinate(final String whereClause, final List<CustomMarker> forResult, final GoogleMap map) {
+    public static void sendRequestAboutFriendsCoordinate(final String whereClause, final GoogleMap map) {
         final String TAG = "Getting friendsCoordinate";
         Log.d(TAG, whereClause);
         StringRequest request = new StringRequest(Request.Method.POST, AppConfig.URL_LOGIN, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
-                forResult.clear();
-                Log.d(TAG, response);
+               // Log.d(TAG, response);
                 try {
                     JSONObject jObj = new JSONObject(response);
                     if (!jObj.getBoolean("error")) {
@@ -222,8 +221,7 @@ public class Sender {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-                Log.d(TAG, "on response, size forResult+ " + forResult.size());
-                Sender.putMarkersOnMapAgain(forResult, map);
+
 
             }
         }, new Response.ErrorListener() {

@@ -8,6 +8,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Path;
@@ -69,7 +70,6 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -862,13 +862,11 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         //Log.d(AppController.TAG, "Location has changed");
         float latitude = (float) location.getLatitude();
         float longitude = (float) location.getLongitude();
-        String whereClusere= Sender.makeStatementAboutFriendsList(db.getAllFriends());;
-        Log.d("pobieranie znajomych",whereClusere);
+
+        String whereClusere= Sender.makeStatementAboutFriendsList(db.getAllFriends());
+       // Log.d("pobieranie znajomych",whereClusere);
         Sender.sendRequestAboutFriendsCoordinate(whereClusere,AppController.getInstance().getMyMap());
-        //Toast.makeText(getApplicationContext(), "Szerokość + " + latitude + " Długość: " + longitude, Toast.LENGTH_SHORT).show();
-        String whereClusere= Sender.makeStatementAboutFriendsList(db.getAllFriends());;
-        Log.d("pobieranie znajomych",whereClusere);
-        Sender.sendRequestAboutFriendsCoordinate(whereClusere,AppController.getInstance().getMyMap());
+
         stayActive(session.getUserId(), (float) latitude, (float) longitude);
 
     }

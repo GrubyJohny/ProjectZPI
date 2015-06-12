@@ -56,7 +56,6 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
@@ -867,6 +866,9 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         Log.d("pobieranie znajomych",whereClusere);
         Sender.sendRequestAboutFriendsCoordinate(whereClusere,AppController.getInstance().getMyMap());
         //Toast.makeText(getApplicationContext(), "Szerokość + " + latitude + " Długość: " + longitude, Toast.LENGTH_SHORT).show();
+        String whereClusere= Sender.makeStatementAboutFriendsList(db.getAllFriends());;
+        Log.d("pobieranie znajomych",whereClusere);
+        Sender.sendRequestAboutFriendsCoordinate(whereClusere,AppController.getInstance().getMyMap());
         stayActive(session.getUserId(), (float) latitude, (float) longitude);
 
     }

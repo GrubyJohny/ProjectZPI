@@ -146,12 +146,10 @@ public class GroupFragment extends Fragment {
                             adminName = gObj.getString("adminName");
                             created_at = gObj.getString("created_at");
                             Log.e("group added. Id:", ""+(gid));
-                            groupAdapter.add(new GroupList(gid, gname, adminId, adminName, created_at));
+                            GroupList group = new GroupList(gid, gname, adminId, adminName, created_at);
+                            groupAdapter.add(group);
 
                         }
-
-
-
 
 
                     } else {

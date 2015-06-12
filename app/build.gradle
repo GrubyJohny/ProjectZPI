@@ -5,7 +5,7 @@ android {
         config {
             keyAlias 'key'
             keyPassword 'password'
-            storeFile file('C:/Users/karol_000/Dropbox/AndroidStudioProjects/ProjectZPI/key.jks')
+            storeFile file('C:/Users/sanczo/AndroidStudioProjects/ProjectZPI/key.jks')
             storePassword 'password'
         }
     }

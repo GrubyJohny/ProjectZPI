@@ -44,8 +44,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
-                android:layout_weight="0.5"
-                android:text="From gallery" />
+                android:text="From gallery"
+                android:layout_weight="0.5" />
 
             <Button
                 android:id="@+id/changeImgFromCameraButton"
@@ -54,6 +54,27 @@
                 android:layout_centerInParent="true"
                 android:layout_weight="0.5"
                 android:text="Take photo" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+
+            <Button
+                android:id="@+id/buttonImageFromFacebook"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:layout_weight="0.5"
+                android:text="from facebook" />
+
+            <Button
+                android:id="@+id/buttonImageFromAdjust"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:layout_weight="0.5"
+                android:text="adjust current" />
         </LinearLayout>
 
         <LinearLayout

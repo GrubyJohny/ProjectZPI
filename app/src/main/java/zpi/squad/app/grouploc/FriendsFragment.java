@@ -5,9 +5,10 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.os.Bundle;
+import android.os.*;
 import android.support.v4.app.ListFragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -82,25 +83,11 @@ public class FriendsFragment extends ListFragment {
         session = new SessionManager(getActivity());
         pDialog = new ProgressDialog(getActivity());
 
-        userFriendsList = db.getAllFriends();
-        mItems = new ArrayList<ListViewItem>();
 
 
-        for(Friend f: userFriendsList){
-            Log.e("przed getFriendPhoto", ""+f.getFriendID());
-            Drawable ico = getFriendPhoto(f.getFriendID());
-            Log.e("przed getFriendPhoto", ""+f.getFriendID());
-            Bitmap bitmap = ((BitmapDrawable) ico).getBitmap();
-// Scale it to 50 x 50
-            Drawable d = new BitmapDrawable(getResources(), Bitmap.createScaledBitmap(bitmap, 50, 50, true));
-// Set your new, scaled drawable "d"
-            mItems.add(new ListViewItem(f.getFriendID(), d==null?resources.getDrawable(R.drawable.image3):d, f.getFriendName(), f.getFriendEmail()));
+        PhotoDecodeRunnable pr = new PhotoDecodeRunnable();
+        pr.run();
 
-        }
-
-
-        friendList = new FriendList(getActivity(), mItems);
-        setListAdapter(friendList);
 
 
 
@@ -332,32 +319,41 @@ public class FriendsFragment extends ListFragment {
     }
 
 
-    private Drawable getFriendPhoto(int friendID)
+    private Drawable getImageFromFTP(int userID) //może zwracać null - uwaga dla Szczurka
     {
 
-        //download photo from ftp
         Bitmap icon = null;
         FTPClient con = null;
-
+        Drawable phot =null;
         try
         {
             con = new FTPClient();
+            /*
             con.connect("ftp.wariat92.linuxpl.eu");
             Log.e("przed getFriendPhoto", "wszedl");
             if (con.login("appUser@wariat92.linuxpl.eu", "grouploc2015"))
+
+             */
+
+
+            con.connect("ftp.marcinta.webd.pl");
+            Log.e("przed getFriendPhoto", "wszedl");
+            if (con.login("grouploc@marcinta.webd.pl", "grouploc2015"))
             {
                 con.enterLocalPassiveMode(); // important!
                 con.setFileType(FTP.BINARY_FILE_TYPE);
-                Log.e("przed getFriendPhoto", "wszedl2" + friendID);
-                OutputStream out = new FileOutputStream(new File(friendID+".png"));
-                boolean result = con.retrieveFile(friendID+".png", out);
-                Log.e("przed getFriendPhoto", ""+result);
-                out.close();
-                if (result) Log.v("moj download", "succeeded");
+                Log.e("przed getFriendPhoto", "wszedl2" + userID);
+
+
+                // boolean result = con.retrieveFile(userID+".png", out);
+
+                phot = Drawable.createFromStream(con.retrieveFileStream(userID+".png"), "userID");
+
+                //Log.e("po getFriendPhoto OK OK", "" + phot.toString());
+
+                //if (result) Log.v("moj download", "succeeded");
                 con.logout();
                 con.disconnect();
-
-
             }
 
 
@@ -379,13 +375,65 @@ public class FriendsFragment extends ListFragment {
             icon = BitmapFactory.decodeStream(fi);
 */
         Log.d("PRZED DRAWABLE", "OK");
-        Drawable ico = Drawable.createFromPath("/storage/emulated/0/"+friendID+".png");
+        //Drawable ico = Drawable.createFromPath(context.getCacheDir() + "" + "/" + userID + ".png");
 
 
-        Log.d("PRAWDA", "" + (ico != null));
+        Log.d("PRAWDA", "" + (phot != null));
 
-        return ico==null?resources.getDrawable(R.drawable.image3):ico;
+        //return phot==null?resources.getDrawable(R.drawable.image3):phot;
+        return phot;
 
+
+    }
+
+    public static Bitmap drawableToBitmap (Drawable drawable) {
+        if (drawable instanceof BitmapDrawable) {
+            return ((BitmapDrawable)drawable).getBitmap();
+        }
+
+        Bitmap bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+        drawable.draw(canvas);
+
+        return bitmap;
+    }
+
+
+    class PhotoDecodeRunnable implements Runnable {
+
+        /*
+         * Defines the code to run for this task.
+         */
+        @Override
+        public void run() {
+            // Moves the current Thread into the background
+            android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_FOREGROUND);
+
+        /*
+         * Stores the current Thread in the PhotoTask instance,
+         * so that the instance
+         * can interrupt the Thread.
+         */
+            Log.d("KURA", "PO MADRYCKU");
+
+            userFriendsList = db.getAllFriends();
+            mItems = new ArrayList<ListViewItem>();
+            for(Friend f: userFriendsList){
+
+                Drawable temp = getImageFromFTP(f.getFriendID());
+                Drawable ico = temp!=null? temp:resources.getDrawable(R.drawable.image3);
+                Bitmap bitmap = ((BitmapDrawable) ico).getBitmap();
+
+                Drawable d = new BitmapDrawable(getResources(), Bitmap.createScaledBitmap(bitmap, 50, 50, true));
+                mItems.add(new ListViewItem(f.getFriendID(), d, f.getFriendName(), f.getFriendEmail()));
+
+            }
+
+            friendList = new FriendList(getActivity(), mItems);
+            setListAdapter(friendList);
+
+        }
 
     }
 

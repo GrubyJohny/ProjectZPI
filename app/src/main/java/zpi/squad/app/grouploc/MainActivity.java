@@ -7,11 +7,15 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Path;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.DrawableContainer;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
@@ -23,6 +27,7 @@ import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTabHost;
+import android.text.format.Time;
 import android.util.Base64;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -68,6 +73,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -81,15 +87,14 @@ import java.util.Map;
 public class MainActivity extends FragmentActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
         com.google.android.gms.location.LocationListener, MarkerDialog.NoticeDialogListener {
 
+    private static Resources resources;
     private SessionManager session;
     private ProgressDialog pDialog;
     private SQLiteHandler db;
     Vibrator v;
     private View tabLayout;
     protected boolean inhibit_spinner = true;
-    private Spinner spinner1;
-    private Spinner spinner2;
-    private Spinner spinner3;
+    private Spinner spinner1, spinner2, spinner3;
     private ImageButton circleButton;
     private ImageButton noticeButton;
     private ImageButton messageButton;
@@ -109,6 +114,8 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     private Button cancel;
     private Button changeImgFromGallery;
     private Button changeImgFromCamera;
+    private Button changeImgFromFacebook;
+    private Button changeImgFromAdjust;
     private static final int PICK_FROM_CAMERA = 1;
     private static final int PICK_FROM_GALLERY = 2;
     private static final int CROP_IMAGE = 3;
@@ -119,7 +126,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     private Button closeMarkerButton;
     private Marker ostatniMarker;
     private FragmentTabHost tabhost;
-    public final String FACEBOOK_PROFILE_IMAGE = "pikczer.png";
+    //public final String FACEBOOK_PROFILE_IMAGE = "pikczer.png";
 
 
     private ScrollView POIScrollView;
@@ -149,7 +156,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
 
     SharedPreferences.Editor edit;
     SharedPreferences shre;
-    Bitmap profilePicture;
+    Bitmap profilePictureRaw;
 
     AppController globalVariable;
 
@@ -158,7 +165,10 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        shre = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        edit=shre.edit();
         context = getApplicationContext();
+        resources = getResources();
         globalVariable = (AppController) getApplicationContext();
         v = (Vibrator) getApplicationContext().getSystemService(Context.VIBRATOR_SERVICE);
         StrictMode.setThreadPolicy(policy);
@@ -244,6 +254,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                 imm.hideSoftInputFromWindow(tabhost.getApplicationWindowToken(), 0);
             }
         });
+
     }
 
     private void createLocationRequest() {
@@ -255,24 +266,39 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
 
     private void setupCircleButtonWithProfileImage() {
         Bitmap icon = null;
-        SharedPreferences shre = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+
         String previouslyEncodedImage;
-        if(!shre.getString("image_data", "").isEmpty()) {
-            previouslyEncodedImage =shre.getString("image_data", "");
+        String kindOfLoginn = shre.getString("kind_of_login", "");
+        Drawable fromFTP = null;
+
+        // pobierz zdjęcie z serwera i załaduj jako profilowe
+        fromFTP =  getImageFromFTP(Integer.parseInt(session.getUserId()));
+        if(fromFTP != null)
+        {
+            icon= drawableToBitmap(fromFTP);
+            profilePictureRaw = icon;
+            String enco = encodeBitmapTobase64(icon);
+            edit.putString("image_data", enco);
+            edit.commit();
         }
-        else previouslyEncodedImage = shre.getString("facebook_image_data","");
 
+        else
+        {
+            //wyslij zdj z fejsa do ftp
+            String image = shre.getString("facebook_image_data", "");
+            Log.e("SRATATATA", image);
+            Bitmap tmp = decodeBase64ToBitmap(image);
+            //Drawable tmpp = new BitmapDrawable(getResources(), tmp);
+            profilePictureRaw = tmp;
+            icon = tmp;
 
-        if( !previouslyEncodedImage.equalsIgnoreCase("") ){
-
-            byte[] b = Base64.decode(previouslyEncodedImage, Base64.DEFAULT);
-            profilePicture = BitmapFactory.decodeByteArray(b, 0, b.length);
-
+            if(!image.isEmpty())
+            {
+                Log.d("ATLAS", "KLEJ OK");
+                //upload zdjecia do ftp
+                uploadProfileImageToFTP();
+            }
         }
-        //uploadProfileImageToFTP();
-
-        icon = profilePicture;
-
 
         //w razie gdyby nie bylo zadnego zdjecia, to dziwny domyslny ryj laduje na profilowym
         if (icon == null)
@@ -374,32 +400,6 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                 layoutSettings.setVisibility(View.INVISIBLE);
                 tabLayout.setVisibility(View.VISIBLE);
 
-                //chwilowo tutaj ląduje wysyłanie zdjęcia na serwer ftp
-
-                //upload zdjecia do ftp
-                FTPClient con = null;
-
-                try {
-                    con = new FTPClient();
-                    con.connect("ftp.marcinta.webd.pl");
-
-                    if (con.login("grouploc@marcinta.webd.pl", "grouploc2015")) {
-                        con.enterLocalPassiveMode(); // important!
-                        con.setFileType(FTP.BINARY_FILE_TYPE);
-                        String data = FACEBOOK_PROFILE_IMAGE;
-
-                        FileInputStream in = new FileInputStream(new File(data));
-                        boolean result = con.storeFile("/" + session.getUserId() + ".png", in);
-                        in.close();
-                        if (result) Log.v("moj upload", "succeeded");
-                        con.logout();
-                        con.disconnect();
-                    }
-                } catch (Exception e) {
-                    Log.e("ERROR FTP", e.getMessage());
-                }
-
-
             }
         });
 
@@ -423,14 +423,11 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
 
                 intent.setType("image/*");
                 intent.setAction(Intent.ACTION_GET_CONTENT);
-
                 intent.putExtra("crop", "true");
                 intent.putExtra("aspectX", 1);
                 intent.putExtra("aspectY", 1);
-
-                //SZCZUREK LAYOUT DESIGNER - tutaj możesz zmienić rozmiary zdjęcia które, zwraca galeria
-                intent.putExtra("outputX", 250);
-                intent.putExtra("outputY", 250);
+                intent.putExtra("outputX", 500);
+                intent.putExtra("outputY", 500);
 
                 try {
 
@@ -458,8 +455,8 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                 intent.putExtra("crop", "true");
                 intent.putExtra("aspectX", 1);
                 intent.putExtra("aspectY", 1);
-                intent.putExtra("outputX", 250);
-                intent.putExtra("outputY", 250);
+                intent.putExtra("outputX", 500);
+                intent.putExtra("outputY", 500);
 
                 try {
 
@@ -472,6 +469,62 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
             }
 
         });
+
+        changeImgFromFacebook=(Button) findViewById(R.id.buttonImageFromFacebook);
+
+        changeImgFromFacebook.setOnClickListener(new View.OnClickListener()
+
+                                                 {
+                                                     @Override
+                                                     public void onClick(View v) {
+
+                                                         Bitmap toCrop = null;
+                                                         String previouslyEncodedImage = "";
+
+                                                         if (shre.getString("facebook_image_data", "") != "") {
+                                                             previouslyEncodedImage = shre.getString("facebook_image_data", "");
+                                                             toCrop = decodeBase64ToBitmap(previouslyEncodedImage);
+                                                         }
+
+
+                                                         Uri uri = getImageUri(getApplicationContext(), toCrop);
+                                                         Intent cropIntent = new Intent("com.android.camera.action.CROP");
+
+                                                         cropIntent.setDataAndType(uri, "image/*");
+                                                         cropIntent.putExtra("crop", "true");
+                                                         cropIntent.putExtra("aspectX", 1);
+                                                         cropIntent.putExtra("aspectY", 1);
+                                                         cropIntent.putExtra("outputX", 500);
+                                                         cropIntent.putExtra("outputY", 500);
+                                                         cropIntent.putExtra("return-data", true);
+
+                                                         startActivityForResult(cropIntent, CROP_IMAGE);
+                                                     }
+                                                 }
+
+        );
+
+        changeImgFromAdjust = (Button) findViewById(R.id.buttonImageFromAdjust);
+        changeImgFromAdjust.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Bitmap toCrop = profilePictureRaw;
+
+                Uri uri = getImageUri(getApplicationContext(), toCrop);
+                Intent cropIntent = new Intent("com.android.camera.action.CROP");
+
+                cropIntent.setDataAndType(uri, "image/*");
+                cropIntent.putExtra("crop", "true");
+                cropIntent.putExtra("aspectX", 1);
+                cropIntent.putExtra("aspectY", 1);
+                cropIntent.putExtra("outputX", 500);
+                cropIntent.putExtra("outputY", 500);
+                cropIntent.putExtra("return-data", true);
+
+                startActivityForResult(cropIntent, CROP_IMAGE);
+            }
+        });
+
     }
 
     @Override
@@ -483,7 +536,8 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                 if (extras2 != null) {
                     Bitmap photo = extras2.getParcelable("data");
 
-                    //Bitmap bMapScaled = Bitmap.createScaledBitmap(photo, 150, 150, true);
+                    profilePictureRaw = photo;
+                        uploadProfileImageToFTP();
                     Bitmap bitmap_round = clipBitmap(photo, circleButton);
                     circleButton.setImageBitmap(bitmap_round);
 
@@ -491,8 +545,6 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                     bitmap_round.compress(Bitmap.CompressFormat.PNG, 100, fos);
                     fos.close();
 
-                    Toast.makeText(this, "Profile image changed successfully!",
-                            Toast.LENGTH_SHORT).show();
 
                 }
             } else if (requestCode == PICK_FROM_CAMERA) {
@@ -500,24 +552,23 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                 if (extras2 != null) {
                     Uri uri = data.getData();
                     Intent cropIntent = new Intent("com.android.camera.action.CROP");
-                    //indicate image type and Uri
                     cropIntent.setDataAndType(uri, "image/*");
-                    //set crop properties
                     cropIntent.putExtra("crop", "true");
-                    //indicate aspect of desired crop
                     cropIntent.putExtra("aspectX", 1);
                     cropIntent.putExtra("aspectY", 1);
-                    //indicate output X and Y
-                    cropIntent.putExtra("outputX", 250);
-                    cropIntent.putExtra("outputY", 250);
-                    //retrieve data on return
+                    cropIntent.putExtra("outputX", 500);
+                    cropIntent.putExtra("outputY", 500);
                     cropIntent.putExtra("return-data", true);
-                    //start the activity - we handle returning in onActivityResult
+
                     startActivityForResult(cropIntent, CROP_IMAGE);
                 }
             } else if (requestCode == CROP_IMAGE) {
                 Bundle extras2 = data.getExtras();
                 Bitmap photo = extras2.getParcelable("data");
+
+                profilePictureRaw = photo;
+
+                uploadProfileImageToFTP();
 
                 Bitmap bitmap_round = clipBitmap(photo, circleButton);
                 circleButton.setImageBitmap(bitmap_round);
@@ -526,8 +577,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                 bitmap_round.compress(Bitmap.CompressFormat.PNG, 100, fos);
                 fos.close();
 
-                Toast.makeText(this, "Profile image changed successfully!",
-                        Toast.LENGTH_SHORT).show();
+
             } else {
                 Toast.makeText(this, "You haven't picked Image",
                         Toast.LENGTH_LONG).show();
@@ -535,8 +585,8 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
 
 
         } catch (Exception e) {
-            Toast.makeText(this, "Something went wrong", Toast.LENGTH_LONG)
-                    .show();
+            //Toast.makeText(this, "Something went wrong", Toast.LENGTH_LONG).show();
+            e.printStackTrace();
         }
 
     }
@@ -1069,5 +1119,167 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         Log.d("ADD_MARKER", markerIdExtrenal + "," + markerIdInteler);
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(md.getInput().getWindowToken(), 0);
+    }
+
+    // method for bitmap to base64
+    public static String encodeBitmapTobase64(Bitmap image) {
+        Bitmap immage = image;
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        immage.compress(Bitmap.CompressFormat.PNG, 100, baos);
+        byte[] b = baos.toByteArray();
+        String imageEncoded = Base64.encodeToString(b, Base64.DEFAULT);
+
+        Log.d("Image Log:", imageEncoded);
+        return imageEncoded;
+    }
+
+    // method for base64 to bitmap
+    public static Bitmap decodeBase64ToBitmap(String input) {
+        byte[] decodedByte = Base64.decode(input, 0);
+        return BitmapFactory
+                .decodeByteArray(decodedByte, 0, decodedByte.length);
+    }
+
+    private void uploadProfileImageToFTP()
+    {
+
+        //upload zdjecia do ftp
+        FTPClient con = null;
+
+        try {
+            con = new FTPClient();
+            con.connect("ftp.marcinta.webd.pl");
+
+            if (con.login("grouploc@marcinta.webd.pl", "grouploc2015")) {
+                con.enterLocalPassiveMode(); // important!
+                con.setFileType(FTP.BINARY_FILE_TYPE);
+
+                //create a file to write bitmap data
+                String ak = Time.SECOND+""+ Time.MINUTE;
+                File f = new File(context.getCacheDir(), ak);
+                boolean res = f.createNewFile();
+                //Log.d("TAKCZYNIE", ""+res);
+
+//Convert bitmap to byte array
+                Bitmap bitmap = profilePictureRaw;
+                ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100 /*ignored for PNG*/, bos);
+                byte[] bitmapdata = bos.toByteArray();
+                //Log.d("ZDJECIE", bitmapdata.toString());
+
+//write the bytes in file
+                FileOutputStream fos = new FileOutputStream(f);
+                fos.write(bitmapdata);
+                fos.flush();
+                fos.close();
+
+
+                FileInputStream in = new FileInputStream(new File(context.getCacheDir()+"/"+ak));
+
+                try {
+                    deleteFile(session.getUserId() + ".png");
+                }
+                catch(Exception e)
+                {
+                    //e.toString();
+                }
+
+                boolean result = con.storeFile("/" + session.getUserId() + ".png", in);
+
+                in.close();
+                if (result) Log.v("moj upload", "succeeded");
+                con.logout();
+                con.disconnect();
+            }
+        } catch (Exception e) {
+            Log.e("ERROR FTP", e.getMessage());
+        }
+    }
+
+    private Drawable getImageFromFTP(int userID) //może zwracać null - uwaga dla Szczurka
+    {
+
+        Bitmap icon = null;
+        FTPClient con = null;
+        Drawable phot =null;
+        try
+        {
+            con = new FTPClient();
+            /*
+            con.connect("ftp.wariat92.linuxpl.eu");
+            Log.e("przed getFriendPhoto", "wszedl");
+            if (con.login("appUser@wariat92.linuxpl.eu", "grouploc2015"))
+
+             */
+
+
+                    con.connect("ftp.marcinta.webd.pl");
+            Log.e("przed getFriendPhoto", "wszedl");
+            if (con.login("grouploc@marcinta.webd.pl", "grouploc2015"))
+            {
+                con.enterLocalPassiveMode(); // important!
+                con.setFileType(FTP.BINARY_FILE_TYPE);
+                Log.e("przed getFriendPhoto", "wszedl2" + userID);
+
+
+               // boolean result = con.retrieveFile(userID+".png", out);
+
+               phot = Drawable.createFromStream(con.retrieveFileStream(userID+".png"), "userID");
+
+             //Log.e("po getFriendPhoto OK OK", "" + phot.toString());
+
+                //if (result) Log.v("moj download", "succeeded");
+                con.logout();
+                con.disconnect();
+            }
+
+
+        }
+        catch (Exception e)
+        {
+            Log.v("download result","failed");
+            e.printStackTrace();
+        }
+/*
+            File filePath = new File("/storage/emulated/0/"+f.getFriendID()+".png");
+            FileInputStream fi = null;
+            try {
+                fi = new FileInputStream(filePath);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+
+            icon = BitmapFactory.decodeStream(fi);
+*/
+        Log.d("PRZED DRAWABLE", "OK");
+        //Drawable ico = Drawable.createFromPath(context.getCacheDir() + "" + "/" + userID + ".png");
+
+
+        Log.d("PRAWDA", "" + (phot != null));
+
+        //return phot==null?resources.getDrawable(R.drawable.image3):phot;
+        return phot;
+
+
+    }
+
+    public static Bitmap drawableToBitmap (Drawable drawable) {
+        if (drawable instanceof BitmapDrawable) {
+            return ((BitmapDrawable)drawable).getBitmap();
+        }
+
+        Bitmap bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+        drawable.draw(canvas);
+
+        return bitmap;
+    }
+
+    public Uri getImageUri(Context inContext, Bitmap inImage) {
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        inImage.compress(Bitmap.CompressFormat.PNG, 100, bytes);
+        String path = MediaStore.Images.Media.insertImage(inContext.getContentResolver(), inImage, "Title", null);
+        return Uri.parse(path);
     }
 }

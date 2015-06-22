@@ -70,7 +70,8 @@ public class LoginActivity extends Activity {
     private SQLiteHandler db;
     public static Context context;
     private CallbackManager callbackManager;
-    private Bitmap bitmap;
+    SharedPreferences shre;
+    SharedPreferences.Editor edit;
     private LoginButton loginButton;
     private String facebookUserId, facebookUserEmail, facebookUserName;
     List<String> permissions;
@@ -81,6 +82,9 @@ public class LoginActivity extends Activity {
 
         FacebookSdk.sdkInitialize(getApplicationContext());
         context = getApplicationContext();
+        shre = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        edit=shre.edit();
+
 
         super.onCreate(savedInstanceState);
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
@@ -113,6 +117,7 @@ public class LoginActivity extends Activity {
 
                 if (email.trim().length() > 0 && password.trim().length() > 0) {
                     checkLogin(email, password);
+                    edit.putString("kind_of_login", "normal");
                 } else {
                     Toast.makeText(getApplicationContext(),
                             "Please enter the credentials!", Toast.LENGTH_LONG).show();
@@ -166,34 +171,6 @@ public class LoginActivity extends Activity {
 
                             registerFacebookUser(facebookUserName, facebookUserEmail, facebookUserId);
 
-                            //jeszcze zdjęcie
-
-                            try {
-                                bitmap = getFacebookProfilePicture(facebookUserId);
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                            Bitmap photo = bitmap;
-
-                            FileOutputStream fos = null;
-                            try {
-                                fos = context.openFileOutput(MainActivity.IMAGE_PHOTO_FILENAME, Context.MODE_PRIVATE);
-                            } catch (FileNotFoundException e) {
-                                e.printStackTrace();
-                            }
-                            photo.compress(Bitmap.CompressFormat.PNG, 100, fos);
-                            try {
-                                if (fos != null) {
-                                    Log.d("PHOTO", "KLOZET");
-                                    fos.close();
-                                }
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-
-                            Toast.makeText(LoginActivity.this, "Profile image saved successfully!",
-                                    Toast.LENGTH_SHORT).show();
-
                             //zapis zdjecia w shared preferences
                             Bitmap realImage = null;
                             try {
@@ -203,22 +180,18 @@ public class LoginActivity extends Activity {
                             }
                             ByteArrayOutputStream baos = new ByteArrayOutputStream();
                             if (realImage != null) {
-                                realImage.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+
+                               String encodedImage = encodeBitmapTobase64(realImage);
+
+                                edit.putString("facebook_image_data", encodedImage);
+                                edit.commit();
+                                edit.putString("kind_of_login", "facebook");
+
                             }
-                            byte[] b = baos.toByteArray();
-
-                            String encodedImage = Base64.encodeToString(b, Base64.DEFAULT);
-                            //textEncode.setText(encodedImage);
-
-                            SharedPreferences shre = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-                            SharedPreferences.Editor edit=shre.edit();
-
-                            edit.putString("facebook_image_data", encodedImage);
-                            edit.commit();
-                            //Log.d("SRAGE", encodedImage);
-
-                            //end
-
+                            else
+                            {
+                                Log.e("FACEBOOK", "Profile image = null");
+                            }
 
                         }
                     }
@@ -252,18 +225,6 @@ public class LoginActivity extends Activity {
     }
 
 
-    public static String fromStream(InputStream in) throws IOException {
-        Log.d("STRIM", in.toString());
-        BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-        StringBuilder out = new StringBuilder();
-        String newLine = System.getProperty("line.separator");
-        String line;
-        while ((line = reader.readLine()) != null) {
-            out.append(line);
-            out.append(newLine);
-        }
-        return out.toString();
-    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -589,6 +550,18 @@ public class LoginActivity extends Activity {
         };
 
         AppController.getInstance().addToRequestQueue(strReq, tag_string_req);
+    }
+
+    // method for bitmap to base64
+    public static String encodeBitmapTobase64(Bitmap image) {
+        Bitmap immage = image;
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        immage.compress(Bitmap.CompressFormat.PNG, 100, baos);
+        byte[] b = baos.toByteArray();
+        String imageEncoded = Base64.encodeToString(b, Base64.DEFAULT);
+
+        Log.d("Image Log:", imageEncoded);
+        return imageEncoded;
     }
 
 

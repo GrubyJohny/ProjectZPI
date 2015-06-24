@@ -9,13 +9,11 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
-
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Path;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.DrawableContainer;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
@@ -62,10 +60,8 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
@@ -85,7 +81,7 @@ import java.util.Map;
 
 
 public class MainActivity extends FragmentActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
-        com.google.android.gms.location.LocationListener, MarkerDialog.NoticeDialogListener {
+        com.google.android.gms.location.LocationListener {
 
     private static Resources resources;
     private SessionManager session;
@@ -1099,27 +1095,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         AppController.getInstance().addToRequestQueue(strReq, tag_string_req);
     }
 
-    @Override
-    public void onDialogPositiveClick(android.support.v4.app.DialogFragment dialog) {
 
-        MarkerDialog md = (MarkerDialog) dialog;
-        String name = md.getName();
-        Log.d("Marker Dialog", name);
-        Log.d("Marker Dialog", "myMap " + globalVariable.getMyMap());
-        Log.d("Marker Dialog", "my LatLong " + globalVariable.getLastClikOnMap());
-
-
-        CustomMarker nowyMarker = new CustomMarker(null, session.getUserId(), globalVariable.getLastClikOnMap().latitude, globalVariable.getLastClikOnMap().longitude, name);
-        globalVariable.addToMarkers(nowyMarker);
-        long id = db.addMarker(nowyMarker);
-        nowyMarker.setMarkerIdSQLite(Long.toString(id));
-        String markerIdExtrenal = "NULL";
-        String markerIdInteler = Long.toString(id);
-        globalVariable.getMyMap().addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromResource(R.drawable.mapmarkerhi)).position(globalVariable.getLastClikOnMap()).draggable(true).title(name).snippet(markerIdExtrenal + "," + markerIdInteler));
-        Log.d("ADD_MARKER", markerIdExtrenal + "," + markerIdInteler);
-        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.hideSoftInputFromWindow(md.getInput().getWindowToken(), 0);
-    }
 
     // method for bitmap to base64
     public static String encodeBitmapTobase64(Bitmap image) {

@@ -5,8 +5,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationManager;
@@ -20,6 +18,7 @@ import android.view.InflateException;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ScrollView;
@@ -52,7 +51,7 @@ import java.util.HashMap;
 import java.util.List;
 
 
-public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbacks {
+public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbacks,MarkerDialog.NoticeDialogListener {
 
     private SupportMapFragment fragment;
 
@@ -478,22 +477,13 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
             public void onMapLongClick(LatLng latLng) {
                 globalVariable.setLastClikOnMap(latLng);
                 MarkerDialog markerDialog = new MarkerDialog();
-                markerDialog.show(getChildFragmentManager(), "Marker Dialog");
-                /*//Ca�a procedura dodania nowego markera
-                CustomMarker nowyMarker=new CustomMarker(latLng.latitude,latLng.longitude,"narazie brak");
-                long id= db.addMarker(nowyMarker);
-                nowyMarker.setMarkerIdSQLite(Long.toString(id));
-                markers.add(nowyMarker);
-                String markerIdExtrenal="NULL";
-                String markerIdInteler=Long.toString(id);
-                Log.d("ADD_MARKER",markerIdExtrenal","markerIdInteler);
-                //nowyMarker.setMarkerIdSQLite(Long.toSt);
-               // markerDialog.show(getFragmentManager(),"");
+                markerDialog.setTargetFragment(Mapka.this,0);
+                markerDialog.show(getFragmentManager(), "Marker Dialog");
 
-                myMap.addMarker(new MarkerOptions().position(latLng).draggable(true).snippet(markerIdExtrenal","markerIdInteler));*/
 
-                globalVariable.getMyMap().addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromResource(R.drawable.mapmarkerhi)).position(latLng).draggable(true));
-                layoutMarker.setVisibility(View.GONE);
+
+
+              //  layoutMarker.setVisibility(View.GONE);
             }
         });
 
@@ -916,6 +906,28 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
         AlertDialog fMapTypeDialog = builder.create();
         fMapTypeDialog.setCanceledOnTouchOutside(true);
         fMapTypeDialog.show();
+    }
+
+    @Override
+    public void onDialogPositiveClick(android.support.v4.app.DialogFragment dialog) {
+
+        MarkerDialog md = (MarkerDialog) dialog;
+        String name = md.getName();
+        Log.d("Marker Dialog", name);
+        Log.d("Marker Dialog", "myMap " + globalVariable.getMyMap());
+        Log.d("Marker Dialog", "my LatLong " + globalVariable.getLastClikOnMap());
+
+
+        CustomMarker nowyMarker = new CustomMarker(null, session.getUserId(), globalVariable.getLastClikOnMap().latitude, globalVariable.getLastClikOnMap().longitude, name);
+        globalVariable.addToMarkers(nowyMarker);
+        long id = db.addMarker(nowyMarker);
+        nowyMarker.setMarkerIdSQLite(Long.toString(id));
+        String markerIdExtrenal = "NULL";
+        String markerIdInteler = Long.toString(id);
+        globalVariable.getMyMap().addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromResource(R.drawable.mapmarkerhi)).position(globalVariable.getLastClikOnMap()).draggable(true).title(name).snippet(markerIdExtrenal + "," + markerIdInteler));
+        Log.d("ADD_MARKER", markerIdExtrenal + "," + markerIdInteler);
+        InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(md.getInput().getWindowToken(), 0);
     }
 
 }

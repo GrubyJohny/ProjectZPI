@@ -682,7 +682,8 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                     String createdAt;
 
 
-
+                    //Tutaj jest doddawany do lokalnej bazy znacznik
+                    //wspóldzielony przez przyleciela. Karol za to odpowiada.
                     for(int i=0; i < markersArray.length(); i++){
                         markerObj = markersArray.getJSONObject(i);
                         mySqlId = markerObj.getString("mysqlid");
@@ -694,7 +695,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                         myMarker = new CustomMarker(mySqlId, userId, latitude, longitude, markerName);
                         db.addMarker(myMarker);
                         globalVariable.addNewMarker(myMarker);
-
+                        Log.d("???","co tu się  wyprawia");
 
                     }
 

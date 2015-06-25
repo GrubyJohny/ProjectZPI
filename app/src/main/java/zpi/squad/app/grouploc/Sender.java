@@ -147,7 +147,7 @@ public class Sender {
                     e.printStackTrace();
                 }
                 Log.d(TAG, "size " + forResult.size());
-                Sender.putMarkersOnMapAgain(forResult, map);
+                Sender.putMarkersOnMapAgain(forResult, map,null);
 
 
             }
@@ -209,7 +209,7 @@ public class Sender {
                             else
                             {
                                 //dodaj nowy marker
-                                Marker dodany= map.addMarker(new MarkerOptions().title(name).position(latLng));
+                                Marker dodany= map.addMarker(new MarkerOptions().title(name).position(latLng).snippet(id));
                                 friends.put(id,dodany);
                                 Log.d(TAG,"HashMapa friends liczy : "+friends.size()+" elementów");
                             }
@@ -241,7 +241,7 @@ public class Sender {
         AppController.getInstance().addToRequestQueue(request, "nowa_prosba");
     }
 
-    public static void putMarkersOnMapAgain(List<CustomMarker> markers, GoogleMap myMap) {
+    public static void putMarkersOnMapAgain(List<CustomMarker> markers, GoogleMap myMap,Map<String,Marker> googleMarkers) {
         for (CustomMarker cM : markers) {
             String mySqlID = cM.getMarkerIdMySQL();
             Log.d("PUT", "mySqlID ustawiony dla tej instancji customMarkera to " + mySqlID);
@@ -251,14 +251,19 @@ public class Sender {
             String markerIdInteler = (sqliteID == null || sqliteID.equals("")) ? "NULL" : sqliteID;
             String snippet = markerIdExtrenal + "," + markerIdInteler;
 
+
+
             if(cM.getName().contains("(od ")){
-                myMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromResource(R.drawable.mapmarkerhigreen)).position(new LatLng(cM.getLatitude(), cM.getLongitude())).title(cM.getName()).snippet(snippet));
+                Marker marker=myMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromResource(R.drawable.mapmarkerhigreen)).position(new LatLng(cM.getLatitude(), cM.getLongitude())).title(cM.getName()).snippet(snippet));
+                googleMarkers.put(sqliteID,marker);
             }
             else if(cM.isSaveOnServer()) {
-                myMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromResource(R.drawable.mapmarkerhiblue)).position(new LatLng(cM.getLatitude(), cM.getLongitude())).title(cM.getName()).snippet(snippet));
+                Marker marker= myMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromResource(R.drawable.mapmarkerhiblue)).position(new LatLng(cM.getLatitude(), cM.getLongitude())).title(cM.getName()).snippet(snippet));
+                googleMarkers.put(sqliteID,marker);
             }
             else{
-                myMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromResource(R.drawable.mapmarkerhi)).position(new LatLng(cM.getLatitude(), cM.getLongitude())).title(cM.getName()).snippet(snippet));
+                Marker marker= myMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromResource(R.drawable.mapmarkerhi)).position(new LatLng(cM.getLatitude(), cM.getLongitude())).title(cM.getName()).snippet(snippet));
+                googleMarkers.put(sqliteID,marker);
             }
             Log.d("PUT", "Snippet ustawiony dla tej instancji customMarkera to " + snippet);
         }
@@ -273,8 +278,7 @@ public class Sender {
                     JSONObject jsonObject = new JSONObject(response);
                     boolean error = jsonObject.getBoolean("error");
                     if (!error) {
-                        myMap.clear();
-                        putMarkersOnMapAgain(markers, myMap);
+
                         Log.d("DELETE MARKER", "Wszystko przebiegło zgodnie z planem");
                     } else {
                         Log.d("DELETE MARKER", "Uwaga, niechciany bład");

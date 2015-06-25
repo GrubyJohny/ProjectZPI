@@ -36,6 +36,7 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
 import org.json.JSONObject;
@@ -47,8 +48,21 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+
+import static zpi.squad.app.grouploc.POISpecies.BAR;
+import static zpi.squad.app.grouploc.POISpecies.COFFEE;
+import static zpi.squad.app.grouploc.POISpecies.KFC;
+import static zpi.squad.app.grouploc.POISpecies.MARKET;
+import static zpi.squad.app.grouploc.POISpecies.McDonald;
+import static zpi.squad.app.grouploc.POISpecies.NIGHT_CLUB;
+import static zpi.squad.app.grouploc.POISpecies.PARK;
+import static zpi.squad.app.grouploc.POISpecies.RESTERAUNT;
+import static zpi.squad.app.grouploc.POISpecies.SHOPPING_MALL;
+import static zpi.squad.app.grouploc.POISpecies.STORE;
+import static zpi.squad.app.grouploc.POISpecies.getRightSpecies;
 
 
 public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbacks,MarkerDialog.NoticeDialogListener {
@@ -73,8 +87,11 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
     private ArrayList<MarkerOptions> markersMarkets = new ArrayList<MarkerOptions>();
     private ArrayList<MarkerOptions> markersNightClubs = new ArrayList<MarkerOptions>();
     private ArrayList<MarkerOptions> markersParks = new ArrayList<MarkerOptions>();
-    private ArrayList<MarkerOptions> markersFriends = new ArrayList<MarkerOptions>();
+    private ArrayList<MarkerOptions> markersFriends = new ArrayList<MarkerOptions>();//?
     private ArrayList<ArrayList<MarkerOptions>> activePoiMarkers = new ArrayList<>();
+    private HashMap<POISpecies,HashMap<String,Marker>> active = new HashMap<POISpecies,HashMap<String, Marker>>();
+    private HashMap<String,Polyline> visibleRouts=new HashMap<String,Polyline>();
+
     private boolean poiIsUpToDate = false;
     private Location mCurrentLocation;
 
@@ -84,6 +101,8 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
 
 
     private List<CustomMarker> markers;
+    private HashMap<String,Marker> googleMarkers;
+
 
     private SQLiteHandler db;
     private GoogleApiClient mGoogleApiClient;
@@ -100,6 +119,8 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
     private Button closeMarkerButton;
     private Button changeMapTypeButton;
     private SessionManager session;
+
+
 
     AppController globalVariable;
 
@@ -121,6 +142,7 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
         globalVariable = (AppController) getActivity().getApplicationContext();
         db = new SQLiteHandler(getActivity().getApplicationContext());
         markers = db.getAllMarkers();
+        googleMarkers=new HashMap<String,Marker>();
         for(CustomMarker m : markers){
             if(m.isSaveOnServer()){
 
@@ -149,11 +171,13 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
         clearPoiButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                globalVariable.getMyMap().clear();
-                activePoiMarkers.clear();
-                mainPoiButton.performClick();
-                Sender.putMarkersOnMapAgain(markers, globalVariable.getMyMap());
-                //setUpMap(false);
+                Collection<HashMap<String,Marker>> allMarkers= active.values();
+                for(HashMap<String,Marker> markerMap:allMarkers) {
+                    Collection<Marker> markerList= markerMap.values();
+                    for (Marker m : markerList)
+                        m.remove();
+                }
+                active.clear();
             }
 
         });
@@ -218,55 +242,46 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
         myButtonFoodBar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (activePoiMarkers.contains(markersBars))
-                    activePoiMarkers.remove(markersBars);
-                else activePoiMarkers.add(markersBars);
+                if (active.containsKey(BAR))
+                    deleteSelectedPOIFromMap(BAR);
+                else addSelectedPOItoMap(markersBars,BAR);
 
-                markersSelectionChanged();
             }
         });
 
         myButtonFoodCoffee.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (activePoiMarkers.contains(markersCoffee))
-                    activePoiMarkers.remove(markersCoffee);
-                else activePoiMarkers.add(markersCoffee);
-
-                markersSelectionChanged();
+                if (active.containsKey(COFFEE))
+                    deleteSelectedPOIFromMap(COFFEE);
+                else addSelectedPOItoMap(markersCoffee,COFFEE);
             }
         });
 
         myButtonFoodKfc.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (activePoiMarkers.contains(markersKfc))
-                    activePoiMarkers.remove(markersKfc);
-                else activePoiMarkers.add(markersKfc);
-
-                markersSelectionChanged();
+                if (active.containsKey(KFC))
+                    deleteSelectedPOIFromMap(KFC);
+                else addSelectedPOItoMap(markersKfc,KFC);
             }
         });
 
         myButtonFoodMcDonald.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (activePoiMarkers.contains(markersMcdonalds))
-                    activePoiMarkers.remove(markersMcdonalds);
-                else activePoiMarkers.add(markersMcdonalds);
-
-                markersSelectionChanged();
+                if (active.containsKey(McDonald))
+                    deleteSelectedPOIFromMap(McDonald);
+                else addSelectedPOItoMap(markersMcdonalds,McDonald);
             }
         });
 
         myButtonFoodRestaurant.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (activePoiMarkers.contains(markersRestaurants))
-                    activePoiMarkers.remove(markersRestaurants);
-                else activePoiMarkers.add(markersRestaurants);
-
-                markersSelectionChanged();
+                if (active.containsKey(RESTERAUNT))
+                    deleteSelectedPOIFromMap(RESTERAUNT);
+                else addSelectedPOItoMap(markersRestaurants,RESTERAUNT);
             }
         });
 
@@ -274,33 +289,27 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
         myButtonShopsMarket.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (activePoiMarkers.contains(markersMarkets))
-                    activePoiMarkers.remove(markersMarkets);
-                else activePoiMarkers.add(markersMarkets);
-
-                markersSelectionChanged();
+                if (active.containsKey(MARKET))
+                    deleteSelectedPOIFromMap(MARKET);
+                else addSelectedPOItoMap(markersMarkets,MARKET);
             }
         });
 
         myButtonShopsStores.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (activePoiMarkers.contains(markersShops))
-                    activePoiMarkers.remove(markersShops);
-                else activePoiMarkers.add(markersShops);
-
-                markersSelectionChanged();
+                if (active.containsKey(STORE))
+                    deleteSelectedPOIFromMap(STORE);
+                else addSelectedPOItoMap(markersShops,STORE);
             }
         });
 
         myButtonShopsShoppingMalls.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (activePoiMarkers.contains(markersShoppingMalls))
-                    activePoiMarkers.remove(markersShoppingMalls);
-                else activePoiMarkers.add(markersShoppingMalls);
-
-                markersSelectionChanged();
+                if (active.containsKey(SHOPPING_MALL))
+                    deleteSelectedPOIFromMap(SHOPPING_MALL);
+                else addSelectedPOItoMap(markersShoppingMalls,SHOPPING_MALL);
             }
         });
 
@@ -308,21 +317,17 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
         myButtonLeisureClubs.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (activePoiMarkers.contains(markersNightClubs))
-                    activePoiMarkers.remove(markersNightClubs);
-                else activePoiMarkers.add(markersNightClubs);
-
-                markersSelectionChanged();
+                if (active.containsKey(NIGHT_CLUB))
+                    deleteSelectedPOIFromMap(NIGHT_CLUB);
+                else addSelectedPOItoMap(markersNightClubs,NIGHT_CLUB);
             }
         });
         myButtonLeisureParks.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (activePoiMarkers.contains(markersParks))
-                    activePoiMarkers.remove(markersParks);
-                else activePoiMarkers.add(markersParks);
-
-                markersSelectionChanged();
+                if (active.containsKey(PARK))
+                    deleteSelectedPOIFromMap(PARK);
+                else addSelectedPOItoMap(markersParks,PARK);
             }
         });
     }
@@ -351,7 +356,35 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
             globalVariable.getMyMap().addMarker(markersFriends.get(i));
 
 
-        Sender.putMarkersOnMapAgain(markers, globalVariable.getMyMap());
+        Sender.putMarkersOnMapAgain(markers, globalVariable.getMyMap(),null);
+    }
+
+    public void addSelectedPOItoMap(List<MarkerOptions> POItoAdd,POISpecies tag)
+    {
+        HashMap<String,Marker> googleMarkers=new HashMap<>();
+        for(MarkerOptions markOption :POItoAdd)
+        {
+            Marker marker= globalVariable.getMyMap().addMarker(markOption.snippet("POI,"+tag));
+            googleMarkers.put(marker.getId(),marker);
+        }
+        active.put(tag,googleMarkers);
+    }
+
+    public void deleteSelectedPOIFromMap(POISpecies tag)
+    {
+        Collection<Marker> markers=active.remove(tag).values();
+        for(Marker m:markers) {
+            if(visibleRouts.containsKey(m.getId()))
+                deleteRoute(m.getId());
+            m.remove();
+
+        }
+
+    }
+    public void deleteRoute(String tag)
+    {
+        Polyline route=visibleRouts.remove(tag);
+        route.remove();
     }
 
 
@@ -544,7 +577,7 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
 
         globalVariable.getMyMap().setMapType(GoogleMap.MAP_TYPE_HYBRID);
 
-        Sender.putMarkersOnMapAgain(markers, globalVariable.getMyMap());
+        Sender.putMarkersOnMapAgain(markers, globalVariable.getMyMap(),googleMarkers);
 
         if (mCurrentLocation != null) {
             double latitude = mCurrentLocation.getLatitude();
@@ -663,6 +696,12 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
     }
 
     private class DownloadTask extends AsyncTask<String, Void, String> {
+        String markID;
+        public DownloadTask (String markID)
+        {
+            super();
+            this.markID=markID;
+        }
         //Pobieranie danych w innym w�tku ni� ten opowiedzialny za wy�wietlanie grafiki
         @Override
         protected String doInBackground(String... url) {
@@ -681,13 +720,19 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
         @Override
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
-            ParseTask parseTask = new ParseTask();
+            ParseTask parseTask = new ParseTask(markID);
             //wystartuj w�tek przetwrzaj�cy obiekt JSON
             parseTask.execute(result);
         }
     }
 
     private class ParseTask extends AsyncTask<String, Integer, List<List<HashMap<String, String>>>> {
+       String markID;
+        public ParseTask(String markID)
+        {
+            this.markID=markID;
+        }
+
         //Przetwrzanie danych w w�tku innym ni� ten odpowiedzialny za wy�wietlanie grafiki
         @Override
         protected List<List<HashMap<String, String>>> doInBackground(String... jsonData) {
@@ -745,7 +790,9 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
                 lineOptions.color(Color.BLUE);
 
             }
-            globalVariable.getMyMap().addPolyline(lineOptions);
+            //Dodaje do słownika z wszystkimi drogami
+           Polyline polyline= globalVariable.getMyMap().addPolyline(lineOptions);
+            visibleRouts.put(markID,polyline);
 
 
         }
@@ -774,17 +821,31 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
             @Override
             public void onClick(View v) {
                 Log.d(AppController.TAG, "odebra�em zdarzenie");
-                double latitude = mCurrentLocation.getLatitude();
-                double longitude = mCurrentLocation.getLongitude();
-                LatLng origin = new LatLng(latitude, longitude);
-                latitude = ostatniMarker.getPosition().latitude;
-                longitude = ostatniMarker.getPosition().longitude;
-                LatLng dest = new LatLng(latitude, longitude);
-                String url = getDirectionUrl(origin, dest);
-                DownloadTask downloadTask = new DownloadTask();
+
+               // String[] ids = ostatniMarker.getSnippet().split(",");
+                String markerId = ostatniMarker.getId();
+
+                if(visibleRouts.containsKey(markerId))
+                {
+                    deleteRoute(markerId);
+                    Log.d("Fuck","usuwam");
+                }else{
+                    double latitude = mCurrentLocation.getLatitude();
+                    double longitude = mCurrentLocation.getLongitude();
+                    LatLng origin = new LatLng(latitude, longitude);
+                    latitude = ostatniMarker.getPosition().latitude;
+                    longitude = ostatniMarker.getPosition().longitude;
+
+                    LatLng dest = new LatLng(latitude, longitude);
+                    String url = getDirectionUrl(origin, dest);
+                    DownloadTask downloadTask = new DownloadTask(markerId);
+
+                    //no to zaczynamy zabaw�
+                    downloadTask.execute(url);
+                }
                 layoutMarker.setVisibility(View.GONE);
-                //no to zaczynamy zabaw�
-                downloadTask.execute(url);
+
+
             }
         });
         secondMarkerButton.setOnClickListener(new View.OnClickListener() {
@@ -821,7 +882,7 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
             }
         });
 
-
+        //Zapisywanie na stałe
         thirdMarkerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -838,25 +899,56 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
                 Sender.sendMarker(getActivity().getApplicationContext(), custom, ostatniMarker, db);
             }
         });
+
         fourthMarkerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String snippet = ostatniMarker.getSnippet();
                 String[] ids = snippet.split(",");
-                String markerIdMySql = ids[0];
-                String markerIdSQLITE = ids[1];
-                Log.d("REMOVE_MARKER", "MySQL id " + markerIdMySql);
-                Log.d("REMOVE_MARKER", "SQLite id " + markerIdSQLITE);
-                CustomMarker toRemove = ToolsForMarkerList.getSpecificMarker(markers, markerIdSQLITE);
-                markers.remove(toRemove);
-                boolean znacznik = db.removeMarker(markerIdSQLITE);
-                Log.d("REMOVE_MARKER", " Operacja usuwania zako�czy�a si� sukcesem" + znacznik);
-                if (toRemove.isSaveOnServer()) {
-                    Log.d("REMOVE_MARKER", "Usuwam z serwera");
-                    Sender.sendRequestAboutRemoveMarker(markerIdMySql, globalVariable.getMyMap(), markers);
+                String markId= ostatniMarker.getId();
+                if(ids.length==1)
+                //Przyjaciel
+                {
+                    Toast.makeText(getActivity(),"Fukcjonalność jeszcze nie zaimplementowana",Toast.LENGTH_SHORT).show();
                 }
-                globalVariable.getMyMap().clear();
-                Sender.putMarkersOnMapAgain(markers, globalVariable.getMyMap());
+                else
+                    if(ids[0].equals("POI"))
+                    //POI
+                    {
+                        String kind=ids[1];
+                        POISpecies species=getRightSpecies(kind);
+                        HashMap<String,Marker> mapWithSelectedKindOfPOI=active.get(species);
+                        Marker m=mapWithSelectedKindOfPOI.remove(markId);
+                        m.remove();
+                        if(mapWithSelectedKindOfPOI.isEmpty())
+                            active.remove(species);
+
+
+                    }else
+                    {
+                        String markerIdMySql = ids[0];
+                        String markerIdSQLITE = ids[1];
+                        Log.d("REMOVE_MARKER", "MySQL id " + markerIdMySql);
+                        Log.d("REMOVE_MARKER", "SQLite id " + markerIdSQLITE);
+                        CustomMarker toRemove = ToolsForMarkerList.getSpecificMarker(markers, markerIdSQLITE);
+                        markers.remove(toRemove);
+                        boolean znacznik = db.removeMarker(markerIdSQLITE);
+                        Log.d("REMOVE_MARKER", " Operacja usuwania zako�czy�a si� sukcesem" + znacznik);
+                        if (toRemove.isSaveOnServer()) {
+                            Log.d("REMOVE_MARKER", "Usuwam z serwera");
+                            Sender.sendRequestAboutRemoveMarker(markerIdMySql, globalVariable.getMyMap(), markers);
+                        }
+
+                        Marker marker=googleMarkers.remove(markerIdSQLITE);
+                        marker.remove();
+
+                    }
+                if (visibleRouts.containsKey(markId))
+                    deleteRoute(markId);
+
+
+
+
                 layoutMarker.setVisibility(View.GONE);
                 /*Sender.sendRequestAboutMarkers(session.getUserId(),markers,myMap);*/
 
@@ -924,7 +1016,8 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
         nowyMarker.setMarkerIdSQLite(Long.toString(id));
         String markerIdExtrenal = "NULL";
         String markerIdInteler = Long.toString(id);
-        globalVariable.getMyMap().addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromResource(R.drawable.mapmarkerhi)).position(globalVariable.getLastClikOnMap()).draggable(true).title(name).snippet(markerIdExtrenal + "," + markerIdInteler));
+        Marker marker=globalVariable.getMyMap().addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromResource(R.drawable.mapmarkerhi)).position(globalVariable.getLastClikOnMap()).draggable(true).title(name).snippet(markerIdExtrenal + "," + markerIdInteler));
+        googleMarkers.put(markerIdInteler,marker);
         Log.d("ADD_MARKER", markerIdExtrenal + "," + markerIdInteler);
         InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(md.getInput().getWindowToken(), 0);

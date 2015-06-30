@@ -1,8 +1,11 @@
 package zpi.squad.app.grouploc;
 
 import android.app.Application;
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.text.TextUtils;
-
+import android.util.Log;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -90,5 +93,38 @@ public class AppController extends Application {
 
     public List<CustomMarker> getMarkers() {
         return markers;
+    }
+
+
+    public static boolean checkConn( Context ctx)
+    {
+        String tag="Sprawdzanie połączeia internetowego";
+        ConnectivityManager conMgr=(ConnectivityManager)ctx.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo info=conMgr.getActiveNetworkInfo();
+        if(info==null) {
+            Log.d(tag, "Instancja klasy NetworkInfo jest refencją null");
+            return false;
+
+        }
+        else
+            if(!info.isConnected())
+            {
+                Log.d(tag, "Wykryty stan: not connected");
+                return false;
+            }
+
+            else
+                if(!info.isAvailable())
+                {
+                    Log.d(tag, "Wykryty stan: not available");
+                    return false;
+                }
+
+                else{
+                    Log.d(tag, "Wszystko wporządku, jest połączenie");
+                    return true;
+                }
+
+
     }
 }

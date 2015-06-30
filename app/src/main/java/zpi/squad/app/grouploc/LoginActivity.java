@@ -42,13 +42,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
@@ -116,8 +112,16 @@ public class LoginActivity extends Activity {
                 String password = inputPassword.getText().toString();
 
                 if (email.trim().length() > 0 && password.trim().length() > 0) {
-                    checkLogin(email, password);
-                    edit.putString("kind_of_login", "normal");
+                    if(AppController.checkConn(LoginActivity.this.getApplication()))
+                    {
+                        checkLogin(email, password);
+                        edit.putString("kind_of_login", "normal");
+                    }
+                    else{
+                        Toast.makeText(getApplicationContext(),
+                                "No connection to internet detected. Unfortunately it's is impossible to login", Toast.LENGTH_LONG).show();
+                    }
+
                 } else {
                     Toast.makeText(getApplicationContext(),
                             "Please enter the credentials!", Toast.LENGTH_LONG).show();
@@ -129,10 +133,19 @@ public class LoginActivity extends Activity {
         btnLinkToRegister.setOnClickListener(new View.OnClickListener() {
 
             public void onClick(View view) {
-                Intent i = new Intent(getApplicationContext(),
-                        RegisterActivity.class);
-                startActivity(i);
-                finish();
+
+
+                if(AppController.checkConn(LoginActivity.this.getApplication())) {
+                    Intent i = new Intent(getApplicationContext(),
+                            RegisterActivity.class);
+                    startActivity(i);
+                    //finish();
+                }
+                else
+                {
+                    Toast.makeText(getApplicationContext(),
+                            "No connection to internet detected. Unfortunately it's is impossible to login", Toast.LENGTH_LONG).show();
+                }
             }
         });
 
@@ -152,6 +165,7 @@ public class LoginActivity extends Activity {
             callbackManager = CallbackManager.Factory.create();
 
         loginButton.registerCallback(this.callbackManager, _mcallbackLogin);
+
     }
 
     public final FacebookCallback<LoginResult> _mcallbackLogin = new FacebookCallback<LoginResult>() {

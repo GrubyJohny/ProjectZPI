@@ -209,9 +209,9 @@ public class Sender {
                             else
                             {
                                 //dodaj nowy marker
-                                Marker dodany= map.addMarker(new MarkerOptions().title(name).position(latLng).snippet(id));
+                                Marker dodany= map.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromResource(R.drawable.image5)).title(name).position(latLng));
                                 friends.put(id,dodany);
-                                Log.d(TAG,"HashMapa friends liczy : "+friends.size()+" elementów");
+                                Log.d(TAG, "HashMapa friends liczy : " + friends.size() + " elementów");
                             }
 
                         }

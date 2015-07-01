@@ -5,8 +5,10 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 
 public class SettingsFragment extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
@@ -18,7 +20,8 @@ public class SettingsFragment extends Fragment {
     private String mParam1;
     private String mParam2;
 
-    private View layoutSettings;
+    private EditText passwordAgain;
+
     /*private Button confirm;
     private Button cancel;*/
 
@@ -44,6 +47,8 @@ public class SettingsFragment extends Fragment {
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
 
+
+
         //ConfirmListener(getView());
     }
 
@@ -61,18 +66,12 @@ public class SettingsFragment extends Fragment {
 
         super.onViewCreated(view, savedInstanceState);
 
-        /*confirm = (Button) view.findViewById(R.id.confirmSettingsButton);
-        cancel = (Button) view.findViewById(R.id.cancelSettingsButton);
+        /*passwordAgain =(EditText) view.findViewById(R.id.passwordChangeEdit2);
 
-        layoutSettings = view.findViewById(R.id.settingsLayout);
-        layoutFlipper = view.findViewById(R.id.flipperLayout);
-
-
-        confirm.setOnClickListener(new View.OnClickListener() {
+        passwordAgain.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                layoutFlipper.setVisibility(View.VISIBLE);
-                layoutSettings.setVisibility(View.INVISIBLE);
+                passwordAgain.requestFocus();
             }
         });*/
     }

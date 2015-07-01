@@ -64,7 +64,6 @@ import static zpi.squad.app.grouploc.POISpecies.SHOPPING_MALL;
 import static zpi.squad.app.grouploc.POISpecies.STORE;
 import static zpi.squad.app.grouploc.POISpecies.getRightSpecies;
 
-
 public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbacks,MarkerDialog.NoticeDialogListener {
 
     private SupportMapFragment fragment;
@@ -116,7 +115,7 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
     private Button thirdMarkerButton;
     private Button fourthMarkerButton;
     private Button fifthMarkerButton;
-    private Button closeMarkerButton;
+    //private Button closeMarkerButton;
     private Button changeMapTypeButton;
     private SessionManager session;
 
@@ -174,8 +173,9 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
                 Collection<HashMap<String,Marker>> allMarkers= active.values();
                 for(HashMap<String,Marker> markerMap:allMarkers) {
                     Collection<Marker> markerList= markerMap.values();
-                    for (Marker m : markerList)
+                    for (Marker m : markerList){
                         m.remove();
+                    }
                 }
                 active.clear();
             }
@@ -356,7 +356,7 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
             globalVariable.getMyMap().addMarker(markersFriends.get(i));
 
 
-        Sender.putMarkersOnMapAgain(markers, globalVariable.getMyMap(),null);
+        Sender.putMarkersOnMapAgain(markers, globalVariable.getMyMap(), null);
     }
 
     public void addSelectedPOItoMap(List<MarkerOptions> POItoAdd,POISpecies tag)
@@ -365,7 +365,7 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
         for(MarkerOptions markOption :POItoAdd)
         {
             Marker marker= globalVariable.getMyMap().addMarker(markOption.snippet("POI,"+tag));
-            googleMarkers.put(marker.getId(),marker);
+            googleMarkers.put(marker.getId(), marker);
         }
         active.put(tag,googleMarkers);
     }
@@ -464,14 +464,14 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
         thirdMarkerButton = (Button) getActivity().findViewById(R.id.thirdButton);
         fourthMarkerButton = (Button) getActivity().findViewById(R.id.fourthButton);
         fifthMarkerButton = (Button) getActivity().findViewById(R.id.fifthButton);
-        closeMarkerButton = (Button) getActivity().findViewById(R.id.closeMarkerButton);
+        /*closeMarkerButton = (Button) getActivity().findViewById(R.id.closeMarkerButton);
 
         closeMarkerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 layoutMarker.setVisibility(View.GONE);
             }
-        });
+        });*/
 
         setUpMap(false);
         setMapListener();
@@ -520,7 +520,7 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
             }
         });
 
-        globalVariable.getMyMap().setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+        /*globalVariable.getMyMap().setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
                 double latitude = mCurrentLocation.getLatitude();
@@ -530,30 +530,40 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
                 longitude = marker.getPosition().longitude;
                 LatLng dest = new LatLng(latitude, longitude);
 
-             /*   Uri gmmIntentUri= Uri.parse("google.navigation:q="+latitude+","+longitude);
+             *//*   Uri gmmIntentUri= Uri.parse("google.navigation:q="+latitude+","+longitude);
                 Intent mapIntent=new Intent(Intent.ACTION_VIEW,gmmIntentUri);
                 mapIntent.setPackage("com.google.android.apps.maps");
-                startActivity(mapIntent);*/
+                startActivity(mapIntent);*//*
 
-                /*String url = getActivity().getDirectionUrl(origin, dest);
+                *//*String url = getActivity().getDirectionUrl(origin, dest);
                 DownloadTask downloadTask = new DownloadTask();
 
-                downloadTask.execute(url);*/
+                downloadTask.execute(url);*//*
                 return true;
             }
-        });
+        });*/
 
 
         globalVariable.getMyMap().setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
                 ostatniMarker = marker;
+                globalVariable.getMyMap().animateCamera(CameraUpdateFactory.newLatLng(marker.getPosition()));
                 layoutMarker.setX((float) globalVariable.getMyMap().getProjection().toScreenLocation(marker.getPosition()).x - layoutMarker.getWidth() / 2);
                 layoutMarker.setY((float) globalVariable.getMyMap().getProjection().toScreenLocation(marker.getPosition()).y - layoutMarker.getHeight() + 180);
                 TextView name = (TextView) layoutMarker.findViewById(R.id.titleOfMarker);
                 Log.d("tittle", name + "");
                 name.setText(marker.getTitle());
                 getActivity().findViewById(R.id.POIButtons).setVisibility(View.GONE);
+                if(marker.getTitle().equals("food") || marker.getTitle().equals("bar") || marker.getTitle().equals("restaurant") ||
+                        marker.getTitle().equals("cafe") || marker.getTitle().equals("store") || marker.getTitle().equals("grocery_of_supermarket") ||
+                        marker.getTitle().equals("shopping_mall") || marker.getTitle().equals("night_club") || marker.getTitle().equals("park")  ){
+                    hideSomeOptionsFromMarker();
+                }
+                else{
+                    showSomeOptionsFromMarker();
+                }
+
                 layoutMarker.setVisibility(View.VISIBLE);
                 return true;
             }
@@ -601,7 +611,7 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
             @Override
             public void onCameraChange(CameraPosition position) {
                 if (ostatniMarker != null) {
-                    if (/*layoutMarker.getX() < 0 || */layoutMarker.getY() < (tabs.getY() + tabs.getMeasuredHeight()*2) /*|| layoutMarker.getX() + layoutMarker.getWidth() > width || layoutMarker.getY() + layoutMarker.getHeight() > height*/) {
+                    if (/*layoutMarker.getX() < 0 || */layoutMarker.getY() < (tabs.getY() + tabs.getMeasuredHeight() * 2) /*|| layoutMarker.getX() + layoutMarker.getWidth() > width || layoutMarker.getY() + layoutMarker.getHeight() > height*/) {
                         layoutMarker.setVisibility(View.GONE);
                     } else {
                         layoutMarker.setX((float) globalVariable.getMyMap().getProjection().toScreenLocation(ostatniMarker.getPosition()).x - layoutMarker.getWidth() / 2);

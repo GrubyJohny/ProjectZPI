@@ -5,6 +5,8 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
+
+
     <RelativeLayout
         android:id="@+id/panelLayout"
         android:layout_width="wrap_content"
@@ -22,6 +24,8 @@
             android:background="@drawable/circle_button"
             android:clickable="true" />
 
+
+
         <ImageButton
             android:id="@+id/noticeButton"
             android:layout_width="38dp"
@@ -32,7 +36,7 @@
             android:background="@drawable/notice_button"
             android:clickable="true" />
 
-        <ImageButton
+        <!--<ImageButton
             android:id="@+id/messageButton"
             android:layout_width="38dp"
             android:layout_height="38dp"
@@ -40,9 +44,14 @@
             android:layout_marginRight="20dp"
             android:layout_toLeftOf="@id/noticeButton"
             android:background="@drawable/notice_button"
-            android:clickable="true" />
+            android:clickable="true" />-->
 
     </RelativeLayout>
+
+    <com.nhaarman.supertooltips.ToolTipRelativeLayout
+        android:id="@+id/activity_main_tooltipRelativeLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 
     <LinearLayout
         android:id="@+id/tabLayout"
@@ -132,7 +141,7 @@
 
     <LinearLayout
         android:id="@+id/markerLayout"
-        android:layout_width="wrap_content"
+        android:layout_width="250dp"
         android:layout_height="wrap_content"
         android:background="@color/background_material_light"
         android:orientation="vertical"
@@ -140,83 +149,94 @@
         android:divider="@drawable/divider"
         android:showDividers="middle">
 
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal">
+
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="fill_parent">
 
             <TextView
                 android:id="@+id/titleOfMarker"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Tytuł markera" />
+                android:text="Tytuł markera"
+                android:layout_centerInParent="true"
+                android:ellipsize="none"
+                android:maxLines="3"
+                android:scrollHorizontally="false"/>
 
-            <Button
+            <!--<Button
                 android:id="@+id/closeMarkerButton"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
                 android:clickable="true"
                 android:text="X"
-                android:textSize="8dp" />
+                android:textSize="8dp" />-->
 
-        </LinearLayout>
+        </RelativeLayout>
 
         <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
+            android:layout_width="250dp"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
 
             <Button
                 android:id="@+id/firstButton"
-                android:layout_width="45dp"
+                android:layout_width="0dp"
                 android:layout_height="45dp"
                 android:clickable="true"
+                android:layout_weight="1"
                 android:background="@drawable/polyline" />
-            <View
+            <!--<View
                 android:layout_width="1dp"
                 android:layout_height="match_parent"
-                android:background="#f6f6f6" />
+                android:background="#f6f6f6" />-->
 
             <Button
                 android:id="@+id/secondButton"
-                android:layout_width="48dp"
+                android:layout_width="0dp"
                 android:layout_height="45dp"
                 android:clickable="true"
+                android:layout_weight="1"
                 android:background="@drawable/navigation" />
 
-            <View
+            <!--<View
                 android:layout_width="1dp"
                 android:layout_height="match_parent"
-                android:background="#f6f6f6" />
+                android:background="#f6f6f6" />-->
 
             <Button
                 android:id="@+id/fifthButton"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
                 android:clickable="true"
-                android:background="@drawable/share"/>
+                android:background="@drawable/share"
+                android:layout_weight="1"/>
 
-            <View
+            <!--<View
                 android:layout_width="1dp"
                 android:layout_height="match_parent"
-                android:background="#f6f6f6" />
+                android:background="#f6f6f6" />-->
 
             <Button
                 android:id="@+id/thirdButton"
-                android:layout_width="51dp"
+                android:layout_width="0dp"
                 android:layout_height="51dp"
                 android:background="@drawable/checkmark"
-                android:clickable="true" />
+                android:clickable="true"
+                android:layout_weight="1"/>
 
-            <View
+            <!--<View
                 android:layout_width="1dp"
                 android:layout_height="match_parent"
-                android:background="#f6f6f6" />
+                android:background="#f6f6f6" />-->
 
             <Button
                 android:id="@+id/fourthButton"
-                android:layout_width="50dp"
+                android:layout_width="0dp"
                 android:layout_height="50dp"
                 android:clickable="true"
+                android:layout_weight="1"
                 android:background="@drawable/delete"/>
         </LinearLayout>
 

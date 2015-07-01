@@ -144,7 +144,7 @@ public class GroupFragment extends Fragment {
                             gname = gObj.getString("gname");
                             adminId = gObj.getInt("adminid");
                             adminName = "Admin: " + gObj.getString("adminName");
-                            created_at = "Utworzona: " + gObj.getString("created_at");
+                            created_at = "Created: " + gObj.getString("created_at");
                             Log.e("group added. Id:", ""+(gid));
                             GroupList group = new GroupList(gid, gname, adminId, adminName, created_at);
                             groupAdapter.add(group);

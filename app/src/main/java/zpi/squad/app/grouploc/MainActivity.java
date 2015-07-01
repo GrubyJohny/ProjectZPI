@@ -11,6 +11,7 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Path;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -19,6 +20,8 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.CountDownTimer;
+import android.os.Handler;
 import android.os.StrictMode;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
@@ -57,11 +60,15 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
+import com.nhaarman.supertooltips.ToolTip;
+import com.nhaarman.supertooltips.ToolTipRelativeLayout;
+import com.nhaarman.supertooltips.ToolTipView;
 
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
@@ -76,12 +83,14 @@ import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
 //import android.support.v7.app.AppCompatActivity;
 
 
 public class MainActivity extends FragmentActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
-        com.google.android.gms.location.LocationListener {
+        LocationListener, ToolTipView.OnToolTipViewClickedListener{
 
     private static Resources resources;
     private SessionManager session;
@@ -119,7 +128,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     private Button secondMarkerButton;
     private Button thirdMarkerButton;
     private Button fourthMarkerButton;
-    private Button closeMarkerButton;
+    //private Button closeMarkerButton;
     private Marker ostatniMarker;
     private FragmentTabHost tabhost;
     //public final String FACEBOOK_PROFILE_IMAGE = "pikczer.png";
@@ -155,6 +164,9 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     Bitmap profilePictureRaw;
 
     AppController globalVariable;
+
+    private ToolTipView myToolTipView;
+    ToolTipRelativeLayout toolTipRelativeLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -213,14 +225,14 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         secondMarkerButton = (Button) findViewById(R.id.secondButton);
         thirdMarkerButton = (Button) findViewById(R.id.thirdButton);
         fourthMarkerButton = (Button) findViewById(R.id.fourthButton);
-        closeMarkerButton = (Button) findViewById(R.id.closeMarkerButton);
+        /*closeMarkerButton = (Button) findViewById(R.id.closeMarkerButton);
 
         closeMarkerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 layoutMarker.setVisibility(View.GONE);
             }
-        });
+        });*/
 
         pDialog = new ProgressDialog(MainActivity.this);
         pDialog.setCancelable(false);
@@ -229,6 +241,44 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
 
         //Start-up markers list
         //markers = db.getAllMarkers();
+
+        toolTipRelativeLayout = (ToolTipRelativeLayout) findViewById(R.id.activity_main_tooltipRelativeLayout);
+        toolTipRelativeLayout.bringToFront();
+
+        final Handler myHandler = new Handler();
+
+        myHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                new CountDownTimer(4000, 3999) {
+
+                    @Override
+                    public void onTick(long millisUntilFinished) {
+                        if (myToolTipView == null) {
+                            addMyToolTipView();
+                        }
+                    }
+
+                    @Override
+                    public void onFinish() {
+                        if (myToolTipView != null) {
+                            myToolTipView.remove();
+                            myToolTipView = null;
+                        }
+                    }
+                }.start();
+            }
+        }, 3000);
+    }
+
+    private void addMyToolTipView() {
+        ToolTip toolTip = new ToolTip()
+                .withText("Click here for settings")
+                .withShadow()
+                .withColor(Color.RED)
+                .withAnimationType(ToolTip.AnimationType.FROM_TOP);
+        myToolTipView = toolTipRelativeLayout.showToolTipForView(toolTip, findViewById(R.id.circleButton));
+        myToolTipView.setOnToolTipViewClickedListener(MainActivity.this);
     }
 
     private void tabhostInit() {
@@ -315,12 +365,12 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
 
         noticeButton.setImageBitmap(bitmap_round);
 
-        messageButton = (ImageButton) findViewById(R.id.messageButton);
+        /*messageButton = (ImageButton) findViewById(R.id.messageButton);
         Bitmap bMap1 = BitmapFactory.decodeResource(getResources(), R.drawable.messageicon);
         Bitmap bMapScaled1 = Bitmap.createScaledBitmap(bMap1, 150, 150, true);
         Bitmap bitmap_round1 = clipBitmap(bMapScaled1, messageButton);
 
-        messageButton.setImageBitmap(bitmap_round1);
+        messageButton.setImageBitmap(bitmap_round1);*/
     }
 
     private void mainSpinner() {
@@ -395,7 +445,6 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                 imm.hideSoftInputFromWindow(tabhost.getApplicationWindowToken(), 0);
                 layoutSettings.setVisibility(View.INVISIBLE);
                 tabLayout.setVisibility(View.VISIBLE);
-
             }
         });
 
@@ -783,6 +832,10 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
             @Override
             public void onClick(View v) {
                 spinner1.performClick();
+                if (myToolTipView != null) {
+                    myToolTipView.remove();
+                    myToolTipView = null;
+                }
             }
         });
         noticeButton.setOnClickListener(new View.OnClickListener() {
@@ -791,12 +844,12 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                 spinner2.performClick();
             }
         });
-        messageButton.setOnClickListener(new View.OnClickListener() {
+        /*messageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 spinner3.performClick();
             }
-        });
+        });*/
     }
 
     public void addListenerOnSpinner() {
@@ -912,7 +965,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
 
         String whereClusere= Sender.makeStatementAboutFriendsList(db.getAllFriends());
        // Log.d("pobieranie znajomych",whereClusere);
-        Sender.sendRequestAboutFriendsCoordinate(whereClusere,AppController.getInstance().getMyMap());
+        Sender.sendRequestAboutFriendsCoordinate(whereClusere, AppController.getInstance().getMyMap());
 
         stayActive(session.getUserId(), (float) latitude, (float) longitude);
 
@@ -1259,4 +1312,33 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         String path = MediaStore.Images.Media.insertImage(inContext.getContentResolver(), inImage, "Title", null);
         return Uri.parse(path);
     }
+
+    @Override
+    public void onToolTipViewClicked(final ToolTipView toolTipView) {
+        if (myToolTipView == toolTipView) {
+            myToolTipView = null;
+        }/* else if (mGreenToolTipView == toolTipView) {
+            mGreenToolTipView = null;
+        } else if (mBlueToolTipView == toolTipView) {
+            mBlueToolTipView = null;
+        } else if (mPurpleToolTipView == toolTipView) {
+            mPurpleToolTipView = null;
+        } else if (mOrangeToolTipView == toolTipView) {
+            mOrangeToolTipView = null;
+        }*/
+    }
+
+    /*@Override
+    public void onClick(final View view) {
+        int id = view.getId();
+        if (id == R.id.circleButton) {
+            if (myToolTipView == null) {
+                addMyToolTipView();
+            } else {
+                myToolTipView.remove();
+                myToolTipView = null;
+            }
+        }
+    }*/
+
 }

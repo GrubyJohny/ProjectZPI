@@ -3,9 +3,12 @@ package zpi.squad.app.grouploc;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Path;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
@@ -39,7 +42,7 @@ import java.util.Map;
  * Created by sanczo on 2015-05-18.
  */
 public class Sender {
-    private static HashMap<String,Marker> friends=new HashMap<String,Marker>(); //oj to jest tak bardzo, bardzo roboczo
+    public static HashMap<String,Marker> friends=new HashMap<String,Marker>(); //oj to jest tak bardzo, bardzo roboczo
 
     public static void sendMarker(final Context context, final CustomMarker cM, final Marker m, final SQLiteHandler db) {
         StringRequest request = new StringRequest(Request.Method.POST, AppConfig.URL_LOGIN, new Response.Listener<String>() {
@@ -153,7 +156,7 @@ public class Sender {
                     e.printStackTrace();
                 }
                 Log.d(TAG, "size " + forResult.size());
-                Sender.putMarkersOnMapAgain(forResult, map,null);
+                Sender.putMarkersOnMapAgain(forResult, map, null);
 
 
             }
@@ -183,6 +186,7 @@ public class Sender {
             public void onResponse(String response) {
                // Log.d(TAG, response);
                 try {
+
                     JSONObject jObj = new JSONObject(response);
                     if (!jObj.getBoolean("error")) {
                         String question = jObj.getString("clause");
@@ -199,16 +203,20 @@ public class Sender {
 
                             if(friends.containsKey(id))
                             {
-                                //tylko aktualizuj współrzędne
-                                Marker oldFriendMarker= friends.get(id);
-                                //ale może najpierw sprawdzę czy faktycznie się zmieniły
-                                if(!latLng.equals(oldFriendMarker.getPosition())) {
-                                    oldFriendMarker.setPosition(latLng);
-                                    Log.d(TAG,"Ten przyjaciel jest już zaznaczony na mapie, ale zmienił swoje położenie");
+                                try {
+                                    //tylko aktualizuj współrzędne
+                                    Marker oldFriendMarker = friends.get(id);
+                                    //ale może najpierw sprawdzę czy faktycznie się zmieniły
+                                    if (!latLng.equals(oldFriendMarker.getPosition())) {
+                                        oldFriendMarker.setPosition(latLng);
+                                        Log.d(TAG, "Ten przyjaciel jest już zaznaczony na mapie, ale zmienił swoje położenie");
+                                    } else {
+                                        Log.d(TAG, "Ten przyjaciel jest już zaznaczony na mapie, a w dodatku nie zmienił swojego położenia od ostatniego razu");
+                                    }
                                 }
-                                else
+                                catch(Exception e)
                                 {
-                                    Log.d(TAG,"Ten przyjaciel jest już zaznaczony na mapie, a w dodatku nie zmienił swojego położenia od ostatniego razu");
+                                    e.printStackTrace();
                                 }
 
                             }
@@ -221,18 +229,21 @@ public class Sender {
                                   ikona = MainActivity.getImageFromFTP(Integer.parseInt(id));
                                   //SZCZUREK SZCZUREK GOń SIĘ
 
+                                  MainActivity main = new MainActivity();
+                                  ImageButton imgbut = MainActivity.circleButton;
+
 
                                   if (ikona != null) {
                                       dodany = map.addMarker(new MarkerOptions().title(name).position(latLng).icon(BitmapDescriptorFactory.
-                                              fromBitmap(MainActivity.drawableToBitmap(ikona))));
+                                              fromBitmap(main.clipBitmap(MainActivity.drawableToBitmap(ikona), imgbut))));
                                   }
                                   else
-                                      dodany= map.addMarker(new MarkerOptions().title(name).position(latLng).icon(BitmapDescriptorFactory.fromResource(R.drawable.image5)));
+                                      dodany = map.addMarker(new MarkerOptions().title(name).position(latLng).icon(BitmapDescriptorFactory.fromResource(R.drawable.image5)));
 
                               }
                               catch (Exception e)
                               {
-
+                                  e.printStackTrace();
                               }
 
                                 friends.put(id, dodany);
@@ -383,54 +394,6 @@ public class Sender {
         AppController.getInstance().addToRequestQueue(request, "share marker");
     }
 
-/*
-    public static Drawable getImageFromFTP(int userID) //może zwracać null - uwaga dla Szczurka
-    {
-
-        Bitmap icon = null;
-        FTPClient con = null;
-        Drawable phot =null;
-        try
-        {
-            con = new FTPClient();
-            con.connect("ftp.marcinta.webd.pl");
-            Log.e("przed getFriendPhoto", "wszedl");
-            if (con.login("grouploc@marcinta.webd.pl", "grouploc2015"))
-            {
-                con.enterLocalPassiveMode(); // important!
-                con.setFileType(FTP.BINARY_FILE_TYPE);
-                Log.e("przed getFriendPhoto", "wszedl2" + userID);
-
-                phot = Drawable.createFromStream(con.retrieveFileStream(userID+".png"), "userID");
-                con.logout();
-                con.disconnect();
-            }
-        }
-        catch (Exception e)
-        {
-            Log.v("download result","failed");
-            e.printStackTrace();
-        }
-        Log.d("PRAWDA", "" + (phot != null));
-
-        //return phot==null?resources.getDrawable(R.drawable.image3):phot;
-        return phot;
 
 
-    }
-
-    public static Bitmap drawableToBitmap (Drawable drawable) {
-        if (drawable instanceof BitmapDrawable) {
-            return ((BitmapDrawable)drawable).getBitmap();
-        }
-
-        Bitmap bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(bitmap);
-        drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
-        drawable.draw(canvas);
-
-        return bitmap;
-    }
-
-*/
 }

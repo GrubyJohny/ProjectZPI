@@ -83,10 +83,7 @@ import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
 
-//import android.support.v7.app.AppCompatActivity;
 
 
 public class MainActivity extends FragmentActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
@@ -100,7 +97,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     private View tabLayout;
     protected boolean inhibit_spinner = true;
     private Spinner spinner1, spinner2, spinner3;
-    private ImageButton circleButton;
+    public static ImageButton circleButton;
     private ImageButton noticeButton;
     private ImageButton messageButton;
     private Button friendsButton;
@@ -984,7 +981,10 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         System.out.println("WYMIARY " + width + "," + height + " ; bitmapa " + bWidth + ", " + bHeight);
 
         DisplayMetrics metrics = new DisplayMetrics();
-        getWindowManager().getDefaultDisplay().getMetrics(metrics);
+
+        //zakomentowałem to, bo w Sender.java nie mogłem użyć getWindowManager()
+        // wygląda jakby działało bez tego w porządku /Johny
+        //getWindowManager().getDefaultDisplay().getMetrics(metrics);
 
         final Bitmap outputBitmap = Bitmap.createBitmap(metrics,width, height, Bitmap.Config.ARGB_8888);
 

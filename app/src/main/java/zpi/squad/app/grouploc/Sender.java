@@ -1,6 +1,10 @@
 package zpi.squad.app.grouploc;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -20,6 +24,8 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import org.apache.commons.net.ftp.FTP;
+import org.apache.commons.net.ftp.FTPClient;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -208,10 +214,29 @@ public class Sender {
                             }
                             else
                             {
-                                //dodaj nowy marker
-                                Marker dodany= map.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromResource(R.drawable.image5)).title(name).position(latLng));
-                                friends.put(id,dodany);
-                                Log.d(TAG, "HashMapa friends liczy : " + friends.size() + " elementów");
+                                //dodaj nowy marker ze zdjęciem użytkownika
+                                Drawable ikona;
+                                Marker dodany = null;
+                              try {
+                                  ikona = MainActivity.getImageFromFTP(Integer.parseInt(id));
+                                  //SZCZUREK SZCZUREK GOń SIĘ
+
+
+                                  if (ikona != null) {
+                                      dodany = map.addMarker(new MarkerOptions().title(name).position(latLng).icon(BitmapDescriptorFactory.
+                                              fromBitmap(MainActivity.drawableToBitmap(ikona))));
+                                  }
+                                  else
+                                      dodany= map.addMarker(new MarkerOptions().title(name).position(latLng).icon(BitmapDescriptorFactory.fromResource(R.drawable.image5)));
+
+                              }
+                              catch (Exception e)
+                              {
+
+                              }
+
+                                friends.put(id, dodany);
+                                Log.d(TAG,"HashMapa friends liczy : "+friends.size()+" elementów");
                             }
 
                         }
@@ -253,15 +278,13 @@ public class Sender {
 
 
 
-            if(cM.getName().contains("(od ")){
+            if(cM.getName().contains("(od ")) {
                 Marker marker=myMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromResource(R.drawable.mapmarkerhigreen)).position(new LatLng(cM.getLatitude(), cM.getLongitude())).title(cM.getName()).snippet(snippet));
                 googleMarkers.put(sqliteID,marker);
-            }
-            else if(cM.isSaveOnServer()) {
+            } else if (cM.isSaveOnServer()) {
                 Marker marker= myMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromResource(R.drawable.mapmarkerhiblue)).position(new LatLng(cM.getLatitude(), cM.getLongitude())).title(cM.getName()).snippet(snippet));
                 googleMarkers.put(sqliteID,marker);
-            }
-            else{
+            } else {
                 Marker marker= myMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromResource(R.drawable.mapmarkerhi)).position(new LatLng(cM.getLatitude(), cM.getLongitude())).title(cM.getName()).snippet(snippet));
                 googleMarkers.put(sqliteID,marker);
             }
@@ -360,4 +383,54 @@ public class Sender {
         AppController.getInstance().addToRequestQueue(request, "share marker");
     }
 
+/*
+    public static Drawable getImageFromFTP(int userID) //może zwracać null - uwaga dla Szczurka
+    {
+
+        Bitmap icon = null;
+        FTPClient con = null;
+        Drawable phot =null;
+        try
+        {
+            con = new FTPClient();
+            con.connect("ftp.marcinta.webd.pl");
+            Log.e("przed getFriendPhoto", "wszedl");
+            if (con.login("grouploc@marcinta.webd.pl", "grouploc2015"))
+            {
+                con.enterLocalPassiveMode(); // important!
+                con.setFileType(FTP.BINARY_FILE_TYPE);
+                Log.e("przed getFriendPhoto", "wszedl2" + userID);
+
+                phot = Drawable.createFromStream(con.retrieveFileStream(userID+".png"), "userID");
+                con.logout();
+                con.disconnect();
+            }
+        }
+        catch (Exception e)
+        {
+            Log.v("download result","failed");
+            e.printStackTrace();
+        }
+        Log.d("PRAWDA", "" + (phot != null));
+
+        //return phot==null?resources.getDrawable(R.drawable.image3):phot;
+        return phot;
+
+
+    }
+
+    public static Bitmap drawableToBitmap (Drawable drawable) {
+        if (drawable instanceof BitmapDrawable) {
+            return ((BitmapDrawable)drawable).getBitmap();
+        }
+
+        Bitmap bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+        drawable.draw(canvas);
+
+        return bitmap;
+    }
+
+*/
 }

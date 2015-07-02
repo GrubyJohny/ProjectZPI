@@ -546,20 +546,33 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
                 }
                 if(ids[0].equals("POI")){ // jest POI
                     hide2OptionsFromMarker();
+                    fourthMarkerButton.setVisibility(View.VISIBLE);
                     Log.d("MARKERY", "POI");
-                }
-                else if(ids.length==1){ // nie ma na serwerze
-                    showSomeOptionsFromMarker();
-                    Log.d("MARKERY", "nie ma na serwerze");
-                }
-                else if(ids[1].isEmpty()){ // nie ma w sqllite
-                    thirdMarkerButton.setVisibility(View.GONE);
-                    Log.d("MARKERY", "nie ma w sqllite");
                 }
                 else if(ids.length == 1){ // znajomy
                     hide3OptionsFromMarker();
                     Log.d("MARKERY", "znajomy");
                 }
+                else if(ids[0].equals("NULL")){ // nie ma na serwerze
+                    showSomeOptionsFromMarker();
+                    Log.d("MARKERY", "nie ma na serwerze, pomaranczowy");
+                }
+                else{
+                    if(marker.getTitle().contains(" (od")){
+                        fourthMarkerButton.setVisibility(View.VISIBLE);
+                        fifthMarkerButton.setVisibility(View.GONE);
+                        thirdMarkerButton.setVisibility(View.GONE);
+                        Log.d("MARKERY", "jest na serwerze, zielony");
+                    }
+                    else {
+                        fourthMarkerButton.setVisibility(View.VISIBLE);
+                        fifthMarkerButton.setVisibility(View.VISIBLE);
+                        thirdMarkerButton.setVisibility(View.GONE);
+                        Log.d("MARKERY", "jest na serwerze, niebieski");
+                    }
+                }
+
+
 
                 layoutMarker.setVisibility(View.VISIBLE);
                 return true;

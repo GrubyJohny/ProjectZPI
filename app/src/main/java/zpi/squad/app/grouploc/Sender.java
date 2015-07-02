@@ -278,6 +278,7 @@ public class Sender {
     }
 
     public static void putMarkersOnMapAgain(List<CustomMarker> markers, GoogleMap myMap,Map<String,Marker> googleMarkers) {
+       Log.d("PUT START","jedziemy !!!!");
         for (CustomMarker cM : markers) {
             String mySqlID = cM.getMarkerIdMySQL();
             Log.d("PUT", "mySqlID ustawiony dla tej instancji customMarkera to " + mySqlID);

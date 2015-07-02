@@ -18,12 +18,15 @@ public class SessionManager {
 
     int PRIVATE_MODE = 0;
 
+    private static int hintsLeft = 6;
+
     private static final String PREF_NAME = "userInfo";
 
     private static final String KEY_IS_LOGGEDIN = "isLoggedIn";
     private static final String KEY_UID = "id";
     private static final String KEY_NAME = "name";
     private static final String KEY_EMAIL = "email";
+    private static final String KEY_HINTS = "hints";
 
 
     public SessionManager(Context context) {
@@ -91,5 +94,15 @@ public class SessionManager {
         LoginManager.getInstance().logOut();
         Log.d(TAG, "User info removed from SharedPreferences!");
 
+    }
+
+    public int getHintsLeft() {
+        return pref.getInt(KEY_HINTS, hintsLeft);
+    }
+
+    public void setHintsLeft(int hintsLeft) {
+        editor.putInt(KEY_HINTS, hintsLeft);
+        editor.commit();
+        Log.d(TAG, "Hints left put into Shared Preferences");
     }
 }

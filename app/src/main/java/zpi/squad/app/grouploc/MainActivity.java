@@ -163,6 +163,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     AppController globalVariable;
 
     private ToolTipView myToolTipView;
+    private ToolTipView friendEmailToolTipView;
     ToolTipRelativeLayout toolTipRelativeLayout;
 
     @Override
@@ -278,6 +279,16 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         myToolTipView.setOnToolTipViewClickedListener(MainActivity.this);
     }
 
+    private void addFriendEmailToolTipView() {
+        ToolTip toolTip = new ToolTip()
+                .withText("Type here your friend email")
+                .withShadow()
+                .withColor(Color.RED)
+                .withAnimationType(ToolTip.AnimationType.FROM_TOP);
+        friendEmailToolTipView = toolTipRelativeLayout.showToolTipForView(toolTip, findViewById(R.id.friendEmail));
+        friendEmailToolTipView.setOnToolTipViewClickedListener(MainActivity.this);
+    }
+
     private void tabhostInit() {
         tabhost = (FragmentTabHost) findViewById(android.R.id.tabhost);
         tabhost.setup(context, getSupportFragmentManager(), android.R.id.tabcontent);
@@ -292,6 +303,38 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         tabhost.setOnTabChangedListener(new TabHost.OnTabChangeListener() {
             @Override
             public void onTabChanged(String tabId) {
+                if(tabhost.getCurrentTab() == 1){
+                    Log.d("CHUJ","WESZLO W TABA");
+                    if(session.getHintsLeft() > 0){
+                        session.setHintsLeft(session.getHintsLeft() - 1);
+                        final Handler myHandler1 = new Handler();
+
+                        myHandler1.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                new CountDownTimer(4000, 3999) {
+
+                                    @Override
+                                    public void onTick(long millisUntilFinished) {
+                                        if (friendEmailToolTipView == null) {
+                                            addFriendEmailToolTipView();
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onFinish() {
+                                        Log.d("GOWNO", "JEST");
+                                        if (friendEmailToolTipView != null) {
+                                            friendEmailToolTipView.remove();
+                                            friendEmailToolTipView = null;
+                                        }
+                                    }
+                                }.start();
+                            }
+                        }, 3000);
+                    }
+                }
+
                 layoutMarker.setVisibility(View.GONE);
                 InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(tabhost.getApplicationWindowToken(), 0);

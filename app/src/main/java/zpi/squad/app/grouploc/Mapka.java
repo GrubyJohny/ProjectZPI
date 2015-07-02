@@ -344,7 +344,7 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
         fifthMarkerButton.setVisibility(View.VISIBLE);
     }
 
-    private void markersSelectionChanged() {
+/*    private void markersSelectionChanged() {
         globalVariable.getMyMap().clear();
 
         for (ArrayList<MarkerOptions> marks : activePoiMarkers) {
@@ -357,7 +357,7 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
 
 
         Sender.putMarkersOnMapAgain(markers, globalVariable.getMyMap(), null);
-    }
+    }*/
 
     public void addSelectedPOItoMap(List<MarkerOptions> POItoAdd,POISpecies tag)
     {
@@ -473,9 +473,8 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
             }
         });*/
 
-        setUpMap(false);
-        setMapListener();
-        setupPoiButtons();
+
+
 
         inclizaidListenerForMarkerMenu();
     }
@@ -579,7 +578,7 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
     }
 
     private void setUpMap(boolean hardSetup) {
-
+        Log.d("PUT START","jedziemy z ustawianiem mapy");
 
         globalVariable.setMyMap(((SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.myMapFragment)).getMap());
         //Log.d(AppController.TAG,"my map to"+myMap);
@@ -637,6 +636,7 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
         mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
         setUpMap(true);
         setMapListener();
+        setupPoiButtons();
 
         if (mRequestingLocationUpdates) {
             // startLocationUpdates();
@@ -950,7 +950,9 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
                         }
 
                         Marker marker=googleMarkers.remove(markerIdSQLITE);
-                        marker.remove();
+                        Log.d("REMOVE_MARKER",marker.getSnippet()+" "+markerIdSQLITE+"OSTATNI"+ostatniMarker.getSnippet());
+                        ostatniMarker.remove();
+
 
                     }
                 if (visibleRouts.containsKey(markId))
@@ -1018,6 +1020,7 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
         Log.d("Marker Dialog", name);
         Log.d("Marker Dialog", "myMap " + globalVariable.getMyMap());
         Log.d("Marker Dialog", "my LatLong " + globalVariable.getLastClikOnMap());
+
 
 
         CustomMarker nowyMarker = new CustomMarker(null, session.getUserId(), globalVariable.getLastClikOnMap().latitude, globalVariable.getLastClikOnMap().longitude, name);

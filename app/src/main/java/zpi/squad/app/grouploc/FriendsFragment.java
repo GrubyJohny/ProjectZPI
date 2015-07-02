@@ -84,7 +84,8 @@ public class FriendsFragment extends ListFragment {
         pDialog = new ProgressDialog(getActivity());
 
 
-
+        pDialog.setMessage("Please wait...");
+        pDialog.show();
         PhotoDecodeRunnable pr = new PhotoDecodeRunnable();
         pr.run();
 
@@ -328,30 +329,15 @@ public class FriendsFragment extends ListFragment {
         try
         {
             con = new FTPClient();
-            /*
-            con.connect("ftp.wariat92.linuxpl.eu");
-            Log.e("przed getFriendPhoto", "wszedl");
-            if (con.login("appUser@wariat92.linuxpl.eu", "grouploc2015"))
-
-             */
-
 
             con.connect("ftp.marcinta.webd.pl");
-            Log.e("przed getFriendPhoto", "wszedl");
             if (con.login("grouploc@marcinta.webd.pl", "grouploc2015"))
             {
                 con.enterLocalPassiveMode(); // important!
                 con.setFileType(FTP.BINARY_FILE_TYPE);
-                Log.e("przed getFriendPhoto", "wszedl2" + userID);
-
-
-                // boolean result = con.retrieveFile(userID+".png", out);
 
                 phot = Drawable.createFromStream(con.retrieveFileStream(userID+".png"), "userID");
 
-                //Log.e("po getFriendPhoto OK OK", "" + phot.toString());
-
-                //if (result) Log.v("moj download", "succeeded");
                 con.logout();
                 con.disconnect();
             }
@@ -360,30 +346,11 @@ public class FriendsFragment extends ListFragment {
         }
         catch (Exception e)
         {
-            Log.v("download result","failed");
+            Log.e("download result", "failed");
             e.printStackTrace();
         }
-/*
-            File filePath = new File("/storage/emulated/0/"+f.getFriendID()+".png");
-            FileInputStream fi = null;
-            try {
-                fi = new FileInputStream(filePath);
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            }
 
-            icon = BitmapFactory.decodeStream(fi);
-*/
-        Log.d("PRZED DRAWABLE", "OK");
-        //Drawable ico = Drawable.createFromPath(context.getCacheDir() + "" + "/" + userID + ".png");
-
-
-        Log.d("PRAWDA", "" + (phot != null));
-
-        //return phot==null?resources.getDrawable(R.drawable.image3):phot;
         return phot;
-
-
     }
 
     public static Bitmap drawableToBitmap (Drawable drawable) {
@@ -415,8 +382,9 @@ public class FriendsFragment extends ListFragment {
          * so that the instance
          * can interrupt the Thread.
          */
-            Log.d("KURA", "PO MADRYCKU");
 
+            pDialog.setMessage("Please wait...");
+            showDialog();
             userFriendsList = db.getAllFriends();
             mItems = new ArrayList<ListViewItem>();
             for(Friend f: userFriendsList){
@@ -432,7 +400,7 @@ public class FriendsFragment extends ListFragment {
 
             friendList = new FriendList(getActivity(), mItems);
             setListAdapter(friendList);
-
+        hideDialog();
         }
 
     }

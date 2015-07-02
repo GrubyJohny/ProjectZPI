@@ -400,7 +400,7 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
             try {
 
                 preparePoiPoints();
-                Log.d("POI JOHNY", "poi gotowe");
+                //Log.d("POI JOHNY", "poi gotowe");
                 poiIsUpToDate = true;
 
             } catch (Exception e) {
@@ -576,7 +576,6 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
     }
 
     private void setUpMap(boolean hardSetup) {
-        Log.d("PUT START","jedziemy z ustawianiem mapy");
 
         globalVariable.setMyMap(((SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.myMapFragment)).getMap());
         //Log.d(AppController.TAG,"my map to"+myMap);
@@ -630,8 +629,7 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
 
     @Override
     public void onConnected(Bundle bundle) {
-        Log.d(AppController.TAG, "Podlaczony do api service");
-        mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+               mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
         setUpMap(true);
         setMapListener();
         setupPoiButtons();
@@ -672,7 +670,7 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
 
 
     private String downloadUrl(String strUrl) throws IOException {
-        Log.d("co tam ", strUrl);
+
         String data = "";
         InputStream isStream = null;
         HttpURLConnection urlConnection = null;
@@ -695,7 +693,7 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
             data = sb.toString();
             br.close();
         } catch (Exception e) {
-            Log.d("Exception url", e.toString());
+            Log.e("Exception url", e.toString());
         } finally {
             isStream.close();
             urlConnection.disconnect();
@@ -719,7 +717,7 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
             try {
                 data = downloadUrl(url[0]);
             } catch (Exception e) {
-                Log.d("Background Task", e.toString());
+                Log.e("Background Task", e.toString());
             }
             return data;
         }

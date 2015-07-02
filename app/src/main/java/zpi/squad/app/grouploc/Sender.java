@@ -202,9 +202,9 @@ public class Sender {
                                     //ale może najpierw sprawdzę czy faktycznie się zmieniły
                                     if (!latLng.equals(oldFriendMarker.getPosition())) {
                                         oldFriendMarker.setPosition(latLng);
-                                        Log.d(TAG, "Ten przyjaciel jest już zaznaczony na mapie, ale zmienił swoje położenie");
+                                       // Log.d(TAG, "Ten przyjaciel jest już zaznaczony na mapie, ale zmienił swoje położenie");
                                     } else {
-                                        Log.d(TAG, "Ten przyjaciel jest już zaznaczony na mapie, a w dodatku nie zmienił swojego położenia od ostatniego razu");
+                                        //Log.d(TAG, "Ten przyjaciel jest już zaznaczony na mapie, a w dodatku nie zmienił swojego położenia od ostatniego razu");
                                     }
                                 }
                                 catch(Exception e)
@@ -245,7 +245,7 @@ public class Sender {
 
                         }
                     } else {
-                        Log.d(TAG, "cos poszlo nie tak");
+                        Log.e(TAG, "cos poszlo nie tak");
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();

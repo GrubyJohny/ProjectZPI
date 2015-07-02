@@ -114,6 +114,7 @@ public class LoginActivity extends Activity {
                 if (email.trim().length() > 0 && password.trim().length() > 0) {
                     if(AppController.checkConn(LoginActivity.this.getApplication()))
                     {
+                        Toast.makeText(context, "Please wait...", Toast.LENGTH_LONG).show();
                         checkLogin(email, password);
                         edit.putString("kind_of_login", "normal");
                     }
@@ -173,12 +174,12 @@ public class LoginActivity extends Activity {
         public void onSuccess(final LoginResult loginResult) {
 
             if (loginResult.getAccessToken() != null) {
-                Log.i("TAG", "LoginButton FacebookCallback onSuccess token : " + loginResult.getAccessToken().getToken());
+               // Log.i("TAG", "LoginButton FacebookCallback onSuccess token : " + loginResult.getAccessToken().getToken());
                 GraphRequest.newMeRequest(AccessToken.getCurrentAccessToken(), new GraphRequest.GraphJSONObjectCallback() {
                     @Override
                     public void onCompleted(JSONObject object, GraphResponse response) {
                         if (null != object) {
-                            Log.e("TAG", object.optString("name").toString() + " " + object.optString("first_name").toString() + " " + object.optString("email").toString());
+                            //Log.e("TAG", object.optString("name").toString() + " " + object.optString("first_name").toString() + " " + object.optString("email").toString());
                             facebookUserName = object.optString("name").toString();
                             facebookUserEmail = object.optString("email").toString();
                             facebookUserId = loginResult.getAccessToken().getUserId();
@@ -251,8 +252,7 @@ public class LoginActivity extends Activity {
     private void checkLogin(final String email, final String password) {
 
         String tag_string_req = "req_login";
-        pDialog.setMessage("Logging in ...");
-        showDialog();
+
 
         StringRequest strReq = new StringRequest(Method.POST,
                 AppConfig.URL_REGISTER, new Response.Listener<String>() {
@@ -260,7 +260,7 @@ public class LoginActivity extends Activity {
             @Override
             public void onResponse(String response) {
                 Log.d(TAG, "Login Response: " + response.toString());
-                hideDialog();
+
 
                 try {
 
@@ -323,6 +323,7 @@ public class LoginActivity extends Activity {
         };
 
         AppController.getInstance().addToRequestQueue(strReq, tag_string_req);
+        hideDialog();
     }
 
     private void showDialog() {
@@ -338,7 +339,7 @@ public class LoginActivity extends Activity {
     private void getUserInfo(final String id) {
 
         String tag_string_req = "req_friendships";
-        pDialog.setMessage("Sending Request for list of friends and notifications");
+        pDialog.setMessage("Logging in ...");
         showDialog();
         final String TAG = "List of friends and notifications request";
         StringRequest strReq = new StringRequest(Request.Method.POST, AppConfig.URL_REGISTER, new Response.Listener<String>() {
@@ -346,7 +347,7 @@ public class LoginActivity extends Activity {
             @Override
             public void onResponse(String response) {
                 Log.d(TAG, response.toString());
-                hideDialog();
+                //hideDialog();
                 try {
 
                     JSONObject jObj = new JSONObject(response);
@@ -414,7 +415,7 @@ public class LoginActivity extends Activity {
                         for (int i = 0; i < markersArray.length(); i++)
 
                         {
-                            Log.d(TAG, "a jjajajjajjjjajajaj");
+                            //Log.d(TAG, "a jjajajjajjjjajajaj");
                             JSONObject marker = markersArray.getJSONObject(i);
                             int markerid = marker.getInt("markerid");
                             uid = Integer.toString(marker.getInt("uid"));
@@ -431,8 +432,8 @@ public class LoginActivity extends Activity {
                         startActivity(intent);
                         finish();
 
-                        Toast.makeText(getApplicationContext(), "Pomyślnie odebrano listę znajomych", Toast.LENGTH_LONG).show();
-                        Toast.makeText(getApplicationContext(), "Pomyślnie odebrano listę powiadomień", Toast.LENGTH_LONG).show();
+                       // Toast.makeText(getApplicationContext(), "Pomyślnie odebrano listę znajomych", Toast.LENGTH_LONG).show();
+                       // Toast.makeText(getApplicationContext(), "Pomyślnie odebrano listę powiadomień", Toast.LENGTH_LONG).show();
 
                     } else {
 
@@ -452,7 +453,7 @@ public class LoginActivity extends Activity {
                 Log.e(TAG, "List of friends request Error: " + error.toString());
 
                 Toast.makeText(getApplicationContext(), error.getMessage(), Toast.LENGTH_LONG).show();
-                hideDialog();
+
 
             }
         }) {
@@ -469,7 +470,7 @@ public class LoginActivity extends Activity {
         };
 
         AppController.getInstance().addToRequestQueue(strReq, tag_string_req);
-
+        hideDialog();
     }
 
     private void registerFacebookUser(final String name, final String email,
@@ -491,7 +492,7 @@ public class LoginActivity extends Activity {
                     JSONObject jObj = new JSONObject(response);
                     boolean error = jObj.getBoolean("error");
                     if (!error) {
-                        Toast.makeText(getApplicationContext(), "Pomyślnie zarejestrowano użytkownika", Toast.LENGTH_LONG).show();
+                       // Toast.makeText(getApplicationContext(), "Pomyślnie zarejestrowano użytkownika", Toast.LENGTH_LONG).show();
 
                         session.setLogin(true);
                         JSONObject user = jObj.getJSONObject("user");
@@ -574,7 +575,6 @@ public class LoginActivity extends Activity {
         byte[] b = baos.toByteArray();
         String imageEncoded = Base64.encodeToString(b, Base64.DEFAULT);
 
-        Log.d("Image Log:", imageEncoded);
         return imageEncoded;
     }
 

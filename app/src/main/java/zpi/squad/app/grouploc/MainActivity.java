@@ -100,9 +100,14 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     public static ImageButton circleButton;
     private ImageButton noticeButton;
     private ImageButton messageButton;
+    private Button friendsButton;
+    private Button groupButton;
+    private Button BackToMapButton;
+    private Button addFriendButton;
     private View layoutSettings;
     private View layoutGroup;
     private View layoutMarker;
+    private GoogleMap myMap;
     EditText searchingGroupText;
     private LocationManager locationManager;
     private Button mainPoiButton;
@@ -123,7 +128,9 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     //private Button closeMarkerButton;
     private Marker ostatniMarker;
     private FragmentTabHost tabhost;
-    //public final String FACEBOOK_PROFILE_IMAGE = "pikczer.png";
+    private static final String FTP_SERVER_ADDRESS = "ftp.marcinta.webd.pl";
+    private static final String FTP_ACCOUNT_USERNAME = "grouploc@marcinta.webd.pl";
+    private static final String FTP_ACCOUNT_PASSWORD = "grouploc2015";
 
 
     private ScrollView POIScrollView;
@@ -218,22 +225,11 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         secondMarkerButton = (ImageButton) findViewById(R.id.secondButton);
         thirdMarkerButton = (ImageButton) findViewById(R.id.thirdButton);
         fourthMarkerButton = (ImageButton) findViewById(R.id.fourthButton);
-        /*closeMarkerButton = (Button) findViewById(R.id.closeMarkerButton);
-
-        closeMarkerButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                layoutMarker.setVisibility(View.GONE);
-            }
-        });*/
 
         pDialog = new ProgressDialog(MainActivity.this);
         pDialog.setCancelable(false);
 
         POIScrollView = (ScrollView) findViewById(R.id.POIScroll);
-
-        //Start-up markers list
-        //markers = db.getAllMarkers();
 
         toolTipRelativeLayout = (ToolTipRelativeLayout) findViewById(R.id.activity_main_tooltipRelativeLayout);
         toolTipRelativeLayout.bringToFront();
@@ -360,6 +356,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
             profilePictureRaw = icon;
             String enco = encodeBitmapTobase64(icon);
             edit.putString("image_data", enco);
+
             edit.commit();
         }
 
@@ -367,18 +364,15 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         {
             //wyslij zdj z fejsa do ftp
             String image = shre.getString("facebook_image_data", "");
-            Log.e("SRATATATA", image);
+            //Log.e("SRATATATA", image);
             Bitmap tmp = decodeBase64ToBitmap(image);
             //Drawable tmpp = new BitmapDrawable(getResources(), tmp);
             profilePictureRaw = tmp;
             icon = tmp;
 
             if(!image.isEmpty())
-            {
-                Log.d("ATLAS", "KLEJ OK");
-                //upload zdjecia do ftp
-                uploadProfileImageToFTP();
-            }
+               uploadProfileImageToFTP();
+
         }
 
         //w razie gdyby nie bylo zadnego zdjecia, to dziwny domyslny ryj laduje na profilowym
@@ -386,7 +380,6 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
             icon = BitmapFactory.decodeResource(getResources(), R.drawable.image3);
 
 
-        //Bitmap bMapScaled = Bitmap.createScaledBitmap(icon, 150, 150, true);
         Bitmap bitmap_round = clipBitmap(icon, circleButton);
         circleButton.setImageBitmap(bitmap_round);
 
@@ -665,7 +658,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
 
 
         } catch (Exception e) {
-            //Toast.makeText(this, "Something went wrong", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Something went wrong", Toast.LENGTH_LONG).show();
             e.printStackTrace();
         }
 
@@ -779,7 +772,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                         myMarker = new CustomMarker(mySqlId, userId, latitude, longitude, markerName);
                         db.addMarker(myMarker);
                         globalVariable.addNewMarker(myMarker);
-                        Log.d("???","co tu się  wyprawia");
+                        //Log.d("???","co tu się  wyprawia");
 
                     }
 
@@ -969,13 +962,10 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
      */
     @Override
     public void onConnected(Bundle bundle) {
-        Log.d(AppController.TAG, "Podłączony do api service");
+        //Log.d(AppController.TAG, "Podłączony do api service");
 
         mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-        // setUpMap(true);
 
-
-        //setMapListener();
         if (mRequestingLocationUpdates) {
             startLocationUpdates();
         }
@@ -1021,7 +1011,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         final int bWidth = bitmap.getWidth();
         final int bHeight = bitmap.getHeight();
 
-        System.out.println("WYMIARY " + width + "," + height + " ; bitmapa " + bWidth + ", " + bHeight);
+        //System.out.println("WYMIARY " + width + "," + height + " ; bitmapa " + bWidth + ", " + bHeight);
 
         DisplayMetrics metrics = new DisplayMetrics();
 
@@ -1281,7 +1271,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         byte[] b = baos.toByteArray();
         String imageEncoded = Base64.encodeToString(b, Base64.DEFAULT);
 
-        Log.d("Image Log:", imageEncoded);
+        //Log.d("Image Log:", imageEncoded);
         return imageEncoded;
     }
 
@@ -1300,9 +1290,9 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
 
         try {
             con = new FTPClient();
-            con.connect("ftp.marcinta.webd.pl");
+            con.connect(FTP_SERVER_ADDRESS);
 
-            if (con.login("grouploc@marcinta.webd.pl", "grouploc2015")) {
+            if (con.login(FTP_ACCOUNT_USERNAME, FTP_ACCOUNT_PASSWORD)) {
                 con.enterLocalPassiveMode(); // important!
                 con.setFileType(FTP.BINARY_FILE_TYPE);
 
@@ -1357,13 +1347,13 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         try
         {
             con = new FTPClient();
-                    con.connect("ftp.marcinta.webd.pl");
-            Log.e("przed getFriendPhoto", "wszedl");
-            if (con.login("grouploc@marcinta.webd.pl", "grouploc2015"))
+            con.connect(FTP_SERVER_ADDRESS);
+            //Log.e("przed getFriendPhoto", "wszedl");
+            if (con.login(FTP_ACCOUNT_USERNAME, FTP_ACCOUNT_PASSWORD))
             {
                 con.enterLocalPassiveMode(); // important!
                 con.setFileType(FTP.BINARY_FILE_TYPE);
-                Log.e("przed getFriendPhoto", "wszedl2" + userID);
+                //Log.e("przed getFriendPhoto", "wszedl2" + userID);
 
                phot = Drawable.createFromStream(con.retrieveFileStream(userID+".png"), "userID");
                 con.logout();
@@ -1375,7 +1365,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
             Log.v("download result","failed");
             e.printStackTrace();
         }
-        Log.d("PRAWDA", "" + (phot != null));
+        //Log.d("PRAWDA", "" + (phot != null));
 
         //return phot==null?resources.getDrawable(R.drawable.image3):phot;
         return phot;

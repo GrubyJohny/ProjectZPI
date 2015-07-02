@@ -100,14 +100,9 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     public static ImageButton circleButton;
     private ImageButton noticeButton;
     private ImageButton messageButton;
-    private Button friendsButton;
-    private Button groupButton;
-    private Button BackToMapButton;
-    private Button addFriendButton;
     private View layoutSettings;
     private View layoutGroup;
     private View layoutMarker;
-    private GoogleMap myMap;
     EditText searchingGroupText;
     private LocationManager locationManager;
     private Button mainPoiButton;
@@ -121,10 +116,10 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     private static final int PICK_FROM_CAMERA = 1;
     private static final int PICK_FROM_GALLERY = 2;
     private static final int CROP_IMAGE = 3;
-    private Button firstMarkerButton;
-    private Button secondMarkerButton;
-    private Button thirdMarkerButton;
-    private Button fourthMarkerButton;
+    private ImageButton firstMarkerButton;
+    private ImageButton secondMarkerButton;
+    private ImageButton thirdMarkerButton;
+    private ImageButton fourthMarkerButton;
     //private Button closeMarkerButton;
     private Marker ostatniMarker;
     private FragmentTabHost tabhost;
@@ -219,10 +214,10 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
 
         layoutMarker = (View) findViewById(R.id.markerLayout);
 
-        firstMarkerButton = (Button) findViewById(R.id.firstButton);
-        secondMarkerButton = (Button) findViewById(R.id.secondButton);
-        thirdMarkerButton = (Button) findViewById(R.id.thirdButton);
-        fourthMarkerButton = (Button) findViewById(R.id.fourthButton);
+        firstMarkerButton = (ImageButton) findViewById(R.id.firstButton);
+        secondMarkerButton = (ImageButton) findViewById(R.id.secondButton);
+        thirdMarkerButton = (ImageButton) findViewById(R.id.thirdButton);
+        fourthMarkerButton = (ImageButton) findViewById(R.id.fourthButton);
         /*closeMarkerButton = (Button) findViewById(R.id.closeMarkerButton);
 
         closeMarkerButton.setOnClickListener(new View.OnClickListener() {

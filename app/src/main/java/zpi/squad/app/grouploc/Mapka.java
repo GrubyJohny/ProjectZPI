@@ -110,11 +110,11 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
     private boolean mRequestingLocationUpdates;
     private LocationManager locationManager;
     private LocationRequest mLocationRequest;
-    private Button firstMarkerButton;
-    private Button secondMarkerButton;
-    private Button thirdMarkerButton;
-    private Button fourthMarkerButton;
-    private Button fifthMarkerButton;
+    private ImageButton firstMarkerButton;
+    private ImageButton secondMarkerButton;
+    private ImageButton thirdMarkerButton;
+    private ImageButton fourthMarkerButton;
+    private ImageButton fifthMarkerButton;
     //private Button closeMarkerButton;
     private Button changeMapTypeButton;
     private SessionManager session;
@@ -332,11 +332,17 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
         });
     }
 
-    private void hideSomeOptionsFromMarker() {
+    private void hide2OptionsFromMarker() {
+        thirdMarkerButton.setVisibility(View.GONE);
+        fourthMarkerButton.setVisibility(View.GONE);
+    }
+
+    private void hide3OptionsFromMarker() {
         thirdMarkerButton.setVisibility(View.GONE);
         fourthMarkerButton.setVisibility(View.GONE);
         fifthMarkerButton.setVisibility(View.GONE);
     }
+
 
     private void showSomeOptionsFromMarker() {
         thirdMarkerButton.setVisibility(View.VISIBLE);
@@ -459,11 +465,11 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
             fm.beginTransaction().replace(R.id.myMapFragment, fragment).commit();
         }
 
-        firstMarkerButton = (Button) getActivity().findViewById(R.id.firstButton);
-        secondMarkerButton = (Button) getActivity().findViewById(R.id.secondButton);
-        thirdMarkerButton = (Button) getActivity().findViewById(R.id.thirdButton);
-        fourthMarkerButton = (Button) getActivity().findViewById(R.id.fourthButton);
-        fifthMarkerButton = (Button) getActivity().findViewById(R.id.fifthButton);
+        firstMarkerButton = (ImageButton) getActivity().findViewById(R.id.firstButton);
+        secondMarkerButton = (ImageButton) getActivity().findViewById(R.id.secondButton);
+        thirdMarkerButton = (ImageButton) getActivity().findViewById(R.id.thirdButton);
+        fourthMarkerButton = (ImageButton) getActivity().findViewById(R.id.fourthButton);
+        fifthMarkerButton = (ImageButton) getActivity().findViewById(R.id.fifthButton);
         /*closeMarkerButton = (Button) getActivity().findViewById(R.id.closeMarkerButton);
 
         closeMarkerButton.setOnClickListener(new View.OnClickListener() {
@@ -519,29 +525,6 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
             }
         });
 
-        /*globalVariable.getMyMap().setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
-            @Override
-            public boolean onMarkerClick(Marker marker) {
-                double latitude = mCurrentLocation.getLatitude();
-                double longitude = mCurrentLocation.getLongitude();
-                LatLng origin = new LatLng(latitude, longitude);
-                latitude = marker.getPosition().latitude;
-                longitude = marker.getPosition().longitude;
-                LatLng dest = new LatLng(latitude, longitude);
-
-             *//*   Uri gmmIntentUri= Uri.parse("google.navigation:q="+latitude+","+longitude);
-                Intent mapIntent=new Intent(Intent.ACTION_VIEW,gmmIntentUri);
-                mapIntent.setPackage("com.google.android.apps.maps");
-                startActivity(mapIntent);*//*
-
-                *//*String url = getActivity().getDirectionUrl(origin, dest);
-                DownloadTask downloadTask = new DownloadTask();
-
-                downloadTask.execute(url);*//*
-                return true;
-            }
-        });*/
-
 
         globalVariable.getMyMap().setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
@@ -554,13 +537,24 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
                 Log.d("tittle", name + "");
                 name.setText(marker.getTitle());
                 getActivity().findViewById(R.id.POIButtons).setVisibility(View.GONE);
-                if(marker.getTitle().equals("food") || marker.getTitle().equals("bar") || marker.getTitle().equals("restaurant") ||
-                        marker.getTitle().equals("cafe") || marker.getTitle().equals("store") || marker.getTitle().equals("grocery_of_supermarket") ||
-                        marker.getTitle().equals("shopping_mall") || marker.getTitle().equals("night_club") || marker.getTitle().equals("park")  ){
-                    hideSomeOptionsFromMarker();
+                String snippet = marker.getSnippet();
+                String ids[] = snippet.split(",");
+
+                if(ids[0].equals("POI")){ // jest POI
+                    hide2OptionsFromMarker();
+                    Log.d("MARKERY", "POI");
                 }
-                else{
+                else if(ids[0].isEmpty()){ // nie ma na serwerze
                     showSomeOptionsFromMarker();
+                    Log.d("MARKERY", "nie ma na serwerze");
+                }
+                else if(ids[1].isEmpty()){ // nie ma w sqllite
+                    thirdMarkerButton.setVisibility(View.GONE);
+                    Log.d("MARKERY", "nie ma w sqllite");
+                }
+                else if(ids.length == 1){ // znajomy
+                    hide3OptionsFromMarker();
+                    Log.d("MARKERY", "znajomy");
                 }
 
                 layoutMarker.setVisibility(View.VISIBLE);

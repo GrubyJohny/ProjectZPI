@@ -180,37 +180,40 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal">
 
-            <Button
+            <ImageButton
                 android:id="@+id/firstButton"
                 android:layout_width="0dp"
-                android:layout_height="45dp"
+                android:layout_height="50dp"
                 android:clickable="true"
-                android:layout_weight="1"
-                android:background="@drawable/polyline" />
+                android:src="@drawable/polyline"
+                android:scaleType="fitCenter"
+                android:layout_weight="1"/>
             <!--<View
                 android:layout_width="1dp"
                 android:layout_height="match_parent"
                 android:background="#f6f6f6" />-->
 
-            <Button
+            <ImageButton
                 android:id="@+id/secondButton"
                 android:layout_width="0dp"
-                android:layout_height="45dp"
+                android:layout_height="50dp"
                 android:clickable="true"
-                android:layout_weight="1"
-                android:background="@drawable/navigation" />
+                android:src="@drawable/navigation"
+                android:scaleType="fitCenter"
+                android:layout_weight="1"/>
 
             <!--<View
                 android:layout_width="1dp"
                 android:layout_height="match_parent"
                 android:background="#f6f6f6" />-->
 
-            <Button
+            <ImageButton
                 android:id="@+id/fifthButton"
                 android:layout_width="0dp"
-                android:layout_height="48dp"
+                android:layout_height="50dp"
                 android:clickable="true"
-                android:background="@drawable/share"
+                android:src="@drawable/share"
+                android:scaleType="fitCenter"
                 android:layout_weight="1"/>
 
             <!--<View
@@ -218,12 +221,13 @@
                 android:layout_height="match_parent"
                 android:background="#f6f6f6" />-->
 
-            <Button
+            <ImageButton
                 android:id="@+id/thirdButton"
                 android:layout_width="0dp"
-                android:layout_height="51dp"
-                android:background="@drawable/checkmark"
+                android:layout_height="50dp"
+                android:src="@drawable/checkmark"
                 android:clickable="true"
+                android:scaleType="fitCenter"
                 android:layout_weight="1"/>
 
             <!--<View
@@ -231,13 +235,14 @@
                 android:layout_height="match_parent"
                 android:background="#f6f6f6" />-->
 
-            <Button
+            <ImageButton
                 android:id="@+id/fourthButton"
                 android:layout_width="0dp"
                 android:layout_height="50dp"
                 android:clickable="true"
-                android:layout_weight="1"
-                android:background="@drawable/delete"/>
+                android:src="@drawable/delete"
+                android:scaleType="fitCenter"
+                android:layout_weight="1"/>
         </LinearLayout>
 
     </LinearLayout>

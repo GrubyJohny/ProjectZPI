@@ -28,6 +28,9 @@ public class SessionManager {
     private static final String KEY_EMAIL = "email";
     private static final String KEY_HINTS = "hints";
 
+    private static final String KEY_GROUP_ID = "gid";
+    private static final String KEY_GROUP_NAME = "gname";
+
 
     public SessionManager(Context context) {
         this._context = context;
@@ -50,6 +53,16 @@ public class SessionManager {
         editor.putString(KEY_UID, id);
         editor.commit();
         Log.d(TAG, "User Id putted into SharedPreferences!");
+    }
+    public void setKeyGroupId(String gid){
+        editor.putString(KEY_GROUP_ID, gid);
+        editor.commit();
+        Log.d(TAG, "Group Id putted into SharedPreferences!");
+    }
+    public void setKeyGroupName(String name){
+        editor.putString(KEY_GROUP_NAME, name);
+        editor.commit();
+        Log.d(TAG, "Group name putted into SharedPreferences!");
     }
     public void setKeyName(String name){
         editor.putString(KEY_NAME, name);

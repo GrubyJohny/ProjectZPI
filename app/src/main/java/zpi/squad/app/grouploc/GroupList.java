@@ -2,9 +2,9 @@ package zpi.squad.app.grouploc;
 
 public class GroupList {
 
-    int groupID;
+    private int groupID;
     String groupName;
-    int adminID;
+    private int adminID;
     String adminName;
     String date;
 

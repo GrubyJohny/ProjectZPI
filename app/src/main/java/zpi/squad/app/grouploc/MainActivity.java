@@ -818,6 +818,9 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                         else if (type.equals("shareMarker")) {
 
                         }
+                        else if (type.equals("userAddedToGroup")) {
+                            session.setKeyGroupId(groupId);
+                        }
                     }
 
                 } catch (Exception e) {
@@ -929,7 +932,9 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                     if (readNotifications.get(position).getType().equals("friendshipRequest") && !readNotifications.get(position).isChecked()) {
                         onFriendshipRequest(readNotifications.get(position));
 
-                    } else {
+                    } else if(readNotifications.get(position).getType().equals("groupRequest") && !readNotifications.get(position).isChecked())
+                        onGroupRequest(readNotifications.get(position));
+                    else {
 
                     }
                 }
@@ -1118,6 +1123,23 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                 }).create().show();
     }
 
+    public void onGroupRequest(final Notification not) {
+        new AlertDialog.Builder(this).
+                setTitle("Group Request")
+                .setMessage("Do you want to add " + not.getSenderName() + " to your group ?")
+                .setNegativeButton(android.R.string.no, null)
+                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        if (not.getType().equals("groupRequest")) {
+                            sendGroupRequestAcceptance(not.getSenderId(), not.getGroupId());
+
+
+                        }
+                    }
+                }).create().show();
+    }
+
     private void showDialog() {
         if (!pDialog.isShowing())
             pDialog.show();
@@ -1192,6 +1214,68 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         AppController.getInstance().addToRequestQueue(strReq, tag_string_req);
     }
 
+    private void sendGroupRequestAcceptance(final String senderId, final String groupId) {
+
+        String tag_string_req = "req_friendshipRequest";
+        pDialog.setMessage("Sending group request acceptance");
+        showDialog();
+        final String TAG = "addFriendToGroup";
+
+        StringRequest strReq = new StringRequest(Request.Method.POST, AppConfig.URL_REGISTER, new Response.Listener<String>() {
+
+            @Override
+            public void onResponse(String response) {
+                Log.d(TAG, "Friend to group acceptance Response: " + response.toString());
+                hideDialog();
+
+                try {
+
+                    JSONObject jObj = new JSONObject(response);
+                    boolean error = jObj.getBoolean("error");
+
+                    if (!error) {
+
+                        Toast.makeText(getApplicationContext(), "Acceptance has been sent successfully", Toast.LENGTH_LONG).show();
+
+
+                    } else {
+
+                        String errorMsg = jObj.getString("error_msg");
+                        Toast.makeText(getApplicationContext(), errorMsg, Toast.LENGTH_LONG).show();
+                    }
+                } catch (JSONException e) {
+                    Toast.makeText(getApplicationContext(), "Connection problem. Try again.", Toast.LENGTH_LONG).show();
+                    e.printStackTrace();
+                }
+
+            }
+        }, new Response.ErrorListener() {
+
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e(TAG, "Friendship request Error: " + error.toString());
+
+                Toast.makeText(getApplicationContext(), error.getMessage(), Toast.LENGTH_LONG).show();
+                hideDialog();
+
+            }
+        }) {
+
+            @Override
+            protected Map<String, String> getParams() {
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("tag", "addFriendToGroupAcceptance");
+                params.put("uid", senderId);
+                params.put("aid", session.getUserId());
+                params.put("gid", groupId);
+
+                return params;
+            }
+
+        };
+
+        AppController.getInstance().addToRequestQueue(strReq, tag_string_req);
+    }
 
 
     // method for bitmap to base64

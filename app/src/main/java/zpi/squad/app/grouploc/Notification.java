@@ -52,6 +52,12 @@ public class Notification {
         else if(type.equals("shareMarker")){
             response = "Użykownik " + senderName + " udostępnił Ci nowy punkt na mapie";
         }
+        else if(type.equals("groupRequest")){
+            response = "Użykownik " + senderName + " poprosił Cię o dodanie do grupy";
+        }
+        else if(type.equals("userAddedToGroup")){
+            response = "Zostałeś dodany do grupy nr " + groupId;
+        }
 
 
         return response;
@@ -68,6 +74,10 @@ public class Notification {
 
     public String getSenderEmail(){
         return senderEmail;
+    }
+
+    public String getGroupId(){
+        return groupId;
     }
 
     public String getReceiverId(){

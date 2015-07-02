@@ -19,8 +19,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
+import com.android.volley.NetworkError;
+import com.android.volley.NoConnectionError;
+import com.android.volley.ParseError;
 import com.android.volley.Request;
 import com.android.volley.Response;
+import com.android.volley.ServerError;
+import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 
@@ -53,6 +58,7 @@ public class GroupFragment extends Fragment {
     private Button BackToMapButton;
     private FragmentTabHost tabhost;
     private static GroupAdapter groupAdapter;
+    private SessionManager session;
 
     private static List<GroupList> groups;
 
@@ -116,6 +122,8 @@ public class GroupFragment extends Fragment {
 
             }
         });
+
+        session = new SessionManager(getActivity());
     }
 
     public static void getGroupsByName(final Activity activity, final GroupAdapter adapter, final String text) {
@@ -271,6 +279,8 @@ public class GroupFragment extends Fragment {
 
                         Toast.makeText(getActivity().getApplicationContext(), "You chose group: " + item.getGroupName(), Toast.LENGTH_LONG).show();
 
+                        sendGroupRequestToAdmin(getActivity(), session.getUserId(), item.getAdminID(), item.getGroupID());
+
                         dialog.dismiss();
                     }
                 }
@@ -280,6 +290,76 @@ public class GroupFragment extends Fragment {
         AlertDialog fMapTypeDialog = builder.create();
         fMapTypeDialog.setCanceledOnTouchOutside(true);
         fMapTypeDialog.show();
+    }
+
+    public static void sendGroupRequestToAdmin(final Activity activity, final String userId, final int adminId, final int groupId) {
+        StringRequest request = new StringRequest(Request.Method.POST, AppConfig.URL_LOGIN, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+
+                String TAG = "Sending request to Admin of Group " + groupId;
+                Log.d(TAG, response);
+                try {
+                    JSONObject jObj = new JSONObject(response);
+
+                    boolean error = jObj.getBoolean("error");
+                    if (!error) {
+
+                        Toast.makeText(activity, "Successfully sent request", Toast.LENGTH_SHORT).show();
+
+                    } else
+                        Log.d(TAG, "Sending request to group error");
+
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    Log.d("big error", "Connection error");
+                }
+
+
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                if (error instanceof NoConnectionError) {
+                    Log.d("NoConnectionError>", "NoConnectionError.......");
+
+                } else if (error instanceof AuthFailureError) {
+                    Log.d("AuthFailureError>", "AuthFailureError.......");
+
+                } else if (error instanceof ServerError) {
+                    Log.d("ServerError>>>>>>>>>", "ServerError.......");
+
+                } else if (error instanceof NetworkError) {
+                    Log.d("NetworkError>>>>>>>>>", "NetworkError.......");
+
+                } else if (error instanceof ParseError) {
+                    Log.d("ParseError>>>>>>>>>", "ParseError.......");
+
+                } else if (error instanceof TimeoutError) {
+                    Log.d("TimeoutError>>>>>>>>>", "TimeoutError.......");
+
+                }
+
+                Log.e("OnLocationChanged", "Notification Error: " + error.getMessage());
+
+            }
+        }) {
+
+            @Override
+            protected Map<String, String> getParams() {
+                Map<String, String> params = new HashMap<>();
+                params.put("tag", "addMeToGroup");
+                params.put("uid", userId);
+                params.put("aid", String.valueOf(adminId));
+                params.put("gid", String.valueOf(groupId));
+
+                return params;
+            }
+
+        };
+
+        AppController.getInstance().addToRequestQueue(request, "nowy_marker");
     }
 
 }

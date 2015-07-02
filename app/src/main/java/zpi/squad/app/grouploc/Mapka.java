@@ -540,11 +540,15 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
                 String snippet = marker.getSnippet();
                 String ids[] = snippet.split(",");
 
+                for(int i=0;i<ids.length;i++)
+                {
+                    Log.d("co w snippecie",ids[i]);
+                }
                 if(ids[0].equals("POI")){ // jest POI
                     hide2OptionsFromMarker();
                     Log.d("MARKERY", "POI");
                 }
-                else if(ids[0].isEmpty()){ // nie ma na serwerze
+                else if(ids.length==1){ // nie ma na serwerze
                     showSomeOptionsFromMarker();
                     Log.d("MARKERY", "nie ma na serwerze");
                 }

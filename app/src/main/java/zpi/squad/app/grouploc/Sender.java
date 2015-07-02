@@ -1,12 +1,7 @@
 package zpi.squad.app.grouploc;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Path;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.widget.ImageButton;
 import android.widget.Toast;
@@ -27,8 +22,6 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import org.apache.commons.net.ftp.FTP;
-import org.apache.commons.net.ftp.FTPClient;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -235,10 +228,10 @@ public class Sender {
 
                                   if (ikona != null) {
                                       dodany = map.addMarker(new MarkerOptions().title(name).position(latLng).icon(BitmapDescriptorFactory.
-                                              fromBitmap(main.clipBitmap(MainActivity.drawableToBitmap(ikona), imgbut))));
+                                              fromBitmap(main.clipBitmap(MainActivity.drawableToBitmap(ikona), imgbut))).snippet(id));
                                   }
                                   else
-                                      dodany = map.addMarker(new MarkerOptions().title(name).position(latLng).icon(BitmapDescriptorFactory.fromResource(R.drawable.image5)));
+                                      dodany = map.addMarker(new MarkerOptions().title(name).position(latLng).icon(BitmapDescriptorFactory.fromResource(R.drawable.image5)).snippet(id));
 
                               }
                               catch (Exception e)

@@ -80,10 +80,11 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/login_button"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="15dp"
-        android:text="@string/btn_link_to_register"/>
+        android:layout_marginTop="30dp"
+        android:text="@string/btn_link_to_register"
+        android:background="@null"/>
 
-    <TextView
+    <!--<TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/btnLinkToRegisterScreen"
@@ -91,6 +92,6 @@
         android:clickable="true"
         android:layout_marginTop="15dp"
         android:text="Remind password"
-        android:textColor="#479123" />
+        android:textColor="#479123" />-->
 
 </RelativeLayout>

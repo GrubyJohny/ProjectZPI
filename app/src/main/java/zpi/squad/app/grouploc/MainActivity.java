@@ -85,9 +85,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 
-
 public class MainActivity extends FragmentActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
-        LocationListener, ToolTipView.OnToolTipViewClickedListener{
+        LocationListener, ToolTipView.OnToolTipViewClickedListener {
 
     private static Resources resources;
     private SessionManager session;
@@ -168,13 +167,16 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     private ToolTipView friendEmailToolTipView;
     ToolTipRelativeLayout toolTipRelativeLayout;
 
+    private boolean hints = false;
+    int hintsL;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         shre = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        edit=shre.edit();
+        edit = shre.edit();
         context = getApplicationContext();
         resources = getResources();
         globalVariable = (AppController) getApplicationContext();
@@ -234,30 +236,36 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         toolTipRelativeLayout = (ToolTipRelativeLayout) findViewById(R.id.activity_main_tooltipRelativeLayout);
         toolTipRelativeLayout.bringToFront();
 
-        final Handler myHandler = new Handler();
+        hintsL = session.getHintsLeft();
 
-        myHandler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                new CountDownTimer(4000, 3999) {
+        if (hintsL > 0) {
+            session.setHintsLeft(session.getHintsLeft() - 1);
 
-                    @Override
-                    public void onTick(long millisUntilFinished) {
-                        if (myToolTipView == null) {
-                            addMyToolTipView();
+            final Handler myHandler = new Handler();
+
+            myHandler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    new CountDownTimer(4000, 3999) {
+
+                        @Override
+                        public void onTick(long millisUntilFinished) {
+                            if (myToolTipView == null) {
+                                addMyToolTipView();
+                            }
                         }
-                    }
 
-                    @Override
-                    public void onFinish() {
-                        if (myToolTipView != null) {
-                            myToolTipView.remove();
-                            myToolTipView = null;
+                        @Override
+                        public void onFinish() {
+                            if (myToolTipView != null) {
+                                myToolTipView.remove();
+                                myToolTipView = null;
+                            }
                         }
-                    }
-                }.start();
-            }
-        }, 3000);
+                    }.start();
+                }
+            }, 3000);
+        }
     }
 
     private void addMyToolTipView() {
@@ -294,35 +302,41 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         tabhost.setOnTabChangedListener(new TabHost.OnTabChangeListener() {
             @Override
             public void onTabChanged(String tabId) {
-                if(tabhost.getCurrentTab() == 1){
-                    Log.d("CHUJ","WESZLO W TABA");
-                    if(session.getHintsLeft() > 0){
-                        session.setHintsLeft(session.getHintsLeft() - 1);
-                        final Handler myHandler1 = new Handler();
+                if (tabhost.getCurrentTab() == 1) {
+                    if (hints == false) {
+                        hints = true;
+                        if (hintsL > 0) {
+                            final Handler myHandler1 = new Handler();
 
-                        myHandler1.postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                new CountDownTimer(4000, 3999) {
+                            myHandler1.postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    new CountDownTimer(4000, 3999) {
 
-                                    @Override
-                                    public void onTick(long millisUntilFinished) {
-                                        if (friendEmailToolTipView == null) {
-                                            addFriendEmailToolTipView();
+                                        @Override
+                                        public void onTick(long millisUntilFinished) {
+                                            if (friendEmailToolTipView == null) {
+                                                addFriendEmailToolTipView();
+                                            }
                                         }
-                                    }
 
-                                    @Override
-                                    public void onFinish() {
-                                        Log.d("GOWNO", "JEST");
-                                        if (friendEmailToolTipView != null) {
-                                            friendEmailToolTipView.remove();
-                                            friendEmailToolTipView = null;
+                                        @Override
+                                        public void onFinish() {
+                                            if (friendEmailToolTipView != null) {
+                                                friendEmailToolTipView.remove();
+                                                friendEmailToolTipView = null;
+                                            }
                                         }
-                                    }
-                                }.start();
-                            }
-                        }, 3000);
+                                    }.start();
+                                }
+                            }, 3000);
+                        }
+                    }
+                }
+                else{
+                    if (friendEmailToolTipView != null) {
+                        friendEmailToolTipView.remove();
+                        friendEmailToolTipView = null;
                     }
                 }
 
@@ -349,19 +363,15 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         Drawable fromFTP = null;
 
         // pobierz zdjęcie z serwera i załaduj jako profilowe
-        fromFTP =  getImageFromFTP(Integer.parseInt(session.getUserId()));
-        if(fromFTP != null)
-        {
-            icon= drawableToBitmap(fromFTP);
+        fromFTP = getImageFromFTP(Integer.parseInt(session.getUserId()));
+        if (fromFTP != null) {
+            icon = drawableToBitmap(fromFTP);
             profilePictureRaw = icon;
             String enco = encodeBitmapTobase64(icon);
             edit.putString("image_data", enco);
 
             edit.commit();
-        }
-
-        else
-        {
+        } else {
             //wyslij zdj z fejsa do ftp
             String image = shre.getString("facebook_image_data", "");
             //Log.e("SRATATATA", image);
@@ -370,8 +380,8 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
             profilePictureRaw = tmp;
             icon = tmp;
 
-            if(!image.isEmpty())
-               uploadProfileImageToFTP();
+            if (!image.isEmpty())
+                uploadProfileImageToFTP();
 
         }
 
@@ -543,7 +553,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
 
         });
 
-        changeImgFromFacebook=(Button) findViewById(R.id.buttonImageFromFacebook);
+        changeImgFromFacebook = (Button) findViewById(R.id.buttonImageFromFacebook);
 
         changeImgFromFacebook.setOnClickListener(new View.OnClickListener()
 
@@ -610,7 +620,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                     Bitmap photo = extras2.getParcelable("data");
 
                     profilePictureRaw = photo;
-                        uploadProfileImageToFTP();
+                    uploadProfileImageToFTP();
                     Bitmap bitmap_round = clipBitmap(photo, circleButton);
                     circleButton.setImageBitmap(bitmap_round);
 
@@ -761,7 +771,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
 
                     //Tutaj jest doddawany do lokalnej bazy znacznik
                     //wspóldzielony przez przyleciela. Karol za to odpowiada.
-                    for(int i=0; i < markersArray.length(); i++){
+                    for (int i = 0; i < markersArray.length(); i++) {
                         markerObj = markersArray.getJSONObject(i);
                         mySqlId = markerObj.getString("mysqlid");
                         userId = markerObj.getString("userid");
@@ -795,18 +805,14 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
 
                             db.addFriend(senderId, senderName, senderEmail);
                             FriendsFragment.addFriend(new Friend(Integer.valueOf(senderId), senderName, senderEmail));
-                        }
-                        else if (type.equals("friendshipCanceled")) {
+                        } else if (type.equals("friendshipCanceled")) {
                             FriendsFragment.removeItem(senderEmail);
-                        }
-                        else if (type.equals("friendshipRequest")) {
+                        } else if (type.equals("friendshipRequest")) {
 
 
-                        }
-                        else if (type.equals("shareMarker")) {
+                        } else if (type.equals("shareMarker")) {
 
-                        }
-                        else if (type.equals("userAddedToGroup")) {
+                        } else if (type.equals("userAddedToGroup")) {
                             session.setKeyGroupId(groupId);
                         }
                     }
@@ -920,7 +926,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                     if (readNotifications.get(position).getType().equals("friendshipRequest") && !readNotifications.get(position).isChecked()) {
                         onFriendshipRequest(readNotifications.get(position));
 
-                    } else if(readNotifications.get(position).getType().equals("groupRequest") && !readNotifications.get(position).isChecked())
+                    } else if (readNotifications.get(position).getType().equals("groupRequest") && !readNotifications.get(position).isChecked())
                         onGroupRequest(readNotifications.get(position));
                     else {
 
@@ -993,8 +999,8 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         float latitude = (float) location.getLatitude();
         float longitude = (float) location.getLongitude();
 
-        String whereClusere= Sender.makeStatementAboutFriendsList(db.getAllFriends());
-       // Log.d("pobieranie znajomych",whereClusere);
+        String whereClusere = Sender.makeStatementAboutFriendsList(db.getAllFriends());
+        // Log.d("pobieranie znajomych",whereClusere);
         Sender.sendRequestAboutFriendsCoordinate(whereClusere, AppController.getInstance().getMyMap());
 
         stayActive(session.getUserId(), (float) latitude, (float) longitude);
@@ -1006,7 +1012,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
             return null;
         final int width = x.getLayoutParams().width;
         final int height = x.getLayoutParams().height;
-        bitmap = bitmap.createScaledBitmap(bitmap,width,height,true);
+        bitmap = bitmap.createScaledBitmap(bitmap, width, height, true);
 
         final int bWidth = bitmap.getWidth();
         final int bHeight = bitmap.getHeight();
@@ -1019,7 +1025,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         // wygląda jakby działało bez tego w porządku /Johny
         //getWindowManager().getDefaultDisplay().getMetrics(metrics);
 
-        final Bitmap outputBitmap = Bitmap.createBitmap(metrics,width, height, Bitmap.Config.ARGB_8888);
+        final Bitmap outputBitmap = Bitmap.createBitmap(metrics, width, height, Bitmap.Config.ARGB_8888);
 
         final Path path = new Path();
         path.addCircle(
@@ -1079,16 +1085,21 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
 
     @Override
     public void onBackPressed() {
-        new AlertDialog.Builder(this).
-                setTitle("Really Exit")
-                .setMessage("Are You sure you want to exit")
-                .setNegativeButton(android.R.string.no, null)
-                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        MainActivity.super.onBackPressed();
-                    }
-                }).create().show();
+        if (layoutSettings.getVisibility() == View.VISIBLE) {
+            layoutSettings.setVisibility(View.INVISIBLE);
+            tabLayout.setVisibility(View.VISIBLE);
+        } else if (tabLayout.getVisibility() == View.VISIBLE) {
+            new AlertDialog.Builder(this).
+                    setTitle("Really Exit")
+                    .setMessage("Are You sure you want to exit")
+                    .setNegativeButton(android.R.string.no, null)
+                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            MainActivity.super.onBackPressed();
+                        }
+                    }).create().show();
+        }
     }
 
     public void onFriendshipRequest(final Notification not) {
@@ -1282,8 +1293,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                 .decodeByteArray(decodedByte, 0, decodedByte.length);
     }
 
-    private void uploadProfileImageToFTP()
-    {
+    private void uploadProfileImageToFTP() {
 
         //upload zdjecia do ftp
         FTPClient con = null;
@@ -1297,7 +1307,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                 con.setFileType(FTP.BINARY_FILE_TYPE);
 
                 //create a file to write bitmap data
-                String ak = Time.SECOND+""+ Time.MINUTE;
+                String ak = Time.SECOND + "" + Time.MINUTE;
                 File f = new File(context.getCacheDir(), ak);
                 boolean res = f.createNewFile();
                 //Log.d("TAKCZYNIE", ""+res);
@@ -1316,13 +1326,11 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                 fos.close();
 
 
-                FileInputStream in = new FileInputStream(new File(context.getCacheDir()+"/"+ak));
+                FileInputStream in = new FileInputStream(new File(context.getCacheDir() + "/" + ak));
 
                 try {
                     deleteFile(session.getUserId() + ".png");
-                }
-                catch(Exception e)
-                {
+                } catch (Exception e) {
                     //e.toString();
                 }
 
@@ -1343,26 +1351,22 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
 
         Bitmap icon = null;
         FTPClient con = null;
-        Drawable phot =null;
-        try
-        {
+        Drawable phot = null;
+        try {
             con = new FTPClient();
             con.connect(FTP_SERVER_ADDRESS);
             //Log.e("przed getFriendPhoto", "wszedl");
-            if (con.login(FTP_ACCOUNT_USERNAME, FTP_ACCOUNT_PASSWORD))
-            {
+            if (con.login(FTP_ACCOUNT_USERNAME, FTP_ACCOUNT_PASSWORD)) {
                 con.enterLocalPassiveMode(); // important!
                 con.setFileType(FTP.BINARY_FILE_TYPE);
                 //Log.e("przed getFriendPhoto", "wszedl2" + userID);
 
-               phot = Drawable.createFromStream(con.retrieveFileStream(userID+".png"), "userID");
+                phot = Drawable.createFromStream(con.retrieveFileStream(userID + ".png"), "userID");
                 con.logout();
                 con.disconnect();
             }
-        }
-        catch (Exception e)
-        {
-            Log.v("download result","failed");
+        } catch (Exception e) {
+            Log.v("download result", "failed");
             e.printStackTrace();
         }
         //Log.d("PRAWDA", "" + (phot != null));
@@ -1373,9 +1377,9 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
 
     }
 
-    public static Bitmap drawableToBitmap (Drawable drawable) {
+    public static Bitmap drawableToBitmap(Drawable drawable) {
         if (drawable instanceof BitmapDrawable) {
-            return ((BitmapDrawable)drawable).getBitmap();
+            return ((BitmapDrawable) drawable).getBitmap();
         }
 
         Bitmap bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);

@@ -28,6 +28,7 @@ import com.android.volley.ServerError;
 import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
+import com.facebook.internal.GraphUtil;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -129,9 +130,11 @@ public class GroupFragment extends Fragment {
     public static void getGroupsByName(final Activity activity, final GroupAdapter adapter, final String text) {
         final String TAG = "Requesting for list of groups";
 
+
         StringRequest request = new StringRequest(Request.Method.POST, AppConfig.URL_LOGIN, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
+
 
                 Log.d(TAG, response);
 
@@ -146,6 +149,7 @@ public class GroupFragment extends Fragment {
                         String adminName;
                         String created_at;
 
+
                         for(int i=0; i<jsonGroups.length(); i++){
                             gObj = jsonGroups.getJSONObject(i);
                             gid = gObj.getInt("gid");
@@ -156,7 +160,6 @@ public class GroupFragment extends Fragment {
                             Log.e("group added. Id:", ""+(gid));
                             GroupList group = new GroupList(gid, gname, adminId, adminName, created_at);
                             groupAdapter.add(group);
-
                         }
 
                     } else {

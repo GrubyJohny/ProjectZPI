@@ -18,7 +18,7 @@ public class SessionManager {
 
     int PRIVATE_MODE = 0;
 
-    private static int hintsLeft = 6;
+    private static int hintsLeft = 3;
 
     private static final String PREF_NAME = "userInfo";
 

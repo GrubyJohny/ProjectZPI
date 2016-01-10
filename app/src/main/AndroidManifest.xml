@@ -35,7 +35,7 @@
         android:allowBackup="true"
         android:icon="@drawable/logozpi"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme" >
+        android:theme="@style/NewTheme1" >
         <activity
             android:name="zpi.squad.app.grouploc.LoginActivity"
             android:label="@string/app_name"
@@ -58,6 +58,7 @@
             android:name="zpi.squad.app.grouploc.MainActivity"
             android:label="GroupLoc"
             android:launchMode="singleTop"
+            android:icon="@drawable/logozpi"
             android:windowSoftInputMode="adjustResize|stateHidden"
             android:screenOrientation="portrait">
             <!-- Required OpenGL ES 2.0. for Maps V2 -->

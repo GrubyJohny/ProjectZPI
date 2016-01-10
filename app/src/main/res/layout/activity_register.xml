@@ -5,11 +5,19 @@
     android:orientation="vertical"
     android:padding="10dp" >
 
-    <ImageView
+    <!--<ImageView
         android:id="@+id/logo"
         android:layout_width="match_parent"
         android:layout_height="120dp"
-        android:src="@drawable/logozpi" />
+        android:src="@drawable/logozpi" />-->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="120dp"
+        android:text="Sign up"
+        android:textSize="25pt"
+        android:gravity="center"
+        android:textStyle="bold"
+        android:textColor="#ff000000"/>
 
     <LinearLayout
         android:layout_width="fill_parent"
@@ -26,19 +34,19 @@
             android:padding="10dp"
             android:singleLine="true"
             android:inputType="textCapWords"
-            android:textColor="@color/input_register"
-            android:textColorHint="@color/input_register_hint" />
+            android:textColor="#ff000000"
+            android:textColorHint="@color/input_register_hint"/>
 
         <EditText
-            android:id="@+id/email"
+            android:id="@+id/login"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="10dp"
-            android:hint="@string/hint_email"
+            android:hint="@string/hint_login"
             android:inputType="textEmailAddress"
             android:padding="10dp"
             android:singleLine="true"
-            android:textColor="@color/input_register"
+            android:textColor="#ff000000"
             android:textColorHint="@color/input_register_hint" />
 
         <EditText
@@ -50,7 +58,7 @@
             android:inputType="textPassword"
             android:padding="10dp"
             android:singleLine="true"
-            android:textColor="@color/input_register"
+            android:textColor="#ff000000"
             android:textColorHint="@color/input_register_hint" />
 
         <!-- Login Button -->
@@ -72,8 +80,8 @@
             android:layout_marginTop="60dp"
             android:background="@null"
             android:text="@string/btn_link_to_login"
-            android:textAllCaps="false"
-            android:textSize="15dp" />
+            android:textAllCaps="true"
+            android:textSize="14dp" />
     </LinearLayout>
 
 </LinearLayout>

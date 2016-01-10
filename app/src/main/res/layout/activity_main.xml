@@ -9,9 +9,22 @@
 
     <RelativeLayout
         android:id="@+id/panelLayout"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="fill_parent"
+        android:layout_height="60dp"
         android:background="@color/panel_blue2">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="GroupLoc"
+            android:layout_centerInParent="true"
+            android:layout_alignParentLeft="true"
+            android:layout_marginBottom="5dp"
+            android:layout_marginLeft="15dp"
+            android:layout_marginTop="5dp"
+            android:textSize="14pt"
+            android:textStyle="bold"
+            android:textColor="#ff000000"/>
 
         <ImageButton
             android:id="@+id/circleButton"
@@ -113,12 +126,10 @@
 
     <Spinner
         android:id="@+id/spinner"
-        android:layout_width="wrap_content"
+        android:layout_width="150dp"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
-        android:layout_below="@id/panelLayout"
-        android:layout_marginTop="55dp"
         android:visibility="invisible" />
 
     <Spinner
@@ -127,8 +138,9 @@
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
-        android:layout_marginTop="50dp"
-        android:visibility="invisible" />
+        android:layout_marginTop="60dp"
+        android:visibility="invisible"
+        android:textAlignment="center"/>
 
     <Spinner
         android:id="@+id/spinner3"

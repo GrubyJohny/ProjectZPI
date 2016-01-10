@@ -71,6 +71,7 @@ public class LoginActivity extends Activity {
     private LoginButton loginButton;
     private String facebookUserId, facebookUserEmail, facebookUserName;
     List<String> permissions;
+    ProgressDialog dialog;
 
 
     @Override
@@ -108,13 +109,18 @@ public class LoginActivity extends Activity {
         btnLogin.setOnClickListener(new View.OnClickListener() {
 
             public void onClick(View view) {
+
                 String email = inputEmail.getText().toString();
                 String password = inputPassword.getText().toString();
 
                 if (email.trim().length() > 0 && password.trim().length() > 0) {
+                    dialog = ProgressDialog.show(LoginActivity.this, "Loading", "Please wait...", true);
+                    dialog.create();
+                    dialog.show();
                     if(AppController.checkConn(LoginActivity.this.getApplication()))
                     {
-                        Toast.makeText(context, "Please wait...", Toast.LENGTH_LONG).show();
+                        //Toast.makeText(context, "Please wait...", Toast.LENGTH_LONG).show();
+
                         checkLogin(email, password);
                         edit.putString("kind_of_login", "normal");
                     }
@@ -123,7 +129,8 @@ public class LoginActivity extends Activity {
                                 "No connection to internet detected. Unfortunately it's is impossible to login", Toast.LENGTH_LONG).show();
                     }
 
-                } else {
+                }
+                else {
                     Toast.makeText(getApplicationContext(),
                             "Please enter the credentials!", Toast.LENGTH_LONG).show();
                 }
@@ -165,7 +172,17 @@ public class LoginActivity extends Activity {
         if (null == callbackManager)
             callbackManager = CallbackManager.Factory.create();
 
-        loginButton.registerCallback(this.callbackManager, _mcallbackLogin);
+
+        /*loginButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog = ProgressDialog.show(LoginActivity.this, "Loading", "Please wait...", true);
+                loginButton.registerCallback(callbackManager, _mcallbackLogin);
+            }
+        });*/
+
+        loginButton.registerCallback(callbackManager, _mcallbackLogin);
+
 
     }
 
@@ -209,10 +226,12 @@ public class LoginActivity extends Activity {
                             }
 
                         }
+
                     }
+
                 }).executeAsync();
 
-
+                //dialog.dismiss();
             }
         }
 
@@ -324,6 +343,8 @@ public class LoginActivity extends Activity {
 
         AppController.getInstance().addToRequestQueue(strReq, tag_string_req);
         hideDialog();
+        /*if(dialog.isShowing())
+            dialog.dismiss();*/
     }
 
     private void showDialog() {

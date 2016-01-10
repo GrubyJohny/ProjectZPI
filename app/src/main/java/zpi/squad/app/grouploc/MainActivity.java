@@ -1,7 +1,7 @@
 package zpi.squad.app.grouploc;
 
-import android.app.AlertDialog;
-import android.app.ProgressDialog;
+import android.app.*;
+import android.support.v7.app.*;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -174,6 +174,14 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        //getSupportActionBar().setDisplayShowHomeEnabled(true);
+        //getSupportActionBar().setDisplayShowTitleEnabled(true);
+        //getSupportActionBar().setIcon(R.drawable.logozpi);
+        //getSupportActionBar().setTitle("GroupLoc");
+        //getSupportActionBar().setSubtitle("GroupLoc");
+
+
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         shre = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         edit = shre.edit();
@@ -293,11 +301,11 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         tabhost.setup(context, getSupportFragmentManager(), android.R.id.tabcontent);
 
         tabhost.addTab(tabhost.newTabSpec("map").setIndicator("MAP"),
-                Mapka.class, null);
+                MapFragment.class, null);
         tabhost.addTab(tabhost.newTabSpec("friends").setIndicator("FRIENDS"),
                 FriendsFragment.class, null);
-        tabhost.addTab(tabhost.newTabSpec("group").setIndicator("GROUP"),
-                GroupFragment.class, null);
+        /*tabhost.addTab(tabhost.newTabSpec("group").setIndicator("GROUP"),
+                GroupFragment.class, null);*/
 
         tabhost.setOnTabChangedListener(new TabHost.OnTabChangeListener() {
             @Override
@@ -332,8 +340,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                             }, 3000);
                         }
                     }
-                }
-                else{
+                } else {
                     if (friendEmailToolTipView != null) {
                         friendEmailToolTipView.remove();
                         friendEmailToolTipView = null;
@@ -716,15 +723,24 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
-            return true;
+            layoutSettings.setVisibility(View.VISIBLE);
+            layoutMarker.setVisibility(View.GONE);
+            tabLayout.setVisibility(View.INVISIBLE);
+            spinner1.setSelection(0);
+        }
+        else if (id == R.id.action_logout){
+            logOut();
+            //spinner1.setSelection(0);
+        }
+        else if (id == R.id.noticeButton1){
+            spinner2.performClick();
         }
 
         return super.onOptionsItemSelected(item);
     }
 
-    public void logOut(AdapterView.OnItemSelectedListener view) {
+    public void logOut() {
 
         //stopLocationUpdates();
 
@@ -903,7 +919,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                         spinner1.setSelection(0);
                         break;
                     case 2:
-                        logOut(this);
+                        logOut();
                         //spinner1.setSelection(0);
                         break;
                 }
@@ -1137,8 +1153,10 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     }
 
     private void showDialog() {
-        if (!pDialog.isShowing())
+        if (!pDialog.isShowing()) {
+            pDialog.create();
             pDialog.show();
+        }
     }
 
     private void hideDialog() {

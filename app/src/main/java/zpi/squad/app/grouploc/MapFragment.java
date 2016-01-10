@@ -64,7 +64,7 @@ import static zpi.squad.app.grouploc.POISpecies.SHOPPING_MALL;
 import static zpi.squad.app.grouploc.POISpecies.STORE;
 import static zpi.squad.app.grouploc.POISpecies.getRightSpecies;
 
-public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbacks,MarkerDialog.NoticeDialogListener {
+public class MapFragment extends Fragment implements GoogleApiClient.ConnectionCallbacks,MarkerDialog.NoticeDialogListener {
 
     private SupportMapFragment fragment;
 
@@ -207,7 +207,7 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
         });
 
         changeMapTypeButton = (Button) getActivity().findViewById(R.id.changeMapTypeButton);
-        changeMapTypeButton.setText("Normal");
+        changeMapTypeButton.setText("Hybrid");
 
         changeMapTypeButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -515,7 +515,7 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
             public void onMapLongClick(LatLng latLng) {
                 globalVariable.setLastClikOnMap(latLng);
                 MarkerDialog markerDialog = new MarkerDialog();
-                markerDialog.setTargetFragment(Mapka.this,0);
+                markerDialog.setTargetFragment(MapFragment.this,0);
                 markerDialog.show(getFragmentManager(), "Marker Dialog");
 
 
@@ -594,7 +594,8 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
         //Log.d(AppController.TAG,"my map to"+myMap);
         globalVariable.getMyMap().setMyLocationEnabled(true);
 
-        globalVariable.getMyMap().setMapType(GoogleMap.MAP_TYPE_HYBRID);
+        //globalVariable.getMyMap().setMapType(GoogleMap.MAP_TYPE_HYBRID);
+        globalVariable.getMyMap().setMapType(GoogleMap.MAP_TYPE_NORMAL);
 
         Sender.putMarkersOnMapAgain(markers, globalVariable.getMyMap(),googleMarkers);
 

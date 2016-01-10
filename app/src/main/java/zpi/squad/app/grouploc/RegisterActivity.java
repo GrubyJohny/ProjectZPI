@@ -32,7 +32,7 @@ public class RegisterActivity extends Activity {
     private Button btnRegister;
     private Button btnLinkToLogin;
     private EditText inputFullName;
-    private EditText inputEmail;
+    private EditText registerLogin;
     private EditText inputPassword;
     private ProgressDialog pDialog;
     private SessionManager session;
@@ -44,7 +44,7 @@ public class RegisterActivity extends Activity {
         setContentView(R.layout.activity_register);
 
         inputFullName = (EditText) findViewById(R.id.name);
-        inputEmail = (EditText) findViewById(R.id.email);
+        registerLogin = (EditText) findViewById(R.id.login);
         inputPassword = (EditText) findViewById(R.id.password);
         btnRegister = (Button) findViewById(R.id.btnRegister);
         btnLinkToLogin = (Button) findViewById(R.id.btnLinkToLoginScreen);
@@ -53,8 +53,6 @@ public class RegisterActivity extends Activity {
         pDialog.setCancelable(false);
 
         session = new SessionManager(getApplicationContext());
-
-
 
 
         if (session.isLoggedIn()) {
@@ -67,29 +65,55 @@ public class RegisterActivity extends Activity {
         btnRegister.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
                 String name = inputFullName.getText().toString();
-                String email = inputEmail.getText().toString();
+                String login = registerLogin.getText().toString();
                 String password = inputPassword.getText().toString();
 
-                if (!name.isEmpty() && !email.isEmpty() && !password.isEmpty()) {
-                    registerUser(name, email, password);
-                } else {
+                if(name.isEmpty() && login.isEmpty() && password.isEmpty()){
                     Toast.makeText(getApplicationContext(),
-                            "Please enter your details!", Toast.LENGTH_LONG)
+                            "Please enter your details!", Toast.LENGTH_SHORT)
                             .show();
+                }
+                else if(name.isEmpty() && login.isEmpty() && !password.isEmpty()){
+                    Toast.makeText(getApplicationContext(),
+                            "Please enter your name and login address", Toast.LENGTH_SHORT)
+                            .show();
+                }
+                else if(name.isEmpty() && !login.isEmpty() && password.isEmpty()){
+                    Toast.makeText(getApplicationContext(),
+                            "Please enter your name and password", Toast.LENGTH_SHORT)
+                            .show();
+                }
+                else if(!name.isEmpty() && login.isEmpty() && password.isEmpty()){
+                    Toast.makeText(getApplicationContext(),
+                            "Please enter your login and password", Toast.LENGTH_SHORT)
+                            .show();
+                }
+                else if(name.isEmpty() && !login.isEmpty() && !password.isEmpty()){
+                    Toast.makeText(getApplicationContext(),
+                            "Please enter your name", Toast.LENGTH_SHORT)
+                            .show();
+                }
+                else if(!name.isEmpty() && login.isEmpty() && !password.isEmpty()){
+                    Toast.makeText(getApplicationContext(),
+                            "Please enter your login", Toast.LENGTH_SHORT)
+                            .show();
+                }
+                else if(!name.isEmpty() && !login.isEmpty() && password.isEmpty()){
+                    Toast.makeText(getApplicationContext(),
+                            "Please enter your password", Toast.LENGTH_SHORT)
+                            .show();
+                }
+                else if(!name.isEmpty() && !login.isEmpty() && !password.isEmpty()){
+                    registerUser(name, login, password);
                 }
             }
         });
 
         btnLinkToLogin.setOnClickListener(new View.OnClickListener() {
-
             public void onClick(View view) {
-                Intent i = new Intent(getApplicationContext(),
-                        LoginActivity.class);
-                startActivity(i);
                 finish();
             }
         });
-
     }
 
     private void registerUser(final String name, final String email,
@@ -113,7 +137,7 @@ public class RegisterActivity extends Activity {
                     if (!error) {
 
 
-                        Toast.makeText(getApplicationContext(), "Pomyślnie zarejestrowano użytkownika", Toast.LENGTH_LONG).show();
+                        Toast.makeText(getApplicationContext(), "User registered successfully", Toast.LENGTH_LONG).show();
                         Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
                         startActivity(intent);
                         finish();
@@ -148,7 +172,7 @@ public class RegisterActivity extends Activity {
                 } else if (error instanceof ParseError) {
                     Log.d("ParseError>>>>>>>>>", "ParseError.......");
 
-                }else if (error instanceof TimeoutError) {
+                } else if (error instanceof TimeoutError) {
                     Log.d("TimeoutError>>>>>>>>>", "TimeoutError.......");
 
                 }

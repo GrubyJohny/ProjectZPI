@@ -9,7 +9,7 @@
         android:id="@+id/friendEmail"
         android:layout_width="200sp"
         android:layout_height="wrap_content"
-        android:hint="@string/hint_email"
+        android:hint="@string/hint_login"
         android:singleLine="true"
         android:layout_below="@id/loginText"
         android:layout_centerHorizontal="true"

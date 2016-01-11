@@ -68,42 +68,35 @@ public class RegisterActivity extends Activity {
                 String login = registerLogin.getText().toString();
                 String password = inputPassword.getText().toString();
 
-                if(name.isEmpty() && login.isEmpty() && password.isEmpty()){
+                if (name.isEmpty() && login.isEmpty() && password.isEmpty()) {
                     Toast.makeText(getApplicationContext(),
                             "Please enter your details!", Toast.LENGTH_SHORT)
                             .show();
-                }
-                else if(name.isEmpty() && login.isEmpty() && !password.isEmpty()){
+                } else if (name.isEmpty() && login.isEmpty() && !password.isEmpty()) {
                     Toast.makeText(getApplicationContext(),
                             "Please enter your name and login address", Toast.LENGTH_SHORT)
                             .show();
-                }
-                else if(name.isEmpty() && !login.isEmpty() && password.isEmpty()){
+                } else if (name.isEmpty() && !login.isEmpty() && password.isEmpty()) {
                     Toast.makeText(getApplicationContext(),
                             "Please enter your name and password", Toast.LENGTH_SHORT)
                             .show();
-                }
-                else if(!name.isEmpty() && login.isEmpty() && password.isEmpty()){
+                } else if (!name.isEmpty() && login.isEmpty() && password.isEmpty()) {
                     Toast.makeText(getApplicationContext(),
                             "Please enter your login and password", Toast.LENGTH_SHORT)
                             .show();
-                }
-                else if(name.isEmpty() && !login.isEmpty() && !password.isEmpty()){
+                } else if (name.isEmpty() && !login.isEmpty() && !password.isEmpty()) {
                     Toast.makeText(getApplicationContext(),
                             "Please enter your name", Toast.LENGTH_SHORT)
                             .show();
-                }
-                else if(!name.isEmpty() && login.isEmpty() && !password.isEmpty()){
+                } else if (!name.isEmpty() && login.isEmpty() && !password.isEmpty()) {
                     Toast.makeText(getApplicationContext(),
                             "Please enter your login", Toast.LENGTH_SHORT)
                             .show();
-                }
-                else if(!name.isEmpty() && !login.isEmpty() && password.isEmpty()){
+                } else if (!name.isEmpty() && !login.isEmpty() && password.isEmpty()) {
                     Toast.makeText(getApplicationContext(),
                             "Please enter your password", Toast.LENGTH_SHORT)
                             .show();
-                }
-                else if(!name.isEmpty() && !login.isEmpty() && !password.isEmpty()){
+                } else if (!name.isEmpty() && !login.isEmpty() && !password.isEmpty()) {
                     registerUser(name, login, password);
                 }
             }
@@ -195,9 +188,7 @@ public class RegisterActivity extends Activity {
 
                 return params;
             }
-
         };
-
         AppController.getInstance().addToRequestQueue(strReq, tag_string_req);
     }
 

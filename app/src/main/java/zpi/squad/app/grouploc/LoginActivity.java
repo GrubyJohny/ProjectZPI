@@ -71,8 +71,7 @@ public class LoginActivity extends Activity {
     private LoginButton loginButton;
     private String facebookUserId, facebookUserEmail, facebookUserName;
     List<String> permissions;
-    ProgressDialog dialog;
-
+    AppController globalVariable;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -80,7 +79,8 @@ public class LoginActivity extends Activity {
         FacebookSdk.sdkInitialize(getApplicationContext());
         context = getApplicationContext();
         shre = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        edit=shre.edit();
+        edit = shre.edit();
+        globalVariable = (AppController) getApplicationContext();
 
 
         super.onCreate(savedInstanceState);
@@ -107,53 +107,42 @@ public class LoginActivity extends Activity {
         }
 
         btnLogin.setOnClickListener(new View.OnClickListener() {
-
             public void onClick(View view) {
-
                 String email = inputEmail.getText().toString();
                 String password = inputPassword.getText().toString();
 
-                if (email.trim().length() > 0 && password.trim().length() > 0) {
-                    dialog = ProgressDialog.show(LoginActivity.this, "Loading", "Please wait...", true);
-                    dialog.create();
-                    dialog.show();
-                    if(AppController.checkConn(LoginActivity.this.getApplication()))
-                    {
+                if (!email.isEmpty() && !password.isEmpty()) {
+                    if (AppController.checkConn(LoginActivity.this.getApplication())) {
                         //Toast.makeText(context, "Please wait...", Toast.LENGTH_LONG).show();
-
                         checkLogin(email, password);
                         edit.putString("kind_of_login", "normal");
-                    }
-                    else{
+                    } else {
                         Toast.makeText(getApplicationContext(),
-                                "No connection to internet detected. Unfortunately it's is impossible to login", Toast.LENGTH_LONG).show();
+                                "Please turn on your internet connection", Toast.LENGTH_SHORT).show();
                     }
-
-                }
-                else {
+                } else {
                     Toast.makeText(getApplicationContext(),
-                            "Please enter the credentials!", Toast.LENGTH_LONG).show();
+                            "Please enter the credentials!", Toast.LENGTH_SHORT).show();
                 }
             }
 
         });
 
         btnLinkToRegister.setOnClickListener(new View.OnClickListener() {
-
             public void onClick(View view) {
-
-
-                if(AppController.checkConn(LoginActivity.this.getApplication())) {
+                /*if (AppController.checkConn(LoginActivity.this.getApplication())) {
                     Intent i = new Intent(getApplicationContext(),
                             RegisterActivity.class);
                     startActivity(i);
                     //finish();
-                }
-                else
-                {
+                } else {
                     Toast.makeText(getApplicationContext(),
                             "No connection to internet detected. Unfortunately it's is impossible to login", Toast.LENGTH_LONG).show();
-                }
+                }*/
+
+                Intent i = new Intent(getApplicationContext(),
+                        RegisterActivity.class);
+                startActivity(i);
             }
         });
 
@@ -191,7 +180,7 @@ public class LoginActivity extends Activity {
         public void onSuccess(final LoginResult loginResult) {
 
             if (loginResult.getAccessToken() != null) {
-               // Log.i("TAG", "LoginButton FacebookCallback onSuccess token : " + loginResult.getAccessToken().getToken());
+                // Log.i("TAG", "LoginButton FacebookCallback onSuccess token : " + loginResult.getAccessToken().getToken());
                 GraphRequest.newMeRequest(AccessToken.getCurrentAccessToken(), new GraphRequest.GraphJSONObjectCallback() {
                     @Override
                     public void onCompleted(JSONObject object, GraphResponse response) {
@@ -213,15 +202,13 @@ public class LoginActivity extends Activity {
                             ByteArrayOutputStream baos = new ByteArrayOutputStream();
                             if (realImage != null) {
 
-                               String encodedImage = encodeBitmapTobase64(realImage);
+                                String encodedImage = encodeBitmapTobase64(realImage);
 
                                 edit.putString("facebook_image_data", encodedImage);
                                 edit.commit();
                                 edit.putString("kind_of_login", "facebook");
 
-                            }
-                            else
-                            {
+                            } else {
                                 Log.e("FACEBOOK", "Profile image = null");
                             }
 
@@ -230,8 +217,6 @@ public class LoginActivity extends Activity {
                     }
 
                 }).executeAsync();
-
-                //dialog.dismiss();
             }
         }
 
@@ -259,7 +244,6 @@ public class LoginActivity extends Activity {
     }
 
 
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -269,10 +253,7 @@ public class LoginActivity extends Activity {
 
 
     private void checkLogin(final String email, final String password) {
-
         String tag_string_req = "req_login";
-
-
         StringRequest strReq = new StringRequest(Method.POST,
                 AppConfig.URL_REGISTER, new Response.Listener<String>() {
 
@@ -280,16 +261,14 @@ public class LoginActivity extends Activity {
             public void onResponse(String response) {
                 Log.d(TAG, "Login Response: " + response.toString());
 
-
                 try {
-
                     JSONObject jObj = new JSONObject(response);
                     boolean error = jObj.getBoolean("error");
-
                     if (!error) {
+                        globalVariable.setDialog(ProgressDialog.show(LoginActivity.this, "Loading", "Please wait...", true));
+                        globalVariable.getDialog().create();
+                        globalVariable.getDialog().show();
                         session.setLogin(true);
-
-
                         JSONObject user = jObj.getJSONObject("user");
                         String uid = user.getString("uid");
                         String name = user.getString("name");
@@ -299,14 +278,10 @@ public class LoginActivity extends Activity {
                         session.setKeyName(name);
                         session.setKeyEmail(email);
 
-
                         getUserInfo(uid);
                         AppController globalVariable = AppController.getInstance();
                         //  Sender.sendRequestAboutMarkers(uid,globalVariable.getMarkers(),globalVariable.getMyMap());
-
-
                     } else {
-
                         String errorMsg = jObj.getString("error_msg");
                         Toast.makeText(getApplicationContext(),
                                 errorMsg, Toast.LENGTH_LONG).show();
@@ -314,7 +289,6 @@ public class LoginActivity extends Activity {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-
             }
         }, new Response.ErrorListener() {
 
@@ -325,10 +299,9 @@ public class LoginActivity extends Activity {
                 Toast.makeText(getApplicationContext(),
                         error.getMessage(), Toast.LENGTH_LONG).show();
                 hideDialog();
-
             }
-        }) {
-
+        })
+        {
             @Override
             protected Map<String, String> getParams() {
                 Map<String, String> params = new HashMap<String, String>();
@@ -343,8 +316,6 @@ public class LoginActivity extends Activity {
 
         AppController.getInstance().addToRequestQueue(strReq, tag_string_req);
         hideDialog();
-        /*if(dialog.isShowing())
-            dialog.dismiss();*/
     }
 
     private void showDialog() {
@@ -453,8 +424,8 @@ public class LoginActivity extends Activity {
                         startActivity(intent);
                         finish();
 
-                       // Toast.makeText(getApplicationContext(), "Pomyślnie odebrano listę znajomych", Toast.LENGTH_LONG).show();
-                       // Toast.makeText(getApplicationContext(), "Pomyślnie odebrano listę powiadomień", Toast.LENGTH_LONG).show();
+                        // Toast.makeText(getApplicationContext(), "Pomyślnie odebrano listę znajomych", Toast.LENGTH_LONG).show();
+                        // Toast.makeText(getApplicationContext(), "Pomyślnie odebrano listę powiadomień", Toast.LENGTH_LONG).show();
 
                     } else {
 
@@ -513,7 +484,7 @@ public class LoginActivity extends Activity {
                     JSONObject jObj = new JSONObject(response);
                     boolean error = jObj.getBoolean("error");
                     if (!error) {
-                       // Toast.makeText(getApplicationContext(), "Pomyślnie zarejestrowano użytkownika", Toast.LENGTH_LONG).show();
+                        // Toast.makeText(getApplicationContext(), "Pomyślnie zarejestrowano użytkownika", Toast.LENGTH_LONG).show();
 
                         session.setLogin(true);
                         JSONObject user = jObj.getJSONObject("user");

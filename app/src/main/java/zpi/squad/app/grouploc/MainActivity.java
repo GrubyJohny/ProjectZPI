@@ -188,6 +188,9 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         context = getApplicationContext();
         resources = getResources();
         globalVariable = (AppController) getApplicationContext();
+        if(globalVariable.getDialog() != null && globalVariable.getDialog().isShowing()) {
+            globalVariable.getDialog().dismiss();
+        }
         v = (Vibrator) getApplicationContext().getSystemService(Context.VIBRATOR_SERVICE);
         StrictMode.setThreadPolicy(policy);
         createLocationRequest();
@@ -728,12 +731,10 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
             layoutMarker.setVisibility(View.GONE);
             tabLayout.setVisibility(View.INVISIBLE);
             spinner1.setSelection(0);
-        }
-        else if (id == R.id.action_logout){
+        } else if (id == R.id.action_logout) {
             logOut();
             //spinner1.setSelection(0);
-        }
-        else if (id == R.id.noticeButton1){
+        } else if (id == R.id.noticeButton1) {
             spinner2.performClick();
         }
 
@@ -1248,12 +1249,8 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                     boolean error = jObj.getBoolean("error");
 
                     if (!error) {
-
                         Toast.makeText(getApplicationContext(), "Acceptance has been sent successfully", Toast.LENGTH_LONG).show();
-
-
                     } else {
-
                         String errorMsg = jObj.getString("error_msg");
                         Toast.makeText(getApplicationContext(), errorMsg, Toast.LENGTH_LONG).show();
                     }
@@ -1268,10 +1265,8 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
             @Override
             public void onErrorResponse(VolleyError error) {
                 Log.e(TAG, "Friendship request Error: " + error.toString());
-
                 Toast.makeText(getApplicationContext(), error.getMessage(), Toast.LENGTH_LONG).show();
                 hideDialog();
-
             }
         }) {
 
@@ -1282,15 +1277,12 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                 params.put("uid", senderId);
                 params.put("aid", session.getUserId());
                 params.put("gid", groupId);
-
                 return params;
             }
-
         };
 
         AppController.getInstance().addToRequestQueue(strReq, tag_string_req);
     }
-
 
     // method for bitmap to base64
     public static String encodeBitmapTobase64(Bitmap image) {
@@ -1299,7 +1291,6 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         immage.compress(Bitmap.CompressFormat.PNG, 100, baos);
         byte[] b = baos.toByteArray();
         String imageEncoded = Base64.encodeToString(b, Base64.DEFAULT);
-
         //Log.d("Image Log:", imageEncoded);
         return imageEncoded;
     }
@@ -1312,7 +1303,6 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     }
 
     private void uploadProfileImageToFTP() {
-
         //upload zdjecia do ftp
         FTPClient con = null;
 
@@ -1343,7 +1333,6 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                 fos.flush();
                 fos.close();
 
-
                 FileInputStream in = new FileInputStream(new File(context.getCacheDir() + "/" + ak));
 
                 try {
@@ -1353,7 +1342,6 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                 }
 
                 boolean result = con.storeFile("/" + session.getUserId() + ".png", in);
-
                 in.close();
                 if (result) Log.v("moj upload", "succeeded");
                 con.logout();
@@ -1366,7 +1354,6 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
 
     public static Drawable getImageFromFTP(int userID) //może zwracać null - uwaga dla Szczurka
     {
-
         Bitmap icon = null;
         FTPClient con = null;
         Drawable phot = null;
@@ -1391,8 +1378,6 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
 
         //return phot==null?resources.getDrawable(R.drawable.image3):phot;
         return phot;
-
-
     }
 
     public static Bitmap drawableToBitmap(Drawable drawable) {

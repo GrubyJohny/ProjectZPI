@@ -482,7 +482,7 @@ public class MapFragment extends Fragment implements GoogleApiClient.ConnectionC
 
 
 
-        inclizaidListenerForMarkerMenu();
+//        inclizaidListenerForMarkerMenu();
     }
 
 

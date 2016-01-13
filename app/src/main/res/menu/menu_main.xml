@@ -12,7 +12,7 @@
         android:orderInCategory="100"
         android:title="@string/action_settings"
         app:showAsAction="never" />
-    <item
+    <!--<item
         android:id="@+id/action_logout"
         android:orderInCategory="100"
         android:title="Log out"
@@ -23,5 +23,5 @@
         android:title="notice_button"
         android:icon="@drawable/notificon"
         app:showAsAction="always"
-        />
+        />-->
 </menu>

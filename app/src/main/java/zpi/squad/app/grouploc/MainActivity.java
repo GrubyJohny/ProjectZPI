@@ -1,6 +1,11 @@
 package zpi.squad.app.grouploc;
 
 import android.app.*;
+import android.app.AlertDialog;
+import android.support.design.widget.TabLayout;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.view.ViewPager;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.*;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
@@ -26,8 +31,10 @@ import android.os.StrictMode;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
+import android.support.design.widget.NavigationView;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTabHost;
+import android.support.v7.widget.Toolbar;
 import android.text.format.Time;
 import android.util.Base64;
 import android.util.DisplayMetrics;
@@ -85,8 +92,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 
-public class MainActivity extends FragmentActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
-        LocationListener, ToolTipView.OnToolTipViewClickedListener {
+public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
+        LocationListener, ToolTipView.OnToolTipViewClickedListener, NavigationView.OnNavigationItemSelectedListener {
 
     private static Resources resources;
     private SessionManager session;
@@ -200,6 +207,45 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         db = new SQLiteHandler(getApplicationContext());
         tabLayout = (View) findViewById(R.id.tabLayout);
 
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabanim_tabs);
+        tabLayout.addTab(tabLayout.newTab().setText("Map"));
+        tabLayout.addTab(tabLayout.newTab().setText("Friends"));
+        tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
+
+        final ViewPager viewPager = (ViewPager) findViewById(R.id.tabanim_viewpager);
+        final PagerAdapter adapter = new PagerAdapter
+                (getSupportFragmentManager(), tabLayout.getTabCount());
+        viewPager.setAdapter(adapter);
+        viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
+        tabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                viewPager.setCurrentItem(tab.getPosition());
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+
+            }
+        });
+
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawer.setDrawerListener(toggle);
+        toggle.syncState();
+
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
+
         sender = createSendThread();
         mRequestingLocationUpdates = true;
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
@@ -211,26 +257,26 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
 
         searchingGroupText = (EditText) findViewById(R.id.searchingGroupText);
 
-        tabhostInit();
+//        tabhostInit();
 
         new Thread(sender, "Watek do wysyłania koordynatów").start();
 
         readNotifications = db.getAllNotifications();
 
-        mainSpinner();
-        notifications();
-        messages();
-        setupCircleButtonWithProfileImage();
-        noticeAndMessageButtons();
+//        mainSpinner();
+//        notifications();
+//        messages();
+//        setupCircleButtonWithProfileImage();
+//        noticeAndMessageButtons();
 
-        addListenerOnButton();
-        addListenerOnSpinner();
-        addListenerOnSpinner2();
-        addListenerOnSpinner3();
+//        addListenerOnButton();
+//        addListenerOnSpinner();
+//        addListenerOnSpinner2();
+//        addListenerOnSpinner3();
 
         layoutSettings = (View) findViewById(R.id.settingsLayout);
 
-        SettingButtons();
+//        SettingButtons();
 
         layoutMarker = (View) findViewById(R.id.markerLayout);
 
@@ -245,7 +291,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         POIScrollView = (ScrollView) findViewById(R.id.POIScroll);
 
         toolTipRelativeLayout = (ToolTipRelativeLayout) findViewById(R.id.activity_main_tooltipRelativeLayout);
-        toolTipRelativeLayout.bringToFront();
+//        toolTipRelativeLayout.bringToFront();
 
         hintsL = session.getHintsLeft();
 
@@ -726,7 +772,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
 
-        if (id == R.id.action_settings) {
+        /*if (id == R.id.action_settings) {
             layoutSettings.setVisibility(View.VISIBLE);
             layoutMarker.setVisibility(View.GONE);
             tabLayout.setVisibility(View.INVISIBLE);
@@ -736,9 +782,34 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
             //spinner1.setSelection(0);
         } else if (id == R.id.noticeButton1) {
             spinner2.performClick();
-        }
+        }*/
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @SuppressWarnings("StatementWithEmptyBody")
+    @Override
+    public boolean onNavigationItemSelected(MenuItem item) {
+        // Handle navigation view item clicks here.
+        int id = item.getItemId();
+
+        if (id == R.id.nav_camera) {
+            // Handle the camera action
+        } else if (id == R.id.nav_gallery) {
+
+        } else if (id == R.id.nav_slideshow) {
+
+        } else if (id == R.id.nav_manage) {
+
+        } else if (id == R.id.nav_share) {
+
+        } else if (id == R.id.nav_send) {
+
+        }
+
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawer.closeDrawer(GravityCompat.START);
+        return true;
     }
 
     public void logOut() {
@@ -1116,6 +1187,12 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                             MainActivity.super.onBackPressed();
                         }
                     }).create().show();
+        }
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START);
+        } else {
+            super.onBackPressed();
         }
     }
 

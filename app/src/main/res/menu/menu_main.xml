@@ -7,21 +7,28 @@
         android:icon="@drawable/logozpi"
         app:showAsAction="always|withText"
         />-->
-    <item
+    <!--<item
         android:id="@+id/action_settings"
         android:orderInCategory="100"
         android:title="@string/action_settings"
-        app:showAsAction="never" />
+        app:showAsAction="never" />-->
     <!--<item
         android:id="@+id/action_logout"
         android:orderInCategory="100"
         android:title="Log out"
-        app:showAsAction="never" />
-    <item
+        app:showAsAction="never" />-->
+    <!--<item
         android:id="@+id/noticeButton1"
         android:orderInCategory="100"
         android:title="notice_button"
         android:icon="@drawable/notificon"
         app:showAsAction="always"
         />-->
+    <item
+        android:id="@+id/friendsButton"
+        android:orderInCategory="100"
+        android:title="Friends"
+        android:icon="@drawable/ic_friend"
+        app:showAsAction="always"
+        />
 </menu>

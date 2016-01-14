@@ -2,7 +2,9 @@ package zpi.squad.app.grouploc;
 
 import android.app.*;
 import android.app.AlertDialog;
+import android.app.FragmentTransaction;
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.*;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
@@ -32,8 +34,7 @@ import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.support.design.widget.NavigationView;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentTabHost;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
 import android.text.format.Time;
 import android.util.Base64;
@@ -176,18 +177,14 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
     private boolean hints = false;
     int hintsL;
+    DrawerLayout drawer;
+    NavigationView navigationViewLeft;
+    NavigationView navigationViewRight;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        //getSupportActionBar().setDisplayShowHomeEnabled(true);
-        //getSupportActionBar().setDisplayShowTitleEnabled(true);
-        //getSupportActionBar().setIcon(R.drawable.logozpi);
-        //getSupportActionBar().setTitle("GroupLoc");
-        //getSupportActionBar().setSubtitle("GroupLoc");
-
 
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         shre = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
@@ -212,7 +209,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabanim_tabs);
         tabLayout.addTab(tabLayout.newTab().setText("Map"));
-        tabLayout.addTab(tabLayout.newTab().setText("Friends"));
+//        tabLayout.addTab(tabLayout.newTab().setText("Friends"));
         tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
 
         final ViewPager viewPager = (ViewPager) findViewById(R.id.tabanim_viewpager);
@@ -237,14 +234,18 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             }
         });
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.setDrawerListener(toggle);
         toggle.syncState();
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
+        navigationViewLeft = (NavigationView) findViewById(R.id.nav_view_left);
+        navigationViewLeft.setNavigationItemSelectedListener(this);
+
+        navigationViewRight = (NavigationView) findViewById(R.id.nav_view_right);
+        navigationViewRight.setNavigationItemSelectedListener(this);
+
 
         sender = createSendThread();
         mRequestingLocationUpdates = true;
@@ -772,17 +773,12 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
 
-        /*if (id == R.id.action_settings) {
-            layoutSettings.setVisibility(View.VISIBLE);
-            layoutMarker.setVisibility(View.GONE);
-            tabLayout.setVisibility(View.INVISIBLE);
-            spinner1.setSelection(0);
-        } else if (id == R.id.action_logout) {
-            logOut();
-            //spinner1.setSelection(0);
-        } else if (id == R.id.noticeButton1) {
-            spinner2.performClick();
-        }*/
+        if (id == R.id.friendsButton) {
+            if (drawer.isDrawerOpen(navigationViewLeft)) {
+                drawer.closeDrawer(navigationViewLeft);
+            }
+            drawer.openDrawer(navigationViewRight);
+        }
 
         return super.onOptionsItemSelected(item);
     }
@@ -801,10 +797,10 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
         } else if (id == R.id.nav_manage) {
 
-        } else if (id == R.id.nav_share) {
+        } else if (id == R.id.settings) {
 
-        } else if (id == R.id.nav_send) {
-
+        } else if (id == R.id.logout) {
+            logOut();
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

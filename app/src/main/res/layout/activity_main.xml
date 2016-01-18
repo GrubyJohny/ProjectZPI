@@ -19,21 +19,19 @@
             android:layout_height="match_parent" />
     </LinearLayout>
 
-    <!--<LinearLayout
+    <LinearLayout
         android:id="@+id/markerLayout"
         android:layout_width="250dp"
-        android:layout_height="wrap_content"
+        android:layout_height="150dp"
         android:background="@color/background_material_light"
         android:orientation="vertical"
         android:visibility="invisible"
         android:divider="@drawable/divider"
         android:showDividers="middle">
 
-
-
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="fill_parent">
+            android:layout_height="50dp">
 
             <TextView
                 android:id="@+id/titleOfMarker"
@@ -45,19 +43,19 @@
                 android:maxLines="3"
                 android:scrollHorizontally="false"/>
 
-            &lt;!&ndash;<Button
+            <!--<Button
                 android:id="@+id/closeMarkerButton"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
                 android:clickable="true"
                 android:text="X"
-                android:textSize="8dp" />&ndash;&gt;
+                android:textSize="8dp" />-->
 
         </RelativeLayout>
 
         <LinearLayout
-            android:layout_width="250dp"
-            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_height="100dp"
             android:orientation="horizontal">
 
             <ImageButton
@@ -68,10 +66,6 @@
                 android:src="@drawable/polyline"
                 android:scaleType="fitCenter"
                 android:layout_weight="1"/>
-            &lt;!&ndash;<View
-                android:layout_width="1dp"
-                android:layout_height="match_parent"
-                android:background="#f6f6f6" />&ndash;&gt;
 
             <ImageButton
                 android:id="@+id/secondButton"
@@ -82,11 +76,6 @@
                 android:scaleType="fitCenter"
                 android:layout_weight="1"/>
 
-            &lt;!&ndash;<View
-                android:layout_width="1dp"
-                android:layout_height="match_parent"
-                android:background="#f6f6f6" />&ndash;&gt;
-
             <ImageButton
                 android:id="@+id/fifthButton"
                 android:layout_width="0dp"
@@ -96,11 +85,6 @@
                 android:scaleType="fitCenter"
                 android:layout_weight="1"/>
 
-            &lt;!&ndash;<View
-                android:layout_width="1dp"
-                android:layout_height="match_parent"
-                android:background="#f6f6f6" />&ndash;&gt;
-
             <ImageButton
                 android:id="@+id/thirdButton"
                 android:layout_width="0dp"
@@ -109,11 +93,6 @@
                 android:clickable="true"
                 android:scaleType="fitCenter"
                 android:layout_weight="1"/>
-
-            &lt;!&ndash;<View
-                android:layout_width="1dp"
-                android:layout_height="match_parent"
-                android:background="#f6f6f6" />&ndash;&gt;
 
             <ImageButton
                 android:id="@+id/fourthButton"
@@ -125,7 +104,7 @@
                 android:layout_weight="1"/>
         </LinearLayout>
 
-    </LinearLayout>-->
+    </LinearLayout>
 
 
     <android.support.design.widget.NavigationView

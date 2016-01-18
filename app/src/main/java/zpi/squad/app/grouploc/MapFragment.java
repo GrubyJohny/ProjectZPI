@@ -18,6 +18,8 @@ import android.view.InflateException;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -531,8 +533,8 @@ public class MapFragment extends Fragment implements GoogleApiClient.ConnectionC
             public boolean onMarkerClick(Marker marker) {
                 ostatniMarker = marker;
                 globalVariable.getMyMap().animateCamera(CameraUpdateFactory.newLatLng(marker.getPosition()));
-                layoutMarker.setX((float) globalVariable.getMyMap().getProjection().toScreenLocation(marker.getPosition()).x - layoutMarker.getWidth() / 2);
-                layoutMarker.setY((float) globalVariable.getMyMap().getProjection().toScreenLocation(marker.getPosition()).y - layoutMarker.getHeight() + 180);
+                /*layoutMarker.setX((float) globalVariable.getMyMap().getProjection().toScreenLocation(marker.getPosition()).x - layoutMarker.getWidth() / 2);
+                layoutMarker.setY((float) globalVariable.getMyMap().getProjection().toScreenLocation(marker.getPosition()).y - layoutMarker.getHeight() + 180);*/
                 TextView name = (TextView) layoutMarker.findViewById(R.id.titleOfMarker);
                 Log.d("tittle", name + "");
                 name.setText(marker.getTitle());
@@ -573,7 +575,9 @@ public class MapFragment extends Fragment implements GoogleApiClient.ConnectionC
                 }
 
 
-
+                Animation bottomUp = AnimationUtils.loadAnimation(getActivity().getApplicationContext(),
+                        R.anim.bottom_up);
+                layoutMarker.startAnimation(bottomUp);
                 layoutMarker.setVisibility(View.VISIBLE);
                 return true;
             }
@@ -620,14 +624,14 @@ public class MapFragment extends Fragment implements GoogleApiClient.ConnectionC
         return new GoogleMap.OnCameraChangeListener() {
             @Override
             public void onCameraChange(CameraPosition position) {
-                if (ostatniMarker != null) {
-                    if (/*layoutMarker.getX() < 0 || */layoutMarker.getY() < (tabs.getY() + tabs.getMeasuredHeight() * 2) /*|| layoutMarker.getX() + layoutMarker.getWidth() > width || layoutMarker.getY() + layoutMarker.getHeight() > height*/) {
+                /*if (ostatniMarker != null) {
+                    if (*//*layoutMarker.getX() < 0 || *//*layoutMarker.getY() < (tabs.getY() + tabs.getMeasuredHeight() * 2) *//*|| layoutMarker.getX() + layoutMarker.getWidth() > width || layoutMarker.getY() + layoutMarker.getHeight() > height*//*) {
                         layoutMarker.setVisibility(View.GONE);
                     } else {
                         layoutMarker.setX((float) globalVariable.getMyMap().getProjection().toScreenLocation(ostatniMarker.getPosition()).x - layoutMarker.getWidth() / 2);
                         layoutMarker.setY((float) globalVariable.getMyMap().getProjection().toScreenLocation(ostatniMarker.getPosition()).y - layoutMarker.getHeight() + 180);
                     }
-                }
+                }*/
                 getActivity().findViewById(R.id.POIButtons).setVisibility(View.GONE);
                 //addItemsToMap(markers);
             }

@@ -2,7 +2,6 @@ package zpi.squad.app.grouploc;
 
 import android.app.*;
 import android.app.AlertDialog;
-import android.app.FragmentTransaction;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.*;
 import android.support.v4.view.GravityCompat;
@@ -788,18 +787,11 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
+        if (id == R.id.nav_about) {
 
-        if (id == R.id.nav_camera) {
-            // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
+        } else if (id == R.id.nav_settings) {
 
-        } else if (id == R.id.nav_slideshow) {
-
-        } else if (id == R.id.nav_manage) {
-
-        } else if (id == R.id.settings) {
-
-        } else if (id == R.id.logout) {
+        } else if (id == R.id.nav_logout) {
             logOut();
         }
 

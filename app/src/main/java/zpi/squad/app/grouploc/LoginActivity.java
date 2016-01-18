@@ -265,9 +265,9 @@ public class LoginActivity extends Activity {
                     JSONObject jObj = new JSONObject(response);
                     boolean error = jObj.getBoolean("error");
                     if (!error) {
-                        globalVariable.setDialog(ProgressDialog.show(LoginActivity.this, "Loading", "Please wait...", true));
+                        /*globalVariable.setDialog(ProgressDialog.show(LoginActivity.this, "Loading", "Please wait...", true));
                         globalVariable.getDialog().create();
-                        globalVariable.getDialog().show();
+                        globalVariable.getDialog().show();*/
                         session.setLogin(true);
                         JSONObject user = jObj.getJSONObject("user");
                         String uid = user.getString("uid");

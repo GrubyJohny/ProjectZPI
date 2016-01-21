@@ -124,7 +124,7 @@ public class GroupFragment extends Fragment {
             }
         });
 
-        session = new SessionManager(getActivity());
+        session = SessionManager.getInstance(getActivity().getApplicationContext());
     }
 
     public static void getGroupsByName(final Activity activity, final GroupAdapter adapter, final String text) {

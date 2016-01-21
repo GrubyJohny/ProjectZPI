@@ -79,6 +79,17 @@ import com.nhaarman.supertooltips.ToolTip;
 import com.nhaarman.supertooltips.ToolTipRelativeLayout;
 import com.nhaarman.supertooltips.ToolTipView;
 
+import com.parse.Parse;
+import com.parse.ParseCloud;
+import com.parse.ParseException;
+import com.parse.ParseFacebookUtils;
+import com.parse.ParseInstallation;
+import com.parse.ParsePush;
+import com.parse.ParsePushBroadcastReceiver;
+import com.parse.ParseQuery;
+import com.parse.ParseUser;
+import com.parse.SaveCallback;
+
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
 import org.json.JSONArray;
@@ -136,10 +147,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     //private Button closeMarkerButton;
     private Marker ostatniMarker;
     private FragmentTabHost tabhost;
-    private static final String FTP_SERVER_ADDRESS = "ftp.marcinta.webd.pl";
-    private static final String FTP_ACCOUNT_USERNAME = "grouploc@marcinta.webd.pl";
-    private static final String FTP_ACCOUNT_PASSWORD = "grouploc2015";
-
+    private Bitmap bitmap_round;
 
     private ScrollView POIScrollView;
     PoiJSONParser poiBase = new PoiJSONParser();
@@ -164,10 +172,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     //OstatniKliknietyNaMapi
     private LatLng lastClikOnMap;
 
-    public static final String IMAGE_PHOTO_FILENAME = "facebook_profile_photo";
-
-    SharedPreferences.Editor edit;
-    SharedPreferences shre;
     Bitmap profilePictureRaw;
 
     AppController globalVariable;
@@ -188,8 +192,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         setContentView(R.layout.activity_main);
 
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-        shre = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        edit = shre.edit();
         context = getApplicationContext();
         resources = getResources();
         globalVariable = (AppController) getApplicationContext();
@@ -200,10 +202,11 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         StrictMode.setThreadPolicy(policy);
         createLocationRequest();
         buildGoogleApiClient();
+
         mGoogleApiClient.connect();
-        session = new SessionManager(getApplicationContext());
+        session = SessionManager.getInstance(getApplicationContext());
         db = new SQLiteHandler(getApplicationContext());
-        tabLayout = (View) findViewById(R.id.tabLayout);
+        //tabLayout = (View) findViewById(R.id.tabLayout);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -255,7 +258,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             buildAlertMessageNoGps();
         }
 
-        circleButton = (ImageButton) findViewById(R.id.circleButton);
+        //circleButton = (ImageButton) findViewById(R.id.circleButton);
 
         searchingGroupText = (EditText) findViewById(R.id.searchingGroupText);
 
@@ -292,12 +295,12 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
         POIScrollView = (ScrollView) findViewById(R.id.POIScroll);
 
-        toolTipRelativeLayout = (ToolTipRelativeLayout) findViewById(R.id.activity_main_tooltipRelativeLayout);
+      //  toolTipRelativeLayout = (ToolTipRelativeLayout) findViewById(R.id.activity_main_tooltipRelativeLayout);
 //        toolTipRelativeLayout.bringToFront();
 
         hintsL = session.getHintsLeft();
 
-        if (hintsL > 0) {
+        /*if (hintsL > 0) {
             session.setHintsLeft(session.getHintsLeft() - 1);
 
             final Handler myHandler = new Handler();
@@ -324,10 +327,10 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                     }.start();
                 }
             }, 3000);
-        }
+        }*/
     }
 
-    private void addMyToolTipView() {
+    /*private void addMyToolTipView() {
         ToolTip toolTip = new ToolTip()
                 .withText("Click here for settings")
                 .withShadow()
@@ -335,7 +338,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 .withAnimationType(ToolTip.AnimationType.FROM_TOP);
         myToolTipView = toolTipRelativeLayout.showToolTipForView(toolTip, findViewById(R.id.circleButton));
         myToolTipView.setOnToolTipViewClickedListener(MainActivity.this);
-    }
+    }*/
 
     private void addFriendEmailToolTipView() {
         ToolTip toolTip = new ToolTip()
@@ -416,30 +419,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     private void setupCircleButtonWithProfileImage() {
         Bitmap icon = null;
 
-        String previouslyEncodedImage;
-        String kindOfLoginn = shre.getString("kind_of_login", "");
-        Drawable fromFTP = null;
-
-        // pobierz zdjęcie z serwera i załaduj jako profilowe
-        fromFTP = getImageFromFTP(Integer.parseInt(session.getUserId()));
-        if (fromFTP != null) {
-            icon = drawableToBitmap(fromFTP);
-            profilePictureRaw = icon;
-            String enco = encodeBitmapTobase64(icon);
-            edit.putString("image_data", enco);
-
-            edit.commit();
-        } else {
-            //wyslij zdj z fejsa do ftp
-            String image = shre.getString("facebook_image_data", "");
-            //Log.e("SRATATATA", image);
-            Bitmap tmp = decodeBase64ToBitmap(image);
-            //Drawable tmpp = new BitmapDrawable(getResources(), tmp);
-            profilePictureRaw = tmp;
-            icon = tmp;
-
-            if (!image.isEmpty())
-                uploadProfileImageToFTP();
+        try {
+            icon = decodeBase64ToBitmap(SessionManager.getInstance(context).getUserPhoto());
+        } catch (Exception e) {
 
         }
 
@@ -447,14 +429,13 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         if (icon == null)
             icon = BitmapFactory.decodeResource(getResources(), R.drawable.image3);
 
-
-        Bitmap bitmap_round = clipBitmap(icon, circleButton);
+        bitmap_round = clipBitmap(icon, circleButton);
         circleButton.setImageBitmap(bitmap_round);
 
     }
 
     private void noticeAndMessageButtons() {
-        noticeButton = (ImageButton) findViewById(R.id.noticeButton);
+      //  noticeButton = (ImageButton) findViewById(R.id.noticeButton);
         Bitmap bMap = BitmapFactory.decodeResource(getResources(), R.drawable.notificon);
         Bitmap bMapScaled = Bitmap.createScaledBitmap(bMap, 150, 150, true);
         Bitmap bitmap_round = clipBitmap(bMapScaled, noticeButton);
@@ -470,7 +451,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     }
 
     private void mainSpinner() {
-        spinner1 = (Spinner) findViewById(R.id.spinner);
+       // spinner1 = (Spinner) findViewById(R.id.spinner);
         String[] spinnerOptions = {"", "Settings", "Log out"};
         ArrayAdapter<String> circleButtonOptions = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, spinnerOptions) {
             @Override
@@ -497,7 +478,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     }
 
     private void notifications() {
-        spinner2 = (Spinner) findViewById(R.id.spinner2);
+       // spinner2 = (Spinner) findViewById(R.id.spinner2);
         readNotifications.add(0, new Notification("", "", "", "", "", "", "", "", 0));
         NotificationAdapter noticeButtonOptions = new NotificationAdapter(this, readNotifications) {
             @Override
@@ -525,7 +506,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     }
 
     private void messages() {
-        spinner3 = (Spinner) findViewById(R.id.spinner3);
+      //  spinner3 = (Spinner) findViewById(R.id.spinner3);
         String[] spinner3Options = {"message 1", "message 2", "message 3", "message 4"};
         ArrayAdapter<String> messageButtonOptions = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, spinner3Options);
         spinner3.setAdapter(messageButtonOptions);
@@ -537,6 +518,32 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         confirm.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                ParseFacebookUtils.initialize(MainActivity.this);
+
+                if(!ParseFacebookUtils.isLinked(ParseUser.getCurrentUser())) {
+                    ParseFacebookUtils.linkWithReadPermissionsInBackground(ParseUser.getCurrentUser(), MainActivity.this, LoginActivity.permissions, new SaveCallback() {
+                        @Override
+                        public void done(ParseException e) {
+                            if (ParseFacebookUtils.isLinked(ParseUser.getCurrentUser())) {
+                                Log.d("HURRA", "Woohoo, user logged in with Facebook!");
+                            }
+                        }
+                    });
+
+                }
+                else if(ParseFacebookUtils.isLinked(ParseUser.getCurrentUser())) {
+                    ParseFacebookUtils.unlinkInBackground(ParseUser.getCurrentUser(), new SaveCallback(){
+                        @Override
+                        public void done(ParseException ex) {
+                            if (ex == null) {
+                                Log.d("NIE HURRA", "The user is no longer associated with their Facebook account.");
+                            }
+                        }
+                    });
+                }
+
+
+
                 InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(tabhost.getApplicationWindowToken(), 0);
                 layoutSettings.setVisibility(View.INVISIBLE);
@@ -621,12 +628,12 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
                                                          Bitmap toCrop = null;
                                                          String previouslyEncodedImage = "";
-
+/*
                                                          if (shre.getString("facebook_image_data", "") != "") {
                                                              previouslyEncodedImage = shre.getString("facebook_image_data", "");
                                                              toCrop = decodeBase64ToBitmap(previouslyEncodedImage);
                                                          }
-
+*/
 
                                                          Uri uri = getImageUri(getApplicationContext(), toCrop);
                                                          Intent cropIntent = new Intent("com.android.camera.action.CROP");
@@ -668,21 +675,29 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
     }
 
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         try {
+
             if (requestCode == PICK_FROM_GALLERY) {
                 Bundle extras2 = data.getExtras();
                 if (extras2 != null) {
                     Bitmap photo = extras2.getParcelable("data");
 
                     profilePictureRaw = photo;
-                    uploadProfileImageToFTP();
+                    ParseUser user = ParseUser.getCurrentUser();
+                    user.put("photo", encodeBitmapTobase64(profilePictureRaw));
+                    user.saveInBackground();
+
+                    //Log.d("ZJDECIE", encodeBitmapTobase64(profilePictureRaw));
+                    SessionManager.getInstance(context).setKeyPhoto(encodeBitmapTobase64(profilePictureRaw));
+
                     Bitmap bitmap_round = clipBitmap(photo, circleButton);
                     circleButton.setImageBitmap(bitmap_round);
 
-                    FileOutputStream fos = context.openFileOutput(IMAGE_PHOTO_FILENAME, Context.MODE_PRIVATE);
+                    FileOutputStream fos = context.openFileOutput(AppConfig.IMAGE_PHOTO_FILENAME, Context.MODE_PRIVATE);
                     bitmap_round.compress(Bitmap.CompressFormat.PNG, 100, fos);
                     fos.close();
 
@@ -708,13 +723,18 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 Bitmap photo = extras2.getParcelable("data");
 
                 profilePictureRaw = photo;
+                ParseUser user = ParseUser.getCurrentUser();
+                user.put("photo", encodeBitmapTobase64(profilePictureRaw));
+                user.saveInBackground();
 
-                uploadProfileImageToFTP();
+                //Log.d("ZJDECIE", encodeBitmapTobase64(profilePictureRaw));
+                SessionManager.getInstance(context).setKeyPhoto(encodeBitmapTobase64(profilePictureRaw));
+
 
                 Bitmap bitmap_round = clipBitmap(photo, circleButton);
                 circleButton.setImageBitmap(bitmap_round);
 
-                FileOutputStream fos = context.openFileOutput(IMAGE_PHOTO_FILENAME, Context.MODE_PRIVATE);
+                FileOutputStream fos = context.openFileOutput(AppConfig.IMAGE_PHOTO_FILENAME, Context.MODE_PRIVATE);
                 bitmap_round.compress(Bitmap.CompressFormat.PNG, 100, fos);
                 fos.close();
 
@@ -820,7 +840,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             public void onResponse(String response) {
 
                 String TAG = "Sending coordinates & checking for notifications";
-                Log.d(TAG, response.toString());
+                //Log.d(TAG, response.toString());
                 try {
                     JSONObject jObj = new JSONObject(response);
                     boolean error = jObj.getBoolean("error");
@@ -882,7 +902,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                         if (type.equals("friendshipAgreed")) {
 
                             db.addFriend(senderId, senderName, senderEmail);
-                            FriendsFragment.addFriend(new Friend(Integer.valueOf(senderId), senderName, senderEmail));
+                            FriendsFragment.addFriend(new Friend(senderId, senderName, senderEmail, null));
                         } else if (type.equals("friendshipCanceled")) {
                             FriendsFragment.removeItem(senderEmail);
                         } else if (type.equals("friendshipRequest")) {
@@ -1268,7 +1288,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
                         Toast.makeText(getApplicationContext(), "Acceptance has been sent successfully", Toast.LENGTH_LONG).show();
                         db.addFriend(myreceiverid, receiverName, receiverEmail);
-                        FriendsFragment.addFriend(new Friend(Integer.valueOf(myreceiverid), receiverName, receiverEmail));
+                        FriendsFragment.addFriend(new Friend(myreceiverid, receiverName, receiverEmail, null));
 
 
                     } else {
@@ -1380,84 +1400,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         byte[] decodedByte = Base64.decode(input, 0);
         return BitmapFactory
                 .decodeByteArray(decodedByte, 0, decodedByte.length);
-    }
-
-    private void uploadProfileImageToFTP() {
-        //upload zdjecia do ftp
-        FTPClient con = null;
-
-        try {
-            con = new FTPClient();
-            con.connect(FTP_SERVER_ADDRESS);
-
-            if (con.login(FTP_ACCOUNT_USERNAME, FTP_ACCOUNT_PASSWORD)) {
-                con.enterLocalPassiveMode(); // important!
-                con.setFileType(FTP.BINARY_FILE_TYPE);
-
-                //create a file to write bitmap data
-                String ak = Time.SECOND + "" + Time.MINUTE;
-                File f = new File(context.getCacheDir(), ak);
-                boolean res = f.createNewFile();
-                //Log.d("TAKCZYNIE", ""+res);
-
-//Convert bitmap to byte array
-                Bitmap bitmap = profilePictureRaw;
-                ByteArrayOutputStream bos = new ByteArrayOutputStream();
-                bitmap.compress(Bitmap.CompressFormat.PNG, 100 /*ignored for PNG*/, bos);
-                byte[] bitmapdata = bos.toByteArray();
-                //Log.d("ZDJECIE", bitmapdata.toString());
-
-//write the bytes in file
-                FileOutputStream fos = new FileOutputStream(f);
-                fos.write(bitmapdata);
-                fos.flush();
-                fos.close();
-
-                FileInputStream in = new FileInputStream(new File(context.getCacheDir() + "/" + ak));
-
-                try {
-                    deleteFile(session.getUserId() + ".png");
-                } catch (Exception e) {
-                    //e.toString();
-                }
-
-                boolean result = con.storeFile("/" + session.getUserId() + ".png", in);
-                in.close();
-                if (result) Log.v("moj upload", "succeeded");
-                con.logout();
-                con.disconnect();
-            }
-        } catch (Exception e) {
-            Log.e("ERROR FTP", e.getMessage());
-        }
-    }
-
-    public static Drawable getImageFromFTP(int userID) //może zwracać null - uwaga dla Szczurka
-    {
-        Bitmap icon = null;
-        FTPClient con = null;
-        Drawable phot = null;
-        try {
-            con = new FTPClient();
-            con.connect(FTP_SERVER_ADDRESS);
-            //Log.e("przed getFriendPhoto", "wszedl");
-            if (con.login(FTP_ACCOUNT_USERNAME, FTP_ACCOUNT_PASSWORD)) {
-                con.enterLocalPassiveMode(); // important!
-                con.setFileType(FTP.BINARY_FILE_TYPE);
-                //Log.e("przed getFriendPhoto", "wszedl2" + userID);
-
-                phot = Drawable.createFromStream(con.retrieveFileStream(userID + ".png"), "userID");
-                con.logout();
-                con.disconnect();
-            }
-        } catch (Exception e) {
-            Log.v("download result", "failed");
-            e.printStackTrace();
-        }
-        //Log.d("PRAWDA", "" + (phot != null));
-
-        //return phot==null?resources.getDrawable(R.drawable.image3):phot;
-        return phot;
     }
 
     public static Bitmap drawableToBitmap(Drawable drawable) {

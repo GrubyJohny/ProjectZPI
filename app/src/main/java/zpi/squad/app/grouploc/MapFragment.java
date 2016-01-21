@@ -138,7 +138,7 @@ public class MapFragment extends Fragment implements GoogleApiClient.ConnectionC
         //res = getResources();
 
         layoutMarker = (View) getActivity().findViewById(R.id.markerLayout);
-        tabs = (View) getActivity().findViewById(R.id.tabss);
+        tabs = (View) getActivity().findViewById(R.id.tabanim_tabs);
         context = getActivity().getApplicationContext();
         globalVariable = (AppController) getActivity().getApplicationContext();
         db = new SQLiteHandler(getActivity().getApplicationContext());
@@ -157,7 +157,7 @@ public class MapFragment extends Fragment implements GoogleApiClient.ConnectionC
         mGoogleApiClient.connect();
         mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
 
-        session = new SessionManager(getActivity().getApplicationContext());
+        session = SessionManager.getInstance(context);
 
         width = context.getResources().getDisplayMetrics().widthPixels;
         height = context.getResources().getDisplayMetrics().heightPixels;

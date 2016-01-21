@@ -122,12 +122,11 @@ public class Sender {
     }
 
     public static void sendRequestAboutMarkers(final String id, final List<CustomMarker> forResult, final GoogleMap map) {
-        final String TAG = "Getting markers";
+      /*  final String TAG = "Getting markers";
         Log.d(TAG, "dawaj " + id);
         StringRequest request = new StringRequest(Request.Method.POST, AppConfig.URL_LOGIN, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
-
                 Log.d(TAG, response.toString());
                 forResult.clear();
                 try {
@@ -144,14 +143,11 @@ public class Sender {
                         customMarker.setSaveOnServer(true);
                         forResult.add(customMarker);
                     }
-
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
                 Log.d(TAG, "size " + forResult.size());
                 Sender.putMarkersOnMapAgain(forResult, map, null);
-
-
             }
         }, new Response.ErrorListener() {
             @Override
@@ -168,18 +164,17 @@ public class Sender {
             }
         };
         AppController.getInstance().addToRequestQueue(request, "nowy_prosba");
-
+*/
     }
 
     public static void sendRequestAboutFriendsCoordinate(final String whereClause, final GoogleMap map) {
-        final String TAG = "Getting friendsCoordinate";
+       /* final String TAG = "Getting friendsCoordinate";
         Log.d(TAG, whereClause);
         StringRequest request = new StringRequest(Request.Method.POST, AppConfig.URL_LOGIN, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
                // Log.d(TAG, response);
                 try {
-
                     JSONObject jObj = new JSONObject(response);
                     if (!jObj.getBoolean("error")) {
                         String question = jObj.getString("clause");
@@ -193,7 +188,6 @@ public class Sender {
                             String name=friendCoordinate.getString("F_name");
                             String data=friendCoordinate.getString("data");
                             LatLng latLng=new LatLng(latitude,longitude);
-
                             if(friends.containsKey(id))
                             {
                                 try {
@@ -211,7 +205,6 @@ public class Sender {
                                 {
                                     e.printStackTrace();
                                 }
-
                             }
                             else
                             {
@@ -219,30 +212,26 @@ public class Sender {
                                 Drawable ikona;
                                 Marker dodany = null;
                               try {
-                                  ikona = MainActivity.getImageFromFTP(Integer.parseInt(id));
-                                  //SZCZUREK SZCZUREK GOń SIĘ
-
                                   MainActivity main = new MainActivity();
-                                  ImageButton imgbut = MainActivity.circleButton;
-
-
-                                  if (ikona != null) {
+                                  ikona = main.getImageFromFTP(Integer.parseInt(id));
+                                  //ikona = null;
+                                  ImageButton imgbut = main.circleButton;
+                                 if (ikona != null) {
                                       dodany = map.addMarker(new MarkerOptions().title(name).position(latLng).icon(BitmapDescriptorFactory.
                                               fromBitmap(main.clipBitmap(MainActivity.drawableToBitmap(ikona), imgbut))).snippet(id));
                                   }
-                                  else
-                                      dodany = map.addMarker(new MarkerOptions().title(name).position(latLng).icon(BitmapDescriptorFactory.fromResource(R.drawable.image5)).snippet(id));
-
+                                  else {
+                                  Log.d("IKONA ZNAJOMEGO", "NULL");
+                                     dodany = map.addMarker(new MarkerOptions().title(name).position(latLng).icon(BitmapDescriptorFactory.fromResource(R.drawable.image5)).snippet(id));
+                                 }
                               }
                               catch (Exception e)
                               {
                                   e.printStackTrace();
                               }
-
                                 friends.put(id, dodany);
                                 Log.d(TAG,"HashMapa friends liczy : "+friends.size()+" elementów");
                             }
-
                         }
                     } else {
                         Log.e(TAG, "cos poszlo nie tak");
@@ -250,13 +239,10 @@ public class Sender {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-
-
             }
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError volleyError) {
-
             }
         }) {
             @Override
@@ -268,10 +254,11 @@ public class Sender {
             }
         };
         AppController.getInstance().addToRequestQueue(request, "nowa_prosba");
+        */
     }
 
     public static void putMarkersOnMapAgain(List<CustomMarker> markers, GoogleMap myMap,Map<String,Marker> googleMarkers) {
-       Log.d("PUT START","jedziemy !!!!");
+       /*Log.d("PUT START","jedziemy !!!!");
         for (CustomMarker cM : markers) {
             String mySqlID = cM.getMarkerIdMySQL();
             Log.d("PUT", "mySqlID ustawiony dla tej instancji customMarkera to " + mySqlID);
@@ -280,9 +267,6 @@ public class Sender {
             Log.d("PUT", "sqLiteID ustawiony dla tej instancji customMarkera to " + sqliteID);
             String markerIdInteler = (sqliteID == null || sqliteID.equals("")) ? "NULL" : sqliteID;
             String snippet = markerIdExtrenal + "," + markerIdInteler;
-
-
-
             if(cM.getName().contains("(od ")) {
                 Marker marker=myMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromResource(R.drawable.mapmarkerhigreen)).position(new LatLng(cM.getLatitude(), cM.getLongitude())).title(cM.getName()).snippet(snippet));
                 googleMarkers.put(sqliteID,marker);
@@ -295,7 +279,9 @@ public class Sender {
             }
             Log.d("PUT", "Snippet ustawiony dla tej instancji customMarkera to " + snippet);
         }
+        */
     }
+
 
     public static void sendRequestAboutRemoveMarker(final String id, final GoogleMap myMap, final List<CustomMarker> markers) {
         StringRequest request = new StringRequest(Request.Method.POST, AppConfig.URL_LOGIN, new Response.Listener<String>() {

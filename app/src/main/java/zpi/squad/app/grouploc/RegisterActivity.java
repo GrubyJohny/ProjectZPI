@@ -52,7 +52,7 @@ public class RegisterActivity extends Activity {
         pDialog = new ProgressDialog(this);
         pDialog.setCancelable(false);
 
-        session = new SessionManager(getApplicationContext());
+        session = SessionManager.getInstance(getApplicationContext());
 
 
         if (session.isLoggedIn()) {

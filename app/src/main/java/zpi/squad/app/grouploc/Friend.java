@@ -5,24 +5,26 @@ package zpi.squad.app.grouploc;
  */
 public class Friend {
 
-    int uid;
+    String uid;
     String name;
     String email;
+    String photo;
 
     public Friend(){
 
     }
 
-    public Friend(int uid, String name, String email){
+    public Friend(String uid, String name, String email, String photo){
         this.uid = uid;
         this.name = name;
         this.email = email;
+        this.photo = photo;
     }
 
-    public int getFriendID(){
+    public String  getFriendID(){
         return uid;
     }
-    public void setFriendID(int uid){
+    public void setFriendID(String uid){
         this.uid = uid;
     }
 
@@ -38,6 +40,13 @@ public class Friend {
     }
     public void setFriendEmail(String email){
         this.email = email;
+    }
+
+    public String getFriendPhoto(){
+        return photo;
+    }
+    public void setFriendPhoto(String email){
+        this.photo = photo;
     }
 
 

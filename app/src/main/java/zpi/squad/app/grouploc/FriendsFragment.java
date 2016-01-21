@@ -96,9 +96,9 @@ public class FriendsFragment extends ListFragment {
 
 
         if(mItems.size() < 3 ) {
-            mItems.add(new ListViewItem(150, resources.getDrawable(R.drawable.johny), "Nowy znajomy", "znajomy@o2.pl"));
-            mItems.add(new ListViewItem(151, resources.getDrawable(R.drawable.johny), "Stary znajomy", "stary_znajomy@o2.pl"));
-            mItems.add(new ListViewItem(152, resources.getDrawable(R.drawable.johny), "Adam Małysz", "małysz@gmail.pl"));
+            mItems.add(new ListViewItem("150", resources.getDrawable(R.drawable.johny), "Nowy znajomy", "znajomy@o2.pl"));
+            mItems.add(new ListViewItem("151", resources.getDrawable(R.drawable.johny), "Stary znajomy", "stary_znajomy@o2.pl"));
+            mItems.add(new ListViewItem("152", resources.getDrawable(R.drawable.johny), "Adam Małysz", "małysz@gmail.pl"));
         }
     }
 
@@ -108,14 +108,14 @@ public class FriendsFragment extends ListFragment {
         context = getActivity().getApplicationContext();
         resources = getActivity().getResources();
         db = new SQLiteHandler(LoginActivity.context);
-        session = new SessionManager(getActivity());
+        session = SessionManager.getInstance(context);
         pDialog = new ProgressDialog(getActivity());
 
 
         pDialog.setMessage("Please wait...");
         pDialog.show();
-        PhotoDecodeRunnable pr = new PhotoDecodeRunnable();
-        pr.run();
+        //PhotoDecodeRunnable pr = new PhotoDecodeRunnable();
+        //pr.run();
 
 
 
@@ -443,42 +443,6 @@ public class FriendsFragment extends ListFragment {
     }
 
 
-    class PhotoDecodeRunnable implements Runnable {
 
-        /*
-         * Defines the code to run for this task.
-         */
-        @Override
-        public void run() {
-            // Moves the current Thread into the background
-            android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_FOREGROUND);
-
-        /*
-         * Stores the current Thread in the PhotoTask instance,
-         * so that the instance
-         * can interrupt the Thread.
-         */
-
-            pDialog.setMessage("Please wait...");
-            showDialog();
-            userFriendsList = db.getAllFriends();
-            mItems = new ArrayList<ListViewItem>();
-            for(Friend f: userFriendsList){
-
-                Drawable temp = getImageFromFTP(f.getFriendID());
-                Drawable ico = temp!=null? temp:resources.getDrawable(R.drawable.image3);
-                Bitmap bitmap = ((BitmapDrawable) ico).getBitmap();
-
-                Drawable d = new BitmapDrawable(getResources(), Bitmap.createScaledBitmap(bitmap, 50, 50, true));
-                mItems.add(new ListViewItem(f.getFriendID(), d, f.getFriendName(), f.getFriendEmail()));
-
-            }
-
-            friendList = new FriendList(getActivity(), mItems);
-            setListAdapter(friendList);
-        hideDialog();
-        }
-
-    }
 
 }

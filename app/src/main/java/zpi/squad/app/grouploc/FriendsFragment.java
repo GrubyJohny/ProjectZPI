@@ -243,6 +243,7 @@ public class FriendsFragment extends ListFragment {
 
                     Toast.makeText(getActivity().getApplicationContext(), error.getMessage(), Toast.LENGTH_LONG).show();
                     hideDialog();
+                    //zmiana do commita
 
                 }
             }) {

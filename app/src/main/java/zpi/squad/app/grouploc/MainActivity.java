@@ -1,5 +1,7 @@
 package zpi.squad.app.grouploc;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.app.*;
 import android.app.AlertDialog;
 import android.support.design.widget.TabLayout;
@@ -191,7 +193,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         context = getApplicationContext();
         resources = getResources();
         globalVariable = (AppController) getApplicationContext();
-        if(globalVariable.getDialog() != null && globalVariable.getDialog().isShowing()) {
+        if (globalVariable.getDialog() != null && globalVariable.getDialog().isShowing()) {
             globalVariable.getDialog().dismiss();
         }
         v = (Vibrator) getApplicationContext().getSystemService(Context.VIBRATOR_SERVICE);
@@ -1161,7 +1163,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
     @Override
     public void onBackPressed() {
-        if (layoutSettings.getVisibility() == View.VISIBLE) {
+        /*if (layoutSettings.getVisibility() == View.VISIBLE) {
             layoutSettings.setVisibility(View.INVISIBLE);
             tabLayout.setVisibility(View.VISIBLE);
         } else if (tabLayout.getVisibility() == View.VISIBLE) {
@@ -1175,10 +1177,23 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                             MainActivity.super.onBackPressed();
                         }
                     }).create().show();
-        }
+        }*/
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
+        if (layoutMarker.getVisibility() == View.VISIBLE) {
+            layoutMarker.animate()
+                    .translationY(0)
+                    .alpha(0.0f)
+                    .setListener(new AnimatorListenerAdapter() {
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            super.onAnimationEnd(animation);
+                            layoutMarker.setVisibility(View.GONE);
+                        }
+                    });
+        } else if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
+        } else if (drawer.isDrawerOpen(GravityCompat.END)) {
+            drawer.closeDrawer(GravityCompat.END);
         } else {
             super.onBackPressed();
         }

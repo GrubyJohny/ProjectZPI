@@ -42,15 +42,6 @@
                 android:ellipsize="none"
                 android:maxLines="3"
                 android:scrollHorizontally="false"/>
-
-            <!--<Button
-                android:id="@+id/closeMarkerButton"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:clickable="true"
-                android:text="X"
-                android:textSize="8dp" />-->
-
         </RelativeLayout>
 
         <LinearLayout

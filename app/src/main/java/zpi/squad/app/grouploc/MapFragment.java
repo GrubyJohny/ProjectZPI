@@ -579,6 +579,11 @@ public class MapFragment extends Fragment implements GoogleApiClient.ConnectionC
                         R.anim.bottom_up);
                 layoutMarker.startAnimation(bottomUp);
                 layoutMarker.setVisibility(View.VISIBLE);
+                /*layoutMarker.setVisibility(View.VISIBLE);
+                layoutMarker.setAlpha(0.0f);
+                layoutMarker.animate()
+                        .translationY(1500)
+                        .alpha(1.0f);*/
                 return true;
             }
         });

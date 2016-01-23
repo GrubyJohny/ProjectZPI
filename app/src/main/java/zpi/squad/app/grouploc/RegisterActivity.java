@@ -71,50 +71,80 @@ public class RegisterActivity extends Activity {
                 String password = inputPassword.getText().toString();
                 boolean registrationSuccessfully = false;
 
-                if (!name.isEmpty() && !email.isEmpty() && !password.isEmpty()) {
-                    showDialog();
-                    try {
-                        Parse.initialize(getApplicationContext(), AppConfig.PARSE_APPLICATION_ID, AppConfig.PARSE_CLIENT_KEY);
+                if (name.isEmpty() && email.isEmpty() && password.isEmpty()) {
+                                        Toast.makeText(getApplicationContext(),
+                                                        "Please enter your details!", Toast.LENGTH_SHORT)
+                                                       .show();
+                                    } else if (name.isEmpty() && email.isEmpty() && !password.isEmpty()) {
+                                        Toast.makeText(getApplicationContext(),
+                                                        "Please enter your name and login address", Toast.LENGTH_SHORT)
+                                                        .show();
+                                   } else if (name.isEmpty() && !email.isEmpty() && password.isEmpty()) {
+                                        Toast.makeText(getApplicationContext(),
+                                                        "Please enter your name and password", Toast.LENGTH_SHORT)
+                                                        .show();
+                                    } else if (!name.isEmpty() && email.isEmpty() && password.isEmpty()) {
+                                        Toast.makeText(getApplicationContext(),
+                                                       "Please enter your login and password", Toast.LENGTH_SHORT)
+                                                        .show();
+                                    } else if (name.isEmpty() && !email.isEmpty() && !password.isEmpty()) {
+                                       Toast.makeText(getApplicationContext(),
+                                                       "Please enter your name", Toast.LENGTH_SHORT)
+                                                       .show();
+                                    } else if (!name.isEmpty() && email.isEmpty() && !password.isEmpty()) {
+                                        Toast.makeText(getApplicationContext(),
+                                                        "Please enter your login", Toast.LENGTH_SHORT)
+                                                        .show();
+                                    } else if (!name.isEmpty() && !email.isEmpty() && password.isEmpty()) {
+                                        Toast.makeText(getApplicationContext(),
+                                                        "Please enter your password", Toast.LENGTH_SHORT)
+                                                        .show();
+                                    } else if (!name.isEmpty() && !email.isEmpty() && !password.isEmpty())
+                                        {
 
-                    } catch (Exception e) {
-                        // e.printStackTrace();
-                    }
-                    ParseInstallation installation = ParseInstallation.getCurrentInstallation();
+                                            showDialog();
+                                            try {
+                                                Parse.initialize(getApplicationContext(), AppConfig.PARSE_APPLICATION_ID, AppConfig.PARSE_CLIENT_KEY);
 
-                    ParseUser user = new ParseUser();
-                    user.setUsername(email);
-                    user.setEmail(email);
-                    user.setPassword(password);
-                    user.put("name", name);
+                                            } catch (Exception e) {
+                                                // e.printStackTrace();
+                                            }
+                                            ParseInstallation installation = ParseInstallation.getCurrentInstallation();
 
-                    try {
-                        user.signUp();
-                        registrationSuccessfully = true;
-                    } catch (Exception e) {
+                                            ParseUser user = new ParseUser();
+                                            user.setUsername(email);
+                                            user.setEmail(email);
+                                            user.setPassword(password);
+                                            user.put("name", name);
 
-                        if (e.getMessage().contains("already been taken"))
-                            Toast.makeText(getApplicationContext(), "Email already in use, please log in or use other email", Toast.LENGTH_LONG).show();
-                        else if (e.getMessage().contains("invalid email address"))
-                            Toast.makeText(getApplicationContext(), "Invalid email address!", Toast.LENGTH_LONG).show();
-                        else
-                            e.printStackTrace();
-                    } finally {
-                        hideDialog();
-                        if (registrationSuccessfully)
-                            Toast.makeText(getApplicationContext(), "Registration successfully!", Toast.LENGTH_LONG).show();
+                                            try {
+                                                user.signUp();
+                                                registrationSuccessfully = true;
+                                            } catch (Exception e) {
 
-                        Intent intent = new Intent(RegisterActivity.this,
-                                LoginActivity.class);
-                        startActivity(intent);
+                                                if (e.getMessage().contains("already been taken"))
+                                                    Toast.makeText(getApplicationContext(), "Email already in use, please log in or use other email", Toast.LENGTH_LONG).show();
+                                                else if (e.getMessage().contains("invalid email address"))
+                                                    Toast.makeText(getApplicationContext(), "Invalid email address!", Toast.LENGTH_LONG).show();
+                                                else
+                                                    e.printStackTrace();
+                                            } finally {
+                                                hideDialog();
+                                                if (registrationSuccessfully)
+                                                    Toast.makeText(getApplicationContext(), "Registration successfully!", Toast.LENGTH_LONG).show();
 
-                    }
+                                                Intent intent = new Intent(RegisterActivity.this,
+                                                        LoginActivity.class);
+                                                startActivity(intent);
+
+                                            }
 
 
-                } else {
-                    Toast.makeText(getApplicationContext(),
-                            "Please enter your details!", Toast.LENGTH_LONG)
-                            .show();
-                }
+                                        } else {
+                                            Toast.makeText(getApplicationContext(),
+                                                    "Please enter your details!", Toast.LENGTH_LONG)
+                                                    .show();
+                                        }
             }
         });
 

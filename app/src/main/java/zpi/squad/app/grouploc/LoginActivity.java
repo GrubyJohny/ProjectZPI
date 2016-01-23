@@ -3,8 +3,11 @@ package zpi.squad.app.grouploc;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.StrictMode;
+import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -24,6 +27,7 @@ import com.parse.ParseUser;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -142,8 +146,7 @@ public class LoginActivity extends Activity {
                         ParseUser current = ParseUser.getCurrentUser();
                         SessionManager.getInstance(context).setUserEmail(current.getEmail());
                         SessionManager.getInstance().setUserName(current.get("name").toString());
-                        if(current.get("photo")!=null)
-                            SessionManager.getInstance().setUserPhoto(current.get("photo").toString());
+                        SessionManager.getInstance().setUserPhoto(current.get("photo").toString());
                         SessionManager.getInstance().setUserId(current.getObjectId());
 
                         SessionManager.getInstance().setLogin(true);
@@ -199,8 +202,8 @@ public class LoginActivity extends Activity {
 
                 SessionManager.getInstance(context).setUserEmail(email);
                 SessionManager.getInstance().setUserName(current.get("name").toString());
-                if (current.get("photo") != null)
-                    SessionManager.getInstance().setUserPhoto(current.get("photo").toString());
+                //chwilowo wyłączone, pracuję nad tym
+                //SessionManager.getInstance().setUserPhoto(current.get("photo").toString());
                 SessionManager.getInstance().setUserId(current.getObjectId());
                 SessionManager.getInstance().setLogin(true);
             }
@@ -481,7 +484,7 @@ public class LoginActivity extends Activity {
 
         AppController.getInstance().addToRequestQueue(strReq, tag_string_req);
     }
-
+*/
     // method for bitmap to base64
     public static String encodeBitmapTobase64(Bitmap image) {
         Bitmap immage = image;
@@ -493,5 +496,5 @@ public class LoginActivity extends Activity {
         return imageEncoded;
     }
 
-*/
+
 }

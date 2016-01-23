@@ -231,8 +231,12 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         try {
             navigationViewLeftProfilePicutre.setImageBitmap(decodeBase64ToBitmap(session.getUserPhoto()));
         }
-        catch(Exception e) {}
-        
+        catch(Exception e)
+        {
+            //set default photo
+            navigationViewLeftProfilePicutre.setImageResource(R.drawable.image5);
+        }
+
         navigationViewLeftFullName = (TextView) findViewById(R.id.Fullname);
         navigationViewLeftFullName.setText(session.getUserName());
 
@@ -251,9 +255,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         searchingGroupText = (EditText) findViewById(R.id.searchingGroupText);
 
 //        tabhostInit();
-
-
-        readNotifications = db.getAllNotifications();
 
 //        mainSpinner();
 //        notifications();
@@ -315,6 +316,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 }
             }, 3000);
         }*/
+
     }
 
     /*private void addMyToolTipView() {
@@ -809,11 +811,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     }
 
     public void logOut() {
-
         //stopLocationUpdates();
 
         session.logOut();
-
 
         Intent closeIntent = new Intent(this, LoginActivity.class);
         startActivity(closeIntent);

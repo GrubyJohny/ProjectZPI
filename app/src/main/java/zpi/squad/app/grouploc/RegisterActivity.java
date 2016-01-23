@@ -3,6 +3,7 @@ package zpi.squad.app.grouploc;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -72,34 +73,27 @@ public class RegisterActivity extends Activity {
                 boolean registrationSuccessfully = false;
 
                 if (name.isEmpty() && email.isEmpty() && password.isEmpty()) {
-                                        Toast.makeText(getApplicationContext(),
-                                                        "Please enter your details!", Toast.LENGTH_SHORT)
-                                                       .show();
-                                    } else if (name.isEmpty() && email.isEmpty() && !password.isEmpty()) {
-                                        Toast.makeText(getApplicationContext(),
-                                                        "Please enter your name and login address", Toast.LENGTH_SHORT)
-                                                        .show();
-                                   } else if (name.isEmpty() && !email.isEmpty() && password.isEmpty()) {
-                                        Toast.makeText(getApplicationContext(),
-                                                        "Please enter your name and password", Toast.LENGTH_SHORT)
-                                                        .show();
-                                    } else if (!name.isEmpty() && email.isEmpty() && password.isEmpty()) {
-                                        Toast.makeText(getApplicationContext(),
-                                                       "Please enter your login and password", Toast.LENGTH_SHORT)
-                                                        .show();
-                                    } else if (name.isEmpty() && !email.isEmpty() && !password.isEmpty()) {
-                                       Toast.makeText(getApplicationContext(),
-                                                       "Please enter your name", Toast.LENGTH_SHORT)
-                                                       .show();
-                                    } else if (!name.isEmpty() && email.isEmpty() && !password.isEmpty()) {
-                                        Toast.makeText(getApplicationContext(),
-                                                        "Please enter your login", Toast.LENGTH_SHORT)
-                                                        .show();
-                                    } else if (!name.isEmpty() && !email.isEmpty() && password.isEmpty()) {
-                                        Toast.makeText(getApplicationContext(),
-                                                        "Please enter your password", Toast.LENGTH_SHORT)
-                                                        .show();
-                                    } else if (!name.isEmpty() && !email.isEmpty() && !password.isEmpty())
+                    Toast.makeText(getApplicationContext(),
+                            "Please enter your details!", Toast.LENGTH_SHORT).show();
+                } else if (name.isEmpty() && email.isEmpty() && !password.isEmpty()) {
+                    Toast.makeText(getApplicationContext(),
+                            "Please enter your name and login address", Toast.LENGTH_SHORT).show();
+                } else if (name.isEmpty() && !email.isEmpty() && password.isEmpty()) {
+                    Toast.makeText(getApplicationContext(),
+                            "Please enter your name and password", Toast.LENGTH_SHORT).show();
+                } else if (!name.isEmpty() && email.isEmpty() && password.isEmpty()) {
+                    Toast.makeText(getApplicationContext(),
+                            "Please enter your login and password", Toast.LENGTH_SHORT).show();
+                } else if (name.isEmpty() && !email.isEmpty() && !password.isEmpty()) {
+                    Toast.makeText(getApplicationContext(),
+                            "Please enter your name", Toast.LENGTH_SHORT).show();
+                } else if (!name.isEmpty() && email.isEmpty() && !password.isEmpty()) {
+                    Toast.makeText(getApplicationContext(),
+                            "Please enter your login", Toast.LENGTH_SHORT).show();
+                } else if (!name.isEmpty() && !email.isEmpty() && password.isEmpty()) {
+                    Toast.makeText(getApplicationContext(),
+                            "Please enter your password", Toast.LENGTH_SHORT).show();
+                } else if (!name.isEmpty() && !email.isEmpty() && !password.isEmpty())
                                         {
 
                                             showDialog();
@@ -107,7 +101,8 @@ public class RegisterActivity extends Activity {
                                                 Parse.initialize(getApplicationContext(), AppConfig.PARSE_APPLICATION_ID, AppConfig.PARSE_CLIENT_KEY);
 
                                             } catch (Exception e) {
-                                                // e.printStackTrace();
+                                                e.getLocalizedMessage();
+                                                e.printStackTrace();
                                             }
                                             ParseInstallation installation = ParseInstallation.getCurrentInstallation();
 
@@ -116,6 +111,7 @@ public class RegisterActivity extends Activity {
                                             user.setEmail(email);
                                             user.setPassword(password);
                                             user.put("name", name);
+                                            user.put("photo", session.encodeBitmapTobase64(BitmapFactory.decodeResource(getResources(), R.drawable.image5)) );
 
                                             try {
                                                 user.signUp();

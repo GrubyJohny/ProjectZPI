@@ -20,8 +20,6 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Path;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
@@ -35,7 +33,6 @@ import android.provider.MediaStore;
 import android.support.design.widget.NavigationView;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
-import android.util.Base64;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Menu;
@@ -74,7 +71,6 @@ import com.parse.ParseException;
 import com.parse.ParseFacebookUtils;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -88,7 +84,6 @@ import java.util.Map;
 public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
         LocationListener, ToolTipView.OnToolTipViewClickedListener, NavigationView.OnNavigationItemSelectedListener {
 
-    private static Resources resources;
     private SessionManager session;
     private ProgressDialog pDialog;
     private SQLiteHandler db;
@@ -173,7 +168,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         context = getApplicationContext();
-        resources = getResources();
         globalVariable = (AppController) getApplicationContext();
         if (globalVariable.getDialog() != null && globalVariable.getDialog().isShowing()) {
             globalVariable.getDialog().dismiss();
@@ -228,14 +222,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         navigationViewLeft.setNavigationItemSelectedListener(this);
 
         navigationViewLeftProfilePicutre = (ImageView) findViewById(R.id.profilePicture);
-        try {
-            navigationViewLeftProfilePicutre.setImageBitmap(decodeBase64ToBitmap(session.getUserPhoto()));
-        }
-        catch(Exception e)
-        {
-            //set default photo
-            navigationViewLeftProfilePicutre.setImageResource(R.drawable.image5);
-        }
+        navigationViewLeftProfilePicutre.setImageBitmap(session.decodeBase64ToBitmap(session.getUserPhoto()));
 
         navigationViewLeftFullName = (TextView) findViewById(R.id.Fullname);
         navigationViewLeftFullName.setText(session.getUserName());
@@ -316,6 +303,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 }
             }, 3000);
         }*/
+
+        //tylko do testu czy pobiera
+        session.getFriendsList();
 
     }
 
@@ -409,7 +399,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         Bitmap icon = null;
 
         try {
-            icon = decodeBase64ToBitmap(SessionManager.getInstance(context).getUserPhoto());
+            icon = session.decodeBase64ToBitmap(SessionManager.getInstance(context).getUserPhoto());
         } catch (Exception e) {
 
         }
@@ -676,11 +666,11 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
                     profilePictureRaw = photo;
                     ParseUser user = ParseUser.getCurrentUser();
-                    user.put("photo", encodeBitmapTobase64(profilePictureRaw));
+                    user.put("photo", session.encodeBitmapTobase64(profilePictureRaw));
                     user.saveInBackground();
 
                     //Log.d("ZJDECIE", encodeBitmapTobase64(profilePictureRaw));
-                    SessionManager.getInstance(context).setUserPhoto(encodeBitmapTobase64(profilePictureRaw));
+                    SessionManager.getInstance(context).setUserPhoto(session.encodeBitmapTobase64(profilePictureRaw));
 
                     Bitmap bitmap_round = clipBitmap(photo, circleButton);
                     circleButton.setImageBitmap(bitmap_round);
@@ -712,11 +702,11 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
                 profilePictureRaw = photo;
                 ParseUser user = ParseUser.getCurrentUser();
-                user.put("photo", encodeBitmapTobase64(profilePictureRaw));
+                user.put("photo", session.encodeBitmapTobase64(profilePictureRaw));
                 user.saveInBackground();
 
                 //Log.d("ZJDECIE", encodeBitmapTobase64(profilePictureRaw));
-                SessionManager.getInstance(context).setUserPhoto(encodeBitmapTobase64(profilePictureRaw));
+                SessionManager.getInstance(context).setUserPhoto(session.encodeBitmapTobase64(profilePictureRaw));
 
 
                 Bitmap bitmap_round = clipBitmap(photo, circleButton);
@@ -1170,36 +1160,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         AppController.getInstance().addToRequestQueue(strReq, tag_string_req);
     }
 
-    // method for bitmap to base64
-    public static String encodeBitmapTobase64(Bitmap image) {
-        Bitmap immage = image;
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        immage.compress(Bitmap.CompressFormat.PNG, 100, baos);
-        byte[] b = baos.toByteArray();
-        String imageEncoded = Base64.encodeToString(b, Base64.DEFAULT);
-        //Log.d("Image Log:", imageEncoded);
-        return imageEncoded;
-    }
-
-    // method for base64 to bitmap
-    public static Bitmap decodeBase64ToBitmap(String input) {
-        byte[] decodedByte = Base64.decode(input, 0);
-        return BitmapFactory
-                .decodeByteArray(decodedByte, 0, decodedByte.length);
-    }
-
-    public static Bitmap drawableToBitmap(Drawable drawable) {
-        if (drawable instanceof BitmapDrawable) {
-            return ((BitmapDrawable) drawable).getBitmap();
-        }
-
-        Bitmap bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(bitmap);
-        drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
-        drawable.draw(canvas);
-
-        return bitmap;
-    }
 
     public Uri getImageUri(Context inContext, Bitmap inImage) {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();

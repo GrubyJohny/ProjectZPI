@@ -1,16 +1,10 @@
 package zpi.squad.app.grouploc;
 
 import android.app.Activity;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.StrictMode;
-import android.preference.PreferenceManager;
-import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -23,29 +17,16 @@ import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
 import com.parse.LogInCallback;
 import com.parse.Parse;
-import com.parse.ParseACL;
-import com.parse.ParseAnalytics;
 import com.parse.ParseException;
 import com.parse.ParseFacebookUtils;
-import com.parse.ParseInstallation;
 import com.parse.ParseUser;
-import com.parse.PushService;
-import com.parse.SaveCallback;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.SocketException;
-import java.net.SocketTimeoutException;
-import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class LoginActivity extends Activity {
 
@@ -67,10 +48,17 @@ public class LoginActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+        context = getApplicationContext();
+        if (SessionManager.getInstance(context).isLoggedIn()) {
+            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+            finish();
+            startActivity(intent);
+        }
+
         //tę linijkę oczywiście trzeba później wyrzucić
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
-        context = getApplicationContext();
+
         try{
             Parse.initialize(this, AppConfig.PARSE_APPLICATION_ID, AppConfig.PARSE_CLIENT_KEY);
             //ParseFacebookUtils.initialize(context);
@@ -90,11 +78,7 @@ public class LoginActivity extends Activity {
         db = new SQLiteHandler(getApplicationContext());
 
 
-        if (SessionManager.getInstance(context).isLoggedIn()) {
-            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-            finish();
-            startActivity(intent);
-        }
+
 
         btnLogin.setOnClickListener(new View.OnClickListener() {
 
@@ -156,11 +140,11 @@ public class LoginActivity extends Activity {
                         }
 
                         ParseUser current = ParseUser.getCurrentUser();
-                        SessionManager.getInstance(context).setKeyEmail(current.getEmail());
-                        SessionManager.getInstance().setKeyName(current.get("name").toString());
+                        SessionManager.getInstance(context).setUserEmail(current.getEmail());
+                        SessionManager.getInstance().setUserName(current.get("name").toString());
                         if(current.get("photo")!=null)
-                            SessionManager.getInstance().setKeyPhoto(current.get("photo").toString());
-                        SessionManager.getInstance().setKeyUid(current.getObjectId());
+                            SessionManager.getInstance().setUserPhoto(current.get("photo").toString());
+                        SessionManager.getInstance().setUserId(current.getObjectId());
 
                         SessionManager.getInstance().setLogin(true);
                         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
@@ -213,11 +197,11 @@ public class LoginActivity extends Activity {
             ParseUser current = ParseUser.getCurrentUser();
             if (current != null) {
 
-                SessionManager.getInstance(context).setKeyEmail(email);
-                SessionManager.getInstance().setKeyName(current.get("name").toString());
+                SessionManager.getInstance(context).setUserEmail(email);
+                SessionManager.getInstance().setUserName(current.get("name").toString());
                 if (current.get("photo") != null)
-                    SessionManager.getInstance().setKeyPhoto(current.get("photo").toString());
-                SessionManager.getInstance().setKeyUid(current.getObjectId());
+                    SessionManager.getInstance().setUserPhoto(current.get("photo").toString());
+                SessionManager.getInstance().setUserId(current.getObjectId());
                 SessionManager.getInstance().setLogin(true);
             }
         } catch (ParseException e) {
@@ -431,9 +415,9 @@ public class LoginActivity extends Activity {
                         String name = user.getString("name");
                         String email = user.getString("email");
 
-                        session.setKeyUid(uid);
-                        session.setKeyName(name);
-                        session.setKeyEmail(email);
+                        session.setUserId(uid);
+                        session.setUserName(name);
+                        session.setUserEmail(email);
 
 
                         getUserInfo(uid);

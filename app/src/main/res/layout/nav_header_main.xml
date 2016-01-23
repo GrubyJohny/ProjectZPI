@@ -12,14 +12,14 @@
     android:theme="@style/ThemeOverlay.AppCompat.Dark">
 
     <ImageView
-        android:id="@+id/imageView"
+        android:id="@+id/profilePicture"
         android:layout_width="100dp"
         android:layout_height="100dp"
         android:paddingTop="@dimen/nav_header_vertical_spacing"
         android:src="@drawable/logozpi" />
 
     <TextView
-        android:id="@+id/textView"
+        android:id="@+id/Fullname"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Fullname" />

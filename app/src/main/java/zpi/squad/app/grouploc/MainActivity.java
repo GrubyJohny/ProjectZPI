@@ -14,7 +14,6 @@ import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -32,12 +31,10 @@ import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.StrictMode;
 import android.os.Vibrator;
-import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.support.design.widget.NavigationView;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
-import android.text.format.Time;
 import android.util.Base64;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -46,25 +43,19 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TabHost;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.volley.AuthFailureError;
-import com.android.volley.NetworkError;
-import com.android.volley.NoConnectionError;
-import com.android.volley.ParseError;
 import com.android.volley.Request;
 import com.android.volley.Response;
-import com.android.volley.ServerError;
-import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.google.android.gms.common.ConnectionResult;
@@ -79,26 +70,15 @@ import com.nhaarman.supertooltips.ToolTip;
 import com.nhaarman.supertooltips.ToolTipRelativeLayout;
 import com.nhaarman.supertooltips.ToolTipView;
 
-import com.parse.Parse;
-import com.parse.ParseCloud;
 import com.parse.ParseException;
 import com.parse.ParseFacebookUtils;
-import com.parse.ParseInstallation;
-import com.parse.ParsePush;
-import com.parse.ParsePushBroadcastReceiver;
-import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
-import org.apache.commons.net.ftp.FTP;
-import org.apache.commons.net.ftp.FTPClient;
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -157,8 +137,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
     //Andoridowy obiekt przechowujący dane o położeniu(np latitude, longitude, kiedy zostało zarejestrowane)
     private Location mCurrentLocation;
-    private Runnable sender;//wątek, który będzie wysyłał info o położoniu użytkownika do bazy
-    // private SQLiteHandler db;//obiekt obsługujący lokalną androidową bazę danych
     //obiekt będący parametrem, przy wysłaniu żądania o aktualizację lokacji
     private LocationRequest mLocationRequest;
 
@@ -184,6 +162,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     int hintsL;
     DrawerLayout drawer;
     NavigationView navigationViewLeft;
+    private ImageView navigationViewLeftProfilePicutre;
+    private TextView navigationViewLeftFullName;
     NavigationView navigationViewRight;
 
     @Override
@@ -247,11 +227,23 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         navigationViewLeft = (NavigationView) findViewById(R.id.nav_view_left);
         navigationViewLeft.setNavigationItemSelectedListener(this);
 
+        navigationViewLeftProfilePicutre = (ImageView) findViewById(R.id.profilePicture);
+        try {
+            navigationViewLeftProfilePicutre.setImageBitmap(decodeBase64ToBitmap(session.getUserPhoto()));
+        }
+        catch(Exception e)
+        {
+            //set default photo
+            navigationViewLeftProfilePicutre.setImageResource(R.drawable.image5);
+        }
+
+        navigationViewLeftFullName = (TextView) findViewById(R.id.Fullname);
+        navigationViewLeftFullName.setText(session.getUserName());
+
         navigationViewRight = (NavigationView) findViewById(R.id.nav_view_right);
         navigationViewRight.setNavigationItemSelectedListener(this);
 
 
-        sender = createSendThread();
         mRequestingLocationUpdates = true;
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
@@ -263,10 +255,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         searchingGroupText = (EditText) findViewById(R.id.searchingGroupText);
 
 //        tabhostInit();
-
-        new Thread(sender, "Watek do wysyłania koordynatów").start();
-
-        readNotifications = db.getAllNotifications();
 
 //        mainSpinner();
 //        notifications();
@@ -328,6 +316,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 }
             }, 3000);
         }*/
+
     }
 
     /*private void addMyToolTipView() {
@@ -675,7 +664,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
     }
 
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -692,7 +680,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                     user.saveInBackground();
 
                     //Log.d("ZJDECIE", encodeBitmapTobase64(profilePictureRaw));
-                    SessionManager.getInstance(context).setKeyPhoto(encodeBitmapTobase64(profilePictureRaw));
+                    SessionManager.getInstance(context).setUserPhoto(encodeBitmapTobase64(profilePictureRaw));
 
                     Bitmap bitmap_round = clipBitmap(photo, circleButton);
                     circleButton.setImageBitmap(bitmap_round);
@@ -728,7 +716,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 user.saveInBackground();
 
                 //Log.d("ZJDECIE", encodeBitmapTobase64(profilePictureRaw));
-                SessionManager.getInstance(context).setKeyPhoto(encodeBitmapTobase64(profilePictureRaw));
+                SessionManager.getInstance(context).setUserPhoto(encodeBitmapTobase64(profilePictureRaw));
 
 
                 Bitmap bitmap_round = clipBitmap(photo, circleButton);
@@ -823,142 +811,13 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     }
 
     public void logOut() {
-
         //stopLocationUpdates();
 
         session.logOut();
 
-
         Intent closeIntent = new Intent(this, LoginActivity.class);
         startActivity(closeIntent);
         finish();
-    }
-
-    public void stayActive(final String id, final float c1, final float c2) {
-        StringRequest request = new StringRequest(Request.Method.POST, AppConfig.URL_LOGIN, new Response.Listener<String>() {
-            @Override
-            public void onResponse(String response) {
-
-                String TAG = "Sending coordinates & checking for notifications";
-                //Log.d(TAG, response.toString());
-                try {
-                    JSONObject jObj = new JSONObject(response);
-                    boolean error = jObj.getBoolean("error");
-
-                    JSONArray markersArray = jObj.getJSONArray("markers");
-                    JSONObject markerObj;
-                    CustomMarker myMarker;
-                    String mySqlId;
-                    String userId;
-                    Double latitude;
-                    Double longitude;
-                    String markerName;
-
-                    JSONArray array = jObj.getJSONArray("notifications");
-                    JSONObject notObj;
-                    String senderId;
-                    String senderName;
-                    String senderEmail;
-                    String receiverId;
-                    String type;
-                    String messageId;
-                    String groupId;
-                    //String markerId;
-                    String createdAt;
-
-
-                    //Tutaj jest doddawany do lokalnej bazy znacznik
-                    //wspóldzielony przez przyleciela. Karol za to odpowiada.
-                    for (int i = 0; i < markersArray.length(); i++) {
-                        markerObj = markersArray.getJSONObject(i);
-                        mySqlId = markerObj.getString("mysqlid");
-                        userId = markerObj.getString("userid");
-                        latitude = markerObj.getDouble("latitude");
-                        longitude = markerObj.getDouble("longitude");
-                        markerName = markerObj.getString("markername");
-
-                        myMarker = new CustomMarker(mySqlId, userId, latitude, longitude, markerName);
-                        db.addMarker(myMarker);
-                        globalVariable.addNewMarker(myMarker);
-                        //Log.d("???","co tu się  wyprawia");
-
-                    }
-
-                    for (int i = 0; i < array.length(); i++) {
-                        notObj = array.getJSONObject(i);
-                        senderId = notObj.getString("senderid");
-                        senderName = notObj.getString("senderName");
-                        senderEmail = notObj.getString("senderEmail");
-                        receiverId = notObj.getString("receiverid");
-                        type = notObj.getString("type");
-                        messageId = notObj.getString("messageid");
-                        groupId = notObj.getString("groupid");
-                        //markerId = notObj.getString("markerid");
-                        createdAt = notObj.getString("created_at");
-                        v.vibrate(500);
-                        db.addNotification(senderId, senderName, senderEmail, receiverId, type, messageId, groupId, createdAt, 0);
-                        readNotifications.add(1, (new Notification(senderId, senderName, senderEmail, receiverId, type, messageId, groupId, createdAt, 0)));
-                        Toast.makeText(getApplicationContext(), "You have new notification", Toast.LENGTH_LONG).show();
-                        if (type.equals("friendshipAgreed")) {
-
-                            db.addFriend(senderId, senderName, senderEmail);
-                            FriendsFragment.addFriend(new Friend(senderId, senderName, senderEmail, null));
-                        } else if (type.equals("friendshipCanceled")) {
-                            FriendsFragment.removeItem(senderEmail);
-                        } else if (type.equals("friendshipRequest")) {
-
-
-                        } else if (type.equals("shareMarker")) {
-
-                        } else if (type.equals("userAddedToGroup")) {
-                            session.setKeyGroupId(groupId);
-                        }
-                    }
-
-                } catch (Exception e) {
-                }
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                if (error instanceof NoConnectionError) {
-                    Log.d("NoConnectionError>", "NoConnectionError.......");
-
-                } else if (error instanceof AuthFailureError) {
-                    Log.d("AuthFailureError>", "AuthFailureError.......");
-
-                } else if (error instanceof ServerError) {
-                    Log.d("ServerError>>>>>>>>>", "ServerError.......");
-
-                } else if (error instanceof NetworkError) {
-                    Log.d("NetworkError>>>>>>>>>", "NetworkError.......");
-
-                } else if (error instanceof ParseError) {
-                    Log.d("ParseError>>>>>>>>>", "ParseError.......");
-
-                } else if (error instanceof TimeoutError) {
-                    Log.d("TimeoutError>>>>>>>>>", "TimeoutError.......");
-
-                }
-
-                Log.e("OnLocationChanged", "Notification Error: " + error.getMessage());
-                Toast.makeText(getApplicationContext(),
-                        error.getMessage(), Toast.LENGTH_LONG).show();
-            }
-        }) {
-
-            @Override
-            protected Map<String, String> getParams() {
-                Map<String, String> params = new HashMap<>();
-                params.put("tag", "userConnection");
-                params.put("id", id);
-                params.put("koordynat1", c1 + "");
-                params.put("koordynat2", c2 + "");
-                return params;
-            }
-        };
-
-        AppController.getInstance().addToRequestQueue(request, "request_coordinates");
     }
 
     public void addListenerOnButton() {
@@ -987,77 +846,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         });*/
     }
 
-    public void addListenerOnSpinner() {
-        spinner1.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                switch (position) {
-                    case 0:
-                        break;
-                    case 1:
-                        layoutSettings.setVisibility(View.VISIBLE);
-                        layoutMarker.setVisibility(View.GONE);
-                        tabLayout.setVisibility(View.INVISIBLE);
-                        spinner1.setSelection(0);
-                        break;
-                    case 2:
-                        logOut();
-                        //spinner1.setSelection(0);
-                        break;
-                }
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-            }
-        });
-    }
-
-    public void addListenerOnSpinner2() {
-        spinner2.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                if (inhibit_spinner) {
-                    inhibit_spinner = false;
-                } else {
-
-                    if (readNotifications.get(position).getType().equals("friendshipRequest") && !readNotifications.get(position).isChecked()) {
-                        onFriendshipRequest(readNotifications.get(position));
-
-                    } else if (readNotifications.get(position).getType().equals("groupRequest") && !readNotifications.get(position).isChecked())
-                        onGroupRequest(readNotifications.get(position));
-                    else {
-
-                    }
-                }
-                spinner2.setSelection(0);
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-            }
-        });
-    }
-
-
-    public void addListenerOnSpinner3() {
-        spinner3.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                switch ((int) position) {
-                    case 0:
-                        //USTAWIENIA TO DO
-                        break;
-                    case 1:
-                        break;
-                }
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-            }
-        });
-    }
 
     /**
      * Tutaj definiujemy jakie operacje mają się odbyć po połączeniu z google service
@@ -1097,11 +885,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         float latitude = (float) location.getLatitude();
         float longitude = (float) location.getLongitude();
 
-        String whereClusere = Sender.makeStatementAboutFriendsList(db.getAllFriends());
-        // Log.d("pobieranie znajomych",whereClusere);
-        Sender.sendRequestAboutFriendsCoordinate(whereClusere, AppController.getInstance().getMyMap());
-
-        stayActive(session.getUserId(), (float) latitude, (float) longitude);
+        // TO DO:
+        // trzeba tutaj dopisać aktualizację współrzędnych!
+        // TO DO.
 
     }
 

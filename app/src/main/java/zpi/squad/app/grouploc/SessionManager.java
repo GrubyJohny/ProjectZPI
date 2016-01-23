@@ -4,7 +4,6 @@ import android.content.SharedPreferences;
 import android.util.Log;
 
 import com.parse.ParseException;
-import com.parse.ParseFacebookUtils;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
@@ -51,117 +50,66 @@ public class SessionManager {
 
     private static int hintsLeft = 3;
 
+    private static String userId = "id";
+    private static String userName = "name";
+    private static String userEmail = "email";
+    private static String userPhoto = "photo";
+    private static Boolean userIsLoggedIn = false;
 
-
-    private static final String KEY_IS_LOGGEDIN = "isLoggedIn";
-
-    private static final String KEY_UID = "id";
-    private static final String KEY_NAME = "name";
-    private static final String KEY_EMAIL = "email";
-    private static final String KEY_PHOTO = "photo";
-
-    private static final String KEY_HINTS = "hints";
-
-    private static final String KEY_GROUP_ID = "gId";
-    private static final String KEY_GROUP_NAME = "gName";
-    private static final String KEY_GROUP_ADMIN_ID = "gAdminId";
-    private static final String KEY_GROUP_ADMIN_NAME = "gAdminName";
 
 
     public void setLogin(boolean isLoggedIn) {
-
-        editor.putBoolean(KEY_IS_LOGGEDIN, isLoggedIn);
-
-        editor.commit();
-
-        Log.d(TAG, "User login session modified!");
+        userIsLoggedIn = isLoggedIn;
     }
 
-    public void setKeyUid(String id){
-        editor.putString(KEY_UID, id);
-        editor.commit();
-        Log.d(TAG, "User Id putted into SharedPreferences!" + " UserId: " + id);
+    public void setUserId(String id) {
+        userId = id;
     }
 
-    public void setKeyGroupId(String gid){
-        editor.putString(KEY_GROUP_ID, gid);
-        editor.commit();
-        Log.d(TAG, "Group Id putted into SharedPreferences!");
+    public void setUserName(String name){
+       userName = name;
     }
 
-    public void setKeyGroupName(String name){
-        editor.putString(KEY_GROUP_NAME, name);
-        editor.commit();
-        Log.d(TAG, "Group name putted into SharedPreferences!");
+    public void setUserEmail(String email){
+       userEmail = email;
     }
 
-    public void setKeyName(String name){
-        editor.putString(KEY_NAME, name);
-        editor.commit();
-        Log.d(TAG, "User name putted into SharedPreferences!" + " UserName: " + name);
-    }
-
-    public void setKeyEmail(String email){
-        editor.putString(KEY_EMAIL, email);
-        editor.commit();
-        Log.d(TAG, "User email putted into SharedPreferences!" + " UserEmail: " + email);
-    }
-
-    public void setKeyPhoto(String photo){
-        editor.putString(KEY_PHOTO, photo);
-        editor.commit();
-        Log.d(TAG, "User photo putted into SharedPreferences!");
+    public void setUserPhoto(String photo){
+        userPhoto = photo;
     }
 
     public boolean isLoggedIn(){
-
-        return pref.getBoolean(KEY_IS_LOGGEDIN, false);
+        return userIsLoggedIn;
     }
 
     public String getUserId(){
-
-        return pref.getString(KEY_UID, "Error: There's no User ID in Shared Preferences");
+        return userId;
     }
 
     public String getUserName(){
-
-        return pref.getString(KEY_NAME, "Error: There's no User name in Shared Preferences");
+        return userName;
     }
 
     public String getUserEmail(){
-
-        return pref.getString(KEY_EMAIL, "Error: There's no User email in Shared Preferences");
+        return userEmail;
     }
 
     public String getUserPhoto(){
-
-        return pref.getString(KEY_PHOTO, "Error: There's no User email in Shared Preferences");
+        return userPhoto;
     }
 
     public void logOut(){
-        editor.commit();
-        editor.clear();
-        editor.commit();
-        Log.d(TAG, "User info removed from SharedPreferences!");
-
+        userIsLoggedIn = false;
         ParseUser.logOut();
         friends = null;
-
-        //db.deleteUsers();
-        //db.deleteNotifications();
-        //db.deleteMarkers();
-
-
     }
 
     public int getHintsLeft() {
-        return pref.getInt(KEY_HINTS, hintsLeft);
+        return hintsLeft;
     }
 
-    public void setHintsLeft(int hintsLeft) {
-        editor.putInt(KEY_HINTS, hintsLeft);
-        editor.commit();
-        Log.d(TAG, "Hints left put into Shared Preferences");
+    public void setHintsLeft(int hLeft) {
+        hintsLeft = hLeft;
     }
 
     public ArrayList<Friend> getFriendsList()
@@ -170,6 +118,7 @@ public class SessionManager {
             friends = getFriendsFromParse();
         return friends;
     }
+
     private static ArrayList<Friend> getFriendsFromParse() {
         ArrayList<Friend> result = new ArrayList<>();
 
@@ -200,7 +149,7 @@ public class SessionManager {
                                 ((ParseUser) temp.get("friend2")).fetchIfNeeded().getEmail(),
                                 ((ParseUser) temp.get("friend2")).fetchIfNeeded().get("photo") != null ?
                                         ((ParseUser) temp.get("friend2")).fetchIfNeeded().get("photo").toString():null));
-                        Log.e("Friend added", "probably successfully");
+                        Log.d("Friend added", "probably successfully");
                     }
 
                 }
@@ -225,7 +174,7 @@ public class SessionManager {
                                 ((ParseUser) temp.get("friend1")).fetchIfNeeded().getEmail(),
                                 ((ParseUser) temp.get("friend1")).fetchIfNeeded().get("photo") != null ?
                                         ((ParseUser) temp.get("friend1")).fetchIfNeeded().get("photo").toString():null));
-                        Log.e("Friend added", "probably successfully");
+                        Log.d("Friend added", "probably successfully");
                     }
 
                 }

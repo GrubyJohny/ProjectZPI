@@ -3,9 +3,11 @@ package zpi.squad.app.grouploc;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.StrictMode;
+import android.util.Base64InputStream;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -14,17 +16,23 @@ import android.widget.Toast;
 
 import com.facebook.AccessToken;
 import com.facebook.GraphRequest;
+import com.facebook.GraphRequestAsyncTask;
 import com.facebook.GraphResponse;
+import com.facebook.HttpMethod;
 import com.parse.LogInCallback;
 import com.parse.Parse;
 import com.parse.ParseException;
 import com.parse.ParseFacebookUtils;
 import com.parse.ParseUser;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.sql.Array;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,7 +48,7 @@ public class LoginActivity extends Activity {
     private SQLiteHandler db;
     public static Context context;
     public static List<String> permissions = new ArrayList<>();
-
+    private Bitmap profileImageFromFacebook;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -48,7 +56,9 @@ public class LoginActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+
         context = getApplicationContext();
+        final SessionManager session = SessionManager.getInstance(context);
         if (SessionManager.getInstance(context).isLoggedIn()) {
             Intent intent = new Intent(LoginActivity.this, MainActivity.class);
             finish();
@@ -107,6 +117,7 @@ public class LoginActivity extends Activity {
             @Override
             public void onClick(View view)
             {
+
                 ParseFacebookUtils.initialize(context);
                 ParseFacebookUtils.logInWithReadPermissionsInBackground(LoginActivity.this, permissions, new LogInCallback()
                 {
@@ -121,33 +132,35 @@ public class LoginActivity extends Activity {
                             try
                             {
                                 String[] tempInfo = getFacebookUserInfo(AccessToken.getCurrentAccessToken());
-
-                                for(int i=0; i<tempInfo.length; i++)
-                                    Log.e("Facebook row " + i, " is: "+tempInfo[i].toString());
-
                                 user.setEmail(tempInfo[0]);
                                 user.put("name", tempInfo[1]);
-                                //tutaj trzeba wykombinować zdjęcie z fejsa...
-                                //a jak się nie uda, to domyślne:
-                                user.put("photo", SessionManager.getInstance(getApplicationContext()).encodeBitmapTobase64(BitmapFactory.decodeResource(getResources(), R.drawable.image5)) );
+                                    try {
+                                        user.put("photo", session.encodeBitmapTobase64(getFacebookProfilePicture(AccessToken.getCurrentAccessToken())));
+                                    }
+                                    catch(Exception e)
+                                    {
+                                        e.getLocalizedMessage();
+                                        e.printStackTrace();
+                                        user.put("photo", session.encodeBitmapTobase64(BitmapFactory.decodeResource(getResources(), R.drawable.image5)));
+                                    }
+
                                 user.save();
                             }
                             catch(Exception e)
                             {
-                                e.getMessage();
+                                e.getLocalizedMessage();
                                 e.printStackTrace();
                             }
-
-
                         }
 
                         ParseUser current = ParseUser.getCurrentUser();
-                        SessionManager.getInstance(context).setUserEmail(current.getEmail());
-                        SessionManager.getInstance().setUserName(current.get("name").toString());
-                        SessionManager.getInstance().setUserPhoto(current.get("photo").toString());
-                        SessionManager.getInstance().setUserId(current.getObjectId());
 
-                        SessionManager.getInstance().setLogin(true);
+                        session.setUserEmail(current.getEmail());
+                        session.setUserName(current.get("name").toString());
+                        session.setUserPhoto(current.get("photo").toString());
+                        session.setUserId(current.getObjectId());
+
+                        session.setLogin(true);
                         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                         finish();
                         startActivity(intent);
@@ -250,5 +263,44 @@ public class LoginActivity extends Activity {
 
         return result;
     }
+
+    private Bitmap getFacebookProfilePicture(AccessToken accessToken) throws IOException {
+
+
+        Bundle params = new Bundle();
+        params.putBoolean("redirect", false);
+        params.putInt("height", 100);
+        params.putInt("width", 100);
+        GraphResponse srequest =  new GraphRequest(
+                AccessToken.getCurrentAccessToken(),
+                "/"+accessToken.getUserId()+"/picture",
+                params,
+                HttpMethod.GET,
+                new GraphRequest.Callback() {
+                    public void onCompleted(GraphResponse response) {
+                        //String ara = response.getJSONObject().toString();
+                        //Log.e("PROFILOWE: ", ara);
+                        try {
+                            JSONObject araa = response.getJSONObject();
+                            JSONObject aray = araa.getJSONObject("data");
+
+                            URL facebookProfilePictureUrl = new URL(aray.getString("url"));
+                            profileImageFromFacebook = BitmapFactory.decodeStream(facebookProfilePictureUrl.openConnection().getInputStream());
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        } catch (MalformedURLException e) {
+                            e.printStackTrace();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+                }
+        ).executeAndWait();
+
+        return profileImageFromFacebook;
+    }
+
+
 
 }

@@ -138,7 +138,7 @@ public class MapFragment extends Fragment implements GoogleApiClient.ConnectionC
         //res = getResources();
 
         layoutMarker = (View) getActivity().findViewById(R.id.markerLayout);
-        tabs = (View) getActivity().findViewById(R.id.tabanim_tabs);
+//        tabs = (View) getActivity().findViewById(R.id.tabanim_tabs);
         context = getActivity().getApplicationContext();
         globalVariable = (AppController) getActivity().getApplicationContext();
         db = new SQLiteHandler(getActivity().getApplicationContext());
@@ -214,6 +214,7 @@ public class MapFragment extends Fragment implements GoogleApiClient.ConnectionC
         changeMapTypeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                System.out.println("JAJECZKO");
                 if (globalVariable.getMyMap().getMapType() == GoogleMap.MAP_TYPE_HYBRID) {
                     layoutMarker.setBackgroundColor(Color.LTGRAY);
                     globalVariable.getMyMap().setMapType(GoogleMap.MAP_TYPE_NORMAL);

@@ -138,7 +138,7 @@ public class MapFragment extends Fragment implements GoogleApiClient.ConnectionC
         //res = getResources();
 
         layoutMarker = (View) getActivity().findViewById(R.id.markerLayout);
-        tabs = (View) getActivity().findViewById(R.id.tabanim_tabs);
+//        tabs = (View) getActivity().findViewById(R.id.tabanim_tabs);
         context = getActivity().getApplicationContext();
         globalVariable = (AppController) getActivity().getApplicationContext();
         db = new SQLiteHandler(getActivity().getApplicationContext());

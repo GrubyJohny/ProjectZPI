@@ -185,7 +185,10 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabanim_tabs);
+        MapFragment mapFragment = new MapFragment();
+        getSupportFragmentManager().beginTransaction().add(R.id.myMapFragment, mapFragment).commit();
+
+        /*TabLayout tabLayout = (TabLayout) findViewById(R.id.tabanim_tabs);
         tabLayout.addTab(tabLayout.newTab().setText("Map"));
 //        tabLayout.addTab(tabLayout.newTab().setText("Friends"));
         tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
@@ -210,7 +213,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             public void onTabReselected(TabLayout.Tab tab) {
 
             }
-        });
+        });*/
 
         drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(

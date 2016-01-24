@@ -1,6 +1,9 @@
 package zpi.squad.app.grouploc;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.util.Base64;
 import android.util.Log;
 
 import com.parse.ParseException;
@@ -8,6 +11,7 @@ import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 
 public class SessionManager {
@@ -149,7 +153,7 @@ public class SessionManager {
                                 ((ParseUser) temp.get("friend2")).fetchIfNeeded().getEmail(),
                                 ((ParseUser) temp.get("friend2")).fetchIfNeeded().get("photo") != null ?
                                         ((ParseUser) temp.get("friend2")).fetchIfNeeded().get("photo").toString():null));
-                        Log.d("Friend added", "probably successfully");
+                        Log.d("Friend added: ", ((ParseUser) temp.get("friend2")).fetchIfNeeded().get("name").toString());
                     }
 
                 }
@@ -174,7 +178,7 @@ public class SessionManager {
                                 ((ParseUser) temp.get("friend1")).fetchIfNeeded().getEmail(),
                                 ((ParseUser) temp.get("friend1")).fetchIfNeeded().get("photo") != null ?
                                         ((ParseUser) temp.get("friend1")).fetchIfNeeded().get("photo").toString():null));
-                        Log.d("Friend added", "probably successfully");
+                        Log.d("Friend added: ", ((ParseUser) temp.get("friend1")).fetchIfNeeded().get("name").toString());
                     }
 
                 }
@@ -194,6 +198,25 @@ public class SessionManager {
 
         return result;
     }
+
+    // method for bitmap to base64
+    public String encodeBitmapTobase64(Bitmap image) {
+        Bitmap immage = image;
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        immage.compress(Bitmap.CompressFormat.PNG, 100, baos);
+        byte[] b = baos.toByteArray();
+        String imageEncoded = Base64.encodeToString(b, Base64.DEFAULT);
+        //Log.d("Image Log:", imageEncoded);
+        return imageEncoded;
+    }
+
+    // method for base64 to bitmap
+    public Bitmap decodeBase64ToBitmap(String input) {
+        byte[] decodedByte = Base64.decode(input, 0);
+        return BitmapFactory
+                .decodeByteArray(decodedByte, 0, decodedByte.length);
+    }
+
 
 
 }

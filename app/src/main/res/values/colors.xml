@@ -19,5 +19,9 @@
     <color name="panel_blue1">#3EC4FF</color>
     <color name="panel_tabs">#ABABAB</color>
     <color name="panel_blue2">#4eb0fb</color>
+    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorAccent">#FF4081</color>
+    <color name="panel_main">#4CAF50</color>
 
 </resources>

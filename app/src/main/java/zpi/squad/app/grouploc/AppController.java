@@ -1,6 +1,7 @@
 package zpi.squad.app.grouploc;
 
 import android.app.Application;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -26,6 +27,17 @@ public class AppController extends Application {
     private LatLng lastClikOnMap;
     private GoogleMap myMap;
     private List<CustomMarker> markers;
+    private ProgressDialog dialog;
+
+    public ProgressDialog getDialog() {
+        return dialog;
+    }
+
+    public void setDialog(ProgressDialog dialog) {
+        this.dialog = dialog;
+    }
+
+
 
     @Override
     public void onCreate() {

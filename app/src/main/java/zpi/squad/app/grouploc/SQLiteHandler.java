@@ -166,7 +166,7 @@ public class SQLiteHandler extends SQLiteOpenHelper {
 
         cursor.moveToFirst();
 
-        friend.setFriendID(Integer.parseInt(cursor.getString(1)));
+        //friend.setFriendID(Integer.parseInt(cursor.getString(1)));
         friend.setFriendName(cursor.getString(2));
         friend.setFriendEmail(cursor.getString(3));
 
@@ -219,7 +219,7 @@ public class SQLiteHandler extends SQLiteOpenHelper {
         if (cursor.moveToFirst()) {
             do {
                 Friend friend = new Friend();
-                friend.setFriendID(Integer.parseInt(cursor.getString(1)));
+                //friend.setFriendID(Integer.parseInt(cursor.getString(1)));
                 friend.setFriendName(cursor.getString(2));
                 friend.setFriendEmail(cursor.getString(3));
 

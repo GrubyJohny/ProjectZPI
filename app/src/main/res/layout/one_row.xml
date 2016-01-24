@@ -33,12 +33,13 @@
             android:layout_width="wrap_content"
             android:layout_height="25dp"
             android:textSize="20sp"
+            android:textColor="#ff000000"
             />
         <TextView
             android:id="@+id/emailTXT"
             android:layout_width="wrap_content"
             android:layout_height="20dp"
-            android:textColor="@color/input_login_hint"
+            android:textColor="#63000000"
             />
     </LinearLayout>
 </RelativeLayout>

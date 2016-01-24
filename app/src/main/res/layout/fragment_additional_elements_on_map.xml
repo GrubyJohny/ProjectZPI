@@ -10,9 +10,9 @@
         android:layout_height="40dp"
         android:layout_alignParentLeft="true"
         android:layout_alignParentBottom="true"
-        android:layout_margin="5dp"
+        android:layout_margin="3dp"
         android:textSize="5pt"
-        android:text="Normal"/>
+        android:text="Hybrid"/>
 
     <Button
         android:id="@+id/buttonPOIFiltering"

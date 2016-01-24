@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical"
+    android:id="@+id/popup_element"
+    android:background="@android:color/black">
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_margin="1dp"
+        android:background="@color/panel_blue2">
+        >
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_margin="20dp">
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="Friend Options"
+                android:textSize="12pt"
+                android:textStyle="bold"
+                android:textAlignment="center"/>
+
+            <Button
+                android:id="@+id/showFriendOnMap"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="Show friend on map" />
+
+            <Button
+                android:id="@+id/deleteFriend"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="Delete this friend" />
+
+            <Button
+                android:id="@+id/dismiss"
+                android:layout_marginTop="50dp"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="Exit" />
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>

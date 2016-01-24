@@ -58,6 +58,8 @@
             android:name="zpi.squad.app.grouploc.MainActivity"
             android:label="GroupLoc"
             android:launchMode="singleTop"
+            android:icon="@drawable/logozpi"
+            android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="adjustResize|stateHidden"
             android:screenOrientation="portrait">
             <!-- Required OpenGL ES 2.0. for Maps V2 -->

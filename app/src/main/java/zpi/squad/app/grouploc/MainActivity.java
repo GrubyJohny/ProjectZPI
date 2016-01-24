@@ -1,20 +1,25 @@
 package zpi.squad.app.grouploc;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.app.*;
 import android.app.AlertDialog;
-import android.app.ProgressDialog;
+import android.support.design.widget.TabLayout;
+import android.support.v4.app.*;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.view.ViewPager;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.*;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Path;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
@@ -24,12 +29,10 @@ import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.StrictMode;
 import android.os.Vibrator;
-import android.preference.PreferenceManager;
 import android.provider.MediaStore;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentTabHost;
-import android.text.format.Time;
-import android.util.Base64;
+import android.support.design.widget.NavigationView;
+import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.widget.Toolbar;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Menu;
@@ -37,25 +40,19 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TabHost;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.volley.AuthFailureError;
-import com.android.volley.NetworkError;
-import com.android.volley.NoConnectionError;
-import com.android.volley.ParseError;
 import com.android.volley.Request;
 import com.android.volley.Response;
-import com.android.volley.ServerError;
-import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.google.android.gms.common.ConnectionResult;
@@ -70,25 +67,23 @@ import com.nhaarman.supertooltips.ToolTip;
 import com.nhaarman.supertooltips.ToolTipRelativeLayout;
 import com.nhaarman.supertooltips.ToolTipView;
 
-import org.apache.commons.net.ftp.FTP;
-import org.apache.commons.net.ftp.FTPClient;
-import org.json.JSONArray;
+import com.parse.ParseException;
+import com.parse.ParseFacebookUtils;
+import com.parse.ParseUser;
+import com.parse.SaveCallback;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 
-public class MainActivity extends FragmentActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
-        LocationListener, ToolTipView.OnToolTipViewClickedListener {
+public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
+        LocationListener, ToolTipView.OnToolTipViewClickedListener, NavigationView.OnNavigationItemSelectedListener {
 
-    private static Resources resources;
     private SessionManager session;
     private ProgressDialog pDialog;
     private SQLiteHandler db;
@@ -127,10 +122,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     //private Button closeMarkerButton;
     private Marker ostatniMarker;
     private FragmentTabHost tabhost;
-    private static final String FTP_SERVER_ADDRESS = "ftp.marcinta.webd.pl";
-    private static final String FTP_ACCOUNT_USERNAME = "grouploc@marcinta.webd.pl";
-    private static final String FTP_ACCOUNT_PASSWORD = "grouploc2015";
-
+    private Bitmap bitmap_round;
 
     private ScrollView POIScrollView;
     PoiJSONParser poiBase = new PoiJSONParser();
@@ -140,8 +132,6 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
 
     //Andoridowy obiekt przechowujący dane o położeniu(np latitude, longitude, kiedy zostało zarejestrowane)
     private Location mCurrentLocation;
-    private Runnable sender;//wątek, który będzie wysyłał info o położoniu użytkownika do bazy
-    // private SQLiteHandler db;//obiekt obsługujący lokalną androidową bazę danych
     //obiekt będący parametrem, przy wysłaniu żądania o aktualizację lokacji
     private LocationRequest mLocationRequest;
 
@@ -155,10 +145,6 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     //OstatniKliknietyNaMapi
     private LatLng lastClikOnMap;
 
-    public static final String IMAGE_PHOTO_FILENAME = "facebook_profile_photo";
-
-    SharedPreferences.Editor edit;
-    SharedPreferences shre;
     Bitmap profilePictureRaw;
 
     AppController globalVariable;
@@ -169,57 +155,108 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
 
     private boolean hints = false;
     int hintsL;
+    DrawerLayout drawer;
+    NavigationView navigationViewLeft;
+    private ImageView navigationViewLeftProfilePicutre;
+    private TextView navigationViewLeftFullName;
+    NavigationView navigationViewRight;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-        shre = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        edit = shre.edit();
         context = getApplicationContext();
-        resources = getResources();
         globalVariable = (AppController) getApplicationContext();
+        if (globalVariable.getDialog() != null && globalVariable.getDialog().isShowing()) {
+            globalVariable.getDialog().dismiss();
+        }
         v = (Vibrator) getApplicationContext().getSystemService(Context.VIBRATOR_SERVICE);
         StrictMode.setThreadPolicy(policy);
         createLocationRequest();
         buildGoogleApiClient();
-        mGoogleApiClient.connect();
-        session = new SessionManager(getApplicationContext());
-        db = new SQLiteHandler(getApplicationContext());
-        tabLayout = (View) findViewById(R.id.tabLayout);
 
-        sender = createSendThread();
+        mGoogleApiClient.connect();
+        session = SessionManager.getInstance(getApplicationContext());
+        db = new SQLiteHandler(getApplicationContext());
+        //tabLayout = (View) findViewById(R.id.tabLayout);
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabanim_tabs);
+        tabLayout.addTab(tabLayout.newTab().setText("Map"));
+//        tabLayout.addTab(tabLayout.newTab().setText("Friends"));
+        tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
+
+        final ViewPager viewPager = (ViewPager) findViewById(R.id.tabanim_viewpager);
+        final PagerAdapter adapter = new PagerAdapter
+                (getSupportFragmentManager(), tabLayout.getTabCount());
+        viewPager.setAdapter(adapter);
+        viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
+        tabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                viewPager.setCurrentItem(tab.getPosition());
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+
+            }
+        });
+
+        drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawer.setDrawerListener(toggle);
+        toggle.syncState();
+
+        navigationViewLeft = (NavigationView) findViewById(R.id.nav_view_left);
+        navigationViewLeft.setNavigationItemSelectedListener(this);
+
+        navigationViewLeftProfilePicutre = (ImageView) findViewById(R.id.profilePicture);
+        navigationViewLeftProfilePicutre.setImageBitmap(session.decodeBase64ToBitmap(session.getUserPhoto()));
+
+        navigationViewLeftFullName = (TextView) findViewById(R.id.Fullname);
+        navigationViewLeftFullName.setText(session.getUserName());
+
+        navigationViewRight = (NavigationView) findViewById(R.id.nav_view_right);
+        navigationViewRight.setNavigationItemSelectedListener(this);
+
+
         mRequestingLocationUpdates = true;
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
             buildAlertMessageNoGps();
         }
 
-        circleButton = (ImageButton) findViewById(R.id.circleButton);
+        //circleButton = (ImageButton) findViewById(R.id.circleButton);
 
         searchingGroupText = (EditText) findViewById(R.id.searchingGroupText);
 
-        tabhostInit();
+//        tabhostInit();
 
-        new Thread(sender, "Watek do wysyłania koordynatów").start();
+//        mainSpinner();
+//        notifications();
+//        messages();
+//        setupCircleButtonWithProfileImage();
+//        noticeAndMessageButtons();
 
-        readNotifications = db.getAllNotifications();
-
-        mainSpinner();
-        notifications();
-        messages();
-        setupCircleButtonWithProfileImage();
-        noticeAndMessageButtons();
-
-        addListenerOnButton();
-        addListenerOnSpinner();
-        addListenerOnSpinner2();
-        addListenerOnSpinner3();
+//        addListenerOnButton();
+//        addListenerOnSpinner();
+//        addListenerOnSpinner2();
+//        addListenerOnSpinner3();
 
         layoutSettings = (View) findViewById(R.id.settingsLayout);
 
-        SettingButtons();
+//        SettingButtons();
 
         layoutMarker = (View) findViewById(R.id.markerLayout);
 
@@ -233,12 +270,12 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
 
         POIScrollView = (ScrollView) findViewById(R.id.POIScroll);
 
-        toolTipRelativeLayout = (ToolTipRelativeLayout) findViewById(R.id.activity_main_tooltipRelativeLayout);
-        toolTipRelativeLayout.bringToFront();
+      //  toolTipRelativeLayout = (ToolTipRelativeLayout) findViewById(R.id.activity_main_tooltipRelativeLayout);
+//        toolTipRelativeLayout.bringToFront();
 
         hintsL = session.getHintsLeft();
 
-        if (hintsL > 0) {
+        /*if (hintsL > 0) {
             session.setHintsLeft(session.getHintsLeft() - 1);
 
             final Handler myHandler = new Handler();
@@ -265,10 +302,14 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                     }.start();
                 }
             }, 3000);
-        }
+        }*/
+
+        //tylko do testu czy pobiera
+        session.getFriendsList();
+
     }
 
-    private void addMyToolTipView() {
+    /*private void addMyToolTipView() {
         ToolTip toolTip = new ToolTip()
                 .withText("Click here for settings")
                 .withShadow()
@@ -276,7 +317,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                 .withAnimationType(ToolTip.AnimationType.FROM_TOP);
         myToolTipView = toolTipRelativeLayout.showToolTipForView(toolTip, findViewById(R.id.circleButton));
         myToolTipView.setOnToolTipViewClickedListener(MainActivity.this);
-    }
+    }*/
 
     private void addFriendEmailToolTipView() {
         ToolTip toolTip = new ToolTip()
@@ -293,11 +334,11 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         tabhost.setup(context, getSupportFragmentManager(), android.R.id.tabcontent);
 
         tabhost.addTab(tabhost.newTabSpec("map").setIndicator("MAP"),
-                Mapka.class, null);
+                MapFragment.class, null);
         tabhost.addTab(tabhost.newTabSpec("friends").setIndicator("FRIENDS"),
                 FriendsFragment.class, null);
-        tabhost.addTab(tabhost.newTabSpec("group").setIndicator("GROUP"),
-                GroupFragment.class, null);
+        /*tabhost.addTab(tabhost.newTabSpec("group").setIndicator("GROUP"),
+                GroupFragment.class, null);*/
 
         tabhost.setOnTabChangedListener(new TabHost.OnTabChangeListener() {
             @Override
@@ -332,8 +373,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                             }, 3000);
                         }
                     }
-                }
-                else{
+                } else {
                     if (friendEmailToolTipView != null) {
                         friendEmailToolTipView.remove();
                         friendEmailToolTipView = null;
@@ -358,30 +398,9 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     private void setupCircleButtonWithProfileImage() {
         Bitmap icon = null;
 
-        String previouslyEncodedImage;
-        String kindOfLoginn = shre.getString("kind_of_login", "");
-        Drawable fromFTP = null;
-
-        // pobierz zdjęcie z serwera i załaduj jako profilowe
-        fromFTP = getImageFromFTP(Integer.parseInt(session.getUserId()));
-        if (fromFTP != null) {
-            icon = drawableToBitmap(fromFTP);
-            profilePictureRaw = icon;
-            String enco = encodeBitmapTobase64(icon);
-            edit.putString("image_data", enco);
-
-            edit.commit();
-        } else {
-            //wyslij zdj z fejsa do ftp
-            String image = shre.getString("facebook_image_data", "");
-            //Log.e("SRATATATA", image);
-            Bitmap tmp = decodeBase64ToBitmap(image);
-            //Drawable tmpp = new BitmapDrawable(getResources(), tmp);
-            profilePictureRaw = tmp;
-            icon = tmp;
-
-            if (!image.isEmpty())
-                uploadProfileImageToFTP();
+        try {
+            icon = session.decodeBase64ToBitmap(SessionManager.getInstance(context).getUserPhoto());
+        } catch (Exception e) {
 
         }
 
@@ -389,14 +408,13 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         if (icon == null)
             icon = BitmapFactory.decodeResource(getResources(), R.drawable.image3);
 
-
-        Bitmap bitmap_round = clipBitmap(icon, circleButton);
+        bitmap_round = clipBitmap(icon, circleButton);
         circleButton.setImageBitmap(bitmap_round);
 
     }
 
     private void noticeAndMessageButtons() {
-        noticeButton = (ImageButton) findViewById(R.id.noticeButton);
+      //  noticeButton = (ImageButton) findViewById(R.id.noticeButton);
         Bitmap bMap = BitmapFactory.decodeResource(getResources(), R.drawable.notificon);
         Bitmap bMapScaled = Bitmap.createScaledBitmap(bMap, 150, 150, true);
         Bitmap bitmap_round = clipBitmap(bMapScaled, noticeButton);
@@ -412,7 +430,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     }
 
     private void mainSpinner() {
-        spinner1 = (Spinner) findViewById(R.id.spinner);
+       // spinner1 = (Spinner) findViewById(R.id.spinner);
         String[] spinnerOptions = {"", "Settings", "Log out"};
         ArrayAdapter<String> circleButtonOptions = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, spinnerOptions) {
             @Override
@@ -439,7 +457,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     }
 
     private void notifications() {
-        spinner2 = (Spinner) findViewById(R.id.spinner2);
+       // spinner2 = (Spinner) findViewById(R.id.spinner2);
         readNotifications.add(0, new Notification("", "", "", "", "", "", "", "", 0));
         NotificationAdapter noticeButtonOptions = new NotificationAdapter(this, readNotifications) {
             @Override
@@ -467,7 +485,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     }
 
     private void messages() {
-        spinner3 = (Spinner) findViewById(R.id.spinner3);
+      //  spinner3 = (Spinner) findViewById(R.id.spinner3);
         String[] spinner3Options = {"message 1", "message 2", "message 3", "message 4"};
         ArrayAdapter<String> messageButtonOptions = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, spinner3Options);
         spinner3.setAdapter(messageButtonOptions);
@@ -479,6 +497,32 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         confirm.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                ParseFacebookUtils.initialize(MainActivity.this);
+
+                if(!ParseFacebookUtils.isLinked(ParseUser.getCurrentUser())) {
+                    ParseFacebookUtils.linkWithReadPermissionsInBackground(ParseUser.getCurrentUser(), MainActivity.this, LoginActivity.permissions, new SaveCallback() {
+                        @Override
+                        public void done(ParseException e) {
+                            if (ParseFacebookUtils.isLinked(ParseUser.getCurrentUser())) {
+                                Log.d("HURRA", "Woohoo, user logged in with Facebook!");
+                            }
+                        }
+                    });
+
+                }
+                else if(ParseFacebookUtils.isLinked(ParseUser.getCurrentUser())) {
+                    ParseFacebookUtils.unlinkInBackground(ParseUser.getCurrentUser(), new SaveCallback(){
+                        @Override
+                        public void done(ParseException ex) {
+                            if (ex == null) {
+                                Log.d("NIE HURRA", "The user is no longer associated with their Facebook account.");
+                            }
+                        }
+                    });
+                }
+
+
+
                 InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(tabhost.getApplicationWindowToken(), 0);
                 layoutSettings.setVisibility(View.INVISIBLE);
@@ -563,12 +607,12 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
 
                                                          Bitmap toCrop = null;
                                                          String previouslyEncodedImage = "";
-
+/*
                                                          if (shre.getString("facebook_image_data", "") != "") {
                                                              previouslyEncodedImage = shre.getString("facebook_image_data", "");
                                                              toCrop = decodeBase64ToBitmap(previouslyEncodedImage);
                                                          }
-
+*/
 
                                                          Uri uri = getImageUri(getApplicationContext(), toCrop);
                                                          Intent cropIntent = new Intent("com.android.camera.action.CROP");
@@ -614,17 +658,24 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         try {
+
             if (requestCode == PICK_FROM_GALLERY) {
                 Bundle extras2 = data.getExtras();
                 if (extras2 != null) {
                     Bitmap photo = extras2.getParcelable("data");
 
                     profilePictureRaw = photo;
-                    uploadProfileImageToFTP();
+                    ParseUser user = ParseUser.getCurrentUser();
+                    user.put("photo", session.encodeBitmapTobase64(profilePictureRaw));
+                    user.saveInBackground();
+
+                    //Log.d("ZJDECIE", encodeBitmapTobase64(profilePictureRaw));
+                    SessionManager.getInstance(context).setUserPhoto(session.encodeBitmapTobase64(profilePictureRaw));
+
                     Bitmap bitmap_round = clipBitmap(photo, circleButton);
                     circleButton.setImageBitmap(bitmap_round);
 
-                    FileOutputStream fos = context.openFileOutput(IMAGE_PHOTO_FILENAME, Context.MODE_PRIVATE);
+                    FileOutputStream fos = context.openFileOutput(AppConfig.IMAGE_PHOTO_FILENAME, Context.MODE_PRIVATE);
                     bitmap_round.compress(Bitmap.CompressFormat.PNG, 100, fos);
                     fos.close();
 
@@ -650,13 +701,18 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                 Bitmap photo = extras2.getParcelable("data");
 
                 profilePictureRaw = photo;
+                ParseUser user = ParseUser.getCurrentUser();
+                user.put("photo", session.encodeBitmapTobase64(profilePictureRaw));
+                user.saveInBackground();
 
-                uploadProfileImageToFTP();
+                //Log.d("ZJDECIE", encodeBitmapTobase64(profilePictureRaw));
+                SessionManager.getInstance(context).setUserPhoto(session.encodeBitmapTobase64(profilePictureRaw));
+
 
                 Bitmap bitmap_round = clipBitmap(photo, circleButton);
                 circleButton.setImageBitmap(bitmap_round);
 
-                FileOutputStream fos = context.openFileOutput(IMAGE_PHOTO_FILENAME, Context.MODE_PRIVATE);
+                FileOutputStream fos = context.openFileOutput(AppConfig.IMAGE_PHOTO_FILENAME, Context.MODE_PRIVATE);
                 bitmap_round.compress(Bitmap.CompressFormat.PNG, 100, fos);
                 fos.close();
 
@@ -716,151 +772,42 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        if (id == R.id.friendsButton) {
+            if (drawer.isDrawerOpen(navigationViewLeft)) {
+                drawer.closeDrawer(navigationViewLeft);
+            }
+            drawer.openDrawer(navigationViewRight);
         }
 
         return super.onOptionsItemSelected(item);
     }
 
-    public void logOut(AdapterView.OnItemSelectedListener view) {
+    @SuppressWarnings("StatementWithEmptyBody")
+    @Override
+    public boolean onNavigationItemSelected(MenuItem item) {
+        // Handle navigation view item clicks here.
+        int id = item.getItemId();
+        if (id == R.id.nav_about) {
 
+        } else if (id == R.id.nav_settings) {
+
+        } else if (id == R.id.nav_logout) {
+            logOut();
+        }
+
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawer.closeDrawer(GravityCompat.START);
+        return true;
+    }
+
+    public void logOut() {
         //stopLocationUpdates();
 
         session.logOut();
 
-
         Intent closeIntent = new Intent(this, LoginActivity.class);
         startActivity(closeIntent);
         finish();
-    }
-
-    public void stayActive(final String id, final float c1, final float c2) {
-        StringRequest request = new StringRequest(Request.Method.POST, AppConfig.URL_LOGIN, new Response.Listener<String>() {
-            @Override
-            public void onResponse(String response) {
-
-                String TAG = "Sending coordinates & checking for notifications";
-                Log.d(TAG, response.toString());
-                try {
-                    JSONObject jObj = new JSONObject(response);
-                    boolean error = jObj.getBoolean("error");
-
-                    JSONArray markersArray = jObj.getJSONArray("markers");
-                    JSONObject markerObj;
-                    CustomMarker myMarker;
-                    String mySqlId;
-                    String userId;
-                    Double latitude;
-                    Double longitude;
-                    String markerName;
-
-                    JSONArray array = jObj.getJSONArray("notifications");
-                    JSONObject notObj;
-                    String senderId;
-                    String senderName;
-                    String senderEmail;
-                    String receiverId;
-                    String type;
-                    String messageId;
-                    String groupId;
-                    //String markerId;
-                    String createdAt;
-
-
-                    //Tutaj jest doddawany do lokalnej bazy znacznik
-                    //wspóldzielony przez przyleciela. Karol za to odpowiada.
-                    for (int i = 0; i < markersArray.length(); i++) {
-                        markerObj = markersArray.getJSONObject(i);
-                        mySqlId = markerObj.getString("mysqlid");
-                        userId = markerObj.getString("userid");
-                        latitude = markerObj.getDouble("latitude");
-                        longitude = markerObj.getDouble("longitude");
-                        markerName = markerObj.getString("markername");
-
-                        myMarker = new CustomMarker(mySqlId, userId, latitude, longitude, markerName);
-                        db.addMarker(myMarker);
-                        globalVariable.addNewMarker(myMarker);
-                        //Log.d("???","co tu się  wyprawia");
-
-                    }
-
-                    for (int i = 0; i < array.length(); i++) {
-                        notObj = array.getJSONObject(i);
-                        senderId = notObj.getString("senderid");
-                        senderName = notObj.getString("senderName");
-                        senderEmail = notObj.getString("senderEmail");
-                        receiverId = notObj.getString("receiverid");
-                        type = notObj.getString("type");
-                        messageId = notObj.getString("messageid");
-                        groupId = notObj.getString("groupid");
-                        //markerId = notObj.getString("markerid");
-                        createdAt = notObj.getString("created_at");
-                        v.vibrate(500);
-                        db.addNotification(senderId, senderName, senderEmail, receiverId, type, messageId, groupId, createdAt, 0);
-                        readNotifications.add(1, (new Notification(senderId, senderName, senderEmail, receiverId, type, messageId, groupId, createdAt, 0)));
-                        Toast.makeText(getApplicationContext(), "You have new notification", Toast.LENGTH_LONG).show();
-                        if (type.equals("friendshipAgreed")) {
-
-                            db.addFriend(senderId, senderName, senderEmail);
-                            FriendsFragment.addFriend(new Friend(Integer.valueOf(senderId), senderName, senderEmail));
-                        } else if (type.equals("friendshipCanceled")) {
-                            FriendsFragment.removeItem(senderEmail);
-                        } else if (type.equals("friendshipRequest")) {
-
-
-                        } else if (type.equals("shareMarker")) {
-
-                        } else if (type.equals("userAddedToGroup")) {
-                            session.setKeyGroupId(groupId);
-                        }
-                    }
-
-                } catch (Exception e) {
-                }
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                if (error instanceof NoConnectionError) {
-                    Log.d("NoConnectionError>", "NoConnectionError.......");
-
-                } else if (error instanceof AuthFailureError) {
-                    Log.d("AuthFailureError>", "AuthFailureError.......");
-
-                } else if (error instanceof ServerError) {
-                    Log.d("ServerError>>>>>>>>>", "ServerError.......");
-
-                } else if (error instanceof NetworkError) {
-                    Log.d("NetworkError>>>>>>>>>", "NetworkError.......");
-
-                } else if (error instanceof ParseError) {
-                    Log.d("ParseError>>>>>>>>>", "ParseError.......");
-
-                } else if (error instanceof TimeoutError) {
-                    Log.d("TimeoutError>>>>>>>>>", "TimeoutError.......");
-
-                }
-
-                Log.e("OnLocationChanged", "Notification Error: " + error.getMessage());
-                Toast.makeText(getApplicationContext(),
-                        error.getMessage(), Toast.LENGTH_LONG).show();
-            }
-        }) {
-
-            @Override
-            protected Map<String, String> getParams() {
-                Map<String, String> params = new HashMap<>();
-                params.put("tag", "userConnection");
-                params.put("id", id);
-                params.put("koordynat1", c1 + "");
-                params.put("koordynat2", c2 + "");
-                return params;
-            }
-        };
-
-        AppController.getInstance().addToRequestQueue(request, "request_coordinates");
     }
 
     public void addListenerOnButton() {
@@ -889,77 +836,6 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         });*/
     }
 
-    public void addListenerOnSpinner() {
-        spinner1.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                switch (position) {
-                    case 0:
-                        break;
-                    case 1:
-                        layoutSettings.setVisibility(View.VISIBLE);
-                        layoutMarker.setVisibility(View.GONE);
-                        tabLayout.setVisibility(View.INVISIBLE);
-                        spinner1.setSelection(0);
-                        break;
-                    case 2:
-                        logOut(this);
-                        //spinner1.setSelection(0);
-                        break;
-                }
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-            }
-        });
-    }
-
-    public void addListenerOnSpinner2() {
-        spinner2.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                if (inhibit_spinner) {
-                    inhibit_spinner = false;
-                } else {
-
-                    if (readNotifications.get(position).getType().equals("friendshipRequest") && !readNotifications.get(position).isChecked()) {
-                        onFriendshipRequest(readNotifications.get(position));
-
-                    } else if (readNotifications.get(position).getType().equals("groupRequest") && !readNotifications.get(position).isChecked())
-                        onGroupRequest(readNotifications.get(position));
-                    else {
-
-                    }
-                }
-                spinner2.setSelection(0);
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-            }
-        });
-    }
-
-
-    public void addListenerOnSpinner3() {
-        spinner3.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                switch ((int) position) {
-                    case 0:
-                        //USTAWIENIA TO DO
-                        break;
-                    case 1:
-                        break;
-                }
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-            }
-        });
-    }
 
     /**
      * Tutaj definiujemy jakie operacje mają się odbyć po połączeniu z google service
@@ -999,11 +875,9 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         float latitude = (float) location.getLatitude();
         float longitude = (float) location.getLongitude();
 
-        String whereClusere = Sender.makeStatementAboutFriendsList(db.getAllFriends());
-        // Log.d("pobieranie znajomych",whereClusere);
-        Sender.sendRequestAboutFriendsCoordinate(whereClusere, AppController.getInstance().getMyMap());
-
-        stayActive(session.getUserId(), (float) latitude, (float) longitude);
+        // TO DO:
+        // trzeba tutaj dopisać aktualizację współrzędnych!
+        // TO DO.
 
     }
 
@@ -1085,7 +959,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
 
     @Override
     public void onBackPressed() {
-        if (layoutSettings.getVisibility() == View.VISIBLE) {
+        /*if (layoutSettings.getVisibility() == View.VISIBLE) {
             layoutSettings.setVisibility(View.INVISIBLE);
             tabLayout.setVisibility(View.VISIBLE);
         } else if (tabLayout.getVisibility() == View.VISIBLE) {
@@ -1099,6 +973,25 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                             MainActivity.super.onBackPressed();
                         }
                     }).create().show();
+        }*/
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        if (layoutMarker.getVisibility() == View.VISIBLE) {
+            layoutMarker.animate()
+                    .translationY(0)
+                    .alpha(0.0f)
+                    .setListener(new AnimatorListenerAdapter() {
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            super.onAnimationEnd(animation);
+                            layoutMarker.setVisibility(View.GONE);
+                        }
+                    });
+        } else if (drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START);
+        } else if (drawer.isDrawerOpen(GravityCompat.END)) {
+            drawer.closeDrawer(GravityCompat.END);
+        } else {
+            super.onBackPressed();
         }
     }
 
@@ -1137,8 +1030,10 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     }
 
     private void showDialog() {
-        if (!pDialog.isShowing())
+        if (!pDialog.isShowing()) {
+            pDialog.create();
             pDialog.show();
+        }
     }
 
     private void hideDialog() {
@@ -1169,7 +1064,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
 
                         Toast.makeText(getApplicationContext(), "Acceptance has been sent successfully", Toast.LENGTH_LONG).show();
                         db.addFriend(myreceiverid, receiverName, receiverEmail);
-                        FriendsFragment.addFriend(new Friend(Integer.valueOf(myreceiverid), receiverName, receiverEmail));
+                        FriendsFragment.addFriend(new Friend(myreceiverid, receiverName, receiverEmail, null));
 
 
                     } else {
@@ -1230,12 +1125,8 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                     boolean error = jObj.getBoolean("error");
 
                     if (!error) {
-
                         Toast.makeText(getApplicationContext(), "Acceptance has been sent successfully", Toast.LENGTH_LONG).show();
-
-
                     } else {
-
                         String errorMsg = jObj.getString("error_msg");
                         Toast.makeText(getApplicationContext(), errorMsg, Toast.LENGTH_LONG).show();
                     }
@@ -1250,10 +1141,8 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
             @Override
             public void onErrorResponse(VolleyError error) {
                 Log.e(TAG, "Friendship request Error: " + error.toString());
-
                 Toast.makeText(getApplicationContext(), error.getMessage(), Toast.LENGTH_LONG).show();
                 hideDialog();
-
             }
         }) {
 
@@ -1264,131 +1153,13 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                 params.put("uid", senderId);
                 params.put("aid", session.getUserId());
                 params.put("gid", groupId);
-
                 return params;
             }
-
         };
 
         AppController.getInstance().addToRequestQueue(strReq, tag_string_req);
     }
 
-
-    // method for bitmap to base64
-    public static String encodeBitmapTobase64(Bitmap image) {
-        Bitmap immage = image;
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        immage.compress(Bitmap.CompressFormat.PNG, 100, baos);
-        byte[] b = baos.toByteArray();
-        String imageEncoded = Base64.encodeToString(b, Base64.DEFAULT);
-
-        //Log.d("Image Log:", imageEncoded);
-        return imageEncoded;
-    }
-
-    // method for base64 to bitmap
-    public static Bitmap decodeBase64ToBitmap(String input) {
-        byte[] decodedByte = Base64.decode(input, 0);
-        return BitmapFactory
-                .decodeByteArray(decodedByte, 0, decodedByte.length);
-    }
-
-    private void uploadProfileImageToFTP() {
-
-        //upload zdjecia do ftp
-        FTPClient con = null;
-
-        try {
-            con = new FTPClient();
-            con.connect(FTP_SERVER_ADDRESS);
-
-            if (con.login(FTP_ACCOUNT_USERNAME, FTP_ACCOUNT_PASSWORD)) {
-                con.enterLocalPassiveMode(); // important!
-                con.setFileType(FTP.BINARY_FILE_TYPE);
-
-                //create a file to write bitmap data
-                String ak = Time.SECOND + "" + Time.MINUTE;
-                File f = new File(context.getCacheDir(), ak);
-                boolean res = f.createNewFile();
-                //Log.d("TAKCZYNIE", ""+res);
-
-//Convert bitmap to byte array
-                Bitmap bitmap = profilePictureRaw;
-                ByteArrayOutputStream bos = new ByteArrayOutputStream();
-                bitmap.compress(Bitmap.CompressFormat.PNG, 100 /*ignored for PNG*/, bos);
-                byte[] bitmapdata = bos.toByteArray();
-                //Log.d("ZDJECIE", bitmapdata.toString());
-
-//write the bytes in file
-                FileOutputStream fos = new FileOutputStream(f);
-                fos.write(bitmapdata);
-                fos.flush();
-                fos.close();
-
-
-                FileInputStream in = new FileInputStream(new File(context.getCacheDir() + "/" + ak));
-
-                try {
-                    deleteFile(session.getUserId() + ".png");
-                } catch (Exception e) {
-                    //e.toString();
-                }
-
-                boolean result = con.storeFile("/" + session.getUserId() + ".png", in);
-
-                in.close();
-                if (result) Log.v("moj upload", "succeeded");
-                con.logout();
-                con.disconnect();
-            }
-        } catch (Exception e) {
-            Log.e("ERROR FTP", e.getMessage());
-        }
-    }
-
-    public static Drawable getImageFromFTP(int userID) //może zwracać null - uwaga dla Szczurka
-    {
-
-        Bitmap icon = null;
-        FTPClient con = null;
-        Drawable phot = null;
-        try {
-            con = new FTPClient();
-            con.connect(FTP_SERVER_ADDRESS);
-            //Log.e("przed getFriendPhoto", "wszedl");
-            if (con.login(FTP_ACCOUNT_USERNAME, FTP_ACCOUNT_PASSWORD)) {
-                con.enterLocalPassiveMode(); // important!
-                con.setFileType(FTP.BINARY_FILE_TYPE);
-                //Log.e("przed getFriendPhoto", "wszedl2" + userID);
-
-                phot = Drawable.createFromStream(con.retrieveFileStream(userID + ".png"), "userID");
-                con.logout();
-                con.disconnect();
-            }
-        } catch (Exception e) {
-            Log.v("download result", "failed");
-            e.printStackTrace();
-        }
-        //Log.d("PRAWDA", "" + (phot != null));
-
-        //return phot==null?resources.getDrawable(R.drawable.image3):phot;
-        return phot;
-
-
-    }
-
-    public static Bitmap drawableToBitmap(Drawable drawable) {
-        if (drawable instanceof BitmapDrawable) {
-            return ((BitmapDrawable) drawable).getBitmap();
-        }
-
-        Bitmap bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(bitmap);
-        drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
-        drawable.draw(canvas);
-
-        return bitmap;
-    }
 
     public Uri getImageUri(Context inContext, Bitmap inImage) {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();

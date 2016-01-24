@@ -5,33 +5,50 @@
     tools:context="zpi.squad.app.grouploc.LoginActivity">
 
 
-    <ImageView
+    <!--<ImageView
         android:id="@+id/logo"
         android:layout_width="match_parent"
         android:layout_height="120dp"
-        android:src="@drawable/logozpi" />
+        android:src="@drawable/logozpi" />-->
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:text="GroupLoc"
+        android:textSize="20pt"
+        android:gravity="center"
+        android:textStyle="bold"
+        android:id="@+id/appName"
+        android:textColor="#ff000000"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="3dp"
+        android:background="#ff000000"
+        android:layout_below="@id/appName">
+    </LinearLayout>
 
     <TextView
         android:id="@+id/loginText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
-        android:layout_below="@id/logo"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="140dp"
         android:text="Login"
-        android:textColor="@color/link_text_material_light"
-        android:textSize="30dp" />
+        android:textSize="26dp"
+        android:textColor="#ff000000"/>
 
     <EditText
         android:id="@+id/email"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/hint_email"
+        android:hint="@string/hint_login"
         android:singleLine="true"
         android:layout_below="@id/loginText"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="5dp" />
+        android:layout_marginTop="5dp"
+        android:textColor="#ff000000"/>
 
     <TextView
         android:id="@+id/passwordText"
@@ -41,8 +58,8 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="40dp"
         android:text="Password"
-        android:textColor="@color/link_text_material_light"
-        android:textSize="30dp" />
+        android:textSize="26dp"
+        android:textColor="#ff000000"/>
 
     <EditText
         android:id="@+id/password"
@@ -54,7 +71,8 @@
         android:hint="@string/hint_password"
         android:inputType="textPassword"
         android:singleLine="true"
-        android:password="true" />
+        android:password="true"
+        android:textColor="#ff000000"/>
 
     <Button
         android:id="@+id/btnLogin"
@@ -65,24 +83,25 @@
         android:layout_marginTop="40dp"
         android:text="@string/btn_login" />
 
-    <com.facebook.login.widget.LoginButton
-        android:id="@+id/login_button"
+    <Button
+        android:id="@+id/login_button_facebook"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/btnLogin"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="20dp"
-        android:layout_marginBottom="10dp" />
+        android:layout_marginBottom="10dp"
+        android:text="facebook" />
 
     <Button
         android:id="@+id/btnLinkToRegisterScreen"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/login_button"
+        android:layout_below="@id/login_button_facebook"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="30dp"
         android:text="@string/btn_link_to_register"
-        android:background="@null"/>
+        android:background="@android:color/transparent"/>
 
     <!--<TextView
         android:layout_width="wrap_content"

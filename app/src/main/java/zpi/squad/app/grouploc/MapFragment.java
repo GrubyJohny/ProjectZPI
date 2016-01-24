@@ -18,6 +18,8 @@ import android.view.InflateException;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -64,7 +66,7 @@ import static zpi.squad.app.grouploc.POISpecies.SHOPPING_MALL;
 import static zpi.squad.app.grouploc.POISpecies.STORE;
 import static zpi.squad.app.grouploc.POISpecies.getRightSpecies;
 
-public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbacks,MarkerDialog.NoticeDialogListener {
+public class MapFragment extends Fragment implements GoogleApiClient.ConnectionCallbacks,MarkerDialog.NoticeDialogListener {
 
     private SupportMapFragment fragment;
 
@@ -136,7 +138,7 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
         //res = getResources();
 
         layoutMarker = (View) getActivity().findViewById(R.id.markerLayout);
-        tabs = (View) getActivity().findViewById(R.id.tabss);
+        tabs = (View) getActivity().findViewById(R.id.tabanim_tabs);
         context = getActivity().getApplicationContext();
         globalVariable = (AppController) getActivity().getApplicationContext();
         db = new SQLiteHandler(getActivity().getApplicationContext());
@@ -155,7 +157,7 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
         mGoogleApiClient.connect();
         mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
 
-        session = new SessionManager(getActivity().getApplicationContext());
+        session = SessionManager.getInstance(context);
 
         width = context.getResources().getDisplayMetrics().widthPixels;
         height = context.getResources().getDisplayMetrics().heightPixels;
@@ -207,7 +209,7 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
         });
 
         changeMapTypeButton = (Button) getActivity().findViewById(R.id.changeMapTypeButton);
-        changeMapTypeButton.setText("Normal");
+        changeMapTypeButton.setText("Hybrid");
 
         changeMapTypeButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -482,7 +484,7 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
 
 
 
-        inclizaidListenerForMarkerMenu();
+//        inclizaidListenerForMarkerMenu();
     }
 
 
@@ -515,7 +517,7 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
             public void onMapLongClick(LatLng latLng) {
                 globalVariable.setLastClikOnMap(latLng);
                 MarkerDialog markerDialog = new MarkerDialog();
-                markerDialog.setTargetFragment(Mapka.this,0);
+                markerDialog.setTargetFragment(MapFragment.this,0);
                 markerDialog.show(getFragmentManager(), "Marker Dialog");
 
 
@@ -531,8 +533,8 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
             public boolean onMarkerClick(Marker marker) {
                 ostatniMarker = marker;
                 globalVariable.getMyMap().animateCamera(CameraUpdateFactory.newLatLng(marker.getPosition()));
-                layoutMarker.setX((float) globalVariable.getMyMap().getProjection().toScreenLocation(marker.getPosition()).x - layoutMarker.getWidth() / 2);
-                layoutMarker.setY((float) globalVariable.getMyMap().getProjection().toScreenLocation(marker.getPosition()).y - layoutMarker.getHeight() + 180);
+                /*layoutMarker.setX((float) globalVariable.getMyMap().getProjection().toScreenLocation(marker.getPosition()).x - layoutMarker.getWidth() / 2);
+                layoutMarker.setY((float) globalVariable.getMyMap().getProjection().toScreenLocation(marker.getPosition()).y - layoutMarker.getHeight() + 180);*/
                 TextView name = (TextView) layoutMarker.findViewById(R.id.titleOfMarker);
                 Log.d("tittle", name + "");
                 name.setText(marker.getTitle());
@@ -573,8 +575,15 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
                 }
 
 
-
+                Animation bottomUp = AnimationUtils.loadAnimation(getActivity().getApplicationContext(),
+                        R.anim.bottom_up);
+                layoutMarker.startAnimation(bottomUp);
                 layoutMarker.setVisibility(View.VISIBLE);
+                /*layoutMarker.setVisibility(View.VISIBLE);
+                layoutMarker.setAlpha(0.0f);
+                layoutMarker.animate()
+                        .translationY(1500)
+                        .alpha(1.0f);*/
                 return true;
             }
         });
@@ -594,7 +603,8 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
         //Log.d(AppController.TAG,"my map to"+myMap);
         globalVariable.getMyMap().setMyLocationEnabled(true);
 
-        globalVariable.getMyMap().setMapType(GoogleMap.MAP_TYPE_HYBRID);
+        //globalVariable.getMyMap().setMapType(GoogleMap.MAP_TYPE_HYBRID);
+        globalVariable.getMyMap().setMapType(GoogleMap.MAP_TYPE_NORMAL);
 
         Sender.putMarkersOnMapAgain(markers, globalVariable.getMyMap(),googleMarkers);
 
@@ -619,14 +629,14 @@ public class Mapka extends Fragment implements GoogleApiClient.ConnectionCallbac
         return new GoogleMap.OnCameraChangeListener() {
             @Override
             public void onCameraChange(CameraPosition position) {
-                if (ostatniMarker != null) {
-                    if (/*layoutMarker.getX() < 0 || */layoutMarker.getY() < (tabs.getY() + tabs.getMeasuredHeight() * 2) /*|| layoutMarker.getX() + layoutMarker.getWidth() > width || layoutMarker.getY() + layoutMarker.getHeight() > height*/) {
+                /*if (ostatniMarker != null) {
+                    if (*//*layoutMarker.getX() < 0 || *//*layoutMarker.getY() < (tabs.getY() + tabs.getMeasuredHeight() * 2) *//*|| layoutMarker.getX() + layoutMarker.getWidth() > width || layoutMarker.getY() + layoutMarker.getHeight() > height*//*) {
                         layoutMarker.setVisibility(View.GONE);
                     } else {
                         layoutMarker.setX((float) globalVariable.getMyMap().getProjection().toScreenLocation(ostatniMarker.getPosition()).x - layoutMarker.getWidth() / 2);
                         layoutMarker.setY((float) globalVariable.getMyMap().getProjection().toScreenLocation(ostatniMarker.getPosition()).y - layoutMarker.getHeight() + 180);
                     }
-                }
+                }*/
                 getActivity().findViewById(R.id.POIButtons).setVisibility(View.GONE);
                 //addItemsToMap(markers);
             }

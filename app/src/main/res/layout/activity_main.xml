@@ -1,159 +1,37 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v4.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/mainLayout"
+    android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
-
-
-
-    <RelativeLayout
-        android:id="@+id/panelLayout"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="@color/panel_blue2">
-
-        <ImageButton
-            android:id="@+id/circleButton"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_alignParentRight="true"
-            android:layout_marginBottom="5dp"
-            android:layout_marginRight="@dimen/activity_horizontal_margin"
-            android:layout_marginTop="5dp"
-            android:background="@drawable/circle_button"
-            android:clickable="true" />
-
-
-
-        <ImageButton
-            android:id="@+id/noticeButton"
-            android:layout_width="38dp"
-            android:layout_height="38dp"
-            android:layout_centerVertical="true"
-            android:layout_marginRight="20dp"
-            android:layout_toLeftOf="@id/circleButton"
-            android:background="@drawable/notice_button"
-            android:clickable="true" />
-
-        <!--<ImageButton
-            android:id="@+id/messageButton"
-            android:layout_width="38dp"
-            android:layout_height="38dp"
-            android:layout_centerVertical="true"
-            android:layout_marginRight="20dp"
-            android:layout_toLeftOf="@id/noticeButton"
-            android:background="@drawable/notice_button"
-            android:clickable="true" />-->
-
-    </RelativeLayout>
-
-    <com.nhaarman.supertooltips.ToolTipRelativeLayout
-        android:id="@+id/activity_main_tooltipRelativeLayout"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+    android:fitsSystemWindows="true"
+    tools:openDrawer="start">
 
     <LinearLayout
-        android:id="@+id/tabLayout"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/panelLayout">
+        android:id="@+id/layout_main"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-        <android.support.v4.app.FragmentTabHost
-            android:id="@android:id/tabhost"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent">
-
-            <LinearLayout
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
-                android:orientation="vertical">
-
-                <LinearLayout
-                    android:id="@+id/tabss"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@color/panel_tabs">
-
-                    <TabWidget
-                        android:id="@android:id/tabs"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="bottom" />
-
-                </LinearLayout>
-
-                <FrameLayout
-                    android:id="@android:id/tabcontent"
-                    android:layout_width="fill_parent"
-                    android:layout_height="fill_parent"
-                    android:paddingTop="1dp">
-
-                </FrameLayout>
-
-            </LinearLayout>
-
-        </android.support.v4.app.FragmentTabHost>
+        <include
+            layout="@layout/app_bar_main"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
     </LinearLayout>
-
-    <RelativeLayout
-        android:id="@+id/settingsLayout"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:layout_marginTop="@dimen/abc_action_bar_default_height_material"
-        android:visibility="invisible">
-
-        <fragment
-            android:id="@+id/settingsFragment"
-            android:name="zpi.squad.app.grouploc.SettingsFragment"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            tools:layout="@layout/fragment_settings" />
-    </RelativeLayout>
-
-    <Spinner
-        android:id="@+id/spinner"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentTop="true"
-        android:layout_below="@id/panelLayout"
-        android:layout_marginTop="55dp"
-        android:visibility="invisible" />
-
-    <Spinner
-        android:id="@+id/spinner2"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginTop="50dp"
-        android:visibility="invisible" />
-
-    <Spinner
-        android:id="@+id/spinner3"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginTop="50dp"
-        android:visibility="invisible" />
 
     <LinearLayout
         android:id="@+id/markerLayout"
         android:layout_width="250dp"
-        android:layout_height="wrap_content"
+        android:layout_height="150dp"
         android:background="@color/background_material_light"
         android:orientation="vertical"
         android:visibility="invisible"
         android:divider="@drawable/divider"
         android:showDividers="middle">
 
-
-
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="fill_parent">
+            android:layout_height="50dp">
 
             <TextView
                 android:id="@+id/titleOfMarker"
@@ -164,20 +42,11 @@
                 android:ellipsize="none"
                 android:maxLines="3"
                 android:scrollHorizontally="false"/>
-
-            <!--<Button
-                android:id="@+id/closeMarkerButton"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:clickable="true"
-                android:text="X"
-                android:textSize="8dp" />-->
-
         </RelativeLayout>
 
         <LinearLayout
-            android:layout_width="250dp"
-            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_height="100dp"
             android:orientation="horizontal">
 
             <ImageButton
@@ -188,10 +57,6 @@
                 android:src="@drawable/polyline"
                 android:scaleType="fitCenter"
                 android:layout_weight="1"/>
-            <!--<View
-                android:layout_width="1dp"
-                android:layout_height="match_parent"
-                android:background="#f6f6f6" />-->
 
             <ImageButton
                 android:id="@+id/secondButton"
@@ -202,11 +67,6 @@
                 android:scaleType="fitCenter"
                 android:layout_weight="1"/>
 
-            <!--<View
-                android:layout_width="1dp"
-                android:layout_height="match_parent"
-                android:background="#f6f6f6" />-->
-
             <ImageButton
                 android:id="@+id/fifthButton"
                 android:layout_width="0dp"
@@ -216,11 +76,6 @@
                 android:scaleType="fitCenter"
                 android:layout_weight="1"/>
 
-            <!--<View
-                android:layout_width="1dp"
-                android:layout_height="match_parent"
-                android:background="#f6f6f6" />-->
-
             <ImageButton
                 android:id="@+id/thirdButton"
                 android:layout_width="0dp"
@@ -229,11 +84,6 @@
                 android:clickable="true"
                 android:scaleType="fitCenter"
                 android:layout_weight="1"/>
-
-            <!--<View
-                android:layout_width="1dp"
-                android:layout_height="match_parent"
-                android:background="#f6f6f6" />-->
 
             <ImageButton
                 android:id="@+id/fourthButton"
@@ -248,4 +98,21 @@
     </LinearLayout>
 
 
-</RelativeLayout>
+    <android.support.design.widget.NavigationView
+        android:id="@+id/nav_view_left"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:fitsSystemWindows="true"
+        app:headerLayout="@layout/nav_header_main"
+        app:menu="@menu/activity_main_drawer" />
+
+    <android.support.design.widget.NavigationView
+        android:id="@+id/nav_view_right"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="end"
+        android:fitsSystemWindows="true"
+        app:headerLayout="@layout/nav_header_main_right"
+        app:menu="@menu/activity_main_drawer_right" />
+</android.support.v4.widget.DrawerLayout>

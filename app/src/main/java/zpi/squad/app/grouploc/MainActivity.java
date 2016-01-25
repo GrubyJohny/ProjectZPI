@@ -68,6 +68,7 @@ import com.parse.ParseException;
 import com.parse.ParseFacebookUtils;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -158,6 +159,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     private TextView navigationViewLeftFullName;
     NavigationView navigationViewRight;
 
+    MapFragment mapFragment;
+    SettingsFragment settingsFragment = new SettingsFragment();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -182,7 +186,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        MapFragment mapFragment = new MapFragment();
+        mapFragment = new MapFragment();
+        settingsFragment = new SettingsFragment();
         getSupportFragmentManager().beginTransaction().replace(R.id.main_container, mapFragment).commit();
 
         drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -243,7 +248,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
         POIScrollView = (ScrollView) findViewById(R.id.POIScroll);
 
-      //  toolTipRelativeLayout = (ToolTipRelativeLayout) findViewById(R.id.activity_main_tooltipRelativeLayout);
+        //  toolTipRelativeLayout = (ToolTipRelativeLayout) findViewById(R.id.activity_main_tooltipRelativeLayout);
 //        toolTipRelativeLayout.bringToFront();
 
         hintsL = session.getHintsLeft();
@@ -302,65 +307,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         friendEmailToolTipView.setOnToolTipViewClickedListener(MainActivity.this);
     }
 
-    private void tabhostInit() {
-        tabhost = (FragmentTabHost) findViewById(android.R.id.tabhost);
-        tabhost.setup(context, getSupportFragmentManager(), android.R.id.tabcontent);
-
-        tabhost.addTab(tabhost.newTabSpec("map").setIndicator("MAP"),
-                MapFragment.class, null);
-        tabhost.addTab(tabhost.newTabSpec("friends").setIndicator("FRIENDS"),
-                FriendsFragment.class, null);
-        /*tabhost.addTab(tabhost.newTabSpec("group").setIndicator("GROUP"),
-                GroupFragment.class, null);*/
-
-        tabhost.setOnTabChangedListener(new TabHost.OnTabChangeListener() {
-            @Override
-            public void onTabChanged(String tabId) {
-                if (tabhost.getCurrentTab() == 1) {
-                    if (hints == false) {
-                        hints = true;
-                        if (hintsL > 0) {
-                            final Handler myHandler1 = new Handler();
-
-                            myHandler1.postDelayed(new Runnable() {
-                                @Override
-                                public void run() {
-                                    new CountDownTimer(4000, 3999) {
-
-                                        @Override
-                                        public void onTick(long millisUntilFinished) {
-                                            if (friendEmailToolTipView == null) {
-                                                addFriendEmailToolTipView();
-                                            }
-                                        }
-
-                                        @Override
-                                        public void onFinish() {
-                                            if (friendEmailToolTipView != null) {
-                                                friendEmailToolTipView.remove();
-                                                friendEmailToolTipView = null;
-                                            }
-                                        }
-                                    }.start();
-                                }
-                            }, 3000);
-                        }
-                    }
-                } else {
-                    if (friendEmailToolTipView != null) {
-                        friendEmailToolTipView.remove();
-                        friendEmailToolTipView = null;
-                    }
-                }
-
-                layoutMarker.setVisibility(View.GONE);
-                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.hideSoftInputFromWindow(tabhost.getApplicationWindowToken(), 0);
-            }
-        });
-
-    }
-
     private void createLocationRequest() {
         mLocationRequest = new LocationRequest();
         mLocationRequest.setInterval(10000);
@@ -387,7 +333,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     }
 
     private void noticeAndMessageButtons() {
-      //  noticeButton = (ImageButton) findViewById(R.id.noticeButton);
+        //  noticeButton = (ImageButton) findViewById(R.id.noticeButton);
         Bitmap bMap = BitmapFactory.decodeResource(getResources(), R.drawable.notificon);
         Bitmap bMapScaled = Bitmap.createScaledBitmap(bMap, 150, 150, true);
         Bitmap bitmap_round = clipBitmap(bMapScaled, noticeButton);
@@ -402,35 +348,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         messageButton.setImageBitmap(bitmap_round1);*/
     }
 
-    private void mainSpinner() {
-       // spinner1 = (Spinner) findViewById(R.id.spinner);
-        String[] spinnerOptions = {"", "Settings", "Log out"};
-        ArrayAdapter<String> circleButtonOptions = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, spinnerOptions) {
-            @Override
-            public View getDropDownView(int position, View convertView, ViewGroup parent) {
-                View v = null;
-
-                // If this is the initial dummy entry, make it hidden
-                if (position == 0) {
-                    TextView tv = new TextView(getContext());
-                    tv.setHeight(0);
-                    tv.setVisibility(View.GONE);
-                    v = tv;
-                } else {
-                    // Pass convertView as null to prevent reuse of special case views
-                    v = super.getDropDownView(position, null, parent);
-                }
-
-                // Hide scroll bar because it appears sometimes unnecessarily, this does not prevent scrolling
-                parent.setVerticalScrollBarEnabled(false);
-                return v;
-            }
-        };
-        spinner1.setAdapter(circleButtonOptions);
-    }
-
     private void notifications() {
-       // spinner2 = (Spinner) findViewById(R.id.spinner2);
+        // spinner2 = (Spinner) findViewById(R.id.spinner2);
         readNotifications.add(0, new Notification("", "", "", "", "", "", "", "", 0));
         NotificationAdapter noticeButtonOptions = new NotificationAdapter(this, readNotifications) {
             @Override
@@ -457,13 +376,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         spinner2.setAdapter(noticeButtonOptions);
     }
 
-    private void messages() {
-      //  spinner3 = (Spinner) findViewById(R.id.spinner3);
-        String[] spinner3Options = {"message 1", "message 2", "message 3", "message 4"};
-        ArrayAdapter<String> messageButtonOptions = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, spinner3Options);
-        spinner3.setAdapter(messageButtonOptions);
-    }
-
     public void SettingButtons() {
         confirm = (Button) findViewById(R.id.confirmSettingsButton);
 
@@ -472,7 +384,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             public void onClick(View v) {
                 ParseFacebookUtils.initialize(MainActivity.this);
 
-                if(!ParseFacebookUtils.isLinked(ParseUser.getCurrentUser())) {
+                if (!ParseFacebookUtils.isLinked(ParseUser.getCurrentUser())) {
                     ParseFacebookUtils.linkWithReadPermissionsInBackground(ParseUser.getCurrentUser(), MainActivity.this, LoginActivity.permissions, new SaveCallback() {
                         @Override
                         public void done(ParseException e) {
@@ -482,9 +394,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                         }
                     });
 
-                }
-                else if(ParseFacebookUtils.isLinked(ParseUser.getCurrentUser())) {
-                    ParseFacebookUtils.unlinkInBackground(ParseUser.getCurrentUser(), new SaveCallback(){
+                } else if (ParseFacebookUtils.isLinked(ParseUser.getCurrentUser())) {
+                    ParseFacebookUtils.unlinkInBackground(ParseUser.getCurrentUser(), new SaveCallback() {
                         @Override
                         public void done(ParseException ex) {
                             if (ex == null) {
@@ -493,7 +404,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                         }
                     });
                 }
-
 
 
                 InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -762,9 +672,11 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         int id = item.getItemId();
         if (id == R.id.nav_about) {
 
-        } else if (id == R.id.nav_settings) {
-
-        } else if (id == R.id.nav_logout) {
+        }
+        else if (id == R.id.nav_settings) {
+            getSupportFragmentManager().beginTransaction().replace(R.id.main_container, settingsFragment).commit();
+        }
+        else if (id == R.id.nav_logout) {
             logOut();
         }
 

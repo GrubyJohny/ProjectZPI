@@ -106,7 +106,8 @@ public class SettingsFragment extends Fragment {
                         }
                     });
                 }
-
+                MapFragment mapFragment = new MapFragment();
+                getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.main_container, mapFragment).commit();
 
                 /*InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(tabhost.getApplicationWindowToken(), 0);
@@ -120,6 +121,8 @@ public class SettingsFragment extends Fragment {
         cancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                MapFragment mapFragment = new MapFragment();
+                getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.main_container, mapFragment).commit();
                 /*InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(tabhost.getApplicationWindowToken(), 0);
                 layoutSettings.setVisibility(View.INVISIBLE);

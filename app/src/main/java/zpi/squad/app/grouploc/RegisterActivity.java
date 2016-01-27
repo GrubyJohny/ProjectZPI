@@ -77,70 +77,67 @@ public class RegisterActivity extends Activity {
                             "Please enter your details!", Toast.LENGTH_SHORT).show();
                 } else if (name.isEmpty() && email.isEmpty() && !password.isEmpty()) {
                     Toast.makeText(getApplicationContext(),
-                            "Please enter your name and login address", Toast.LENGTH_SHORT).show();
+                            "Please enter your name and email address", Toast.LENGTH_SHORT).show();
                 } else if (name.isEmpty() && !email.isEmpty() && password.isEmpty()) {
                     Toast.makeText(getApplicationContext(),
                             "Please enter your name and password", Toast.LENGTH_SHORT).show();
                 } else if (!name.isEmpty() && email.isEmpty() && password.isEmpty()) {
                     Toast.makeText(getApplicationContext(),
-                            "Please enter your login and password", Toast.LENGTH_SHORT).show();
+                            "Please enter your email and password", Toast.LENGTH_SHORT).show();
                 } else if (name.isEmpty() && !email.isEmpty() && !password.isEmpty()) {
                     Toast.makeText(getApplicationContext(),
                             "Please enter your name", Toast.LENGTH_SHORT).show();
                 } else if (!name.isEmpty() && email.isEmpty() && !password.isEmpty()) {
                     Toast.makeText(getApplicationContext(),
-                            "Please enter your login", Toast.LENGTH_SHORT).show();
+                            "Please enter your email", Toast.LENGTH_SHORT).show();
                 } else if (!name.isEmpty() && !email.isEmpty() && password.isEmpty()) {
                     Toast.makeText(getApplicationContext(),
                             "Please enter your password", Toast.LENGTH_SHORT).show();
-                } else if (!name.isEmpty() && !email.isEmpty() && !password.isEmpty())
-                                        {
+                } else if (!name.isEmpty() && !email.isEmpty() && !password.isEmpty()) {
+                    if(email.trim().length() > 2 && email.contains("@") && email.contains(".")) {
+                        showDialog();
+                        try {
+                            Parse.initialize(getApplicationContext(), AppConfig.PARSE_APPLICATION_ID, AppConfig.PARSE_CLIENT_KEY);
+                        } catch (Exception e) {
+                            e.getLocalizedMessage();
+                            e.printStackTrace();
+                        }
+                        ParseInstallation installation = ParseInstallation.getCurrentInstallation();
 
-                                            showDialog();
-                                            try {
-                                                Parse.initialize(getApplicationContext(), AppConfig.PARSE_APPLICATION_ID, AppConfig.PARSE_CLIENT_KEY);
+                        ParseUser user = new ParseUser();
+                        user.setUsername(email);
+                        user.setEmail(email);
+                        user.setPassword(password);
+                        user.put("name", name);
+                        user.put("photo", session.encodeBitmapTobase64(BitmapFactory.decodeResource(getResources(), R.drawable.image5)));
 
-                                            } catch (Exception e) {
-                                                e.getLocalizedMessage();
-                                                e.printStackTrace();
-                                            }
-                                            ParseInstallation installation = ParseInstallation.getCurrentInstallation();
-
-                                            ParseUser user = new ParseUser();
-                                            user.setUsername(email);
-                                            user.setEmail(email);
-                                            user.setPassword(password);
-                                            user.put("name", name);
-                                            user.put("photo", session.encodeBitmapTobase64(BitmapFactory.decodeResource(getResources(), R.drawable.image5)) );
-
-                                            try {
-                                                user.signUp();
-                                                registrationSuccessfully = true;
-                                            } catch (Exception e) {
-
-                                                if (e.getMessage().contains("already been taken"))
-                                                    Toast.makeText(getApplicationContext(), "Email already in use, please log in or use other email", Toast.LENGTH_LONG).show();
-                                                else if (e.getMessage().contains("invalid email address"))
-                                                    Toast.makeText(getApplicationContext(), "Invalid email address!", Toast.LENGTH_LONG).show();
-                                                else
-                                                    e.printStackTrace();
-                                            } finally {
-                                                hideDialog();
-                                                if (registrationSuccessfully)
-                                                    Toast.makeText(getApplicationContext(), "Registration successfully!", Toast.LENGTH_LONG).show();
-
-                                                Intent intent = new Intent(RegisterActivity.this,
-                                                        LoginActivity.class);
-                                                startActivity(intent);
-
-                                            }
-
-
-                                        } else {
-                                            Toast.makeText(getApplicationContext(),
-                                                    "Please enter your details!", Toast.LENGTH_LONG)
-                                                    .show();
-                                        }
+                        try {
+                            user.signUp();
+                            registrationSuccessfully = true;
+                        } catch (Exception e) {
+                            System.out.println(e.getMessage());
+                            if (e.getMessage().contains("already taken"))
+                                Toast.makeText(getApplicationContext(), "Email already in use, please log in or use other email", Toast.LENGTH_LONG).show();
+                            else if (e.getMessage().contains("invalid email address"))
+                                Toast.makeText(getApplicationContext(), "Invalid email address!", Toast.LENGTH_LONG).show();
+                            else
+                                e.printStackTrace();
+                        } finally {
+                            hideDialog();
+                            if (registrationSuccessfully) {
+                                Toast.makeText(getApplicationContext(), "Registration successfully!", Toast.LENGTH_LONG).show();
+                                finish();
+                            }
+                        }
+                    }
+                    else{
+                        Toast.makeText(getApplicationContext(), "This is not valid email address!", Toast.LENGTH_LONG).show();
+                    }
+                } else {
+                    Toast.makeText(getApplicationContext(),
+                            "Please enter your details!", Toast.LENGTH_LONG)
+                            .show();
+                }
             }
         });
 
@@ -148,9 +145,6 @@ public class RegisterActivity extends Activity {
         btnLinkToLogin.setOnClickListener(new View.OnClickListener() {
 
             public void onClick(View view) {
-                Intent i = new Intent(getApplicationContext(),
-                        LoginActivity.class);
-                startActivity(i);
                 finish();
             }
         });

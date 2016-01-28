@@ -69,11 +69,9 @@ public class LoginActivity extends Activity {
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
 
-        try{
+        try {
             Parse.initialize(this, AppConfig.PARSE_APPLICATION_ID, AppConfig.PARSE_CLIENT_KEY);
-        }
-        catch(Exception e)
-        {
+        } catch (Exception e) {
             // e.printStackTrace();
         }
 
@@ -87,12 +85,23 @@ public class LoginActivity extends Activity {
         db = new SQLiteHandler(getApplicationContext());
 
         btnLogin.setOnClickListener(new View.OnClickListener() {
-
             public void onClick(View view) {
                 String email = inputEmail.getText().toString().trim();
                 String password = inputPassword.getText().toString();
 
-                if (email.trim().length() > 2 && password.trim().length() > 0 && email.contains("@") && email.contains(".")) {
+                if(!email.isEmpty() && password.isEmpty()){
+                    Toast.makeText(getApplicationContext(),
+                            "Please enter password!", Toast.LENGTH_LONG).show();
+                }
+                else if(email.isEmpty() && !password.isEmpty()){
+                    Toast.makeText(getApplicationContext(),
+                            "Please enter your email address", Toast.LENGTH_LONG).show();
+                }
+                else if(email.isEmpty() && password.isEmpty()){
+                    Toast.makeText(getApplicationContext(),
+                            "Please enter the credentials!", Toast.LENGTH_LONG).show();
+                }
+                else {
                     if (AppController.checkConn(LoginActivity.this.getApplication())) {
                         checkLogin(email, password);
                     } else {
@@ -100,14 +109,10 @@ public class LoginActivity extends Activity {
                                 "No connection to internet detected. Unfortunately it's is impossible to login", Toast.LENGTH_LONG).show();
                     }
 
-                } else {
-                    Toast.makeText(getApplicationContext(),
-                            "Please enter the credentials!", Toast.LENGTH_LONG).show();
                 }
             }
 
         });
-
 
 
         permissions.add("public_profile");
@@ -115,39 +120,29 @@ public class LoginActivity extends Activity {
 
         btnLoginWithFacebook.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view)
-            {
+            public void onClick(View view) {
 
                 ParseFacebookUtils.initialize(context);
-                ParseFacebookUtils.logInWithReadPermissionsInBackground(LoginActivity.this, permissions, new LogInCallback()
-                {
+                ParseFacebookUtils.logInWithReadPermissionsInBackground(LoginActivity.this, permissions, new LogInCallback() {
                     @Override
                     public void done(final ParseUser user, ParseException err) {
-                        if (user == null)
-                        {
+                        if (user == null) {
                             Log.d("MyApp", "Uh oh. The user cancelled the Facebook login.");
-                        }
-                        else if (user.isNew())
-                        {
-                            try
-                            {
+                        } else if (user.isNew()) {
+                            try {
                                 String[] tempInfo = getFacebookUserInfo(AccessToken.getCurrentAccessToken());
                                 user.setEmail(tempInfo[0]);
                                 user.put("name", tempInfo[1]);
-                                    try {
-                                        user.put("photo", session.encodeBitmapTobase64(getFacebookProfilePicture(AccessToken.getCurrentAccessToken())));
-                                    }
-                                    catch(Exception e)
-                                    {
-                                        e.getLocalizedMessage();
-                                        e.printStackTrace();
-                                        user.put("photo", session.encodeBitmapTobase64(BitmapFactory.decodeResource(getResources(), R.drawable.image5)));
-                                    }
+                                try {
+                                    user.put("photo", session.encodeBitmapTobase64(getFacebookProfilePicture(AccessToken.getCurrentAccessToken())));
+                                } catch (Exception e) {
+                                    e.getLocalizedMessage();
+                                    e.printStackTrace();
+                                    user.put("photo", session.encodeBitmapTobase64(BitmapFactory.decodeResource(getResources(), R.drawable.image5)));
+                                }
 
                                 user.save();
-                            }
-                            catch(Exception e)
-                            {
+                            } catch (Exception e) {
                                 e.getLocalizedMessage();
                                 e.printStackTrace();
                             }
@@ -188,11 +183,7 @@ public class LoginActivity extends Activity {
                 }
             }
         });
-
-
-
     }
-
 
 
     @Override
@@ -220,8 +211,7 @@ public class LoginActivity extends Activity {
         } catch (ParseException e) {
             if (e.getMessage().contains("invalid login parameters"))
                 Toast.makeText(context, "Incorrect email or password", Toast.LENGTH_LONG).show();
-            else
-            {
+            else {
                 e.getLocalizedMessage();
                 e.printStackTrace();
             }
@@ -271,9 +261,9 @@ public class LoginActivity extends Activity {
         params.putBoolean("redirect", false);
         params.putInt("height", 100);
         params.putInt("width", 100);
-        GraphResponse srequest =  new GraphRequest(
+        GraphResponse srequest = new GraphRequest(
                 AccessToken.getCurrentAccessToken(),
-                "/"+accessToken.getUserId()+"/picture",
+                "/" + accessToken.getUserId() + "/picture",
                 params,
                 HttpMethod.GET,
                 new GraphRequest.Callback() {
@@ -300,7 +290,4 @@ public class LoginActivity extends Activity {
 
         return profileImageFromFacebook;
     }
-
-
-
 }

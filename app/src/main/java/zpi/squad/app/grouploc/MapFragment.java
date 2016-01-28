@@ -388,7 +388,6 @@ public class MapFragment extends Fragment implements GoogleApiClient.ConnectionC
             m.remove();
 
         }
-
     }
     public void deleteRoute(String tag)
     {
@@ -396,12 +395,10 @@ public class MapFragment extends Fragment implements GoogleApiClient.ConnectionC
         route.remove();
     }
 
-
     class AsyncTaskRunner extends AsyncTask<String, String, String> {
         @Override
         protected String doInBackground(String... params) {
             try {
-
                 preparePoiPoints();
                 //Log.d("POI JOHNY", "poi gotowe");
                 poiIsUpToDate = true;
@@ -416,7 +413,6 @@ public class MapFragment extends Fragment implements GoogleApiClient.ConnectionC
         @Override
         protected void onPostExecute(String result) {
             // execution of result of Long time consuming operation
-
         }
 
         @Override
@@ -427,12 +423,10 @@ public class MapFragment extends Fragment implements GoogleApiClient.ConnectionC
 
         @Override
         protected void onProgressUpdate(String... text) {
-
             // Things to be done while execution of long running operation is in
             // progress. For example updating ProgessDialog
         }
     }
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -447,8 +441,6 @@ public class MapFragment extends Fragment implements GoogleApiClient.ConnectionC
         /* map is already there, just return view as it is */
         }
         return view;
-
-        // return inflater.inflate(R.layout.fragment_mapka, container, false);
     }
 
     @Override

@@ -156,7 +156,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     NavigationView navigationViewRight;
 
     MapFragment mapFragment;
-    SettingsFragment settingsFragment;
+    ChangePhotoFragment changePhotoFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -183,7 +183,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         setSupportActionBar(toolbar);
 
         mapFragment = new MapFragment();
-        settingsFragment = new SettingsFragment();
+        changePhotoFragment = new ChangePhotoFragment();
         getSupportFragmentManager().beginTransaction().replace(R.id.main_container, mapFragment).commit();
 
         drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -665,13 +665,15 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
-        // Handle navigation view item clicks here.
         int id = item.getItemId();
         if (id == R.id.nav_about) {
 
         }
-        else if (id == R.id.nav_settings) {
-            getSupportFragmentManager().beginTransaction().replace(R.id.main_container, settingsFragment).commit();
+        else if(id == R.id.nav_password){
+
+        }
+        else if (id == R.id.nav_photo) {
+            getSupportFragmentManager().beginTransaction().replace(R.id.main_container, changePhotoFragment).commit();
         }
         else if (id == R.id.nav_logout) {
             logOut();

@@ -26,7 +26,7 @@ import com.parse.SaveCallback;
 
 import java.io.ByteArrayOutputStream;
 
-public class SettingsFragment extends Fragment {
+public class ChangePhotoFragment extends Fragment {
     private static View view;
     private Button confirm;
     private Button cancel;
@@ -39,7 +39,7 @@ public class SettingsFragment extends Fragment {
     private static final int CROP_IMAGE = 3;
     Bitmap profilePictureRaw;
 
-    public SettingsFragment() {
+    public ChangePhotoFragment() {
         // Required empty public constructor
     }
 

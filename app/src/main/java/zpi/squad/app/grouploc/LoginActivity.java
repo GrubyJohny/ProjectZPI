@@ -150,10 +150,15 @@ public class LoginActivity extends Activity {
 
                         ParseUser current = ParseUser.getCurrentUser();
 
-                        session.setUserEmail(current.getEmail());
-                        session.setUserName(current.get("name").toString());
-                        session.setUserPhoto(current.get("photo").toString());
-                        session.setUserId(current.getObjectId());
+
+                        try {
+                            session.setUserEmail(current.fetchIfNeeded().getEmail());
+                            session.setUserName(current.fetchIfNeeded().get("name").toString());
+                            session.setUserPhoto(current.fetchIfNeeded().get("photo").toString());
+                            session.setUserId(current.fetchIfNeeded().getObjectId());
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
 
                         session.setLogin(true);
                         Intent intent = new Intent(LoginActivity.this, MainActivity.class);

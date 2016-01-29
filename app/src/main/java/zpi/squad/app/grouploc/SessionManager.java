@@ -58,9 +58,10 @@ public class SessionManager {
     private static String userEmail = "email";
     private static String userPhoto = "photo";
     private static Boolean userIsLoggedIn = false;
+    private static Boolean userIsLoggedByFacebook = false;
 
 
-    public void setLogin(boolean isLoggedIn) {
+    public void setLoggedIn(boolean isLoggedIn) {
         userIsLoggedIn = isLoggedIn;
     }
 
@@ -80,9 +81,11 @@ public class SessionManager {
         userPhoto = photo;
     }
 
-    public boolean isLoggedIn() {
-        return userIsLoggedIn;
-    }
+    public void setUserIsLoggedByFacebook(boolean cond) { userIsLoggedByFacebook = cond; }
+
+    public boolean isLoggedByFacebook() { return userIsLoggedByFacebook; }
+
+    public boolean isLoggedIn() { return userIsLoggedIn; }
 
     public String getUserId() {
         return userId;
@@ -102,6 +105,7 @@ public class SessionManager {
 
     public void logOut() {
         userIsLoggedIn = false;
+        userIsLoggedByFacebook = false;
         ParseUser.logOut();
         friends = null;
     }

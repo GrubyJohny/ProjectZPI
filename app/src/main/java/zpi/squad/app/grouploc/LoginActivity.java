@@ -7,7 +7,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.StrictMode;
-import android.util.Base64InputStream;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -16,7 +15,6 @@ import android.widget.Toast;
 
 import com.facebook.AccessToken;
 import com.facebook.GraphRequest;
-import com.facebook.GraphRequestAsyncTask;
 import com.facebook.GraphResponse;
 import com.facebook.HttpMethod;
 import com.parse.LogInCallback;
@@ -25,14 +23,12 @@ import com.parse.ParseException;
 import com.parse.ParseFacebookUtils;
 import com.parse.ParseUser;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.sql.Array;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -49,6 +45,7 @@ public class LoginActivity extends Activity {
     public static Context context;
     public static List<String> permissions = new ArrayList<>();
     private Bitmap profileImageFromFacebook;
+    private SessionManager session;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -58,8 +55,9 @@ public class LoginActivity extends Activity {
 
 
         context = getApplicationContext();
-        final SessionManager session = SessionManager.getInstance(context);
-        if (SessionManager.getInstance(context).isLoggedIn()) {
+        session = SessionManager.getInstance(context);
+
+        if (session.isLoggedIn()) {
             Intent intent = new Intent(LoginActivity.this, MainActivity.class);
             finish();
             startActivity(intent);
@@ -156,11 +154,12 @@ public class LoginActivity extends Activity {
                             session.setUserName(current.fetchIfNeeded().get("name").toString());
                             session.setUserPhoto(current.fetchIfNeeded().get("photo").toString());
                             session.setUserId(current.fetchIfNeeded().getObjectId());
+                            session.setUserIsLoggedByFacebook(true);
                         } catch (ParseException e) {
                             e.printStackTrace();
                         }
 
-                        session.setLogin(true);
+                        session.setLoggedIn(true);
                         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                         finish();
                         startActivity(intent);
@@ -204,14 +203,14 @@ public class LoginActivity extends Activity {
             ParseUser.logIn(email, password);
             Toast.makeText(context, "Success!", Toast.LENGTH_LONG).show();
 
-            ParseUser current = ParseUser.getCurrentUser();
+            ParseUser current = ParseUser.getCurrentUser().fetchIfNeeded();
             if (current != null) {
 
-                SessionManager.getInstance(context).setUserEmail(email);
-                SessionManager.getInstance().setUserName(current.get("name").toString());
-                SessionManager.getInstance().setUserPhoto(current.get("photo").toString());
-                SessionManager.getInstance().setUserId(current.getObjectId());
-                SessionManager.getInstance().setLogin(true);
+                session.setUserEmail(email);
+                session.setUserName(current.get("name").toString());
+                session.setUserPhoto(current.get("photo").toString());
+                session.setUserId(current.getObjectId());
+                session.setLoggedIn(true);
             }
         } catch (ParseException e) {
             if (e.getMessage().contains("invalid login parameters"))
@@ -221,7 +220,7 @@ public class LoginActivity extends Activity {
                 e.printStackTrace();
             }
         } finally {
-            if (SessionManager.getInstance().isLoggedIn()) {
+            if (session.isLoggedIn()) {
                 Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                 finish();
                 startActivity(intent);

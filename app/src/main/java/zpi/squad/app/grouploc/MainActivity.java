@@ -22,8 +22,6 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.CountDownTimer;
-import android.os.Handler;
 import android.os.StrictMode;
 import android.os.Vibrator;
 import android.provider.MediaStore;
@@ -37,14 +35,12 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ScrollView;
 import android.widget.Spinner;
-import android.widget.TabHost;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -155,12 +151,12 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     int hintsL;
     DrawerLayout drawer;
     NavigationView navigationViewLeft;
-    private ImageView navigationViewLeftProfilePicutre;
+    private ImageView navigationViewLeftProfilePicture;
     private TextView navigationViewLeftFullName;
     NavigationView navigationViewRight;
 
     MapFragment mapFragment;
-    SettingsFragment settingsFragment = new SettingsFragment();
+    SettingsFragment settingsFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -199,8 +195,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         navigationViewLeft = (NavigationView) findViewById(R.id.nav_view_left);
         navigationViewLeft.setNavigationItemSelectedListener(this);
 
-        navigationViewLeftProfilePicutre = (ImageView) findViewById(R.id.profilePicture);
-        navigationViewLeftProfilePicutre.setImageBitmap(session.decodeBase64ToBitmap(session.getUserPhoto()));
+        navigationViewLeftProfilePicture = (ImageView) findViewById(R.id.profilePicture);
+        Bitmap mainPhoto = clipBitmap(session.decodeBase64ToBitmap(session.getUserPhoto()), navigationViewLeftProfilePicture);
+        navigationViewLeftProfilePicture.setImageBitmap(mainPhoto);
 
         navigationViewLeftFullName = (TextView) findViewById(R.id.Fullname);
         navigationViewLeftFullName.setText(session.getUserName());
@@ -766,7 +763,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
     }
 
-    public Bitmap clipBitmap(Bitmap bitmap, ImageButton x) {
+    public Bitmap clipBitmap(Bitmap bitmap, ImageView x) {
         if (bitmap == null)
             return null;
         final int width = x.getLayoutParams().width;

@@ -5,6 +5,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.InflateException;
 import android.view.LayoutInflater;
@@ -20,6 +21,8 @@ import com.parse.SaveCallback;
 public class ChangePasswordFragment extends Fragment {
     private static View view;
     private Button confirm;
+    final static String mapTAG = "MAP";
+    final static String passwordTAG = "PASSWORD";
 
     public ChangePasswordFragment() {
         // Required empty public constructor
@@ -63,8 +66,7 @@ public class ChangePasswordFragment extends Fragment {
         confirm.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                MapFragment mapFragment = new MapFragment();
-                getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.main_container, mapFragment).commit();
+                getActivity().getSupportFragmentManager().popBackStack();
 
                 /*InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(tabhost.getApplicationWindowToken(), 0);*/

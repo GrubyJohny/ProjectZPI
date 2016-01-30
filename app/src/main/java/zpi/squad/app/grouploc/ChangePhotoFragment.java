@@ -12,12 +12,9 @@ import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.InflateException;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
-import android.widget.EditText;
 
 import com.parse.ParseException;
 import com.parse.ParseFacebookUtils;
@@ -28,8 +25,6 @@ import java.io.ByteArrayOutputStream;
 
 public class ChangePhotoFragment extends Fragment {
     private static View view;
-    private Button confirm;
-    private Button cancel;
     private Button changeImgFromGallery;
     private Button changeImgFromCamera;
     private Button changeImgFromFacebook;
@@ -56,7 +51,7 @@ public class ChangePhotoFragment extends Fragment {
                 parent.removeView(view);
         }
         try {
-            view = inflater.inflate(R.layout.fragment_settings, container, false);
+            view = inflater.inflate(R.layout.fragment_photo_change, container, false);
         } catch (InflateException e) {
 
         }
@@ -79,57 +74,6 @@ public class ChangePhotoFragment extends Fragment {
     }
 
     public void settingButtons() {
-        confirm = (Button) getActivity().findViewById(R.id.confirmSettingsButton);
-
-        confirm.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ParseFacebookUtils.initialize(getActivity());
-
-                if (!ParseFacebookUtils.isLinked(ParseUser.getCurrentUser())) {
-                    ParseFacebookUtils.linkWithReadPermissionsInBackground(ParseUser.getCurrentUser(), getActivity(), LoginActivity.permissions, new SaveCallback() {
-                        @Override
-                        public void done(ParseException e) {
-                            if (ParseFacebookUtils.isLinked(ParseUser.getCurrentUser())) {
-                                Log.d("HURRA", "Woohoo, user logged in with Facebook!");
-                            }
-                        }
-                    });
-
-                } else if (ParseFacebookUtils.isLinked(ParseUser.getCurrentUser())) {
-                    ParseFacebookUtils.unlinkInBackground(ParseUser.getCurrentUser(), new SaveCallback() {
-                        @Override
-                        public void done(ParseException ex) {
-                            if (ex == null) {
-                                Log.d("NIE HURRA", "The user is no longer associated with their Facebook account.");
-                            }
-                        }
-                    });
-                }
-                MapFragment mapFragment = new MapFragment();
-                getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.main_container, mapFragment).commit();
-
-                /*InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.hideSoftInputFromWindow(tabhost.getApplicationWindowToken(), 0);
-                layoutSettings.setVisibility(View.INVISIBLE);
-                tabLayout.setVisibility(View.VISIBLE);*/
-            }
-        });
-
-        cancel = (Button) getActivity().findViewById(R.id.cancelSettingsButton);
-
-        cancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                MapFragment mapFragment = new MapFragment();
-                getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.main_container, mapFragment).commit();
-                /*InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.hideSoftInputFromWindow(tabhost.getApplicationWindowToken(), 0);
-                layoutSettings.setVisibility(View.INVISIBLE);
-                tabLayout.setVisibility(View.VISIBLE);*/
-            }
-        });
-
         changeImgFromGallery = (Button) getActivity().findViewById(R.id.changeImgFromGalleryButton);
         changeImgFromGallery.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -145,7 +89,6 @@ public class ChangePhotoFragment extends Fragment {
                 intent.putExtra("outputY", 500);
 
                 try {
-
                     intent.putExtra("return-data", true);
                     startActivityForResult(Intent.createChooser(intent,
                             "Complete action using"), PICK_FROM_GALLERY);
@@ -154,8 +97,6 @@ public class ChangePhotoFragment extends Fragment {
 
                 }
             }
-
-
         });
 
         changeImgFromCamera = (Button) getActivity().findViewById(R.id.changeImgFromCameraButton);
@@ -186,21 +127,16 @@ public class ChangePhotoFragment extends Fragment {
         });
 
         changeImgFromFacebook = (Button) getActivity().findViewById(R.id.buttonImageFromFacebook);
-
-        changeImgFromFacebook.setOnClickListener(new View.OnClickListener()
-
-                                                 {
+        changeImgFromFacebook.setOnClickListener(new View.OnClickListener() {
                                                      @Override
                                                      public void onClick(View v) {
 
                                                          Bitmap toCrop = null;
                                                          String previouslyEncodedImage = "";
-/*
-                                                         if (shre.getString("facebook_image_data", "") != "") {
+                                                         /*if (shre.getString("facebook_image_data", "") != "") {
                                                              previouslyEncodedImage = shre.getString("facebook_image_data", "");
                                                              toCrop = decodeBase64ToBitmap(previouslyEncodedImage);
-                                                         }
-*/
+                                                         }*/
 
                                                          Uri uri = getImageUri(getActivity().getApplicationContext(), toCrop);
                                                          Intent cropIntent = new Intent("com.android.camera.action.CROP");
@@ -216,7 +152,6 @@ public class ChangePhotoFragment extends Fragment {
                                                          startActivityForResult(cropIntent, CROP_IMAGE);
                                                      }
                                                  }
-
         );
 
         changeImgFromAdjust = (Button) getActivity().findViewById(R.id.buttonImageFromAdjust);

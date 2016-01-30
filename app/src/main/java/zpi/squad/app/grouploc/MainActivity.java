@@ -157,6 +157,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
     MapFragment mapFragment;
     ChangePhotoFragment changePhotoFragment;
+    ChangePasswordFragment changePasswordFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -184,6 +185,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
         mapFragment = new MapFragment();
         changePhotoFragment = new ChangePhotoFragment();
+        changePasswordFragment = new ChangePasswordFragment();
         getSupportFragmentManager().beginTransaction().replace(R.id.main_container, mapFragment).commit();
 
         drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -410,7 +412,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             }
         });
 
-        cancel = (Button) findViewById(R.id.cancelSettingsButton);
+        /*cancel = (Button) findViewById(R.id.cancelSettingsButton);
 
         cancel.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -420,7 +422,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 layoutSettings.setVisibility(View.INVISIBLE);
                 tabLayout.setVisibility(View.VISIBLE);
             }
-        });
+        });*/
 
         changeImgFromGallery = (Button) findViewById(R.id.changeImgFromGalleryButton);
         changeImgFromGallery.setOnClickListener(new View.OnClickListener() {
@@ -670,7 +672,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
         }
         else if(id == R.id.nav_password){
-
+            getSupportFragmentManager().beginTransaction().replace(R.id.main_container, changePasswordFragment).commit();
         }
         else if (id == R.id.nav_photo) {
             getSupportFragmentManager().beginTransaction().replace(R.id.main_container, changePhotoFragment).commit();

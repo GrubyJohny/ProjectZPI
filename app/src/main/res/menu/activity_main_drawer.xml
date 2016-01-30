@@ -3,9 +3,13 @@
 
     <group android:checkableBehavior="single">
         <item
-            android:id="@+id/nav_settings"
+            android:id="@+id/nav_photo"
             android:icon="@drawable/ic_settings"
-            android:title="Settings" />
+            android:title="Change photo" />
+        <item
+            android:id="@+id/nav_password"
+            android:icon="@drawable/ic_settings"
+            android:title="Change password" />
     </group>
 
     <group android:checkableBehavior="single">
@@ -18,6 +22,4 @@
                 android:icon="@drawable/ic_logout"
                 android:title="Logout" />
     </group>
-
-
 </menu>

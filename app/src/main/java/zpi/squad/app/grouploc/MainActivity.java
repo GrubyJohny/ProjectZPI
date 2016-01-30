@@ -22,8 +22,6 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.CountDownTimer;
-import android.os.Handler;
 import android.os.StrictMode;
 import android.os.Vibrator;
 import android.provider.MediaStore;
@@ -37,14 +35,12 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ScrollView;
 import android.widget.Spinner;
-import android.widget.TabHost;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -155,12 +151,13 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     int hintsL;
     DrawerLayout drawer;
     NavigationView navigationViewLeft;
-    private ImageView navigationViewLeftProfilePicutre;
+    private ImageView navigationViewLeftProfilePicture;
     private TextView navigationViewLeftFullName;
     NavigationView navigationViewRight;
 
     MapFragment mapFragment;
-    SettingsFragment settingsFragment = new SettingsFragment();
+    ChangePhotoFragment changePhotoFragment;
+    ChangePasswordFragment changePasswordFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -187,7 +184,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         setSupportActionBar(toolbar);
 
         mapFragment = new MapFragment();
-        settingsFragment = new SettingsFragment();
+        changePhotoFragment = new ChangePhotoFragment();
+        changePasswordFragment = new ChangePasswordFragment();
         getSupportFragmentManager().beginTransaction().replace(R.id.main_container, mapFragment).commit();
 
         drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -199,8 +197,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         navigationViewLeft = (NavigationView) findViewById(R.id.nav_view_left);
         navigationViewLeft.setNavigationItemSelectedListener(this);
 
-        navigationViewLeftProfilePicutre = (ImageView) findViewById(R.id.profilePicture);
-        navigationViewLeftProfilePicutre.setImageBitmap(session.decodeBase64ToBitmap(session.getUserPhoto()));
+        navigationViewLeftProfilePicture = (ImageView) findViewById(R.id.profilePicture);
+        Bitmap mainPhoto = clipBitmap(session.decodeBase64ToBitmap(session.getUserPhoto()), navigationViewLeftProfilePicture);
+        navigationViewLeftProfilePicture.setImageBitmap(mainPhoto);
 
         navigationViewLeftFullName = (TextView) findViewById(R.id.Fullname);
         navigationViewLeftFullName.setText(session.getUserName());
@@ -413,7 +412,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             }
         });
 
-        cancel = (Button) findViewById(R.id.cancelSettingsButton);
+        /*cancel = (Button) findViewById(R.id.cancelSettingsButton);
 
         cancel.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -423,7 +422,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 layoutSettings.setVisibility(View.INVISIBLE);
                 tabLayout.setVisibility(View.VISIBLE);
             }
-        });
+        });*/
 
         changeImgFromGallery = (Button) findViewById(R.id.changeImgFromGalleryButton);
         changeImgFromGallery.setOnClickListener(new View.OnClickListener() {
@@ -668,13 +667,15 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
-        // Handle navigation view item clicks here.
         int id = item.getItemId();
         if (id == R.id.nav_about) {
 
         }
-        else if (id == R.id.nav_settings) {
-            getSupportFragmentManager().beginTransaction().replace(R.id.main_container, settingsFragment).commit();
+        else if(id == R.id.nav_password){
+            getSupportFragmentManager().beginTransaction().replace(R.id.main_container, changePasswordFragment).commit();
+        }
+        else if (id == R.id.nav_photo) {
+            getSupportFragmentManager().beginTransaction().replace(R.id.main_container, changePhotoFragment).commit();
         }
         else if (id == R.id.nav_logout) {
             logOut();
@@ -766,7 +767,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
     }
 
-    public Bitmap clipBitmap(Bitmap bitmap, ImageButton x) {
+    public Bitmap clipBitmap(Bitmap bitmap, ImageView x) {
         if (bitmap == null)
             return null;
         final int width = x.getLayoutParams().width;

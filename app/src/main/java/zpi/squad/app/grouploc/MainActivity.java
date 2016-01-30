@@ -214,13 +214,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             buildAlertMessageNoGps();
         }
 
-        //circleButton = (ImageButton) findViewById(R.id.circleButton);
 
-        searchingGroupText = (EditText) findViewById(R.id.searchingGroupText);
-
-//        tabhostInit();
-
-//        mainSpinner();
 //        notifications();
 //        messages();
 //        setupCircleButtonWithProfileImage();
@@ -230,10 +224,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 //        addListenerOnSpinner();
 //        addListenerOnSpinner2();
 //        addListenerOnSpinner3();
-
-        layoutSettings = (View) findViewById(R.id.settingsLayout);
-
-//        SettingButtons();
 
         layoutMarker = (View) findViewById(R.id.markerLayout);
 
@@ -313,24 +303,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
     }
 
-    private void setupCircleButtonWithProfileImage() {
-        Bitmap icon = null;
-
-        try {
-            icon = session.decodeBase64ToBitmap(SessionManager.getInstance(context).getUserPhoto());
-        } catch (Exception e) {
-
-        }
-
-        //w razie gdyby nie bylo zadnego zdjecia, to dziwny domyslny ryj laduje na profilowym
-        if (icon == null)
-            icon = BitmapFactory.decodeResource(getResources(), R.drawable.image3);
-
-        bitmap_round = clipBitmap(icon, circleButton);
-        circleButton.setImageBitmap(bitmap_round);
-
-    }
-
     private void noticeAndMessageButtons() {
         //  noticeButton = (ImageButton) findViewById(R.id.noticeButton);
         Bitmap bMap = BitmapFactory.decodeResource(getResources(), R.drawable.notificon);
@@ -373,167 +345,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         };
         ;
         spinner2.setAdapter(noticeButtonOptions);
-    }
-
-    public void SettingButtons() {
-        confirm = (Button) findViewById(R.id.confirmSettingsButton);
-
-        confirm.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ParseFacebookUtils.initialize(MainActivity.this);
-
-                if (!ParseFacebookUtils.isLinked(ParseUser.getCurrentUser())) {
-                    ParseFacebookUtils.linkWithReadPermissionsInBackground(ParseUser.getCurrentUser(), MainActivity.this, LoginActivity.permissions, new SaveCallback() {
-                        @Override
-                        public void done(ParseException e) {
-                            if (ParseFacebookUtils.isLinked(ParseUser.getCurrentUser())) {
-                                Log.d("HURRA", "Woohoo, user logged in with Facebook!");
-                            }
-                        }
-                    });
-
-                } else if (ParseFacebookUtils.isLinked(ParseUser.getCurrentUser())) {
-                    ParseFacebookUtils.unlinkInBackground(ParseUser.getCurrentUser(), new SaveCallback() {
-                        @Override
-                        public void done(ParseException ex) {
-                            if (ex == null) {
-                                Log.d("NIE HURRA", "The user is no longer associated with their Facebook account.");
-                            }
-                        }
-                    });
-                }
-
-
-                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.hideSoftInputFromWindow(tabhost.getApplicationWindowToken(), 0);
-                layoutSettings.setVisibility(View.INVISIBLE);
-                tabLayout.setVisibility(View.VISIBLE);
-            }
-        });
-
-        /*cancel = (Button) findViewById(R.id.cancelSettingsButton);
-
-        cancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.hideSoftInputFromWindow(tabhost.getApplicationWindowToken(), 0);
-                layoutSettings.setVisibility(View.INVISIBLE);
-                tabLayout.setVisibility(View.VISIBLE);
-            }
-        });*/
-
-        changeImgFromGallery = (Button) findViewById(R.id.changeImgFromGalleryButton);
-        changeImgFromGallery.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent();
-
-                intent.setType("image/*");
-                intent.setAction(Intent.ACTION_GET_CONTENT);
-                intent.putExtra("crop", "true");
-                intent.putExtra("aspectX", 1);
-                intent.putExtra("aspectY", 1);
-                intent.putExtra("outputX", 500);
-                intent.putExtra("outputY", 500);
-
-                try {
-
-                    intent.putExtra("return-data", true);
-                    startActivityForResult(Intent.createChooser(intent,
-                            "Complete action using"), PICK_FROM_GALLERY);
-
-                } catch (ActivityNotFoundException e) {
-
-                }
-            }
-
-
-        });
-
-        changeImgFromCamera = (Button) findViewById(R.id.changeImgFromCameraButton);
-        changeImgFromCamera.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-
-                intent.putExtra(MediaStore.EXTRA_OUTPUT,
-                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI.toString());
-                intent.putExtra("crop", "true");
-                intent.putExtra("aspectX", 1);
-                intent.putExtra("aspectY", 1);
-                intent.putExtra("outputX", 500);
-                intent.putExtra("outputY", 500);
-
-                try {
-
-                    intent.putExtra("return-data", true);
-                    startActivityForResult(intent, PICK_FROM_CAMERA);
-
-                } catch (ActivityNotFoundException e) {
-
-                }
-            }
-
-        });
-
-        changeImgFromFacebook = (Button) findViewById(R.id.buttonImageFromFacebook);
-
-        changeImgFromFacebook.setOnClickListener(new View.OnClickListener()
-
-                                                 {
-                                                     @Override
-                                                     public void onClick(View v) {
-
-                                                         Bitmap toCrop = null;
-                                                         String previouslyEncodedImage = "";
-/*
-                                                         if (shre.getString("facebook_image_data", "") != "") {
-                                                             previouslyEncodedImage = shre.getString("facebook_image_data", "");
-                                                             toCrop = decodeBase64ToBitmap(previouslyEncodedImage);
-                                                         }
-*/
-
-                                                         Uri uri = getImageUri(getApplicationContext(), toCrop);
-                                                         Intent cropIntent = new Intent("com.android.camera.action.CROP");
-
-                                                         cropIntent.setDataAndType(uri, "image/*");
-                                                         cropIntent.putExtra("crop", "true");
-                                                         cropIntent.putExtra("aspectX", 1);
-                                                         cropIntent.putExtra("aspectY", 1);
-                                                         cropIntent.putExtra("outputX", 500);
-                                                         cropIntent.putExtra("outputY", 500);
-                                                         cropIntent.putExtra("return-data", true);
-
-                                                         startActivityForResult(cropIntent, CROP_IMAGE);
-                                                     }
-                                                 }
-
-        );
-
-        changeImgFromAdjust = (Button) findViewById(R.id.buttonImageFromAdjust);
-        changeImgFromAdjust.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Bitmap toCrop = profilePictureRaw;
-
-                Uri uri = getImageUri(getApplicationContext(), toCrop);
-                Intent cropIntent = new Intent("com.android.camera.action.CROP");
-
-                cropIntent.setDataAndType(uri, "image/*");
-                cropIntent.putExtra("crop", "true");
-                cropIntent.putExtra("aspectX", 1);
-                cropIntent.putExtra("aspectY", 1);
-                cropIntent.putExtra("outputX", 500);
-                cropIntent.putExtra("outputY", 500);
-                cropIntent.putExtra("return-data", true);
-
-                startActivityForResult(cropIntent, CROP_IMAGE);
-            }
-        });
-
     }
 
     @Override

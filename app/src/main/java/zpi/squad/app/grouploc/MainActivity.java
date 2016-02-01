@@ -5,6 +5,7 @@ import android.animation.AnimatorListenerAdapter;
 import android.app.*;
 import android.app.AlertDialog;
 import android.support.v4.app.*;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.*;
@@ -159,6 +160,10 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     ChangePhotoFragment changePhotoFragment;
     ChangePasswordFragment changePasswordFragment;
 
+    final static String mapTAG = "MAP";
+    final static String photoTAG = "PHOTO";
+    final static String passwordTAG = "PASSWORD";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -186,7 +191,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         mapFragment = new MapFragment();
         changePhotoFragment = new ChangePhotoFragment();
         changePasswordFragment = new ChangePasswordFragment();
-        getSupportFragmentManager().beginTransaction().replace(R.id.main_container, mapFragment).commit();
+
+        getSupportFragmentManager().beginTransaction().replace(R.id.main_container, mapFragment, mapTAG).commit();
 
         drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -483,10 +489,22 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
         }
         else if(id == R.id.nav_password){
-            getSupportFragmentManager().beginTransaction().replace(R.id.main_container, changePasswordFragment).commit();
+            if(getSupportFragmentManager().findFragmentByTag(passwordTAG) == null) {
+                getSupportFragmentManager().beginTransaction().replace(R.id.main_container, changePasswordFragment, passwordTAG).addToBackStack(mapTAG).setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN).commit();
+            }
+            else {
+                if(!changePasswordFragment.isVisible())
+                    getSupportFragmentManager().popBackStack();
+            }
         }
         else if (id == R.id.nav_photo) {
-            getSupportFragmentManager().beginTransaction().replace(R.id.main_container, changePhotoFragment).commit();
+            if(getSupportFragmentManager().findFragmentByTag(photoTAG) == null) {
+                getSupportFragmentManager().beginTransaction().replace(R.id.main_container, changePhotoFragment, photoTAG).addToBackStack(mapTAG).setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN).commit();
+            }
+            else {
+                if(!changePhotoFragment.isVisible())
+                    getSupportFragmentManager().popBackStack();
+            }
         }
         else if (id == R.id.nav_logout) {
             logOut();
@@ -656,21 +674,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
     @Override
     public void onBackPressed() {
-        /*if (layoutSettings.getVisibility() == View.VISIBLE) {
-            layoutSettings.setVisibility(View.INVISIBLE);
-            tabLayout.setVisibility(View.VISIBLE);
-        } else if (tabLayout.getVisibility() == View.VISIBLE) {
-            new AlertDialog.Builder(this).
-                    setTitle("Really Exit")
-                    .setMessage("Are You sure you want to exit")
-                    .setNegativeButton(android.R.string.no, null)
-                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            MainActivity.super.onBackPressed();
-                        }
-                    }).create().show();
-        }*/
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (layoutMarker.getVisibility() == View.VISIBLE) {
             layoutMarker.animate()
@@ -687,7 +690,19 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             drawer.closeDrawer(GravityCompat.START);
         } else if (drawer.isDrawerOpen(GravityCompat.END)) {
             drawer.closeDrawer(GravityCompat.END);
-        } else {
+        } else if(getSupportFragmentManager().findFragmentByTag(mapTAG).isVisible()){
+            new AlertDialog.Builder(this).
+                    setTitle("Really Exit")
+                    .setMessage("Are You sure you want to exit ?")
+                    .setNegativeButton("Cancel", null)
+                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            MainActivity.super.onBackPressed();
+                        }
+                    }).create().show();
+        }
+        else {
             super.onBackPressed();
         }
     }

@@ -5,6 +5,7 @@ import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -16,12 +17,22 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
+import com.facebook.AccessToken;
+import com.facebook.GraphRequest;
+import com.facebook.GraphResponse;
+import com.facebook.HttpMethod;
 import com.parse.ParseException;
 import com.parse.ParseFacebookUtils;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 public class ChangePhotoFragment extends Fragment {
     private static View view;
@@ -29,10 +40,11 @@ public class ChangePhotoFragment extends Fragment {
     private Button changeImgFromCamera;
     private Button changeImgFromFacebook;
     private Button changeImgFromAdjust;
-    private static final int PICK_FROM_CAMERA = 1;
-    private static final int PICK_FROM_GALLERY = 2;
-    private static final int CROP_IMAGE = 3;
-    Bitmap profilePictureRaw;
+    public static final int PICK_FROM_CAMERA = 1;
+    public static final int PICK_FROM_GALLERY = 2;
+    public static final int CROP_IMAGE = 3;
+    SessionManager session;
+    private Bitmap profileImageFromFacebook;
 
     public ChangePhotoFragment() {
         // Required empty public constructor
@@ -41,6 +53,7 @@ public class ChangePhotoFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        session = SessionManager.getInstance(getActivity());
     }
 
     @Override
@@ -73,6 +86,7 @@ public class ChangePhotoFragment extends Fragment {
         super.onDetach();
     }
 
+
     public void settingButtons() {
         changeImgFromGallery = (Button) getActivity().findViewById(R.id.changeImgFromGalleryButton);
         changeImgFromGallery.setOnClickListener(new View.OnClickListener() {
@@ -90,7 +104,7 @@ public class ChangePhotoFragment extends Fragment {
 
                 try {
                     intent.putExtra("return-data", true);
-                    startActivityForResult(Intent.createChooser(intent,
+                    getActivity().startActivityForResult(Intent.createChooser(intent,
                             "Complete action using"), PICK_FROM_GALLERY);
 
                 } catch (ActivityNotFoundException e) {
@@ -117,11 +131,12 @@ public class ChangePhotoFragment extends Fragment {
                 try {
 
                     intent.putExtra("return-data", true);
-                    startActivityForResult(intent, PICK_FROM_CAMERA);
+                    getActivity().startActivityForResult(intent, PICK_FROM_CAMERA);
 
                 } catch (ActivityNotFoundException e) {
 
                 }
+
             }
 
         });
@@ -131,25 +146,32 @@ public class ChangePhotoFragment extends Fragment {
                                                      @Override
                                                      public void onClick(View v) {
 
-                                                         Bitmap toCrop = null;
-                                                         String previouslyEncodedImage = "";
-                                                         /*if (shre.getString("facebook_image_data", "") != "") {
-                                                             previouslyEncodedImage = shre.getString("facebook_image_data", "");
-                                                             toCrop = decodeBase64ToBitmap(previouslyEncodedImage);
-                                                         }*/
+                                                         if (session.isLoggedByFacebook())
+                                                         {
+                                                             Bitmap photo = null;
+                                                             try {
+                                                                 photo = getFacebookProfilePicture(AccessToken.getCurrentAccessToken());
 
-                                                         Uri uri = getImageUri(getActivity().getApplicationContext(), toCrop);
-                                                         Intent cropIntent = new Intent("com.android.camera.action.CROP");
+                                                                 Uri uri = getImageUri(getActivity().getApplicationContext(), photo);
 
-                                                         cropIntent.setDataAndType(uri, "image/*");
-                                                         cropIntent.putExtra("crop", "true");
-                                                         cropIntent.putExtra("aspectX", 1);
-                                                         cropIntent.putExtra("aspectY", 1);
-                                                         cropIntent.putExtra("outputX", 500);
-                                                         cropIntent.putExtra("outputY", 500);
-                                                         cropIntent.putExtra("return-data", true);
+                                                                 Intent cropIntent = new Intent("com.android.camera.action.CROP");
+                                                                 cropIntent.setDataAndType(uri, "image/*");
+                                                                 cropIntent.putExtra("crop", "true");
+                                                                 cropIntent.putExtra("aspectX", 1);
+                                                                 cropIntent.putExtra("aspectY", 1);
+                                                                 cropIntent.putExtra("outputX", 500);
+                                                                 cropIntent.putExtra("outputY", 500);
+                                                                 cropIntent.putExtra("return-data", true);
 
-                                                         startActivityForResult(cropIntent, CROP_IMAGE);
+                                                                 getActivity().startActivityForResult(cropIntent, CROP_IMAGE);
+
+                                                             } catch (IOException e) {
+                                                                 e.printStackTrace();
+                                                             }
+
+
+                                                         }
+
                                                      }
                                                  }
         );
@@ -158,11 +180,10 @@ public class ChangePhotoFragment extends Fragment {
         changeImgFromAdjust.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Bitmap toCrop = profilePictureRaw;
+                Bitmap photo = session.decodeBase64ToBitmap(session.getUserPhoto());
+                Uri uri = getImageUri(getActivity().getApplicationContext(), photo);
 
-                Uri uri = getImageUri(getActivity().getApplicationContext(), toCrop);
                 Intent cropIntent = new Intent("com.android.camera.action.CROP");
-
                 cropIntent.setDataAndType(uri, "image/*");
                 cropIntent.putExtra("crop", "true");
                 cropIntent.putExtra("aspectX", 1);
@@ -171,7 +192,7 @@ public class ChangePhotoFragment extends Fragment {
                 cropIntent.putExtra("outputY", 500);
                 cropIntent.putExtra("return-data", true);
 
-                startActivityForResult(cropIntent, CROP_IMAGE);
+                getActivity().startActivityForResult(cropIntent, CROP_IMAGE);
             }
         });
     }
@@ -181,5 +202,42 @@ public class ChangePhotoFragment extends Fragment {
         inImage.compress(Bitmap.CompressFormat.PNG, 100, bytes);
         String path = MediaStore.Images.Media.insertImage(inContext.getContentResolver(), inImage, "Title", null);
         return Uri.parse(path);
+    }
+
+    private Bitmap getFacebookProfilePicture(AccessToken accessToken) throws IOException {
+
+
+        Bundle params = new Bundle();
+        params.putBoolean("redirect", false);
+        params.putInt("height", 100);
+        params.putInt("width", 100);
+        GraphResponse srequest = new GraphRequest(
+                AccessToken.getCurrentAccessToken(),
+                "/" + accessToken.getUserId() + "/picture",
+                params,
+                HttpMethod.GET,
+                new GraphRequest.Callback() {
+                    public void onCompleted(GraphResponse response) {
+                        //String ara = response.getJSONObject().toString();
+                        //Log.e("PROFILOWE: ", ara);
+                        try {
+                            JSONObject araa = response.getJSONObject();
+                            JSONObject aray = araa.getJSONObject("data");
+
+                            URL facebookProfilePictureUrl = new URL(aray.getString("url"));
+                            profileImageFromFacebook = BitmapFactory.decodeStream(facebookProfilePictureUrl.openConnection().getInputStream());
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        } catch (MalformedURLException e) {
+                            e.printStackTrace();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+                }
+        ).executeAndWait();
+
+        return profileImageFromFacebook;
     }
 }

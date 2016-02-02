@@ -43,7 +43,7 @@ public class ChangePhotoFragment extends Fragment {
     public static final int PICK_FROM_CAMERA = 1;
     public static final int PICK_FROM_GALLERY = 2;
     public static final int CROP_IMAGE = 3;
-    SessionManager session;
+    private SessionManager session;
     private Bitmap profileImageFromFacebook;
 
     public ChangePhotoFragment() {
@@ -85,7 +85,6 @@ public class ChangePhotoFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
     }
-
 
     public void settingButtons() {
         changeImgFromGallery = (Button) getActivity().findViewById(R.id.changeImgFromGalleryButton);
@@ -136,12 +135,14 @@ public class ChangePhotoFragment extends Fragment {
                 } catch (ActivityNotFoundException e) {
 
                 }
-
             }
 
         });
 
         changeImgFromFacebook = (Button) getActivity().findViewById(R.id.buttonImageFromFacebook);
+        if(!session.isLoggedByFacebook()){
+            changeImgFromFacebook.setVisibility(View.GONE);
+        }
         changeImgFromFacebook.setOnClickListener(new View.OnClickListener() {
                                                      @Override
                                                      public void onClick(View v) {

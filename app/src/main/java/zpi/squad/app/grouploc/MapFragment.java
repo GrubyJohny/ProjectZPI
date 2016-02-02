@@ -32,6 +32,10 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.GoogleMapOptions;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.OnStreetViewPanoramaReadyCallback;
+import com.google.android.gms.maps.StreetViewPanorama;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
@@ -66,9 +70,10 @@ import static zpi.squad.app.grouploc.POISpecies.SHOPPING_MALL;
 import static zpi.squad.app.grouploc.POISpecies.STORE;
 import static zpi.squad.app.grouploc.POISpecies.getRightSpecies;
 
-public class MapFragment extends Fragment implements GoogleApiClient.ConnectionCallbacks,MarkerDialog.NoticeDialogListener {
+public class MapFragment extends Fragment implements OnMapReadyCallback, OnStreetViewPanoramaReadyCallback, GoogleApiClient.ConnectionCallbacks,MarkerDialog.NoticeDialogListener {
 
     private SupportMapFragment fragment;
+    private GoogleMapOptions mapOptions = new GoogleMapOptions().liteMode(true);
 
     private static View view;
     //OstatniKliknietyNaMapi
@@ -162,6 +167,54 @@ public class MapFragment extends Fragment implements GoogleApiClient.ConnectionC
         width = context.getResources().getDisplayMetrics().widthPixels;
         height = context.getResources().getDisplayMetrics().heightPixels;
     }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        FragmentManager fm = getChildFragmentManager();
+        fragment = (SupportMapFragment) fm.findFragmentById(R.id.map);
+        fragment.onCreate(savedInstanceState);
+        fragment.getMapAsync(this);
+
+        if (fragment == null) {
+            fragment = SupportMapFragment.newInstance();
+            fm.beginTransaction().replace(R.id.map, fragment).commit();
+        }
+
+        firstMarkerButton = (ImageButton) getActivity().findViewById(R.id.firstButton);
+        secondMarkerButton = (ImageButton) getActivity().findViewById(R.id.secondButton);
+        thirdMarkerButton = (ImageButton) getActivity().findViewById(R.id.thirdButton);
+        fourthMarkerButton = (ImageButton) getActivity().findViewById(R.id.fourthButton);
+        fifthMarkerButton = (ImageButton) getActivity().findViewById(R.id.fifthButton);
+        /*closeMarkerButton = (Button) getActivity().findViewById(R.id.closeMarkerButton);
+
+        closeMarkerButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                layoutMarker.setVisibility(View.GONE);
+            }
+        });*/
+
+
+
+
+//        inclizaidListenerForMarkerMenu();
+    }
+
+    @Override
+    public void onMapReady(GoogleMap map) {
+        map.addMarker(new MarkerOptions().position(new LatLng(50, 50)).title("Marker"));
+        map.setTrafficEnabled(true);
+        map.setBuildingsEnabled(true);
+        map.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+        map.getUiSettings().setZoomControlsEnabled(true);
+        map.getUiSettings().setMapToolbarEnabled(true);
+        map.getUiSettings().setIndoorLevelPickerEnabled(true);
+        map.getUiSettings().setAllGesturesEnabled(true);
+        map.getCameraPosition().describeContents();
+
+    }
+
 
     private void setupPoiButtons() {
 
@@ -395,6 +448,12 @@ public class MapFragment extends Fragment implements GoogleApiClient.ConnectionC
         route.remove();
     }
 
+    @Override
+    public void onStreetViewPanoramaReady(StreetViewPanorama streetViewPanorama) {
+        streetViewPanorama.setZoomGesturesEnabled(true);
+
+    }
+
     class AsyncTaskRunner extends AsyncTask<String, String, String> {
         @Override
         protected String doInBackground(String... params) {
@@ -450,35 +509,7 @@ public class MapFragment extends Fragment implements GoogleApiClient.ConnectionC
 
     }
 
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        FragmentManager fm = getChildFragmentManager();
-        fragment = (SupportMapFragment) fm.findFragmentById(R.id.myMapFragment);
-        if (fragment == null) {
-            fragment = SupportMapFragment.newInstance();
-            fm.beginTransaction().replace(R.id.myMapFragment, fragment).commit();
-        }
 
-        firstMarkerButton = (ImageButton) getActivity().findViewById(R.id.firstButton);
-        secondMarkerButton = (ImageButton) getActivity().findViewById(R.id.secondButton);
-        thirdMarkerButton = (ImageButton) getActivity().findViewById(R.id.thirdButton);
-        fourthMarkerButton = (ImageButton) getActivity().findViewById(R.id.fourthButton);
-        fifthMarkerButton = (ImageButton) getActivity().findViewById(R.id.fifthButton);
-        /*closeMarkerButton = (Button) getActivity().findViewById(R.id.closeMarkerButton);
-
-        closeMarkerButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                layoutMarker.setVisibility(View.GONE);
-            }
-        });*/
-
-
-
-
-//        inclizaidListenerForMarkerMenu();
-    }
 
 
     @Override
@@ -531,7 +562,7 @@ public class MapFragment extends Fragment implements GoogleApiClient.ConnectionC
                 TextView name = (TextView) layoutMarker.findViewById(R.id.titleOfMarker);
                 Log.d("tittle", name + "");
                 name.setText(marker.getTitle());
-                getActivity().findViewById(R.id.POIButtons).setVisibility(View.GONE);
+                //getActivity().findViewById(R.id.POIButtons).setVisibility(View.GONE);
                 String snippet = marker.getSnippet();
                 String ids[] = snippet.split(",");
 
@@ -584,7 +615,7 @@ public class MapFragment extends Fragment implements GoogleApiClient.ConnectionC
         globalVariable.getMyMap().setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
             public void onMapClick(LatLng latLng) {
-                getActivity().findViewById(R.id.POIButtons).setVisibility(View.GONE);
+//                getActivity().findViewById(R.id.POIButtons).setVisibility(View.GONE);
                 layoutMarker.setVisibility(View.GONE);
             }
         });
@@ -592,7 +623,7 @@ public class MapFragment extends Fragment implements GoogleApiClient.ConnectionC
 
     private void setUpMap(boolean hardSetup) {
 
-        globalVariable.setMyMap(((SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.myMapFragment)).getMap());
+        globalVariable.setMyMap(((SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map)).getMap());
         //Log.d(AppController.TAG,"my map to"+myMap);
         globalVariable.getMyMap().setMyLocationEnabled(true);
 
@@ -630,7 +661,7 @@ public class MapFragment extends Fragment implements GoogleApiClient.ConnectionC
                         layoutMarker.setY((float) globalVariable.getMyMap().getProjection().toScreenLocation(ostatniMarker.getPosition()).y - layoutMarker.getHeight() + 180);
                     }
                 }*/
-                getActivity().findViewById(R.id.POIButtons).setVisibility(View.GONE);
+//                getActivity().findViewById(R.id.POIButtons).setVisibility(View.GONE);
                 //addItemsToMap(markers);
             }
         };
@@ -648,7 +679,7 @@ public class MapFragment extends Fragment implements GoogleApiClient.ConnectionC
                mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
         setUpMap(true);
         setMapListener();
-        setupPoiButtons();
+//        setupPoiButtons();
 
         if (mRequestingLocationUpdates) {
             // startLocationUpdates();

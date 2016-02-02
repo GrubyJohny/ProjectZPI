@@ -41,12 +41,15 @@ android {
 
 
 
+
+
+
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile files('volley.jar')
     compile 'com.google.android.gms:play-services:6.5.87'
     /*    compile 'com.android.support:support-v4:22.0.0'
-                                    compile 'com.android.support:appcompat-v7:22.0.0'*/
+                                        compile 'com.android.support:appcompat-v7:22.0.0'*/
     compile 'com.android.support:design:22.2.0'
     compile 'com.facebook.android:facebook-android-sdk:4.1.2'
     compile 'com.nhaarman.supertooltips:library:3.0.+'

@@ -33,6 +33,7 @@ public class ChangePhotoFragment extends Fragment {
     private static final int PICK_FROM_GALLERY = 2;
     private static final int CROP_IMAGE = 3;
     Bitmap profilePictureRaw;
+    private SessionManager session;
 
     public ChangePhotoFragment() {
         // Required empty public constructor
@@ -41,6 +42,8 @@ public class ChangePhotoFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        session = SessionManager.getInstance(getActivity().getApplicationContext());
     }
 
     @Override
@@ -127,6 +130,9 @@ public class ChangePhotoFragment extends Fragment {
         });
 
         changeImgFromFacebook = (Button) getActivity().findViewById(R.id.buttonImageFromFacebook);
+        if(!session.isLoggedByFacebook()){
+            changeImgFromFacebook.setVisibility(View.GONE);
+        }
         changeImgFromFacebook.setOnClickListener(new View.OnClickListener() {
                                                      @Override
                                                      public void onClick(View v) {

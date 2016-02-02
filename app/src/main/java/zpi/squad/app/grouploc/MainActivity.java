@@ -107,9 +107,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     private Button changeImgFromCamera;
     private Button changeImgFromFacebook;
     private Button changeImgFromAdjust;
-    private static final int PICK_FROM_CAMERA = 1;
-    private static final int PICK_FROM_GALLERY = 2;
-    private static final int CROP_IMAGE = 3;
+    public static final int PICK_FROM_CAMERA = 1;
+    public static final int PICK_FROM_GALLERY = 2;
+    public static final int CROP_IMAGE = 3;
     private ImageButton firstMarkerButton;
     private ImageButton secondMarkerButton;
     private ImageButton thirdMarkerButton;
@@ -155,6 +155,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     private ImageView navigationViewLeftProfilePicture;
     private TextView navigationViewLeftFullName;
     NavigationView navigationViewRight;
+    Bitmap mainPhoto;
 
     MapFragment mapFragment;
     ChangePhotoFragment changePhotoFragment;
@@ -204,7 +205,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         navigationViewLeft.setNavigationItemSelectedListener(this);
 
         navigationViewLeftProfilePicture = (ImageView) findViewById(R.id.profilePicture);
-        Bitmap mainPhoto = clipBitmap(session.decodeBase64ToBitmap(session.getUserPhoto()), navigationViewLeftProfilePicture);
+        mainPhoto = clipBitmap(session.decodeBase64ToBitmap(session.getUserPhoto()), navigationViewLeftProfilePicture);
         navigationViewLeftProfilePicture.setImageBitmap(mainPhoto);
 
         navigationViewLeftFullName = (TextView) findViewById(R.id.Fullname);
@@ -356,76 +357,71 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        try {
-
-            if (requestCode == PICK_FROM_GALLERY) {
-                Bundle extras2 = data.getExtras();
-                if (extras2 != null) {
-                    Bitmap photo = extras2.getParcelable("data");
-
-                    profilePictureRaw = photo;
-                    ParseUser user = ParseUser.getCurrentUser();
-                    user.put("photo", session.encodeBitmapTobase64(profilePictureRaw));
-                    user.saveInBackground();
-
-                    //Log.d("ZJDECIE", encodeBitmapTobase64(profilePictureRaw));
-                    SessionManager.getInstance(context).setUserPhoto(session.encodeBitmapTobase64(profilePictureRaw));
-
-                    Bitmap bitmap_round = clipBitmap(photo, circleButton);
-                    circleButton.setImageBitmap(bitmap_round);
-
-                    FileOutputStream fos = context.openFileOutput(AppConfig.IMAGE_PHOTO_FILENAME, Context.MODE_PRIVATE);
-                    bitmap_round.compress(Bitmap.CompressFormat.PNG, 100, fos);
-                    fos.close();
 
 
+            try {
+                Bundle extras2;
+
+
+                if (requestCode == PICK_FROM_GALLERY && resultCode == RESULT_OK) {
+                    extras2 = data.getExtras();
+                    if (extras2 != null) {
+                        Bitmap photo = extras2.getParcelable("data");
+
+                        ParseUser user = ParseUser.getCurrentUser();
+                        user.put("photo", session.encodeBitmapTobase64(photo));
+                        user.saveInBackground();
+                        session.setUserPhoto(session.encodeBitmapTobase64(photo));
+
+                        mainPhoto = clipBitmap(session.decodeBase64ToBitmap(session.getUserPhoto()), navigationViewLeftProfilePicture);
+                        navigationViewLeftProfilePicture.setImageBitmap(mainPhoto);
+
+                        Toast.makeText(this, "OK", Toast.LENGTH_LONG).show();
+
+                    }
+                } else if (requestCode == PICK_FROM_CAMERA && resultCode == RESULT_OK) {
+                    extras2 = data.getExtras();
+                    if (extras2 != null) {
+                        Uri uri = data.getData();
+                        Intent cropIntent = new Intent("com.android.camera.action.CROP");
+                        cropIntent.setDataAndType(uri, "image/*");
+                        cropIntent.putExtra("crop", "true");
+                        cropIntent.putExtra("aspectX", 1);
+                        cropIntent.putExtra("aspectY", 1);
+                        cropIntent.putExtra("outputX", 500);
+                        cropIntent.putExtra("outputY", 500);
+                        cropIntent.putExtra("return-data", true);
+
+                        startActivityForResult(cropIntent, CROP_IMAGE);
+                    }
+                } else if (requestCode == CROP_IMAGE && resultCode == RESULT_OK) {
+                    extras2 = data.getExtras();
+                    if (extras2 != null) {
+                        Bitmap photo = extras2.getParcelable("data");
+
+                        ParseUser user = ParseUser.getCurrentUser();
+                        user.put("photo", session.encodeBitmapTobase64(photo));
+                        user.saveInBackground();
+                        session.setUserPhoto(session.encodeBitmapTobase64(photo));
+
+                        //tu przydałoby się odświezyć zdjęcie
+
+                        mainPhoto = clipBitmap(session.decodeBase64ToBitmap(session.getUserPhoto()), navigationViewLeftProfilePicture);
+                        navigationViewLeftProfilePicture.setImageBitmap(mainPhoto);
+
+                        Toast.makeText(this, "OK", Toast.LENGTH_LONG).show();
+                    }
+                } else {
+                    Toast.makeText(this, "You haven't picked Image...", Toast.LENGTH_LONG).show();
+                    Log.e("RESULT CODE: ", "" + resultCode);
+                    Log.e("REQUEST CODE: ", ""+ requestCode );
                 }
-            } else if (requestCode == PICK_FROM_CAMERA) {
-                Bundle extras2 = data.getExtras();
-                if (extras2 != null) {
-                    Uri uri = data.getData();
-                    Intent cropIntent = new Intent("com.android.camera.action.CROP");
-                    cropIntent.setDataAndType(uri, "image/*");
-                    cropIntent.putExtra("crop", "true");
-                    cropIntent.putExtra("aspectX", 1);
-                    cropIntent.putExtra("aspectY", 1);
-                    cropIntent.putExtra("outputX", 500);
-                    cropIntent.putExtra("outputY", 500);
-                    cropIntent.putExtra("return-data", true);
-
-                    startActivityForResult(cropIntent, CROP_IMAGE);
-                }
-            } else if (requestCode == CROP_IMAGE) {
-                Bundle extras2 = data.getExtras();
-                Bitmap photo = extras2.getParcelable("data");
-
-                profilePictureRaw = photo;
-                ParseUser user = ParseUser.getCurrentUser();
-                user.put("photo", session.encodeBitmapTobase64(profilePictureRaw));
-                user.saveInBackground();
-
-                //Log.d("ZJDECIE", encodeBitmapTobase64(profilePictureRaw));
-                SessionManager.getInstance(context).setUserPhoto(session.encodeBitmapTobase64(profilePictureRaw));
 
 
-                Bitmap bitmap_round = clipBitmap(photo, circleButton);
-                circleButton.setImageBitmap(bitmap_round);
-
-                FileOutputStream fos = context.openFileOutput(AppConfig.IMAGE_PHOTO_FILENAME, Context.MODE_PRIVATE);
-                bitmap_round.compress(Bitmap.CompressFormat.PNG, 100, fos);
-                fos.close();
-
-
-            } else {
-                Toast.makeText(this, "You haven't picked Image",
-                        Toast.LENGTH_LONG).show();
+            } catch (Exception e) {
+                Toast.makeText(this, "Something went wrong", Toast.LENGTH_LONG).show();
+                e.printStackTrace();
             }
-
-
-        } catch (Exception e) {
-            Toast.makeText(this, "Something went wrong", Toast.LENGTH_LONG).show();
-            e.printStackTrace();
-        }
 
     }
 

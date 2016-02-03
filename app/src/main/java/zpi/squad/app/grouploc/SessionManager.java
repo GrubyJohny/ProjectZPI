@@ -135,9 +135,9 @@ public class SessionManager {
         ArrayList<Friend> result = new ArrayList<>();
 
         ParseQuery checkIfFriends1 = new ParseQuery("Friendship");
-        checkIfFriends1.whereEqualTo("friend1", ParseUser.getCurrentUser()).orderByAscending("name");
+        checkIfFriends1.whereEqualTo("friend1", ParseUser.getCurrentUser());
         ParseQuery checkIfFriends2 = new ParseQuery("Friendship");
-        checkIfFriends2.whereEqualTo("friend2", ParseUser.getCurrentUser()).orderByAscending("name");
+        checkIfFriends2.whereEqualTo("friend2", ParseUser.getCurrentUser());
 
         Object[] friendsList = null, friendsList2 = null;
         ParseObject temp = null;

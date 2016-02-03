@@ -10,14 +10,12 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.*;
-import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Path;
 import android.location.Criteria;
 import android.location.Location;
@@ -36,12 +34,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.ScrollView;
 import android.widget.Spinner;
@@ -60,20 +56,15 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
-import com.nhaarman.supertooltips.ToolTip;
 import com.nhaarman.supertooltips.ToolTipRelativeLayout;
 import com.nhaarman.supertooltips.ToolTipView;
 
-import com.parse.ParseException;
-import com.parse.ParseFacebookUtils;
 import com.parse.ParseUser;
-import com.parse.SaveCallback;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
-import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -83,7 +74,7 @@ import java.util.Map;
 
 
 public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
-        LocationListener, ToolTipView.OnToolTipViewClickedListener, NavigationView.OnNavigationItemSelectedListener/*, android.support.v4.app.FragmentManager.OnBackStackChangedListener*/  {
+        LocationListener, NavigationView.OnNavigationItemSelectedListener/*, android.support.v4.app.FragmentManager.OnBackStackChangedListener*/  {
 
     private SessionManager session;
     private ProgressDialog pDialog;
@@ -172,6 +163,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     final static String passwordTAG = "PASSWORD";
 
     private static List<ListViewItem> mItems;
+    private ListView friendsListView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -231,12 +223,10 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             }
         });
 
-        for(Friend f : friendsList) {
-            ImageView img = new ImageView(context);
-            img.setImageBitmap(session.decodeBase64ToBitmap(f.getFriendPhoto()));
-            navigationViewRight.getMenu().add(f.getFriendName()).setIcon(img.getDrawable());
-        }
-        navigationViewRight.setItemIconTintList(null);
+        FriendAdapter adapter = new FriendAdapter(this, friendsList);
+
+        friendsListView = (ListView) findViewById(R.id.friendsListView);
+        friendsListView.setAdapter(adapter);
         supportInvalidateOptionsMenu();
 
         /*getSupportFragmentManager().addOnBackStackChangedListener(this);
@@ -251,10 +241,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
 //        notifications();
 //        messages();
-//        setupCircleButtonWithProfileImage();
 //        noticeAndMessageButtons();
 
-//        addListenerOnButton();
 //        addListenerOnSpinner();
 //        addListenerOnSpinner2();
 //        addListenerOnSpinner3();
@@ -276,36 +264,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
         hintsL = session.getHintsLeft();
 
-        Log.e("LOKALIZACJA: ", session.getCurrentLocation().latitude + ", " + session.getCurrentLocation().longitude );
-
-        /*if (hintsL > 0) {
-            session.setHintsLeft(session.getHintsLeft() - 1);
-
-            final Handler myHandler = new Handler();
-
-            myHandler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    new CountDownTimer(4000, 3999) {
-
-                        @Override
-                        public void onTick(long millisUntilFinished) {
-                            if (myToolTipView == null) {
-                                addMyToolTipView();
-                            }
-                        }
-
-                        @Override
-                        public void onFinish() {
-                            if (myToolTipView != null) {
-                                myToolTipView.remove();
-                                myToolTipView = null;
-                            }
-                        }
-                    }.start();
-                }
-            }, 3000);
-        }*/
+        Log.e("LOKALIZACJA: ", session.getCurrentLocation().latitude + ", " + session.getCurrentLocation().longitude);
     }
 
     /*private void addMyToolTipView() {
@@ -338,17 +297,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         getSupportFragmentManager().popBackStack();
         return true;
     }*/
-
-
-    private void addFriendEmailToolTipView() {
-        ToolTip toolTip = new ToolTip()
-                .withText("Type here your friend email")
-                .withShadow()
-                .withColor(Color.RED)
-                .withAnimationType(ToolTip.AnimationType.FROM_TOP);
-        friendEmailToolTipView = toolTipRelativeLayout.showToolTipForView(toolTip, findViewById(R.id.friendEmail));
-        friendEmailToolTipView.setOnToolTipViewClickedListener(MainActivity.this);
-    }
 
     private void createLocationRequest() {
         mLocationRequest = new LocationRequest();
@@ -397,8 +345,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
-
             try {
                 Bundle extras2;
 
@@ -568,33 +514,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         startActivity(closeIntent);
         finish();
     }
-
-    public void addListenerOnButton() {
-
-        circleButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                spinner1.performClick();
-                if (myToolTipView != null) {
-                    myToolTipView.remove();
-                    myToolTipView = null;
-                }
-            }
-        });
-        noticeButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                spinner2.performClick();
-            }
-        });
-        /*messageButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                spinner3.performClick();
-            }
-        });*/
-    }
-
 
     /**
      * Tutaj definiujemy jakie operacje mają się odbyć po połączeniu z google service
@@ -923,33 +842,4 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         String path = MediaStore.Images.Media.insertImage(inContext.getContentResolver(), inImage, "Title", null);
         return Uri.parse(path);
     }
-
-    @Override
-    public void onToolTipViewClicked(final ToolTipView toolTipView) {
-        if (myToolTipView == toolTipView) {
-            myToolTipView = null;
-        }/* else if (mGreenToolTipView == toolTipView) {
-            mGreenToolTipView = null;
-        } else if (mBlueToolTipView == toolTipView) {
-            mBlueToolTipView = null;
-        } else if (mPurpleToolTipView == toolTipView) {
-            mPurpleToolTipView = null;
-        } else if (mOrangeToolTipView == toolTipView) {
-            mOrangeToolTipView = null;
-        }*/
-    }
-
-    /*@Override
-    public void onClick(final View view) {
-        int id = view.getId();
-        if (id == R.id.circleButton) {
-            if (myToolTipView == null) {
-                addMyToolTipView();
-            } else {
-                myToolTipView.remove();
-                myToolTipView = null;
-            }
-        }
-    }*/
-
 }

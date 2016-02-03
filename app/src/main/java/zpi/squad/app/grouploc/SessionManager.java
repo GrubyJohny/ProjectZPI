@@ -8,7 +8,9 @@ import android.util.Base64;
 import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
+import com.parse.Parse;
 import com.parse.ParseException;
+import com.parse.ParseGeoPoint;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
@@ -149,13 +151,18 @@ public class SessionManager {
                     temp = ((ParseObject) friendsList[i]);
 
                     if (temp.get("accepted").toString().equals("true")) {
+
+                        ParseUser actual = ((ParseUser) temp.get("friend2")).fetchIfNeeded();
+                        ParseGeoPoint point = (ParseGeoPoint) actual.get("location");
+
                         result.add(new Friend(
-                                ((ParseUser) temp.get("friend2")).fetchIfNeeded().getObjectId(),
-                                ((ParseUser) temp.get("friend2")).fetchIfNeeded().get("name").toString(),
-                                ((ParseUser) temp.get("friend2")).fetchIfNeeded().getEmail(),
-                                ((ParseUser) temp.get("friend2")).fetchIfNeeded().get("photo") != null ?
-                                        ((ParseUser) temp.get("friend2")).fetchIfNeeded().get("photo").toString() : null));
-                        Log.d("Friend added: ", ((ParseUser) temp.get("friend2")).fetchIfNeeded().get("name").toString());
+                                actual.getObjectId(),
+                                actual.get("name").toString(),
+                                actual.getEmail(),
+                                actual.get("photo") != null ? actual.get("photo").toString() : null,
+                                point.getLatitude(), point.getLongitude()));
+
+                        Log.d("Friend added: ", "" + actual.get("name").toString() +" "+  point.getLatitude() + ", "+ point.getLongitude());
                     }
 
                 }
@@ -171,13 +178,19 @@ public class SessionManager {
                     temp = ((ParseObject) friendsList2[i]);
 
                     if (temp.get("accepted").toString().equals("true")) {
+
+                        ParseUser actual = ((ParseUser) temp.get("friend1")).fetchIfNeeded();
+                        ParseGeoPoint point = (ParseGeoPoint) actual.get("location");
+
+
                         result.add(new Friend(
-                                ((ParseUser) temp.get("friend1")).fetchIfNeeded().getObjectId(),
-                                ((ParseUser) temp.get("friend1")).fetchIfNeeded().get("name").toString(),
-                                ((ParseUser) temp.get("friend1")).fetchIfNeeded().getEmail(),
-                                ((ParseUser) temp.get("friend1")).fetchIfNeeded().get("photo") != null ?
-                                        ((ParseUser) temp.get("friend1")).fetchIfNeeded().get("photo").toString() : null));
-                        Log.d("Friend added: ", ((ParseUser) temp.get("friend1")).fetchIfNeeded().get("name").toString());
+                                actual.getObjectId(),
+                                actual.get("name").toString(),
+                                actual.getEmail(),
+                                actual.get("photo") != null ? actual.get("photo").toString() : null,
+                                point.getLatitude(), point.getLongitude()));
+
+                        Log.d("Friend added: ", "" + actual.get("name").toString() +" "+  point.getLatitude() + ", "+ point.getLongitude());
                     }
 
                 }

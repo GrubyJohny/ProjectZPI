@@ -21,6 +21,7 @@ import com.parse.LogInCallback;
 import com.parse.Parse;
 import com.parse.ParseException;
 import com.parse.ParseFacebookUtils;
+import com.parse.ParseGeoPoint;
 import com.parse.ParseUser;
 
 import org.json.JSONException;
@@ -131,6 +132,7 @@ public class LoginActivity extends Activity {
                                 String[] tempInfo = getFacebookUserInfo(AccessToken.getCurrentAccessToken());
                                 user.setEmail(tempInfo[0]);
                                 user.put("name", tempInfo[1]);
+                                user.put("location", new ParseGeoPoint(55, 55));
                                 try {
                                     user.put("photo", session.encodeBitmapTobase64(getFacebookProfilePicture(AccessToken.getCurrentAccessToken())));
                                 } catch (Exception e) {
@@ -154,6 +156,7 @@ public class LoginActivity extends Activity {
                             session.setUserName(current.fetchIfNeeded().get("name").toString());
                             session.setUserPhoto(current.fetchIfNeeded().get("photo").toString());
                             session.setUserId(current.fetchIfNeeded().getObjectId());
+                            session.setUserCurrentLocation(current.getParseGeoPoint("location").getLatitude(), current.getParseGeoPoint("location").getLongitude());
                             session.setUserIsLoggedByFacebook(true);
                         } catch (ParseException e) {
                             e.printStackTrace();
@@ -210,6 +213,8 @@ public class LoginActivity extends Activity {
                 session.setUserName(current.get("name").toString());
                 session.setUserPhoto(current.get("photo").toString());
                 session.setUserId(current.getObjectId());
+                //w następnym commicie będę to pobierał już na bieżąco
+                session.setUserCurrentLocation(current.getParseGeoPoint("location").getLatitude(), current.getParseGeoPoint("location").getLongitude());
                 session.setLoggedIn(true);
             }
         } catch (ParseException e) {

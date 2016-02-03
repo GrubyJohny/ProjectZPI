@@ -7,7 +7,10 @@ import android.graphics.BitmapFactory;
 import android.util.Base64;
 import android.util.Log;
 
+import com.google.android.gms.maps.model.LatLng;
+import com.parse.Parse;
 import com.parse.ParseException;
+import com.parse.ParseGeoPoint;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
@@ -22,6 +25,7 @@ public class SessionManager {
     private SharedPreferences pref;
     private SharedPreferences.Editor editor;
     public static ArrayList<Friend> friends;
+    private LatLng currentLocation;
 
 
     private SessionManager(Context context) {
@@ -47,9 +51,6 @@ public class SessionManager {
 
 
     private static String TAG = "SessionManager";
-
-    //to jest już w sumie nieużywane, ale na razie zostaje
-    private SQLiteHandler db;
 
     private static int hintsLeft = 3;
 
@@ -83,6 +84,10 @@ public class SessionManager {
 
     public void setUserIsLoggedByFacebook(boolean cond) { userIsLoggedByFacebook = cond; }
 
+    public void setUserCurrentLocation(double lat, double lng) { currentLocation = new LatLng(lat, lng); }
+
+    public void setUserCurrentLocation(LatLng locat) { currentLocation = new LatLng(locat.latitude, locat.longitude); }
+
     public boolean isLoggedByFacebook() { return userIsLoggedByFacebook; }
 
     public boolean isLoggedIn() { return userIsLoggedIn; }
@@ -102,6 +107,8 @@ public class SessionManager {
     public String getUserPhoto() {
         return userPhoto;
     }
+
+    public LatLng getCurrentLocation() { return currentLocation; }
 
     public void logOut() {
         userIsLoggedIn = false;
@@ -128,9 +135,9 @@ public class SessionManager {
         ArrayList<Friend> result = new ArrayList<>();
 
         ParseQuery checkIfFriends1 = new ParseQuery("Friendship");
-        checkIfFriends1.whereEqualTo("friend1", ParseUser.getCurrentUser());
+        checkIfFriends1.whereEqualTo("friend1", ParseUser.getCurrentUser()).orderByAscending("name");
         ParseQuery checkIfFriends2 = new ParseQuery("Friendship");
-        checkIfFriends2.whereEqualTo("friend2", ParseUser.getCurrentUser());
+        checkIfFriends2.whereEqualTo("friend2", ParseUser.getCurrentUser()).orderByAscending("name");
 
         Object[] friendsList = null, friendsList2 = null;
         ParseObject temp = null;
@@ -144,13 +151,18 @@ public class SessionManager {
                     temp = ((ParseObject) friendsList[i]);
 
                     if (temp.get("accepted").toString().equals("true")) {
+
+                        ParseUser actual = ((ParseUser) temp.get("friend2")).fetchIfNeeded();
+                        ParseGeoPoint point = (ParseGeoPoint) actual.get("location");
+
                         result.add(new Friend(
-                                ((ParseUser) temp.get("friend2")).fetchIfNeeded().getObjectId(),
-                                ((ParseUser) temp.get("friend2")).fetchIfNeeded().get("name").toString(),
-                                ((ParseUser) temp.get("friend2")).fetchIfNeeded().getEmail(),
-                                ((ParseUser) temp.get("friend2")).fetchIfNeeded().get("photo") != null ?
-                                        ((ParseUser) temp.get("friend2")).fetchIfNeeded().get("photo").toString() : null));
-                        Log.d("Friend added: ", ((ParseUser) temp.get("friend2")).fetchIfNeeded().get("name").toString());
+                                actual.getObjectId(),
+                                actual.get("name").toString(),
+                                actual.getEmail(),
+                                actual.get("photo") != null ? actual.get("photo").toString() : null,
+                                point.getLatitude(), point.getLongitude()));
+
+                        Log.d("Friend added: ", "" + actual.get("name").toString() +" "+  point.getLatitude() + ", "+ point.getLongitude());
                     }
 
                 }
@@ -166,13 +178,19 @@ public class SessionManager {
                     temp = ((ParseObject) friendsList2[i]);
 
                     if (temp.get("accepted").toString().equals("true")) {
+
+                        ParseUser actual = ((ParseUser) temp.get("friend1")).fetchIfNeeded();
+                        ParseGeoPoint point = (ParseGeoPoint) actual.get("location");
+
+
                         result.add(new Friend(
-                                ((ParseUser) temp.get("friend1")).fetchIfNeeded().getObjectId(),
-                                ((ParseUser) temp.get("friend1")).fetchIfNeeded().get("name").toString(),
-                                ((ParseUser) temp.get("friend1")).fetchIfNeeded().getEmail(),
-                                ((ParseUser) temp.get("friend1")).fetchIfNeeded().get("photo") != null ?
-                                        ((ParseUser) temp.get("friend1")).fetchIfNeeded().get("photo").toString() : null));
-                        Log.d("Friend added: ", ((ParseUser) temp.get("friend1")).fetchIfNeeded().get("name").toString());
+                                actual.getObjectId(),
+                                actual.get("name").toString(),
+                                actual.getEmail(),
+                                actual.get("photo") != null ? actual.get("photo").toString() : null,
+                                point.getLatitude(), point.getLongitude()));
+
+                        Log.d("Friend added: ", "" + actual.get("name").toString() +" "+  point.getLatitude() + ", "+ point.getLongitude());
                     }
 
                 }

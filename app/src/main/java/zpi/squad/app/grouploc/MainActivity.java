@@ -276,6 +276,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
         hintsL = session.getHintsLeft();
 
+        Log.e("LOKALIZACJA: ", session.getCurrentLocation().latitude + ", " + session.getCurrentLocation().longitude );
+
         /*if (hintsL > 0) {
             session.setHintsLeft(session.getHintsLeft() - 1);
 
@@ -758,7 +760,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         if (not.getType().equals("friendshipRequest")) {
-                            sendFriendshipAcceptance(session.getUserId(), not.getSenderId(), not.getSenderName(), not.getSenderEmail());
+                           // sendFriendshipAcceptance(session.getUserId(), not.getSenderId(), not.getSenderName(), not.getSenderEmail());
 
 
                         }
@@ -795,7 +797,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             pDialog.dismiss();
     }
 
-    private void sendFriendshipAcceptance(final String senderId, final String myreceiverid, final String receiverName, final String receiverEmail) {
+   /* private void sendFriendshipAcceptance(final String senderId, final String myreceiverid, final String receiverName, final String receiverEmail) {
 
         String tag_string_req = "req_friendshipRequest";
         pDialog.setMessage("Sending friendship acceptance");
@@ -857,7 +859,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         };
 
         AppController.getInstance().addToRequestQueue(strReq, tag_string_req);
-    }
+    }*/
 
     private void sendGroupRequestAcceptance(final String senderId, final String groupId) {
 

@@ -4,6 +4,7 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.app.*;
 import android.app.AlertDialog;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.*;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
@@ -77,7 +78,7 @@ import java.util.Map;
 
 
 public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
-        LocationListener, ToolTipView.OnToolTipViewClickedListener, NavigationView.OnNavigationItemSelectedListener {
+        LocationListener, ToolTipView.OnToolTipViewClickedListener, NavigationView.OnNavigationItemSelectedListener/*, android.support.v4.app.FragmentManager.OnBackStackChangedListener*/  {
 
     private SessionManager session;
     private ProgressDialog pDialog;
@@ -214,6 +215,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         navigationViewRight = (NavigationView) findViewById(R.id.nav_view_right);
         navigationViewRight.setNavigationItemSelectedListener(this);
 
+        /*getSupportFragmentManager().addOnBackStackChangedListener(this);
+        shouldDisplayHomeUp();*/
 
         mRequestingLocationUpdates = true;
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
@@ -291,6 +294,27 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 .withAnimationType(ToolTip.AnimationType.FROM_TOP);
         myToolTipView = toolTipRelativeLayout.showToolTipForView(toolTip, findViewById(R.id.circleButton));
         myToolTipView.setOnToolTipViewClickedListener(MainActivity.this);
+    }*/
+
+    /*@Override
+    public void onBackStackChanged() {
+        shouldDisplayHomeUp();
+    }
+
+    public void shouldDisplayHomeUp(){
+        if(getSupportFragmentManager().getBackStackEntryCount() == 0){
+            getSupportActionBar().setDefaultDisplayHomeAsUpEnabled(true);
+        }
+        else {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        //This method is called when the up button is pressed. Just the pop back stack.
+        getSupportFragmentManager().popBackStack();
+        return true;
     }*/
 
     private void addFriendEmailToolTipView() {
@@ -483,6 +507,15 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         int id = item.getItemId();
         if (id == R.id.nav_about) {
 
+        }
+        else if(id == R.id.nav_map){
+            if(mapFragment.isVisible()){
+
+            }
+            else{
+                getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+                getSupportFragmentManager().beginTransaction().replace(R.id.main_container, mapFragment, mapTAG).setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN).commit();
+            }
         }
         else if(id == R.id.nav_password){
             if(getSupportFragmentManager().findFragmentByTag(passwordTAG) == null) {

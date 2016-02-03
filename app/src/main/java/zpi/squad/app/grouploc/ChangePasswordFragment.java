@@ -5,6 +5,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.InflateException;
@@ -66,7 +67,13 @@ public class ChangePasswordFragment extends Fragment {
         confirm.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                getActivity().getSupportFragmentManager().popBackStack();
+                if(getActivity().getSupportFragmentManager().getBackStackEntryCount() > 1){
+                    getActivity().getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+                    getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.main_container, getActivity().getSupportFragmentManager().findFragmentByTag(mapTAG), mapTAG).setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN).commit();
+                }
+                else {
+                    getActivity().getSupportFragmentManager().popBackStack();
+                }
 
                 /*InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(tabhost.getApplicationWindowToken(), 0);*/

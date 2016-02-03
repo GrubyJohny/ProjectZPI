@@ -276,6 +276,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
         hintsL = session.getHintsLeft();
 
+        Log.e("LOKALIZACJA: ", session.getCurrentLocation().latitude + ", " + session.getCurrentLocation().longitude );
+
         /*if (hintsL > 0) {
             session.setHintsLeft(session.getHintsLeft() - 1);
 

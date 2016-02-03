@@ -7,6 +7,7 @@ import android.graphics.BitmapFactory;
 import android.util.Base64;
 import android.util.Log;
 
+import com.google.android.gms.maps.model.LatLng;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
@@ -22,6 +23,7 @@ public class SessionManager {
     private SharedPreferences pref;
     private SharedPreferences.Editor editor;
     public static ArrayList<Friend> friends;
+    private LatLng currentLocation;
 
 
     private SessionManager(Context context) {
@@ -47,9 +49,6 @@ public class SessionManager {
 
 
     private static String TAG = "SessionManager";
-
-    //to jest już w sumie nieużywane, ale na razie zostaje
-    private SQLiteHandler db;
 
     private static int hintsLeft = 3;
 
@@ -83,6 +82,10 @@ public class SessionManager {
 
     public void setUserIsLoggedByFacebook(boolean cond) { userIsLoggedByFacebook = cond; }
 
+    public void setUserCurrentLocation(double lat, double lng) { currentLocation = new LatLng(lat, lng); }
+
+    public void setUserCurrentLocation(LatLng locat) { currentLocation = new LatLng(locat.latitude, locat.longitude); }
+
     public boolean isLoggedByFacebook() { return userIsLoggedByFacebook; }
 
     public boolean isLoggedIn() { return userIsLoggedIn; }
@@ -102,6 +105,8 @@ public class SessionManager {
     public String getUserPhoto() {
         return userPhoto;
     }
+
+    public LatLng getCurrentLocation() { return currentLocation; }
 
     public void logOut() {
         userIsLoggedIn = false;
@@ -128,9 +133,9 @@ public class SessionManager {
         ArrayList<Friend> result = new ArrayList<>();
 
         ParseQuery checkIfFriends1 = new ParseQuery("Friendship");
-        checkIfFriends1.whereEqualTo("friend1", ParseUser.getCurrentUser());
+        checkIfFriends1.whereEqualTo("friend1", ParseUser.getCurrentUser()).orderByAscending("name");
         ParseQuery checkIfFriends2 = new ParseQuery("Friendship");
-        checkIfFriends2.whereEqualTo("friend2", ParseUser.getCurrentUser());
+        checkIfFriends2.whereEqualTo("friend2", ParseUser.getCurrentUser()).orderByAscending("name");
 
         Object[] friendsList = null, friendsList2 = null;
         ParseObject temp = null;

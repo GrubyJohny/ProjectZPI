@@ -114,13 +114,8 @@
         android:layout_gravity="end"
         android:fitsSystemWindows="true"
         app:headerLayout="@layout/nav_header_main_right"
-        app:menu="@menu/activity_main_drawer_right">
-
-        <ListView
-            android:id="@+id/friendsListView"
-            android:layout_width="match_parent"
-            android:layout_height="fill_parent"
-            android:choiceMode="singleChoice" />
+        app:menu="@menu/activity_main_drawer_right"
+        android:theme="@style/NavigationTheme">
 
         <android.support.design.widget.FloatingActionButton
             android:id="@+id/fab"

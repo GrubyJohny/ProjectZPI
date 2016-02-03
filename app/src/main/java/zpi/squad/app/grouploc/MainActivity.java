@@ -75,6 +75,8 @@ import org.json.JSONObject;
 import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -221,6 +223,14 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         navigationViewRight.setNavigationItemSelectedListener(this);
 
         ArrayList<Friend> friendsList = session.getFriendsList();
+
+        Collections.sort(friendsList, new Comparator<Friend>() {
+            @Override
+            public int compare(Friend friend2, Friend friend1) {
+                return friend2.getFriendName().compareToIgnoreCase(friend1.getFriendName());
+            }
+        });
+
         for(Friend f : friendsList) {
             ImageView img = new ImageView(context);
             img.setImageBitmap(session.decodeBase64ToBitmap(f.getFriendPhoto()));

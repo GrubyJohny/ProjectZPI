@@ -29,6 +29,8 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="title_activity_friends">Friends</string>
     <string name="confirmButton">Confirm</string>
+    <string name="filterText">Enter friend name</string>
+    <string name="rightDrawerTitle">Friends</string>
 
 
 </resources>

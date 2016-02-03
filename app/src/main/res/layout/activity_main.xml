@@ -24,10 +24,10 @@
         android:layout_width="250dp"
         android:layout_height="150dp"
         android:background="@color/background_material_light"
-        android:orientation="vertical"
-        android:visibility="invisible"
         android:divider="@drawable/divider"
-        android:showDividers="middle">
+        android:orientation="vertical"
+        android:showDividers="middle"
+        android:visibility="invisible">
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -37,11 +37,11 @@
                 android:id="@+id/titleOfMarker"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Tytuł markera"
                 android:layout_centerInParent="true"
                 android:ellipsize="none"
                 android:maxLines="3"
-                android:scrollHorizontally="false"/>
+                android:scrollHorizontally="false"
+                android:text="Tytuł markera" />
         </RelativeLayout>
 
         <LinearLayout
@@ -53,46 +53,46 @@
                 android:id="@+id/firstButton"
                 android:layout_width="0dp"
                 android:layout_height="50dp"
+                android:layout_weight="1"
                 android:clickable="true"
-                android:src="@drawable/polyline"
                 android:scaleType="fitCenter"
-                android:layout_weight="1"/>
+                android:src="@drawable/polyline" />
 
             <ImageButton
                 android:id="@+id/secondButton"
                 android:layout_width="0dp"
                 android:layout_height="50dp"
+                android:layout_weight="1"
                 android:clickable="true"
-                android:src="@drawable/navigation"
                 android:scaleType="fitCenter"
-                android:layout_weight="1"/>
+                android:src="@drawable/navigation" />
 
             <ImageButton
                 android:id="@+id/fifthButton"
                 android:layout_width="0dp"
                 android:layout_height="50dp"
+                android:layout_weight="1"
                 android:clickable="true"
-                android:src="@drawable/share"
                 android:scaleType="fitCenter"
-                android:layout_weight="1"/>
+                android:src="@drawable/share" />
 
             <ImageButton
                 android:id="@+id/thirdButton"
                 android:layout_width="0dp"
                 android:layout_height="50dp"
-                android:src="@drawable/checkmark"
+                android:layout_weight="1"
                 android:clickable="true"
                 android:scaleType="fitCenter"
-                android:layout_weight="1"/>
+                android:src="@drawable/checkmark" />
 
             <ImageButton
                 android:id="@+id/fourthButton"
                 android:layout_width="0dp"
                 android:layout_height="50dp"
+                android:layout_weight="1"
                 android:clickable="true"
-                android:src="@drawable/delete"
                 android:scaleType="fitCenter"
-                android:layout_weight="1"/>
+                android:src="@drawable/delete" />
         </LinearLayout>
 
     </LinearLayout>
@@ -114,5 +114,17 @@
         android:layout_gravity="end"
         android:fitsSystemWindows="true"
         app:headerLayout="@layout/nav_header_main_right"
-        app:menu="@menu/activity_main_drawer_right" />
+        app:menu="@menu/activity_main_drawer_right"
+        android:theme="@style/NavigationTheme">
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/fab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_plus"
+            app:borderWidth="0dp"
+            android:layout_gravity="bottom|end"
+            android:layout_margin="16dp"/>
+    </android.support.design.widget.NavigationView>
+
 </android.support.v4.widget.DrawerLayout>

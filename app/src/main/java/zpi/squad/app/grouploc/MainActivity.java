@@ -41,6 +41,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ListAdapter;
+import android.widget.ListView;
 import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -73,7 +75,10 @@ import org.json.JSONObject;
 import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 
@@ -166,6 +171,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     final static String photoTAG = "PHOTO";
     final static String passwordTAG = "PASSWORD";
 
+    private static List<ListViewItem> mItems;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -214,6 +221,23 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
         navigationViewRight = (NavigationView) findViewById(R.id.nav_view_right);
         navigationViewRight.setNavigationItemSelectedListener(this);
+
+        ArrayList<Friend> friendsList = session.getFriendsList();
+
+        Collections.sort(friendsList, new Comparator<Friend>() {
+            @Override
+            public int compare(Friend friend2, Friend friend1) {
+                return friend2.getFriendName().compareToIgnoreCase(friend1.getFriendName());
+            }
+        });
+
+        for(Friend f : friendsList) {
+            ImageView img = new ImageView(context);
+            img.setImageBitmap(session.decodeBase64ToBitmap(f.getFriendPhoto()));
+            navigationViewRight.getMenu().add(f.getFriendName()).setIcon(img.getDrawable());
+        }
+        navigationViewRight.setItemIconTintList(null);
+        supportInvalidateOptionsMenu();
 
         /*getSupportFragmentManager().addOnBackStackChangedListener(this);
         shouldDisplayHomeUp();*/
@@ -280,10 +304,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 }
             }, 3000);
         }*/
-
-        //tylko do testu czy pobiera
-        session.getFriendsList();
-
     }
 
     /*private void addMyToolTipView() {
@@ -317,6 +337,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         return true;
     }*/
 
+
     private void addFriendEmailToolTipView() {
         ToolTip toolTip = new ToolTip()
                 .withText("Type here your friend email")
@@ -341,13 +362,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         Bitmap bitmap_round = clipBitmap(bMapScaled, noticeButton);
 
         noticeButton.setImageBitmap(bitmap_round);
-
-        /*messageButton = (ImageButton) findViewById(R.id.messageButton);
-        Bitmap bMap1 = BitmapFactory.decodeResource(getResources(), R.drawable.messageicon);
-        Bitmap bMapScaled1 = Bitmap.createScaledBitmap(bMap1, 150, 150, true);
-        Bitmap bitmap_round1 = clipBitmap(bMapScaled1, messageButton);
-
-        messageButton.setImageBitmap(bitmap_round1);*/
     }
 
     private void notifications() {
@@ -465,7 +479,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 });
         final AlertDialog alert = builder.create();
         alert.show();
-
     }
 
     //Startujemy nasłuchiwanie zmian lokacji

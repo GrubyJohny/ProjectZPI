@@ -37,11 +37,8 @@ public class LoginActivity extends Activity {
 
     private static final String TAG = RegisterActivity.class.getSimpleName();
     private Button btnLogin, btnLoginWithFacebook, btnRegister;
-    //private Button btnLinkToRegister;
     private EditText inputEmail;
     private EditText inputPassword;
-    //private ProgressDialog pDialog;
-    //private SessionManager session;
     private SQLiteHandler db;
     public static Context context;
     public static List<String> permissions = new ArrayList<>();
@@ -53,7 +50,6 @@ public class LoginActivity extends Activity {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-
 
         context = getApplicationContext();
         session = SessionManager.getInstance(context);
@@ -88,31 +84,26 @@ public class LoginActivity extends Activity {
                 String email = inputEmail.getText().toString().trim();
                 String password = inputPassword.getText().toString();
 
-                if(!email.isEmpty() && password.isEmpty()){
+                if (!email.isEmpty() && password.isEmpty()) {
                     Toast.makeText(getApplicationContext(),
                             "Please enter password!", Toast.LENGTH_LONG).show();
-                }
-                else if(email.isEmpty() && !password.isEmpty()){
+                } else if (email.isEmpty() && !password.isEmpty()) {
                     Toast.makeText(getApplicationContext(),
                             "Please enter your email address", Toast.LENGTH_LONG).show();
-                }
-                else if(email.isEmpty() && password.isEmpty()){
+                } else if (email.isEmpty() && password.isEmpty()) {
                     Toast.makeText(getApplicationContext(),
                             "Please enter the credentials!", Toast.LENGTH_LONG).show();
-                }
-                else {
+                } else {
                     if (AppController.checkConn(LoginActivity.this.getApplication())) {
                         checkLogin(email, password);
                     } else {
                         Toast.makeText(getApplicationContext(),
                                 "No connection to internet detected. Unfortunately it's is impossible to login", Toast.LENGTH_LONG).show();
                     }
-
                 }
             }
 
         });
-
 
         permissions.add("public_profile");
         permissions.add("email");
@@ -150,7 +141,6 @@ public class LoginActivity extends Activity {
 
                             ParseUser current = ParseUser.getCurrentUser();
 
-
                             try {
                                 session.setUserEmail(current.fetchIfNeeded().getEmail());
                                 session.setUserName(current.fetchIfNeeded().get("name").toString());
@@ -166,11 +156,9 @@ public class LoginActivity extends Activity {
                             Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                             finish();
                             startActivity(intent);
-
                         }
                     });
-                }
-                else {
+                } else {
                     Toast.makeText(getApplicationContext(),
                             "No connection to internet detected. Unfortunately it's is impossible to login", Toast.LENGTH_LONG).show();
                 }
@@ -178,10 +166,7 @@ public class LoginActivity extends Activity {
         });
 
         btnRegister.setOnClickListener(new View.OnClickListener() {
-
             public void onClick(View view) {
-
-
                 if (AppController.checkConn(LoginActivity.this.getApplication())) {
                     Intent i = new Intent(getApplicationContext(),
                             RegisterActivity.class);
@@ -202,9 +187,7 @@ public class LoginActivity extends Activity {
         ParseFacebookUtils.onActivityResult(requestCode, resultCode, data);
     }
 
-
     private void checkLogin(String email, String password) {
-
         try {
             ParseUser.logIn(email, password);
             Toast.makeText(context, "Success!", Toast.LENGTH_LONG).show();
@@ -234,12 +217,9 @@ public class LoginActivity extends Activity {
                 startActivity(intent);
             }
         }
-
     }
 
     private String[] getFacebookUserInfo(AccessToken accessToken) throws IOException {
-
-
         final String result[] = new String[2];
 
         GraphRequest request = GraphRequest.newMeRequest(
@@ -267,8 +247,6 @@ public class LoginActivity extends Activity {
     }
 
     private Bitmap getFacebookProfilePicture(AccessToken accessToken) throws IOException {
-
-
         Bundle params = new Bundle();
         params.putBoolean("redirect", false);
         params.putInt("height", 100);
@@ -295,7 +273,6 @@ public class LoginActivity extends Activity {
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
-
                     }
                 }
         ).executeAndWait();

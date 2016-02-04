@@ -4,6 +4,10 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.app.*;
 import android.app.AlertDialog;
+import android.graphics.Color;
+import android.graphics.ColorFilter;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.*;
 import android.support.v4.app.FragmentTransaction;
@@ -28,6 +32,8 @@ import android.provider.MediaStore;
 import android.support.design.widget.NavigationView;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Menu;
@@ -36,6 +42,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Filter;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -164,6 +171,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
     private static List<ListViewItem> mItems;
     private ListView friendsListView;
+    private EditText inputSearch;
+    private FriendAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -214,7 +223,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         navigationViewRight = (NavigationView) findViewById(R.id.nav_view_right);
         navigationViewRight.setNavigationItemSelectedListener(this);
 
-        ArrayList<Friend> friendsList = session.getFriendsList();
+        ArrayList<Friend> friendsList = new ArrayList<>();
+        friendsList.addAll(session.getFriendsList());
 
         Collections.sort(friendsList, new Comparator<Friend>() {
             @Override
@@ -223,11 +233,34 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             }
         });
 
-        FriendAdapter adapter = new FriendAdapter(this, friendsList);
+        adapter = new FriendAdapter(this, friendsList);
 
         friendsListView = (ListView) findViewById(R.id.friendsListView);
         friendsListView.setAdapter(adapter);
+        friendsListView.setTextFilterEnabled(true);
         supportInvalidateOptionsMenu();
+
+        inputSearch = (EditText) findViewById(R.id.filterFriendsInput);
+        inputSearch.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                adapter.getFilter().filter(s, new Filter.FilterListener() {
+                    @Override
+                    public void onFilterComplete(int count) {
+                       // adapter.notifyDataSetChanged();
+                    }
+                });
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
 
         /*getSupportFragmentManager().addOnBackStackChangedListener(this);
         shouldDisplayHomeUp();*/
@@ -265,6 +298,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         hintsL = session.getHintsLeft();
 
         Log.e("LOKALIZACJA: ", session.getCurrentLocation().latitude + ", " + session.getCurrentLocation().longitude);
+
+
     }
 
     /*private void addMyToolTipView() {
@@ -444,6 +479,10 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
+
+        // TO JEST PRZYKLAD JAK POMALOWAC IKONKE W MENU, PRZYDA SIE NA KIEDYS
+        /*Drawable d =  menu.getItem(0).getIcon();
+        d.setColorFilter(Color.RED, PorterDuff.Mode.SRC_IN);*/
         return true;
 
     }

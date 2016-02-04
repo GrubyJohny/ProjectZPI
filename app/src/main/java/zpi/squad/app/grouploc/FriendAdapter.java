@@ -4,20 +4,26 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Base64;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.List;
 
-public class FriendAdapter extends ArrayAdapter<Friend> {
+public class FriendAdapter extends ArrayAdapter<Friend> implements Filterable {
+    private SessionManager session = SessionManager.getInstance();
+    private ArrayList<Friend> items;
 
     public FriendAdapter(Context context, ArrayList<Friend> items) {
         super(context, R.layout.friend_list_row, items);
-
+        this.items = items;
     }
 
     @Override
@@ -36,6 +42,44 @@ public class FriendAdapter extends ArrayAdapter<Friend> {
         photo.setImageBitmap(decodeBase64ToBitmap(friend.getFriendPhoto()));
         // Return the completed view to render on screen
         return convertView;
+    }
+
+    @Override
+    public Filter getFilter() {
+
+        Filter filter = new Filter() {
+            @Override
+            protected FilterResults performFiltering(CharSequence constraint) {
+                FilterResults result = new FilterResults();
+                List<Friend> allFriends = session.getFriendsList();
+                if (constraint == null || constraint.length() == 0) {
+                    result.values = allFriends;
+                    result.count = allFriends.size();
+                } else {
+                    ArrayList<Friend> filteredList = new ArrayList<Friend>();
+                    for (Friend f : allFriends) {
+                        if (f.getFriendName().toLowerCase().contains(constraint.toString().toLowerCase()))
+                            filteredList.add(f);
+                    }
+                    result.values = filteredList;
+                    result.count = filteredList.size();
+                }
+                return result;
+            }
+
+            @SuppressWarnings("unchecked")
+            @Override
+            protected void publishResults(CharSequence constraint, FilterResults results) {
+                dataSetChanged((List<Friend>) results.values);
+            }
+        };
+        return filter;
+    }
+
+    public void dataSetChanged(List<Friend> values) {
+        items.clear();
+        items.addAll(values);
+        notifyDataSetChanged();
     }
 
     public Bitmap decodeBase64ToBitmap(String input) {

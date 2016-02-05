@@ -31,6 +31,7 @@
     <string name="confirmButton">Confirm</string>
     <string name="filterText">Enter friend name</string>
     <string name="rightDrawerTitle">Friends</string>
+    <string name="facebook_login_button_text">Log in with facebook</string>
 
 
 </resources>

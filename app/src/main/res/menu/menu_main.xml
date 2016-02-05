@@ -2,28 +2,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".MainActivity">
-    <!--<item
-        android:title="GroupLoc"
-        android:icon="@drawable/logozpi"
-        app:showAsAction="always|withText"
-        />-->
-    <!--<item
-        android:id="@+id/action_settings"
-        android:orderInCategory="100"
-        android:title="@string/action_settings"
-        app:showAsAction="never" />-->
-    <!--<item
-        android:id="@+id/action_logout"
-        android:orderInCategory="100"
-        android:title="Log out"
-        app:showAsAction="never" />-->
-    <!--<item
-        android:id="@+id/noticeButton1"
-        android:orderInCategory="100"
-        android:title="notice_button"
-        android:icon="@drawable/notificon"
-        app:showAsAction="always"
-        />-->
     <item
         android:id="@+id/friendsButton"
         android:orderInCategory="100"

@@ -4,12 +4,7 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.app.*;
 import android.app.AlertDialog;
-import android.graphics.Color;
-import android.graphics.ColorFilter;
-import android.graphics.PorterDuff;
-import android.graphics.drawable.Drawable;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.*;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -18,7 +13,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Path;
 import android.location.Criteria;
@@ -40,7 +34,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Filter;
 import android.widget.ImageButton;
@@ -87,30 +80,11 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     private ProgressDialog pDialog;
     private SQLiteHandler db;
     Vibrator v;
-    private View tabLayout;
     protected boolean inhibit_spinner = true;
     private Spinner spinner1, spinner2, spinner3;
-    public static ImageButton circleButton;
-    private ImageButton noticeButton;
-    private ImageButton messageButton;
-    private Button friendsButton;
-    private Button groupButton;
-    private Button BackToMapButton;
-    private Button addFriendButton;
-    private View layoutSettings;
-    private View layoutGroup;
     private View layoutMarker;
     private GoogleMap myMap;
-    EditText searchingGroupText;
     private LocationManager locationManager;
-    private Button mainPoiButton;
-    private Button clearPoiButton;
-    private Button confirm;
-    private Button cancel;
-    private Button changeImgFromGallery;
-    private Button changeImgFromCamera;
-    private Button changeImgFromFacebook;
-    private Button changeImgFromAdjust;
     public static final int PICK_FROM_CAMERA = 1;
     public static final int PICK_FROM_GALLERY = 2;
     public static final int CROP_IMAGE = 3;
@@ -120,8 +94,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     private ImageButton fourthMarkerButton;
     //private Button closeMarkerButton;
     private Marker ostatniMarker;
-    private FragmentTabHost tabhost;
-    private Bitmap bitmap_round;
 
     private ScrollView POIScrollView;
     PoiJSONParser poiBase = new PoiJSONParser();
@@ -193,9 +165,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         mGoogleApiClient.connect();
         session = SessionManager.getInstance(getApplicationContext());
         db = new SQLiteHandler(getApplicationContext());
-        //tabLayout = (View) findViewById(R.id.tabLayout);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_main);
         setSupportActionBar(toolbar);
 
         mapFragment = new MapFragment();
@@ -338,15 +309,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         mLocationRequest.setInterval(10000);
         mLocationRequest.setFastestInterval(5000);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-    }
-
-    private void noticeAndMessageButtons() {
-        //  noticeButton = (ImageButton) findViewById(R.id.noticeButton);
-        Bitmap bMap = BitmapFactory.decodeResource(getResources(), R.drawable.notificon);
-        Bitmap bMapScaled = Bitmap.createScaledBitmap(bMap, 150, 150, true);
-        Bitmap bitmap_round = clipBitmap(bMapScaled, noticeButton);
-
-        noticeButton.setImageBitmap(bitmap_round);
     }
 
     private void notifications() {

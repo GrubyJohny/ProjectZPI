@@ -1,50 +1,59 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/white"
     tools:context="zpi.squad.app.grouploc.LoginActivity">
 
-    <TextView
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar_login"
         android:layout_width="match_parent"
-        android:layout_height="80dp"
-        android:text="GroupLoc"
-        android:textSize="20pt"
-        android:gravity="center"
-        android:textStyle="bold"
-        android:id="@+id/appName"
-        android:textColor="#ff000000"/>
+        android:layout_height="@dimen/abc_action_bar_default_height_material"
+        android:background="@color/panel_main"
+        android:minHeight="@dimen/abc_action_bar_default_height_material"
+        android:theme="@style/AppTheme_Login" />
 
-    <EditText
-        android:id="@+id/email"
-        android:layout_width="match_parent"
+    <RelativeLayout
+        android:id="@+id/textfields_layout"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:hint="@string/hint_login"
-        android:singleLine="true"
-        android:layout_below="@id/appName"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="5dp"
-        android:textColor="#ff000000"/>
+        android:layout_below="@id/toolbar_login"
+        android:padding="30dp">
 
-    <EditText
-        android:id="@+id/password"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/email"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="5dp"
-        android:hint="@string/hint_password"
-        android:inputType="textPassword"
-        android:singleLine="true"
-        android:password="true"
-        android:textColor="#ff000000"/>
+        <EditText
+            android:id="@+id/email"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="5dp"
+            android:hint="@string/hint_login"
+            android:padding="10dp"
+            android:singleLine="true"
+            android:textColor="#ff000000" />
+
+        <EditText
+            android:id="@+id/password"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/email"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="5dp"
+            android:hint="@string/hint_password"
+            android:inputType="textPassword"
+            android:padding="10dp"
+            android:password="true"
+            android:singleLine="true"
+            android:textColor="#ff000000" />
+    </RelativeLayout>
 
     <Button
         android:id="@+id/btnLogin"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/password"
+        android:layout_below="@id/textfields_layout"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="40dp"
+        android:layout_marginTop="20dp"
         android:text="@string/btn_login" />
 
     <Button
@@ -53,9 +62,12 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/btnLogin"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="20dp"
         android:layout_marginBottom="10dp"
-        android:text="facebook" />
+        android:layout_marginTop="20dp"
+        android:background="#3b5998"
+        android:padding="16dp"
+        android:text="@string/facebook_login_button_text"
+        android:textColor="@color/white" />
 
     <Button
         android:id="@+id/btnLinkToRegisterScreen"
@@ -64,8 +76,8 @@
         android:layout_below="@id/login_button_facebook"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="30dp"
-        android:text="@string/btn_link_to_register"
-        android:background="@android:color/transparent"/>
+        android:background="@android:color/transparent"
+        android:text="@string/btn_link_to_register" />
 
     <!--<TextView
         android:layout_width="wrap_content"

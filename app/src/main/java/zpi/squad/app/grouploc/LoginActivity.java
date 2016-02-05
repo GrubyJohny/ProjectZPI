@@ -7,6 +7,11 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.StrictMode;
+import android.support.annotation.Nullable;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatCallback;
+import android.support.v7.app.AppCompatDelegate;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -33,9 +38,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-public class LoginActivity extends Activity {
-
-    private static final String TAG = RegisterActivity.class.getSimpleName();
+public class LoginActivity extends Activity implements AppCompatCallback {
     private Button btnLogin, btnLoginWithFacebook, btnRegister;
     private EditText inputEmail;
     private EditText inputPassword;
@@ -44,12 +47,20 @@ public class LoginActivity extends Activity {
     public static List<String> permissions = new ArrayList<>();
     private Bitmap profileImageFromFacebook;
     private SessionManager session;
+    private AppCompatDelegate delegate;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
+        delegate = AppCompatDelegate.create(this, this);
+        delegate.onCreate(savedInstanceState);
+        delegate.setContentView(R.layout.activity_login);
+        Toolbar toolbar= (Toolbar) findViewById(R.id.toolbar_login);
+        delegate.setSupportActionBar(toolbar);
+        delegate.getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
+        delegate.getSupportActionBar().setCustomView(R.layout.actionbar_login);
 
         context = getApplicationContext();
         session = SessionManager.getInstance(context);
@@ -180,6 +191,12 @@ public class LoginActivity extends Activity {
         });
     }
 
+    /*@Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_login, menu);
+        return true;
+    }*/
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -278,5 +295,21 @@ public class LoginActivity extends Activity {
         ).executeAndWait();
 
         return profileImageFromFacebook;
+    }
+
+    @Override
+    public void onSupportActionModeStarted(android.support.v7.view.ActionMode mode) {
+
+    }
+
+    @Override
+    public void onSupportActionModeFinished(android.support.v7.view.ActionMode mode) {
+
+    }
+
+    @Nullable
+    @Override
+    public android.support.v7.view.ActionMode onWindowStartingSupportActionMode(android.support.v7.view.ActionMode.Callback callback) {
+        return null;
     }
 }

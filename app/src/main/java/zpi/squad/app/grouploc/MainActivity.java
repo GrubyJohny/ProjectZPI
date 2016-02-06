@@ -4,6 +4,8 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.app.*;
 import android.app.AlertDialog;
+import android.location.LocationProvider;
+import android.os.AsyncTask;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
@@ -59,6 +61,9 @@ import com.google.android.gms.maps.model.Marker;
 import com.nhaarman.supertooltips.ToolTipRelativeLayout;
 import com.nhaarman.supertooltips.ToolTipView;
 
+import com.parse.ParseException;
+import com.parse.ParseGeoPoint;
+import com.parse.ParseObject;
 import com.parse.ParseUser;
 
 import org.json.JSONException;
@@ -68,6 +73,7 @@ import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -269,7 +275,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         hintsL = session.getHintsLeft();
 
         Log.e("LOKALIZACJA: ", session.getCurrentLocation().latitude + ", " + session.getCurrentLocation().longitude);
-
+        DataRefresh refresh = new DataRefresh();
+        refresh.execute();
 
     }
 
@@ -788,7 +795,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         showDialog();
         final String TAG = "addFriendToGroup";
 
-        StringRequest strReq = new StringRequest(Request.Method.POST, AppConfig.URL_REGISTER, new Response.Listener<String>() {
+        StringRequest strReq = new StringRequest(Request.Method.POST, "" /*AppConfig.URL_REGISTER*/, new Response.Listener<String>() {
 
             @Override
             public void onResponse(String response) {
@@ -843,4 +850,51 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         String path = MediaStore.Images.Media.insertImage(inContext.getContentResolver(), inImage, "Title", null);
         return Uri.parse(path);
     }
+
+    private class DataRefresh extends AsyncTask<String, Void, String> {
+
+        @Override
+        protected String doInBackground(String... params) {
+
+            Criteria criteria = new Criteria();
+            criteria.setPowerRequirement(Criteria.POWER_LOW);
+
+            while(SessionManager.getInstance().isLoggedIn())
+            {
+                try {
+
+                    mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+
+                    if(mCurrentLocation != null)
+                    {
+                        Location myLocation = locationManager.getLastKnownLocation(locationManager.getBestProvider(criteria, true));
+
+                        session.setUserCurrentLocation(myLocation.getLatitude(), myLocation.getLongitude());
+                        ParseUser.getCurrentUser().fetchIfNeeded().put("location", new ParseGeoPoint(myLocation.getLatitude(), myLocation.getLongitude()));
+                        ParseUser.getCurrentUser().fetchIfNeeded().put("locationUpdateTime", new Date());
+                        ParseUser.getCurrentUser().saveInBackground();
+                    }
+
+                    Thread.sleep(33000);
+                } catch (InterruptedException e) {
+                    Thread.interrupted();
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+            }
+            return "Executed";
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+        }
+
+        @Override
+        protected void onPreExecute() {}
+
+        @Override
+        protected void onProgressUpdate(Void... values) {}
+    }
+
 }
+

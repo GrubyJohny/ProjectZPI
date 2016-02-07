@@ -39,15 +39,20 @@ import com.google.android.gms.maps.StreetViewPanorama;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.GroundOverlayOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.android.gms.maps.model.Tile;
+import com.google.android.gms.maps.model.TileOverlayOptions;
+import com.google.android.gms.maps.model.TileProvider;
 
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -73,7 +78,7 @@ import static zpi.squad.app.grouploc.POISpecies.getRightSpecies;
 public class MapFragment extends Fragment implements OnMapReadyCallback, OnStreetViewPanoramaReadyCallback, GoogleApiClient.ConnectionCallbacks,MarkerDialog.NoticeDialogListener {
 
     private SupportMapFragment fragment;
-    private GoogleMapOptions mapOptions = new GoogleMapOptions().liteMode(true);
+    //private GoogleMapOptions mapOptions = new GoogleMapOptions().liteMode(true);
 
     private static View view;
     //OstatniKliknietyNaMapi
@@ -145,7 +150,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
         layoutMarker = (View) getActivity().findViewById(R.id.markerLayout);
 //        tabs = (View) getActivity().findViewById(R.id.tabanim_tabs);
         context = getActivity().getApplicationContext();
-        globalVariable = (AppController) getActivity().getApplicationContext();
+        //globalVariable = (AppController) getActivity().getApplicationContext();
         db = new SQLiteHandler(getActivity().getApplicationContext());
         markers = db.getAllMarkers();
         googleMarkers=new HashMap<String,Marker>();
@@ -154,10 +159,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
 
             }
         }
-        globalVariable.setMarkers(markers);
+        //globalVariable.setMarkers(markers);
 
         //mRequestingLocationUpdates = true;
-        createLocationRequest();
+        //createLocationRequest();
         buildGoogleApiClient();
         mGoogleApiClient.connect();
         mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
@@ -204,14 +209,26 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
     @Override
     public void onMapReady(GoogleMap map) {
         map.addMarker(new MarkerOptions().position(new LatLng(50, 50)).title("Marker"));
-        map.setTrafficEnabled(true);
         map.setBuildingsEnabled(true);
-        map.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+        map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+        map.setMyLocationEnabled(true);
         map.getUiSettings().setZoomControlsEnabled(true);
         map.getUiSettings().setMapToolbarEnabled(true);
         map.getUiSettings().setIndoorLevelPickerEnabled(true);
         map.getUiSettings().setAllGesturesEnabled(true);
-        map.getCameraPosition().describeContents();
+
+        CameraPosition cameraPosition = new CameraPosition.Builder()
+                                .target(session.getCurrentLocation())
+                                .zoom(17)
+                                .bearing(0)
+                                .tilt(30)
+                                .build();
+        map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+
+        /*poniżej to coś na wzór tego, co chciałeś, żeby dodawać obiekty nie jako markery, tylko właśnie takie bardziej
+        zintegrowane z mapą rzeczy. tylko nie da rady w nie klikać - czysto informacyjne.
+        */
+        map.addGroundOverlay(new GroundOverlayOptions().image(BitmapDescriptorFactory.fromResource(R.drawable.johny)).position(session.getCurrentLocation(), 20).visible(true));
 
     }
 
@@ -264,7 +281,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
         changeMapTypeButton = (Button) getActivity().findViewById(R.id.changeMapTypeButton);
         changeMapTypeButton.setText("Hybrid");
 
-        changeMapTypeButton.setOnClickListener(new View.OnClickListener() {
+        /*changeMapTypeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 System.out.println("JAJECZKO");
@@ -279,7 +296,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
                 }
                 //showMapTypeSelectorDialog();
             }
-        });
+        });*/
 
         //final Button myButtonFood = (Button) findViewById(R.id.ButtonFood);
         final ImageButton myButtonFoodBar = (ImageButton) getActivity().findViewById(R.id.ButtonFoodBar);
@@ -423,13 +440,13 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
 
     public void addSelectedPOItoMap(List<MarkerOptions> POItoAdd,POISpecies tag)
     {
-        HashMap<String,Marker> googleMarkers=new HashMap<>();
+        /*HashMap<String,Marker> googleMarkers=new HashMap<>();
         for(MarkerOptions markOption :POItoAdd)
         {
             Marker marker= globalVariable.getMyMap().addMarker(markOption.snippet("POI,"+tag));
             googleMarkers.put(marker.getId(), marker);
         }
-        active.put(tag,googleMarkers);
+        active.put(tag,googleMarkers);*/
     }
 
     public void deleteSelectedPOIFromMap(POISpecies tag)
@@ -458,9 +475,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
         @Override
         protected String doInBackground(String... params) {
             try {
-                preparePoiPoints();
+                //preparePoiPoints();
                 //Log.d("POI JOHNY", "poi gotowe");
-                poiIsUpToDate = true;
+                //poiIsUpToDate = true;
 
             } catch (Exception e) {
                 e.printStackTrace();
@@ -515,10 +532,12 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
     @Override
     public void onResume() {
         super.onResume();
+/*
         if (globalVariable.getMyMap() == null) {
             globalVariable.setMyMap(fragment.getMap());
             //map.addMarker(new MarkerOptions().position(new LatLng(0, 0)));
         }
+*/
     }
 
     protected void preparePoiPoints() throws IOException {
@@ -676,14 +695,14 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
 
     @Override
     public void onConnected(Bundle bundle) {
-               mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-        setUpMap(true);
+        mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+        /*setUpMap(true);
         setMapListener();
-//        setupPoiButtons();
+        setupPoiButtons();
 
         if (mRequestingLocationUpdates) {
-            // startLocationUpdates();
-        }
+             startLocationUpdates();
+        }*/
     }
 
     /*

@@ -38,7 +38,7 @@ public class Sender {
     public static HashMap<String,Marker> friends=new HashMap<String,Marker>(); //oj to jest tak bardzo, bardzo roboczo
 
     public static void sendMarker(final Context context, final CustomMarker cM, final Marker m, final SQLiteHandler db) {
-        StringRequest request = new StringRequest(Request.Method.POST, AppConfig.URL_LOGIN, new Response.Listener<String>() {
+        StringRequest request  = new StringRequest(Request.Method.POST, "" /*AppConfig.URL_LOGIN*/, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
 
@@ -284,7 +284,7 @@ public class Sender {
 
 
     public static void sendRequestAboutRemoveMarker(final String id, final GoogleMap myMap, final List<CustomMarker> markers) {
-        StringRequest request = new StringRequest(Request.Method.POST, AppConfig.URL_LOGIN, new Response.Listener<String>() {
+        StringRequest request = new StringRequest(Request.Method.POST, "" /*AppConfig.URL_LOGIN*/, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
                 Log.d("DELETE MARKER", response);
@@ -336,7 +336,7 @@ public class Sender {
     public static void shareMarker(final Context context, final String uid, final String name, final String latitude, final String longitude) {
         final String TAG = "Sharing marker to friends";
 
-        StringRequest request = new StringRequest(Request.Method.POST, AppConfig.URL_LOGIN, new Response.Listener<String>() {
+        StringRequest request = new StringRequest(Request.Method.POST, "" /*AppConfig.URL_LOGIN*/, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
 

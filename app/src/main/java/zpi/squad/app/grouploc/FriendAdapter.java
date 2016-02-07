@@ -14,6 +14,8 @@ import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.parse.ParseGeoPoint;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,7 +40,10 @@ public class FriendAdapter extends ArrayAdapter<Friend> implements Filterable {
         TextView name = (TextView) convertView.findViewById(R.id.txt);
         ImageView photo = (ImageView) convertView.findViewById(R.id.img);
         // Populate the data into the template view using the data object
-        name.setText(friend.name);
+        //wpakowałem to do tej samej linijki, co nazwa użytkownika, ale pewnie jakoś to już ładnie porozbijasz ;)
+        Double distanceToMe = new ParseGeoPoint(session.getCurrentLocation().latitude, session.getCurrentLocation().longitude).distanceInKilometersTo(friend.getFriendLocationParseGeoPoint());
+        String text = friend.name + ", " + distanceToMe.intValue()+ " km";
+        name.setText(text);
         photo.setImageBitmap(decodeBase64ToBitmap(friend.getFriendPhoto()));
         // Return the completed view to render on screen
         return convertView;

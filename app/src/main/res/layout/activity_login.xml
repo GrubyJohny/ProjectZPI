@@ -19,7 +19,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/toolbar_login"
-        android:padding="30dp">
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:paddingTop="30dp">
 
         <EditText
             android:id="@+id/email"
@@ -49,21 +51,33 @@
 
     <Button
         android:id="@+id/btnLogin"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/textfields_layout"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="20dp"
-        android:text="@string/btn_login" />
+        android:layout_margin="20dp"
+        android:background="#00796B"
+        android:text="@string/btn_login"
+        android:textColor="@color/white" />
+
+    <TextView
+        android:id="@+id/btnRemindPassword"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/btnLogin"
+        android:layout_marginLeft="20dp"
+        android:clickable="true"
+        android:text="Reset password"
+        android:textColor="@color/panel_main"
+        android:textSize="16sp"/>
 
     <Button
         android:id="@+id/login_button_facebook"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/btnLogin"
+        android:layout_below="@id/btnRemindPassword"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="10dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="30dp"
         android:background="#3b5998"
         android:padding="16dp"
         android:text="@string/facebook_login_button_text"
@@ -71,23 +85,14 @@
 
     <Button
         android:id="@+id/btnLinkToRegisterScreen"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/login_button_facebook"
+        android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
+        android:layout_margin="20dp"
         android:layout_marginTop="30dp"
-        android:background="@android:color/transparent"
-        android:text="@string/btn_link_to_register" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/btnLinkToRegisterScreen"
-        android:layout_centerHorizontal="true"
-        android:clickable="true"
-        android:layout_marginTop="15dp"
-        android:text="Reset password"
-        android:textColor="#479123"
-        android:id="@+id/btnRemindPassword" />
+        android:background="@color/panel_main"
+        android:text="@string/btn_link_to_register"
+        android:textColor="@color/white" />
 
 </RelativeLayout>

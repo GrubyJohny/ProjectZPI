@@ -22,12 +22,14 @@ import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.parse.Parse;
+import com.parse.ParseGeoPoint;
 import com.parse.ParseInstallation;
 import com.parse.ParseUser;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -108,6 +110,11 @@ public class RegisterActivity extends Activity {
                         user.setUsername(email);
                         user.setEmail(email);
                         user.setPassword(password);
+                        user.put("isFacebookAccount", false);
+                        user.put("locationUpdateTime", new Date());
+                        //TO DO:
+                        //jeszcze muszę przemyśleć jak tą lokalizację ustawiać przy rejestracji1
+                        user.put("location", new ParseGeoPoint(50, 18));
                         user.put("name", name);
                         user.put("photo", session.encodeBitmapTobase64(BitmapFactory.decodeResource(getResources(), R.drawable.image5)));
 

@@ -16,6 +16,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.facebook.AccessToken;
@@ -27,6 +28,8 @@ import com.parse.Parse;
 import com.parse.ParseException;
 import com.parse.ParseFacebookUtils;
 import com.parse.ParseGeoPoint;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
 import org.json.JSONException;
@@ -37,11 +40,13 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class LoginActivity extends Activity implements AppCompatCallback {
     private Button btnLogin, btnLoginWithFacebook, btnRegister;
     private EditText inputEmail;
     private EditText inputPassword;
+    private TextView btnRemind;
     private SQLiteHandler db;
     public static Context context;
     public static List<String> permissions = new ArrayList<>();
@@ -87,6 +92,7 @@ public class LoginActivity extends Activity implements AppCompatCallback {
         btnLogin = (Button) findViewById(R.id.btnLogin);
         btnLoginWithFacebook = (Button) findViewById(R.id.login_button_facebook);
         btnRegister = (Button) findViewById(R.id.btnLinkToRegisterScreen);
+        btnRemind = (TextView) findViewById(R.id.btnRemindPassword);
 
         db = new SQLiteHandler(getApplicationContext());
 
@@ -135,6 +141,7 @@ public class LoginActivity extends Activity implements AppCompatCallback {
                                     user.setEmail(tempInfo[0]);
                                     user.put("name", tempInfo[1]);
                                     user.put("location", new ParseGeoPoint(55, 55));
+                                    user.put("isFacebookAccount", true);
                                     try {
                                         user.put("photo", session.encodeBitmapTobase64(getFacebookProfilePicture(AccessToken.getCurrentAccessToken())));
                                     } catch (Exception e) {
@@ -187,6 +194,56 @@ public class LoginActivity extends Activity implements AppCompatCallback {
                     Toast.makeText(getApplicationContext(),
                             "No connection to internet detected. Unfortunately it is impossible to login", Toast.LENGTH_LONG).show();
                 }
+            }
+        });
+
+        btnRemind.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                /*Parse pozwala wysłać maila z resetem hasła jak ktoś zarejestrował się przez fejsa, ale ta zmiana,
+                * pomimo tego, że piszą że zakończyła się sukcesem, nie pozwala zalogować się przy użyciu maila z fejsa,
+                * ani nie przeszkadza znowu w logowaniu się fejsem, jak wcześniej
+                * Dlatego sprawdzam tutaj, czy ktoś podaje naprawdę adres mailowy - nazwa usera z fejsa nie może mieć małpy,
+                * więc takie sprawdzenie powinno wystarczyć*/
+
+                String enteredEmail = inputEmail.getText().toString().trim();
+                if(enteredEmail.length() > 0 && enteredEmail.contains("@"))
+                {
+                    ParseQuery.clearAllCachedResults();
+                    ParseQuery<ParseUser> query = ParseUser.getQuery();
+                    query.whereEqualTo("email", enteredEmail);
+
+                    Object[] queryResult;
+
+                    try {
+                            queryResult = query.find().toArray().clone();
+
+                        if( queryResult.length == 0)
+                        {
+                            Toast.makeText(getApplicationContext(), "No user registered with email: " + enteredEmail, Toast.LENGTH_LONG).show();
+                            Log.e("RESET", " "+ queryResult.length );
+                        }
+                        else if((boolean) ((ParseUser) queryResult[0]).get("isFacebookAccount"))
+                        {
+                            Toast.makeText(getApplicationContext(), "You should login with 'Log in with facebook' button above", Toast.LENGTH_LONG).show();
+                        }
+                        else
+                        {
+                            ParseUser.requestPasswordResetInBackground(enteredEmail);
+                            Toast.makeText(getApplicationContext(),
+                                    "Passwrod reset request sent to " + enteredEmail + ". Check your mailbox", Toast.LENGTH_LONG).show();
+                        }
+
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                        Log.e("PASS REMINDER", e.getLocalizedMessage());
+
+                        if(e.getLocalizedMessage().contains("invalid email address"))
+                            Toast.makeText(getApplicationContext(), "Invalid email address", Toast.LENGTH_LONG).show();
+                    }
+                }
+                else
+                    Toast.makeText(getApplicationContext(), "Please enter email first", Toast.LENGTH_LONG).show();
             }
         });
     }

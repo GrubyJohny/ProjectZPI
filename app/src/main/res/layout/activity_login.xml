@@ -79,14 +79,15 @@
         android:background="@android:color/transparent"
         android:text="@string/btn_link_to_register" />
 
-    <!--<TextView
+    <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/remind_password"
+        android:layout_below="@id/btnLinkToRegisterScreen"
         android:layout_centerHorizontal="true"
         android:clickable="true"
         android:layout_marginTop="15dp"
-        android:text="Remind password"
-        android:textColor="#479123" />-->
+        android:text="Reset password"
+        android:textColor="#479123"
+        android:id="@+id/btnRemindPassword" />
 
 </RelativeLayout>

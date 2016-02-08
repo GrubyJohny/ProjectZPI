@@ -62,7 +62,7 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dip"
-            android:background="#00796B"
+            android:background="@color/other_buttons"
             android:text="@string/btn_register"
             android:textColor="@color/white"/>
     </LinearLayout>

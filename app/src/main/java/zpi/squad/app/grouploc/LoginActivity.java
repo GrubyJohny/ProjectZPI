@@ -61,7 +61,7 @@ public class LoginActivity extends Activity implements AppCompatCallback {
         delegate = AppCompatDelegate.create(this, this);
         delegate.onCreate(savedInstanceState);
         delegate.setContentView(R.layout.activity_login);
-        Toolbar toolbar= (Toolbar) findViewById(R.id.toolbar_login);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_login);
         delegate.setSupportActionBar(toolbar);
         delegate.getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
         delegate.getSupportActionBar().setCustomView(R.layout.actionbar_login);
@@ -183,6 +183,7 @@ public class LoginActivity extends Activity implements AppCompatCallback {
         });
 
         btnRegister.setOnClickListener(new View.OnClickListener() {
+            @Override
             public void onClick(View view) {
                 if (AppController.checkConn(LoginActivity.this.getApplication())) {
                     Intent i = new Intent(getApplicationContext(),
@@ -191,68 +192,26 @@ public class LoginActivity extends Activity implements AppCompatCallback {
 
                 } else {
                     Toast.makeText(getApplicationContext(),
-                            "No connection to internet detected. Unfortunately it is impossible to login", Toast.LENGTH_LONG).show();
+                            "No connection to internet detected. It is impossible to register", Toast.LENGTH_LONG).show();
                 }
             }
         });
 
         btnRemind.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                /*Parse pozwala wysłać maila z resetem hasła jak ktoś zarejestrował się przez fejsa, ale ta zmiana,
-                * pomimo tego, że piszą że zakończyła się sukcesem, nie pozwala zalogować się przy użyciu maila z fejsa,
-                * ani nie przeszkadza znowu w logowaniu się fejsem, jak wcześniej
-                * Dlatego sprawdzam tutaj, czy ktoś podaje naprawdę adres mailowy - nazwa usera z fejsa nie może mieć małpy,
-                * więc takie sprawdzenie powinno wystarczyć*/
+            public void onClick(View view) {
+                if (AppController.checkConn(LoginActivity.this.getApplication())) {
+                    Intent i = new Intent(getApplicationContext(),
+                            ResetPasswordActivity.class);
+                    startActivity(i);
 
-                String enteredEmail = inputEmail.getText().toString().trim();
-                if(enteredEmail.length() > 0 && enteredEmail.contains("@"))
-                {
-                    ParseQuery.clearAllCachedResults();
-                    ParseQuery<ParseUser> query = ParseUser.getQuery();
-                    query.whereEqualTo("email", enteredEmail);
-
-                    Object[] queryResult;
-
-                    try {
-                            queryResult = query.find().toArray().clone();
-
-                        if( queryResult.length == 0)
-                        {
-                            Toast.makeText(getApplicationContext(), "No user registered with email: " + enteredEmail, Toast.LENGTH_LONG).show();
-                            Log.e("RESET", " "+ queryResult.length );
-                        }
-                        else if((boolean) ((ParseUser) queryResult[0]).get("isFacebookAccount"))
-                        {
-                            Toast.makeText(getApplicationContext(), "You should login with 'Log in with facebook' button above", Toast.LENGTH_LONG).show();
-                        }
-                        else
-                        {
-                            ParseUser.requestPasswordResetInBackground(enteredEmail);
-                            Toast.makeText(getApplicationContext(),
-                                    "Passwrod reset request sent to " + enteredEmail + ". Check your mailbox", Toast.LENGTH_LONG).show();
-                        }
-
-                    } catch (ParseException e) {
-                        e.printStackTrace();
-                        Log.e("PASS REMINDER", e.getLocalizedMessage());
-
-                        if(e.getLocalizedMessage().contains("invalid email address"))
-                            Toast.makeText(getApplicationContext(), "Invalid email address", Toast.LENGTH_LONG).show();
-                    }
+                } else {
+                    Toast.makeText(getApplicationContext(),
+                            "No connection to internet detected. It is impossible to reset password", Toast.LENGTH_LONG).show();
                 }
-                else
-                    Toast.makeText(getApplicationContext(), "Please enter email first", Toast.LENGTH_LONG).show();
             }
         });
     }
-
-    /*@Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu_login, menu);
-        return true;
-    }*/
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {

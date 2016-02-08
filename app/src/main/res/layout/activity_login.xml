@@ -12,7 +12,7 @@
         android:layout_height="@dimen/abc_action_bar_default_height_material"
         android:background="@color/panel_main"
         android:minHeight="@dimen/abc_action_bar_default_height_material"
-        android:theme="@style/AppTheme_Login" />
+        android:theme="@style/AppTheme_Other_Actions" />
 
     <RelativeLayout
         android:id="@+id/textfields_layout"

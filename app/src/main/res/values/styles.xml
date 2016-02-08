@@ -13,7 +13,7 @@
         <item name="windowNoTitle">true</item>
     </style>
 
-    <style name="AppTheme_Login" parent="Theme.AppCompat.NoActionBar">
+    <style name="AppTheme_Other_Actions" parent="Theme.AppCompat.NoActionBar">
         <item name="colorPrimary">@color/white</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/panel_main</item>

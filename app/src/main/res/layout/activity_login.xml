@@ -56,7 +56,7 @@
         android:layout_below="@id/textfields_layout"
         android:layout_centerHorizontal="true"
         android:layout_margin="20dp"
-        android:background="#00796B"
+        android:background="@color/other_buttons"
         android:text="@string/btn_login"
         android:textColor="@color/white" />
 

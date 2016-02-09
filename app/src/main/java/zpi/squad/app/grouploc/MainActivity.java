@@ -517,6 +517,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         //stopLocationUpdates();
 
         session.logOut();
+        session.requestLocationUpdate = false;
 
         Intent closeIntent = new Intent(this, LoginActivity.class);
         startActivity(closeIntent);
@@ -535,8 +536,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
 
         if (mRequestingLocationUpdates) {
-            startLocationUpdates();
+           // startLocationUpdates();
         }
+
     }
 
     @Override
@@ -600,42 +602,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         return outputBitmap;
     }
 
-    /**
-     * Metoda tworząca wątek, który w sumie i tak jest już nie potrzebny, bo za wysyłynie danych o
-     * lokacji będzie odpowiedzialny ChangeLocationListener, przynajniej ten kod nie straszy już w onCreate()
-     *
-     * @return Wątek, który ma za zadanie wysyłać co pięć sekund współrzędne do bazy danych
-     */
-    private Runnable createSendThread() {
-        return new Runnable() {
-            @Override
-            public void run() {
-
-                try {
-                    while (true) {
-                        if (session.isLoggedIn()) {
-
-                            Criteria criteria = new Criteria();
-                            String provider = locationManager.getBestProvider(criteria, true);
-                            Location myLocation = locationManager.getLastKnownLocation(provider);
-
-                            //double latitude = myLocation.getLatitude();
-                            //double longitude = myLocation.getLongitude();
-
-                            double latitude = 54.5;
-                            double longitude = 19.2;
-                            // sendCordinate(session.getUserId(), (float) latitude, (float) longitude);
-                        }
-                        Thread.sleep(5000);
-                    }
-
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        };
-    }
-
     protected synchronized void buildGoogleApiClient() {
         mGoogleApiClient = new GoogleApiClient.Builder(getApplicationContext())
                 .addConnectionCallbacks(this)
@@ -669,6 +635,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                     .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
+                            session.requestLocationUpdate = false;
                             MainActivity.super.onBackPressed();
                         }
                     }).create().show();
@@ -858,8 +825,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
             Criteria criteria = new Criteria();
             criteria.setPowerRequirement(Criteria.POWER_LOW);
+            Location myLocation;
 
-            while(SessionManager.getInstance().isLoggedIn())
+            while(session.isLoggedIn() && session.requestLocationUpdate)
             {
                 try {
 
@@ -867,7 +835,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
                     if(mCurrentLocation != null)
                     {
-                        Location myLocation = locationManager.getLastKnownLocation(locationManager.getBestProvider(criteria, true));
+                        myLocation = locationManager.getLastKnownLocation(locationManager.getBestProvider(criteria, true));
 
                         session.setUserCurrentLocation(myLocation.getLatitude(), myLocation.getLongitude());
                         ParseUser.getCurrentUser().fetchIfNeeded().put("location", new ParseGeoPoint(myLocation.getLatitude(), myLocation.getLongitude()));
@@ -887,14 +855,23 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
         @Override
         protected void onPostExecute(String result) {
+            Log.e("AKTUALIZACJA ", "LOKALIZACJI: WSTRZYMANA");
         }
 
         @Override
-        protected void onPreExecute() {}
+        protected void onPreExecute() {
+            Log.e("AKTUALIZACJA ", "LOKALIZACJI: URUCHOMIONA");
+        }
 
         @Override
         protected void onProgressUpdate(Void... values) {}
     }
 
+    @Override
+    protected void onResume()
+    {
+        session.requestLocationUpdate = true;
+        super.onResume();
+    }
 }
 

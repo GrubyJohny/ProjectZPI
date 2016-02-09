@@ -26,6 +26,7 @@ public class SessionManager {
     private SharedPreferences.Editor editor;
     public static ArrayList<Friend> friends;
     private LatLng currentLocation;
+    public boolean requestLocationUpdate;
 
 
     private SessionManager(Context context) {
@@ -115,6 +116,7 @@ public class SessionManager {
         userIsLoggedByFacebook = false;
         ParseUser.logOut();
         friends = null;
+        requestLocationUpdate = false;
     }
 
     public int getHintsLeft() {

@@ -75,7 +75,7 @@ public class ResetPasswordActivity extends Activity implements AppCompatCallback
                         {
                             ParseUser.requestPasswordResetInBackground(enteredEmail);
                             Toast.makeText(getApplicationContext(),
-                                    "Passwrod reset request sent to " + enteredEmail + ". Check your mailbox", Toast.LENGTH_LONG).show();
+                                    "Password reset request sent to " + enteredEmail + ". Check your mailbox", Toast.LENGTH_LONG).show();
                         }
 
                     } catch (ParseException e) {

@@ -69,9 +69,11 @@ public class LoginActivity extends Activity implements AppCompatCallback {
         context = getApplicationContext();
         session = SessionManager.getInstance(context);
 
+
         if (session.isLoggedIn()) {
             Intent intent = new Intent(LoginActivity.this, MainActivity.class);
             finish();
+            session.requestLocationUpdate = true;
             startActivity(intent);
         }
 

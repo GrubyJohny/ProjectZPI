@@ -69,8 +69,8 @@ public class RegisterActivity extends Activity implements AppCompatCallback {
     private void setUpButtons() {
         btnRegister.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
-                String name = inputFullName.getText().toString();
-                String email = inputEmail.getText().toString();
+                String name = inputFullName.getText().toString().trim();
+                String email = inputEmail.getText().toString().trim();
                 String password = inputPassword.getText().toString();
                 boolean registrationSuccessfully = false;
 
@@ -123,7 +123,7 @@ public class RegisterActivity extends Activity implements AppCompatCallback {
                             registrationSuccessfully = true;
                         } catch (Exception e) {
                             System.out.println(e.getMessage());
-                            if (e.getMessage().contains("already taken"))
+                            if (e.getMessage().contains("already been taken"))
                                 Toast.makeText(getApplicationContext(), "Email already in use, please log in or use other email", Toast.LENGTH_LONG).show();
                             else if (e.getMessage().contains("invalid email address"))
                                 Toast.makeText(getApplicationContext(), "Invalid email address!", Toast.LENGTH_LONG).show();

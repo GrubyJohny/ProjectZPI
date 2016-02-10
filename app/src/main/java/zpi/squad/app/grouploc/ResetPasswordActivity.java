@@ -69,13 +69,13 @@ public class ResetPasswordActivity extends Activity implements AppCompatCallback
                         }
                         else if((boolean) ((ParseUser) queryResult[0]).get("isFacebookAccount"))
                         {
-                            Toast.makeText(getApplicationContext(), "You should login with 'Log in with facebook' button above", Toast.LENGTH_LONG).show();
+                            Toast.makeText(getApplicationContext(), "You should log in with 'Log in with facebook' button", Toast.LENGTH_LONG).show();
                         }
                         else
                         {
                             ParseUser.requestPasswordResetInBackground(enteredEmail);
                             Toast.makeText(getApplicationContext(),
-                                    "Passwrod reset request sent to " + enteredEmail + ". Check your mailbox", Toast.LENGTH_LONG).show();
+                                    "Password reset request sent to " + enteredEmail + ". Check your mailbox", Toast.LENGTH_LONG).show();
                         }
 
                     } catch (ParseException e) {

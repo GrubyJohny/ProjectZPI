@@ -2,6 +2,7 @@ package zpi.squad.app.grouploc;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.content.ActivityNotFoundException;
 import android.support.v7.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.location.LocationProvider;
@@ -83,6 +84,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 
@@ -259,6 +261,28 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                             MapFragment.getMap().animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
 
                             MapFragment.getMap().addGroundOverlay(new GroundOverlayOptions().image(BitmapDescriptorFactory.fromBitmap(session.decodeBase64ToBitmap(item.getFriendPhoto()))).position(new LatLng(item.location.getLatitude(), item.location.getLongitude()), 20).visible(true));
+                        }
+                        else if (which == 1)
+                        {
+                            String uri = String.format(Locale.ENGLISH, "http://maps.google.com/maps?daddr=%f,%f (%s)", item.getFriendLocationLatLng().latitude, item.getFriendLocationLatLng().longitude, item.getFriendName());
+                            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
+                            intent.setClassName("com.google.android.apps.maps", "com.google.android.maps.MapsActivity");
+                            try
+                            {
+                                startActivity(intent);
+                            }
+                            catch(ActivityNotFoundException ex)
+                            {
+                                try
+                                {
+                                    Intent unrestrictedIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
+                                    startActivity(unrestrictedIntent);
+                                }
+                                catch(ActivityNotFoundException innerEx)
+                                {
+                                    Toast.makeText(getApplicationContext(), "Please install a maps application", Toast.LENGTH_LONG).show();
+                                }
+                            }
                         }
                     }
                 });

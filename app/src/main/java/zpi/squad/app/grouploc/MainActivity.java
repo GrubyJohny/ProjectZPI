@@ -193,6 +193,10 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         navigationViewLeft = (NavigationView) findViewById(R.id.nav_view_left);
         navigationViewLeft.setNavigationItemSelectedListener(this);
 
+        if(session.isLoggedByFacebook()){
+            navigationViewLeft.getMenu().removeItem(R.id.nav_password);
+        }
+
         navigationViewLeftProfilePicture = (ImageView) findViewById(R.id.profilePicture);
         mainPhoto = clipBitmap(session.decodeBase64ToBitmap(session.getUserPhoto()), navigationViewLeftProfilePicture);
         navigationViewLeftProfilePicture.setImageBitmap(mainPhoto);

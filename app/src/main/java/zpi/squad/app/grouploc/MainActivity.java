@@ -120,7 +120,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     private LocationRequest mLocationRequest;
     private String mLastUpdateTime;
     private Date mLastUpdateDate = new Date();
-    private ParseGeoPoint mParseLocation =  new ParseGeoPoint();
+    private ParseGeoPoint mParseLocation = new ParseGeoPoint();
 
     //Obiekt w ogólności reprezentujący googlowe api service,
     //jest często przekazywany jako argument, gdy coś o tego api chcemy
@@ -197,7 +197,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         navigationViewLeft = (NavigationView) findViewById(R.id.nav_view_left);
         navigationViewLeft.setNavigationItemSelectedListener(this);
 
-        if(session.isLoggedByFacebook()){
+        if (session.isLoggedByFacebook()) {
             navigationViewLeft.getMenu().removeItem(R.id.nav_password);
         }
 
@@ -288,10 +288,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             }
         });
 
-        /*getSupportFragmentManager().addOnBackStackChangedListener(this);
-        shouldDisplayHomeUp();*/
-
-
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
             buildAlertMessageNoGps();
@@ -337,27 +333,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         myToolTipView.setOnToolTipViewClickedListener(MainActivity.this);
     }*/
 
-    /*@Override
-    public void onBackStackChanged() {
-        shouldDisplayHomeUp();
-    }
-
-    public void shouldDisplayHomeUp(){
-        if(getSupportFragmentManager().getBackStackEntryCount() == 0){
-            getSupportActionBar().setDefaultDisplayHomeAsUpEnabled(true);
-        }
-        else {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        }
-    }
-
-    @Override
-    public boolean onSupportNavigateUp() {
-        //This method is called when the up button is pressed. Just the pop back stack.
-        getSupportFragmentManager().popBackStack();
-        return true;
-    }*/
-
     private void notifications() {
         // spinner2 = (Spinner) findViewById(R.id.spinner2);
         readNotifications.add(0, new Notification("", "", "", "", "", "", "", "", 0));
@@ -391,8 +366,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         super.onActivityResult(requestCode, resultCode, data);
         try {
             Bundle extras2;
-
-
             if (requestCode == PICK_FROM_GALLERY && resultCode == RESULT_OK) {
                 extras2 = data.getExtras();
                 if (extras2 != null) {
@@ -407,7 +380,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                     navigationViewLeftProfilePicture.setImageBitmap(mainPhoto);
 
                     Toast.makeText(this, "OK", Toast.LENGTH_LONG).show();
-
                 }
             } else if (requestCode == PICK_FROM_CAMERA && resultCode == RESULT_OK) {
                 extras2 = data.getExtras();
@@ -433,9 +405,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                     user.put("photo", session.encodeBitmapTobase64(photo));
                     user.saveInBackground();
                     session.setUserPhoto(session.encodeBitmapTobase64(photo));
-
-                        mainPhoto = clipBitmap(session.decodeBase64ToBitmap(session.getUserPhoto()), navigationViewLeftProfilePicture);
-                        navigationViewLeftProfilePicture.setImageBitmap(mainPhoto);
+                    mainPhoto = clipBitmap(session.decodeBase64ToBitmap(session.getUserPhoto()), navigationViewLeftProfilePicture);
+                    navigationViewLeftProfilePicture.setImageBitmap(mainPhoto);
 
                     Toast.makeText(this, "OK", Toast.LENGTH_LONG).show();
                 }
@@ -502,10 +473,18 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     public boolean onNavigationItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.nav_about) {
-
+            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this, R.style.AppCompatAlertDialogStyle);
+            builder.setTitle("About us");
+            builder.setPositiveButton("Close", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                }
+            });
+            builder.setMessage("This application was created by awesome people");
+            builder.show();
         } else if (id == R.id.nav_map) {
             if (mapFragment.isVisible()) {
-
             } else {
                 getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
                 getSupportFragmentManager().beginTransaction().replace(R.id.main_container, mapFragment, mapTAG).setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN).commit();
@@ -530,6 +509,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
+        item.setChecked(true);
         return true;
     }
 
@@ -571,8 +551,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         double longitude = (double) location.getLongitude();
 
         //
-        if(session.isLoggedIn() && session.requestLocationUpdate)
-        {
+        if (session.isLoggedIn() && session.requestLocationUpdate) {
             try {
                 session.setUserCurrentLocation(latitude, longitude);
 
@@ -614,12 +593,12 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
     @Override
     public void onConnectionSuspended(int i) {
-            stopLocationUpdates();
+        stopLocationUpdates();
     }
 
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
-            startLocationUpdates();
+        startLocationUpdates();
     }
 
 
@@ -655,7 +634,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         canvas.drawBitmap(bitmap, 0, 0, null);
         return outputBitmap;
     }
-
 
 
     @Override
@@ -694,8 +672,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     }
 
     @Override
-    protected void onResume()
-    {
+    protected void onResume() {
         super.onResume();
         if (mGoogleApiClient.isConnected()) {
             session.requestLocationUpdate = true;
@@ -707,7 +684,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     protected void onPause() {
         //session.requestLocationUpdate = false;
         super.onPause();
-       // stopLocationUpdates();
+        // stopLocationUpdates();
     }
 
     public void onFriendshipRequest(final Notification not) {

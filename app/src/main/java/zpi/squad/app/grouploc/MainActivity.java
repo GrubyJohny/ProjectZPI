@@ -101,7 +101,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     private ImageButton secondMarkerButton;
     private ImageButton thirdMarkerButton;
     private ImageButton fourthMarkerButton;
-    //private Button closeMarkerButton;
+    // private Button closeMarkerButton;
     private Marker ostatniMarker;
 
     private ScrollView POIScrollView;

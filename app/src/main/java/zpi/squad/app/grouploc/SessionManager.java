@@ -26,7 +26,7 @@ public class SessionManager {
     private SharedPreferences.Editor editor;
     public static ArrayList<Friend> friends;
     private LatLng currentLocation;
-    public boolean requestLocationUpdate;
+    public boolean requestLocationUpdate = true;
 
 
     private SessionManager(Context context) {

@@ -14,11 +14,10 @@ public class Friend {
     String photo;
     ParseGeoPoint location;
 
-    public Friend(){
-
+    public Friend() {
     }
 
-    public Friend(String uid, String name, String email, String photo, ParseGeoPoint location){
+    public Friend(String uid, String name, String email, String photo, ParseGeoPoint location) {
         this.uid = uid;
         this.name = name;
         this.email = email;
@@ -26,7 +25,7 @@ public class Friend {
         this.location = location;
     }
 
-    public Friend(String uid, String name, String email, String photo, double lat, double lon){
+    public Friend(String uid, String name, String email, String photo, double lat, double lon) {
         this.uid = uid;
         this.name = name;
         this.email = email;
@@ -34,40 +33,57 @@ public class Friend {
         this.location = new ParseGeoPoint(lat, lon);
     }
 
-    public String  getFriendID(){
+    public String getFriendID() {
         return uid;
     }
-    public void setFriendID(String uid){
+
+    public void setFriendID(String uid) {
         this.uid = uid;
     }
 
-    public String getFriendName(){
+    public String getFriendName() {
         return name;
     }
-    public void setFriendName(String name){
+
+    public void setFriendName(String name) {
         this.name = name;
     }
 
-    public String getFriendEmail(){
+    public String getFriendEmail() {
         return email;
     }
-    public void setFriendEmail(String email){
+
+    public void setFriendEmail(String email) {
         this.email = email;
     }
 
-    public String getFriendPhoto(){
+    public String getFriendPhoto() {
         return photo;
     }
-    public void setFriendPhoto(String email){
+
+    public void setFriendPhoto(String email) {
         this.photo = photo;
     }
 
-    public LatLng getFriendLocationLatLng() {return new LatLng(location.getLatitude(), location.getLongitude()); }
-    public ParseGeoPoint getFriendLocationParseGeoPoint() { return location;}
-    public void setFriendLocation(LatLng loc) { this.location = new ParseGeoPoint(loc.latitude, loc.longitude); }
-    public void setFriendLocation(ParseGeoPoint point) { this.location = point; }
-    public void setFriendLocation(double lat, double lon) { this.location = new ParseGeoPoint(lat, lon); }
+    public LatLng getFriendLocationLatLng() {
+        return new LatLng(location.getLatitude(), location.getLongitude());
+    }
 
+    public ParseGeoPoint getFriendLocationParseGeoPoint() {
+        return location;
+    }
+
+    public void setFriendLocation(LatLng loc) {
+        this.location = new ParseGeoPoint(loc.latitude, loc.longitude);
+    }
+
+    public void setFriendLocation(ParseGeoPoint point) {
+        this.location = point;
+    }
+
+    public void setFriendLocation(double lat, double lon) {
+        this.location = new ParseGeoPoint(lat, lon);
+    }
 
 
 }

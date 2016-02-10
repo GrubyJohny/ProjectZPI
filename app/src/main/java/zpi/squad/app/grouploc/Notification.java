@@ -15,12 +15,10 @@ public class Notification {
     private String createdAt;
     private int checked;
 
-    public Notification(){
-
+    public Notification() {
     }
 
-    public Notification(String senderId, String senderName, String senderEmail, String receiverId, String type, String messageId, String groupId, String createdAt, int checked){
-
+    public Notification(String senderId, String senderName, String senderEmail, String receiverId, String type, String messageId, String groupId, String createdAt, int checked) {
         this.senderId = senderId;
         this.senderName = senderName;
         this.senderEmail = senderEmail;
@@ -34,28 +32,22 @@ public class Notification {
     }
 
 
-    public String toString(){
+    public String toString() {
         String response = null;
 
-        if(type.equals("friendshipRequest")){
+        if (type.equals("friendshipRequest")) {
             response = "Użytkownik " + senderName + " zaprosił Cię do znajomych";
-        }
-        else if(type.equals("friendshipAgreed")){
+        } else if (type.equals("friendshipAgreed")) {
             response = "Użytkownik " + senderName + " zaakceptował Twoje zaproszenie";
-        }
-        else if(type.equals("friendshipDisagreed")){
+        } else if (type.equals("friendshipDisagreed")) {
             response = "Użytkownik " + senderName + " odrzucił Twoje zaproszenie";
-        }
-        else if(type.equals("friendshipCanceled")){
+        } else if (type.equals("friendshipCanceled")) {
             response = "Użytkownik " + senderName + " wyrzucił Cię ze znajomych";
-        }
-        else if(type.equals("shareMarker")){
+        } else if (type.equals("shareMarker")) {
             response = "Użykownik " + senderName + " udostępnił Ci nowy punkt na mapie";
-        }
-        else if(type.equals("groupRequest")){
+        } else if (type.equals("groupRequest")) {
             response = "Użykownik " + senderName + " poprosił Cię o dodanie do grupy";
-        }
-        else if(type.equals("userAddedToGroup")){
+        } else if (type.equals("userAddedToGroup")) {
             response = "Zostałeś dodany do grupy nr " + groupId;
         }
 
@@ -64,23 +56,23 @@ public class Notification {
     }
 
 
-    public String getSenderName(){
+    public String getSenderName() {
         return senderName;
     }
 
-    public String getSenderId(){
+    public String getSenderId() {
         return senderId;
     }
 
-    public String getSenderEmail(){
+    public String getSenderEmail() {
         return senderEmail;
     }
 
-    public String getGroupId(){
+    public String getGroupId() {
         return groupId;
     }
 
-    public String getReceiverId(){
+    public String getReceiverId() {
         return receiverId;
     }
 
@@ -89,7 +81,7 @@ public class Notification {
     }
 
     public boolean isChecked() {
-        if(checked == 0)
+        if (checked == 0)
             return false;
         else
             return true;

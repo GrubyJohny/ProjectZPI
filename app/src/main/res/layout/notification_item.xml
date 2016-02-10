@@ -21,18 +21,19 @@
         android:paddingLeft="5dp"
         android:layout_gravity="center_vertical"
         android:gravity="center_vertical">
-    <TextView
-        android:id="@+id/notificationTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Byle co"/>
 
-    <TextView
-        android:id="@+id/notificationDate"
-        android:layout_width="wrap_content"
-        android:layout_height="20dp"
-        android:text="jakaś data"
-        android:textColor="@color/input_login_hint" />
+        <TextView
+            android:id="@+id/notificationTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Byle co" />
+
+        <TextView
+            android:id="@+id/notificationDate"
+            android:layout_width="wrap_content"
+            android:layout_height="20dp"
+            android:text="jakaś data"
+            android:textColor="@color/input_login_hint" />
 
     </LinearLayout>
 </LinearLayout>

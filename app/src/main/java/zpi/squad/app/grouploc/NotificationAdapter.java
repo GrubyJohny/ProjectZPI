@@ -10,11 +10,7 @@ import android.widget.TextView;
 
 import java.util.List;
 
-/**
- * Created by Slawek on 2015-05-15.
- */
 public class NotificationAdapter extends ArrayAdapter {
-
     View notificationLayout;
 
     public NotificationAdapter(Context context, List<Notification> items) {
@@ -22,9 +18,9 @@ public class NotificationAdapter extends ArrayAdapter {
     }
 
     @Override
-    public View getDropDownView(int position, View convertView, ViewGroup parent){
+    public View getDropDownView(int position, View convertView, ViewGroup parent) {
         ViewHolder viewHolder;
-        if(convertView == null) {
+        if (convertView == null) {
             // inflate the GridView item layout
             LayoutInflater inflater = LayoutInflater.from(getContext());
             convertView = inflater.inflate(R.layout.notification_item, parent, false);
@@ -49,14 +45,14 @@ public class NotificationAdapter extends ArrayAdapter {
         viewHolder.notificationImg.setImageResource(R.drawable.image3);
         /*if(item.isChecked())
             viewHolder.notificationLayout.setBackgroundResource(R.color.material_blue_grey_900);*/
-        if(item.isChecked())
+        if (item.isChecked())
             notificationLayout.setBackgroundResource(R.color.material_blue_grey_900);
         return convertView;
     }
 
     @Override
-    public View getView(int position, View view, ViewGroup parent){
-        return getDropDownView(position,view,parent);
+    public View getView(int position, View view, ViewGroup parent) {
+        return getDropDownView(position, view, parent);
     }
 
     private static class ViewHolder {

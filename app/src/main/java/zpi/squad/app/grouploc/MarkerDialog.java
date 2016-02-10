@@ -64,9 +64,9 @@ public class MarkerDialog extends DialogFragment {
 
         // Inflate and set the layout for the dialog
         // Pass null as the parent view because its going in the dialog layout
-        View customDialog=inflater.inflate(R.layout.dialog_marker, null);
+        View customDialog = inflater.inflate(R.layout.dialog_marker, null);
 
-        input=(EditText)customDialog.findViewById(R.id.markName);
+        input = (EditText) customDialog.findViewById(R.id.markName);
 
         builder.setView(customDialog)
 

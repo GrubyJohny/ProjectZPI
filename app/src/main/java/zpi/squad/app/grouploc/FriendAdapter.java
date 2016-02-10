@@ -4,7 +4,6 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Base64;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -42,7 +41,7 @@ public class FriendAdapter extends ArrayAdapter<Friend> implements Filterable {
         // Populate the data into the template view using the data object
         //wpakowałem to do tej samej linijki, co nazwa użytkownika, ale pewnie jakoś to już ładnie porozbijasz ;)
         Double distanceToMe = new ParseGeoPoint(session.getCurrentLocation().latitude, session.getCurrentLocation().longitude).distanceInKilometersTo(friend.getFriendLocationParseGeoPoint());
-        String text = friend.name + ", " + distanceToMe.intValue()+ " km";
+        String text = friend.name + ", " + distanceToMe.intValue() + " km";
         name.setText(text);
         photo.setImageBitmap(decodeBase64ToBitmap(friend.getFriendPhoto()));
         // Return the completed view to render on screen

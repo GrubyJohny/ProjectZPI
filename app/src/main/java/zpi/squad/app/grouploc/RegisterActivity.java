@@ -96,7 +96,7 @@ public class RegisterActivity extends Activity implements AppCompatCallback {
                     Toast.makeText(getApplicationContext(),
                             "Please enter your password", Toast.LENGTH_SHORT).show();
                 } else if (!name.isEmpty() && !email.isEmpty() && !password.isEmpty()) {
-                    if(email.trim().length() > 2 && email.contains("@") && email.contains(".")) {
+                    if (email.trim().length() > 2 && email.contains("@") && email.contains(".")) {
                         showDialog();
                         try {
                             Parse.initialize(getApplicationContext(), AppConfig.PARSE_APPLICATION_ID, AppConfig.PARSE_CLIENT_KEY);
@@ -136,8 +136,7 @@ public class RegisterActivity extends Activity implements AppCompatCallback {
                                 finish();
                             }
                         }
-                    }
-                    else{
+                    } else {
                         Toast.makeText(getApplicationContext(), "This is not valid email address!", Toast.LENGTH_LONG).show();
                     }
                 } else {

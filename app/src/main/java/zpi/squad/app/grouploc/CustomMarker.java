@@ -1,12 +1,5 @@
 package zpi.squad.app.grouploc;
 
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.model.BitmapDescriptor;
-import com.google.android.gms.maps.model.Marker;
-
-/**
- * Created by sanczo on 2015-05-20.
- */
 public class CustomMarker {
 
     private String markerIdMySQL;
@@ -18,7 +11,7 @@ public class CustomMarker {
     private boolean replace;
     private boolean saveOnServer;
 
-    public CustomMarker(String mySqlID,String UserId,Double latitude,Double longitude,String name) {
+    public CustomMarker(String mySqlID, String UserId, Double latitude, Double longitude, String name) {
         this.markerIdMySQL = mySqlID;
         this.UserId = UserId;
         this.latitude = latitude;
@@ -29,7 +22,7 @@ public class CustomMarker {
 
     public CustomMarker(String markerIdMySQL, String sqlLiteID, String UserId, Double latitude, Double longitude, String name) {
         this.markerIdMySQL = markerIdMySQL;
-        this.markerIdSQLite =sqlLiteID;
+        this.markerIdSQLite = sqlLiteID;
         this.UserId = UserId;
         this.latitude = latitude;
         this.longitude = longitude;

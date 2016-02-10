@@ -7,6 +7,5 @@
         android:orderInCategory="100"
         android:title="Friends"
         android:icon="@drawable/ic_friend"
-        app:showAsAction="always"
-        />
+        app:showAsAction="always" />
 </menu>

@@ -12,7 +12,7 @@
         android:layout_alignParentBottom="true"
         android:layout_margin="3dp"
         android:textSize="5pt"
-        android:text="Hybrid"/>
+        android:text="Hybrid" />
 
     <Button
         android:id="@+id/buttonPOIFiltering"
@@ -21,7 +21,7 @@
         android:layout_alignParentRight="true"
         android:layout_marginTop="60dp"
         android:text="POI"
-        android:textSize="10pt"/>
+        android:textSize="10pt" />
 
     <ScrollView
         android:layout_width="wrap_content"
@@ -32,103 +32,103 @@
         android:paddingRight="3dp"
         android:id="@+id/POIScroll">
 
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:id="@+id/POIButtons"
-        android:visibility="invisible"
-        android:background="@color/bg_main">
-
-        <ImageButton
-            android:id="@+id/ButtonFoodBar"
-            android:layout_width="50dp"
+        <LinearLayout
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/buttonPOIFiltering"
-            android:layout_margin="2dp"
-            android:layout_toStartOf="@+id/buttonPOIFiltering"
-            android:background="@drawable/bar" />
+            android:orientation="vertical"
+            android:id="@+id/POIButtons"
+            android:visibility="invisible"
+            android:background="@color/bg_main">
 
-        <ImageButton
-            android:id="@+id/ButtonFoodCoffee"
-            android:layout_width="50dp"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/ButtonFoodBar"
-            android:layout_margin="2dp"
-            android:background="@drawable/coffee" />
+            <ImageButton
+                android:id="@+id/ButtonFoodBar"
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/buttonPOIFiltering"
+                android:layout_margin="2dp"
+                android:layout_toStartOf="@+id/buttonPOIFiltering"
+                android:background="@drawable/bar" />
 
-        <ImageButton
-            android:id="@+id/ButtonFoodKfc"
-            android:layout_width="50dp"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/ButtonFoodCoffee"
-            android:layout_margin="2dp"
-            android:background="@drawable/kfclogo" />
+            <ImageButton
+                android:id="@+id/ButtonFoodCoffee"
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/ButtonFoodBar"
+                android:layout_margin="2dp"
+                android:background="@drawable/coffee" />
 
-        <ImageButton
-            android:id="@+id/ButtonFoodMcDonald"
-            android:layout_width="50dp"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/ButtonFoodKfc"
-            android:layout_margin="2dp"
-            android:background="@drawable/mcdonaldslogo" />
+            <ImageButton
+                android:id="@+id/ButtonFoodKfc"
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/ButtonFoodCoffee"
+                android:layout_margin="2dp"
+                android:background="@drawable/kfclogo" />
 
-        <ImageButton
-            android:id="@+id/ButtonFoodRestaurant"
-            android:layout_width="50dp"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/ButtonFoodMcDonald"
-            android:layout_margin="2dp"
-            android:background="@drawable/restaurant" />
+            <ImageButton
+                android:id="@+id/ButtonFoodMcDonald"
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/ButtonFoodKfc"
+                android:layout_margin="2dp"
+                android:background="@drawable/mcdonaldslogo" />
 
-        <ImageButton
-            android:id="@+id/ButtonShopsStores"
-            android:layout_width="50dp"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/ButtonFoodRestaurant"
-            android:layout_margin="2dp"
-            android:background="@drawable/shop" />
+            <ImageButton
+                android:id="@+id/ButtonFoodRestaurant"
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/ButtonFoodMcDonald"
+                android:layout_margin="2dp"
+                android:background="@drawable/restaurant" />
 
-        <ImageButton
-            android:id="@+id/ButtonShopsMarket"
-            android:layout_width="50dp"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/ButtonShopsStores"
-            android:layout_margin="2dp"
-            android:background="@drawable/market" />
+            <ImageButton
+                android:id="@+id/ButtonShopsStores"
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/ButtonFoodRestaurant"
+                android:layout_margin="2dp"
+                android:background="@drawable/shop" />
 
-        <ImageButton
-            android:id="@+id/ButtonShopsShoppingMall"
-            android:layout_width="50dp"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/ButtonShopsMarket"
-            android:layout_margin="2dp"
-            android:background="@drawable/shoppingmall" />
+            <ImageButton
+                android:id="@+id/ButtonShopsMarket"
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/ButtonShopsStores"
+                android:layout_margin="2dp"
+                android:background="@drawable/market" />
 
-        <ImageButton
-            android:id="@+id/ButtonLeisureClubs"
-            android:layout_width="50dp"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/ButtonShopsShoppingMall"
-            android:layout_margin="2dp"
-            android:background="@drawable/nightclub" />
+            <ImageButton
+                android:id="@+id/ButtonShopsShoppingMall"
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/ButtonShopsMarket"
+                android:layout_margin="2dp"
+                android:background="@drawable/shoppingmall" />
 
-        <ImageButton
-            android:id="@+id/ButtonLeisureParks"
-            android:layout_width="50dp"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/ButtonLeisureClubs"
-            android:layout_margin="2dp"
-            android:background="@drawable/park" />
+            <ImageButton
+                android:id="@+id/ButtonLeisureClubs"
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/ButtonShopsShoppingMall"
+                android:layout_margin="2dp"
+                android:background="@drawable/nightclub" />
 
-        <Button
-            android:id="@+id/ButtonClearPoi"
-            android:layout_width="50dp"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/ButtonLeisureParks"
-            android:text="clear"
-            android:textSize="4pt"/>
+            <ImageButton
+                android:id="@+id/ButtonLeisureParks"
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/ButtonLeisureClubs"
+                android:layout_margin="2dp"
+                android:background="@drawable/park" />
 
-    </LinearLayout>
+            <Button
+                android:id="@+id/ButtonClearPoi"
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/ButtonLeisureParks"
+                android:text="clear"
+                android:textSize="4pt" />
+
+        </LinearLayout>
     </ScrollView>
 </RelativeLayout>

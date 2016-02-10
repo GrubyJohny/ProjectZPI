@@ -5,6 +5,7 @@
     android:orientation="vertical"
     android:id="@+id/popup_element"
     android:background="@android:color/black">
+
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -12,18 +13,20 @@
         android:layout_margin="1dp"
         android:background="@color/panel_blue2">
         >
+
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:layout_margin="20dp">
+
             <TextView
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:text="Friend Options"
                 android:textSize="12pt"
                 android:textStyle="bold"
-                android:textAlignment="center"/>
+                android:textAlignment="center" />
 
             <Button
                 android:id="@+id/showFriendOnMap"

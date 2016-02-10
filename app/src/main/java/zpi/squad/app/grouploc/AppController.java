@@ -38,7 +38,6 @@ public class AppController extends Application {
     }
 
 
-
     @Override
     public void onCreate() {
         super.onCreate();
@@ -94,9 +93,9 @@ public class AppController extends Application {
 
     }
 
-    public void addNewMarker(CustomMarker marker){
+    public void addNewMarker(CustomMarker marker) {
         markers.add(marker);
-       // Sender.putMarkersOnMapAgain(markers, myMap);
+        // Sender.putMarkersOnMapAgain(markers, myMap);
     }
 
     public void setMarkers(List<CustomMarker> markers) {
@@ -108,34 +107,24 @@ public class AppController extends Application {
     }
 
 
-    public static boolean checkConn( Context ctx)
-    {
-        String tag="Sprawdzanie połączeia internetowego";
-        ConnectivityManager conMgr=(ConnectivityManager)ctx.getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo info=conMgr.getActiveNetworkInfo();
-        if(info==null) {
+    public static boolean checkConn(Context ctx) {
+        String tag = "Sprawdzanie połączeia internetowego";
+        ConnectivityManager conMgr = (ConnectivityManager) ctx.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo info = conMgr.getActiveNetworkInfo();
+        if (info == null) {
             Log.d(tag, "Instancja klasy NetworkInfo jest refencją null");
             return false;
 
+        } else if (!info.isConnected()) {
+            Log.d(tag, "Wykryty stan: not connected");
+            return false;
+        } else if (!info.isAvailable()) {
+            Log.d(tag, "Wykryty stan: not available");
+            return false;
+        } else {
+            Log.d(tag, "Wszystko wporządku, jest połączenie");
+            return true;
         }
-        else
-            if(!info.isConnected())
-            {
-                Log.d(tag, "Wykryty stan: not connected");
-                return false;
-            }
-
-            else
-                if(!info.isAvailable())
-                {
-                    Log.d(tag, "Wykryty stan: not available");
-                    return false;
-                }
-
-                else{
-                    Log.d(tag, "Wszystko wporządku, jest połączenie");
-                    return true;
-                }
 
 
     }

@@ -14,7 +14,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
-
 public class ChangePasswordFragment extends Fragment {
     private static View view;
     private Button confirm;

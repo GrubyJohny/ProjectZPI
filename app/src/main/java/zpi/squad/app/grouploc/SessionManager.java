@@ -8,7 +8,6 @@ import android.util.Base64;
 import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
-import com.parse.Parse;
 import com.parse.ParseException;
 import com.parse.ParseGeoPoint;
 import com.parse.ParseObject;
@@ -47,7 +46,6 @@ public class SessionManager {
             return sessionManager;
 
         throw new IllegalArgumentException("Should use getInstance(Context) at least once before using this method.");
-
     }
 
 
@@ -83,15 +81,25 @@ public class SessionManager {
         userPhoto = photo;
     }
 
-    public void setUserIsLoggedByFacebook(boolean cond) { userIsLoggedByFacebook = cond; }
+    public void setUserIsLoggedByFacebook(boolean cond) {
+        userIsLoggedByFacebook = cond;
+    }
 
-    public void setUserCurrentLocation(double lat, double lng) { currentLocation = new LatLng(lat, lng); }
+    public void setUserCurrentLocation(double lat, double lng) {
+        currentLocation = new LatLng(lat, lng);
+    }
 
-    public void setUserCurrentLocation(LatLng locat) { currentLocation = new LatLng(locat.latitude, locat.longitude); }
+    public void setUserCurrentLocation(LatLng locat) {
+        currentLocation = new LatLng(locat.latitude, locat.longitude);
+    }
 
-    public boolean isLoggedByFacebook() { return userIsLoggedByFacebook; }
+    public boolean isLoggedByFacebook() {
+        return userIsLoggedByFacebook;
+    }
 
-    public boolean isLoggedIn() { return userIsLoggedIn; }
+    public boolean isLoggedIn() {
+        return userIsLoggedIn;
+    }
 
     public String getUserId() {
         return userId;
@@ -109,7 +117,9 @@ public class SessionManager {
         return userPhoto;
     }
 
-    public LatLng getCurrentLocation() { return currentLocation; }
+    public LatLng getCurrentLocation() {
+        return currentLocation;
+    }
 
     public void logOut() {
         userIsLoggedIn = false;
@@ -164,7 +174,7 @@ public class SessionManager {
                                 actual.get("photo") != null ? actual.get("photo").toString() : null,
                                 point.getLatitude(), point.getLongitude()));
 
-                        Log.d("Friend added: ", "" + actual.get("name").toString() +" "+  point.getLatitude() + ", "+ point.getLongitude());
+                        Log.d("Friend added: ", "" + actual.get("name").toString() + " " + point.getLatitude() + ", " + point.getLongitude());
                     }
 
                 }
@@ -192,7 +202,7 @@ public class SessionManager {
                                 actual.get("photo") != null ? actual.get("photo").toString() : null,
                                 point.getLatitude(), point.getLongitude()));
 
-                        Log.d("Friend added: ", "" + actual.get("name").toString() +" "+  point.getLatitude() + ", "+ point.getLongitude());
+                        Log.d("Friend added: ", "" + actual.get("name").toString() + " " + point.getLatitude() + ", " + point.getLongitude());
                     }
 
                 }

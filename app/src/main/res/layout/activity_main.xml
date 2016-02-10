@@ -122,7 +122,7 @@
             android:layout_marginTop="@dimen/nav_header_height"
             android:divider="@null"
             android:dividerHeight="0dp"
-            android:choiceMode="singleChoice"/>
+            android:choiceMode="singleChoice" />
 
         <android.support.design.widget.FloatingActionButton
             android:id="@+id/fab"
@@ -131,7 +131,7 @@
             android:src="@drawable/ic_plus"
             app:borderWidth="0dp"
             android:layout_gravity="bottom|end"
-            android:layout_margin="16dp"/>
+            android:layout_margin="16dp" />
     </android.support.design.widget.NavigationView>
 
     <!--<LinearLayout

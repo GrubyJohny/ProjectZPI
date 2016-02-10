@@ -131,7 +131,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
     private Button changeMapTypeButton;
     private SessionManager session;
 
-
+    private static GoogleMap map;
 
     AppController globalVariable;
 
@@ -218,11 +218,11 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
         map.getUiSettings().setAllGesturesEnabled(true);
 
         CameraPosition cameraPosition = new CameraPosition.Builder()
-                                .target(session.getCurrentLocation())
-                                .zoom(17)
-                                .bearing(0)
-                                .tilt(30)
-                                .build();
+                .target(session.getCurrentLocation())
+                .zoom(17)
+                .bearing(0)
+                .tilt(30)
+                .build();
         map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
 
         /*poniżej to coś na wzór tego, co chciałeś, żeby dodawać obiekty nie jako markery, tylko właśnie takie bardziej
@@ -230,6 +230,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
         */
         map.addGroundOverlay(new GroundOverlayOptions().image(BitmapDescriptorFactory.fromResource(R.drawable.johny)).position(session.getCurrentLocation(), 20).visible(true));
 
+        this.map = map;
     }
 
 
@@ -1097,5 +1098,11 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
         InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(md.getInput().getWindowToken(), 0);
     }
+
+    public static GoogleMap getMap()
+    {
+        return map;
+    }
+
 
 }

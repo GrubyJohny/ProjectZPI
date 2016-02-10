@@ -56,7 +56,11 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.GroundOverlayOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.nhaarman.supertooltips.ToolTipRelativeLayout;
@@ -225,10 +229,12 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         supportInvalidateOptionsMenu();
 
         friendsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
-                Friend item = (Friend) friendsListView.getItemAtPosition(position);
+            Friend item;
 
-                CharSequence options[] = new CharSequence[] {"Show on map", "Navigate to", "Delete"};
+            public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
+                item = (Friend) friendsListView.getItemAtPosition(position);
+
+                CharSequence options[] = new CharSequence[]{"Show on map", "Navigate to", "Delete"};
 
                 AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this, R.style.AppCompatAlertDialogStyle);
                 builder.setTitle(item.getFriendName());
@@ -242,6 +248,18 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         Toast.makeText(context, "You choose option: " + which, Toast.LENGTH_SHORT).show();
+                        drawer.closeDrawer(navigationViewRight);
+                        if (which == 0) {
+                            CameraPosition cameraPosition = new CameraPosition.Builder()
+                                    .target(new LatLng(item.location.getLatitude(), item.location.getLongitude()))
+                                    .zoom(17)
+                                    .bearing(0)
+                                    .tilt(30)
+                                    .build();
+                            MapFragment.getMap().animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+
+                            MapFragment.getMap().addGroundOverlay(new GroundOverlayOptions().image(BitmapDescriptorFactory.fromBitmap(session.decodeBase64ToBitmap(item.getFriendPhoto()))).position(new LatLng(item.location.getLatitude(), item.location.getLongitude()), 20).visible(true));
+                        }
                     }
                 });
                 builder.show();
@@ -452,7 +470,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         final AlertDialog alert = builder.create();
         alert.show();
     }
-    
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -525,12 +543,12 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         startActivity(closeIntent);
         finish();
     }
-    
+
     protected void startLocationUpdates() {
         LocationServices.FusedLocationApi
                 .requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
     }
-    
+
     protected void stopLocationUpdates() {
         LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
     }

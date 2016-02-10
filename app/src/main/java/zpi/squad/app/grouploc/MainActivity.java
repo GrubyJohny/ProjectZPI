@@ -2,8 +2,8 @@ package zpi.squad.app.grouploc;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
-import android.app.*;
-import android.app.AlertDialog;
+import android.support.v7.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.location.LocationProvider;
 import android.os.AsyncTask;
 import android.support.v4.app.FragmentManager;
@@ -36,6 +36,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.Filter;
 import android.widget.ImageButton;
@@ -80,7 +81,7 @@ import java.util.Map;
 
 
 public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
-        LocationListener, NavigationView.OnNavigationItemSelectedListener/*, android.support.v4.app.FragmentManager.OnBackStackChangedListener*/  {
+        LocationListener, NavigationView.OnNavigationItemSelectedListener/*, android.support.v4.app.FragmentManager.OnBackStackChangedListener*/ {
 
     private SessionManager session;
     private ProgressDialog pDialog;
@@ -217,6 +218,31 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         friendsListView.setTextFilterEnabled(true);
         supportInvalidateOptionsMenu();
 
+        friendsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
+                Friend item = (Friend) friendsListView.getItemAtPosition(position);
+
+                CharSequence options[] = new CharSequence[] {"Show on map", "Navigate to", "Delete"};
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this, R.style.AppCompatAlertDialogStyle);
+                builder.setTitle(item.getFriendName());
+                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+                builder.setItems(options, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Toast.makeText(context, "You choose option: " + which, Toast.LENGTH_SHORT).show();
+                    }
+                });
+                builder.show();
+                Toast.makeText(context, "You selected: " + item.getFriendName(), Toast.LENGTH_LONG).show();
+            }
+        });
+
         inputSearch = (EditText) findViewById(R.id.filterFriendsInput);
         inputSearch.addTextChangedListener(new TextWatcher() {
             @Override
@@ -228,7 +254,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 adapter.getFilter().filter(s, new Filter.FilterListener() {
                     @Override
                     public void onFilterComplete(int count) {
-                       // adapter.notifyDataSetChanged();
                     }
                 });
             }
@@ -349,69 +374,69 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-            try {
-                Bundle extras2;
+        try {
+            Bundle extras2;
 
 
-                if (requestCode == PICK_FROM_GALLERY && resultCode == RESULT_OK) {
-                    extras2 = data.getExtras();
-                    if (extras2 != null) {
-                        Bitmap photo = extras2.getParcelable("data");
+            if (requestCode == PICK_FROM_GALLERY && resultCode == RESULT_OK) {
+                extras2 = data.getExtras();
+                if (extras2 != null) {
+                    Bitmap photo = extras2.getParcelable("data");
 
-                        ParseUser user = ParseUser.getCurrentUser();
-                        user.put("photo", session.encodeBitmapTobase64(photo));
-                        user.saveInBackground();
-                        session.setUserPhoto(session.encodeBitmapTobase64(photo));
+                    ParseUser user = ParseUser.getCurrentUser();
+                    user.put("photo", session.encodeBitmapTobase64(photo));
+                    user.saveInBackground();
+                    session.setUserPhoto(session.encodeBitmapTobase64(photo));
 
-                        mainPhoto = clipBitmap(session.decodeBase64ToBitmap(session.getUserPhoto()), navigationViewLeftProfilePicture);
-                        navigationViewLeftProfilePicture.setImageBitmap(mainPhoto);
+                    mainPhoto = clipBitmap(session.decodeBase64ToBitmap(session.getUserPhoto()), navigationViewLeftProfilePicture);
+                    navigationViewLeftProfilePicture.setImageBitmap(mainPhoto);
 
-                        Toast.makeText(this, "OK", Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, "OK", Toast.LENGTH_LONG).show();
 
-                    }
-                } else if (requestCode == PICK_FROM_CAMERA && resultCode == RESULT_OK) {
-                    extras2 = data.getExtras();
-                    if (extras2 != null) {
-                        Uri uri = data.getData();
-                        Intent cropIntent = new Intent("com.android.camera.action.CROP");
-                        cropIntent.setDataAndType(uri, "image/*");
-                        cropIntent.putExtra("crop", "true");
-                        cropIntent.putExtra("aspectX", 1);
-                        cropIntent.putExtra("aspectY", 1);
-                        cropIntent.putExtra("outputX", 500);
-                        cropIntent.putExtra("outputY", 500);
-                        cropIntent.putExtra("return-data", true);
-
-                        startActivityForResult(cropIntent, CROP_IMAGE);
-                    }
-                } else if (requestCode == CROP_IMAGE && resultCode == RESULT_OK) {
-                    extras2 = data.getExtras();
-                    if (extras2 != null) {
-                        Bitmap photo = extras2.getParcelable("data");
-
-                        ParseUser user = ParseUser.getCurrentUser();
-                        user.put("photo", session.encodeBitmapTobase64(photo));
-                        user.saveInBackground();
-                        session.setUserPhoto(session.encodeBitmapTobase64(photo));
-
-                        //tu przydałoby się odświezyć zdjęcie
-
-                        mainPhoto = clipBitmap(session.decodeBase64ToBitmap(session.getUserPhoto()), navigationViewLeftProfilePicture);
-                        navigationViewLeftProfilePicture.setImageBitmap(mainPhoto);
-
-                        Toast.makeText(this, "OK", Toast.LENGTH_LONG).show();
-                    }
-                } else {
-                    Toast.makeText(this, "You haven't picked Image...", Toast.LENGTH_LONG).show();
-                    Log.e("RESULT CODE: ", "" + resultCode);
-                    Log.e("REQUEST CODE: ", ""+ requestCode );
                 }
+            } else if (requestCode == PICK_FROM_CAMERA && resultCode == RESULT_OK) {
+                extras2 = data.getExtras();
+                if (extras2 != null) {
+                    Uri uri = data.getData();
+                    Intent cropIntent = new Intent("com.android.camera.action.CROP");
+                    cropIntent.setDataAndType(uri, "image/*");
+                    cropIntent.putExtra("crop", "true");
+                    cropIntent.putExtra("aspectX", 1);
+                    cropIntent.putExtra("aspectY", 1);
+                    cropIntent.putExtra("outputX", 500);
+                    cropIntent.putExtra("outputY", 500);
+                    cropIntent.putExtra("return-data", true);
 
+                    startActivityForResult(cropIntent, CROP_IMAGE);
+                }
+            } else if (requestCode == CROP_IMAGE && resultCode == RESULT_OK) {
+                extras2 = data.getExtras();
+                if (extras2 != null) {
+                    Bitmap photo = extras2.getParcelable("data");
 
-            } catch (Exception e) {
-                Toast.makeText(this, "Something went wrong", Toast.LENGTH_LONG).show();
-                e.printStackTrace();
+                    ParseUser user = ParseUser.getCurrentUser();
+                    user.put("photo", session.encodeBitmapTobase64(photo));
+                    user.saveInBackground();
+                    session.setUserPhoto(session.encodeBitmapTobase64(photo));
+
+                    //tu przydałoby się odświezyć zdjęcie
+
+                    mainPhoto = clipBitmap(session.decodeBase64ToBitmap(session.getUserPhoto()), navigationViewLeftProfilePicture);
+                    navigationViewLeftProfilePicture.setImageBitmap(mainPhoto);
+
+                    Toast.makeText(this, "OK", Toast.LENGTH_LONG).show();
+                }
+            } else {
+                Toast.makeText(this, "You haven't picked Image...", Toast.LENGTH_LONG).show();
+                Log.e("RESULT CODE: ", "" + resultCode);
+                Log.e("REQUEST CODE: ", "" + requestCode);
             }
+
+
+        } catch (Exception e) {
+            Toast.makeText(this, "Something went wrong", Toast.LENGTH_LONG).show();
+            e.printStackTrace();
+        }
 
     }
 
@@ -476,35 +501,28 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         int id = item.getItemId();
         if (id == R.id.nav_about) {
 
-        }
-        else if(id == R.id.nav_map){
-            if(mapFragment.isVisible()){
+        } else if (id == R.id.nav_map) {
+            if (mapFragment.isVisible()) {
 
-            }
-            else{
+            } else {
                 getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
                 getSupportFragmentManager().beginTransaction().replace(R.id.main_container, mapFragment, mapTAG).setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN).commit();
             }
-        }
-        else if(id == R.id.nav_password){
-            if(getSupportFragmentManager().findFragmentByTag(passwordTAG) == null) {
+        } else if (id == R.id.nav_password) {
+            if (getSupportFragmentManager().findFragmentByTag(passwordTAG) == null) {
                 getSupportFragmentManager().beginTransaction().replace(R.id.main_container, changePasswordFragment, passwordTAG).addToBackStack(mapTAG).setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN).commit();
-            }
-            else {
-                if(!changePasswordFragment.isVisible())
+            } else {
+                if (!changePasswordFragment.isVisible())
                     getSupportFragmentManager().popBackStack();
             }
-        }
-        else if (id == R.id.nav_photo) {
-            if(getSupportFragmentManager().findFragmentByTag(photoTAG) == null) {
+        } else if (id == R.id.nav_photo) {
+            if (getSupportFragmentManager().findFragmentByTag(photoTAG) == null) {
                 getSupportFragmentManager().beginTransaction().replace(R.id.main_container, changePhotoFragment, photoTAG).addToBackStack(mapTAG).setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN).commit();
-            }
-            else {
-                if(!changePhotoFragment.isVisible())
+            } else {
+                if (!changePhotoFragment.isVisible())
                     getSupportFragmentManager().popBackStack();
             }
-        }
-        else if (id == R.id.nav_logout) {
+        } else if (id == R.id.nav_logout) {
             logOut();
         }
 
@@ -661,7 +679,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             drawer.closeDrawer(GravityCompat.START);
         } else if (drawer.isDrawerOpen(GravityCompat.END)) {
             drawer.closeDrawer(GravityCompat.END);
-        } else if(getSupportFragmentManager().findFragmentByTag(mapTAG).isVisible()){
+        } else if (getSupportFragmentManager().findFragmentByTag(mapTAG).isVisible()) {
             new AlertDialog.Builder(this).
                     setTitle("Really Exit")
                     .setMessage("Are You sure you want to exit ?")
@@ -672,8 +690,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                             MainActivity.super.onBackPressed();
                         }
                     }).create().show();
-        }
-        else {
+        } else {
             super.onBackPressed();
         }
     }
@@ -687,7 +704,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         if (not.getType().equals("friendshipRequest")) {
-                           // sendFriendshipAcceptance(session.getUserId(), not.getSenderId(), not.getSenderName(), not.getSenderEmail());
+                            // sendFriendshipAcceptance(session.getUserId(), not.getSenderId(), not.getSenderName(), not.getSenderEmail());
 
 
                         }
@@ -859,14 +876,12 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             Criteria criteria = new Criteria();
             criteria.setPowerRequirement(Criteria.POWER_LOW);
 
-            while(SessionManager.getInstance().isLoggedIn())
-            {
+            while (SessionManager.getInstance().isLoggedIn()) {
                 try {
 
                     mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
 
-                    if(mCurrentLocation != null)
-                    {
+                    if (mCurrentLocation != null) {
                         Location myLocation = locationManager.getLastKnownLocation(locationManager.getBestProvider(criteria, true));
 
                         session.setUserCurrentLocation(myLocation.getLatitude(), myLocation.getLongitude());
@@ -890,10 +905,12 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         }
 
         @Override
-        protected void onPreExecute() {}
+        protected void onPreExecute() {
+        }
 
         @Override
-        protected void onProgressUpdate(Void... values) {}
+        protected void onProgressUpdate(Void... values) {
+        }
     }
 
 }

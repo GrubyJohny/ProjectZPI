@@ -38,6 +38,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Filter;
 import android.widget.ImageButton;
@@ -47,6 +48,7 @@ import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.support.design.widget.FloatingActionButton;
 
 import com.android.volley.Request;
 import com.android.volley.Response;
@@ -160,6 +162,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     private ListView friendsListView;
     private EditText inputSearch;
     private FriendAdapter adapter;
+    private FloatingActionButton addFriendButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -212,6 +215,15 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
         navigationViewRight = (NavigationView) findViewById(R.id.nav_view_right);
         navigationViewRight.setNavigationItemSelectedListener(this);
+
+        addFriendButton = (FloatingActionButton) findViewById(R.id.addFriendButton);
+        addFriendButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, SearchingFriendsActivity.class);
+                startActivity(intent);
+            }
+        });
 
         ArrayList<Friend> friendsList = new ArrayList<>();
         friendsList.addAll(session.getFriendsList());

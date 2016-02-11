@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_margin="20dp"
+    tools:context="zpi.squad.app.grouploc.SearchingFriendsActivity">
+
+    <EditText
+        android:id="@+id/search_friends_input"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter friend name or email"/>
+
+    <ListView
+        android:id="@+id/searchingFriendsListView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/search_friends_input"
+        android:choiceMode="singleChoice"
+        android:divider="@null"
+        android:dividerHeight="0dp" />
+
+</RelativeLayout>

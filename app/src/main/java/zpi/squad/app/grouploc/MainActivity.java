@@ -70,7 +70,9 @@ import com.nhaarman.supertooltips.ToolTipView;
 import com.parse.Parse;
 import com.parse.ParseException;
 import com.parse.ParseGeoPoint;
+import com.parse.ParseInstallation;
 import com.parse.ParseObject;
+import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
 import org.json.JSONException;
@@ -86,6 +88,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+
+import javax.security.auth.login.LoginException;
 
 
 public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
@@ -252,39 +256,58 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                         Toast.makeText(context, "You choose option: " + which, Toast.LENGTH_SHORT).show();
                         drawer.closeDrawer(navigationViewRight);
 
-                        switch(which)
-                        {
+                        switch (which) {
                             case 0:
-                                    MapFragment.moveMapCamera(new LatLng(item.location.getLatitude(), item.location.getLongitude()));
-                                    MapFragment.getMap().addGroundOverlay(new GroundOverlayOptions().image(BitmapDescriptorFactory.fromBitmap(session.decodeBase64ToBitmap(item.getFriendPhoto()))).position(new LatLng(item.location.getLatitude(), item.location.getLongitude()), 20).visible(true));
-                                    break;
+                                MapFragment.moveMapCamera(new LatLng(item.location.getLatitude(), item.location.getLongitude()));
+                                MapFragment.getMap().addGroundOverlay(new GroundOverlayOptions().image(BitmapDescriptorFactory.fromBitmap(session.decodeBase64ToBitmap(item.getFriendPhoto()))).position(new LatLng(item.location.getLatitude(), item.location.getLongitude()), 20).visible(true));
+                                break;
                             case 1:
-                                    String uri = String.format(Locale.ENGLISH, "http://maps.google.com/maps?daddr=%f,%f (%s)", item.getFriendLocationLatLng().latitude, item.getFriendLocationLatLng().longitude, item.getFriendName());
-                                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
-                                    intent.setClassName("com.google.android.apps.maps", "com.google.android.maps.MapsActivity");
-                                    try
-                                    {
-                                        startActivity(intent);
+                                String uri = String.format(Locale.ENGLISH, "http://maps.google.com/maps?daddr=%f,%f (%s)", item.getFriendLocationLatLng().latitude, item.getFriendLocationLatLng().longitude, item.getFriendName());
+                                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
+                                intent.setClassName("com.google.android.apps.maps", "com.google.android.maps.MapsActivity");
+                                try {
+                                    startActivity(intent);
+                                } catch (ActivityNotFoundException ex) {
+                                    try {
+                                        Intent unrestrictedIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
+                                        startActivity(unrestrictedIntent);
+                                    } catch (ActivityNotFoundException innerEx) {
+                                        Toast.makeText(getApplicationContext(), "Please install a maps application", Toast.LENGTH_LONG).show();
                                     }
-                                    catch(ActivityNotFoundException ex)
-                                    {
-                                        try
-                                        {
-                                            Intent unrestrictedIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
-                                            startActivity(unrestrictedIntent);
-                                        }
-                                        catch(ActivityNotFoundException innerEx)
-                                        {
-                                            Toast.makeText(getApplicationContext(), "Please install a maps application", Toast.LENGTH_LONG).show();
-                                        }
-                                    }
-                                    break;
-                            case 3:
-                                    break;
+                                }
+                                break;
+                            case 2:
 
-                            default: break;
+                                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this, R.style.AppCompatAlertDialogStyle);
+                                builder.setTitle("Delete friend");
+                                builder.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        deleteFriendship(ParseUser.getCurrentUser(), item.getParseUser());
+                                        adapter.remove(item);
+                                        adapter.notifyDataSetChanged();
+                                        dialog.dismiss();
+                                        Toast.makeText(getApplicationContext(), "Friend deleted", Toast.LENGTH_LONG).show();
+                                        SessionManager.refreshFriendsList();
+
+                                    }
+                                });
+                                builder.setCancelable(true);
+                                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        dialog.dismiss();
+                                    }
+                                });
+                                builder.setMessage("Do you want to remove " + item.getFriendName() + " from your friends ?");
+                                builder.show();
+
+                                break;
+
+                            default:
+                                break;
                         }
-                        
+
                     }
                 });
                 builder.show();
@@ -885,6 +908,63 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         return Uri.parse(path);
     }
 
+    private void deleteFriendship(ParseUser currentUser, ParseUser friend)
+    {
+        ArrayList<Friend> result = new ArrayList<>();
 
+        ParseQuery checkIfFriends1 = new ParseQuery("Friendship");
+        checkIfFriends1.whereEqualTo("friend1", currentUser);
+        checkIfFriends1.whereEqualTo("friend2", friend );
+
+        ParseQuery checkIfFriends2 = new ParseQuery("Friendship");
+        checkIfFriends2.whereEqualTo("friend2", currentUser);
+        checkIfFriends2.whereEqualTo("friend1", friend );
+
+        Object[] friendsList = null, friendsList2 = null;
+        ParseObject temp = null;
+        List<ParseObject> mojaLista = new ArrayList<>();
+
+
+        try {
+            friendsList = checkIfFriends1.find().toArray().clone();
+
+            if (friendsList.length > 0) {
+                for (int i = 0; i < friendsList.length; i++) {
+                    //to jest typu Friendship
+                    temp = ((ParseObject) friendsList[i]);
+
+                    if (temp.get("accepted").toString().equals("true"))
+                        mojaLista.add(temp);
+                }
+            }
+
+
+            friendsList2 = checkIfFriends2.find().toArray().clone();
+
+            if (friendsList2.length > 0) {
+                for (int i = 0; i < friendsList2.length; i++) {
+                    //to jest typu Friendship
+                    temp = ((ParseObject) friendsList2[i]);
+
+                    if (temp.get("accepted").toString().equals("true"))
+                        mojaLista.add(temp);
+                }
+            }
+
+            if(mojaLista.size() ==1)
+            {
+                ParseInstallation.deleteAll(mojaLista);
+            }
+            else
+                Log.i("deleteFriendship: ", "something went wrong");
+
+        } catch (ParseException e) {
+            Log.e("Parse: ", e.getLocalizedMessage());
+            e.printStackTrace();
+        } catch (Exception e) {
+            Log.e("Exception: ", e.getLocalizedMessage());
+            e.printStackTrace();
+        }
+    }
 }
 

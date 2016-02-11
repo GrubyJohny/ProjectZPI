@@ -268,6 +268,10 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
                         switch (which) {
                             case 0:
+                                if (!mapFragment.isVisible()) {
+                                    getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+                                    getSupportFragmentManager().beginTransaction().replace(R.id.main_container, mapFragment, mapTAG).setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN).commit();
+                                }
                                 MapFragment.moveMapCamera(new LatLng(item.location.getLatitude(), item.location.getLongitude()));
                                 MapFragment.getMap().addGroundOverlay(new GroundOverlayOptions().image(BitmapDescriptorFactory.fromBitmap(session.decodeBase64ToBitmap(item.getFriendPhoto()))).position(new LatLng(item.location.getLatitude(), item.location.getLongitude()), 20).visible(true));
                                 break;
@@ -542,8 +546,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             builder.setMessage("This application was created by awesome people");
             builder.show();
         } else if (id == R.id.nav_map) {
-            if (mapFragment.isVisible()) {
-            } else {
+            if (!mapFragment.isVisible()) {
                 getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
                 getSupportFragmentManager().beginTransaction().replace(R.id.main_container, mapFragment, mapTAG).setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN).commit();
             }
@@ -918,17 +921,16 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         return Uri.parse(path);
     }
 
-    private void deleteFriendship(ParseUser currentUser, ParseUser friend)
-    {
+    private void deleteFriendship(ParseUser currentUser, ParseUser friend) {
         ArrayList<Friend> result = new ArrayList<>();
 
         ParseQuery checkIfFriends1 = new ParseQuery("Friendship");
         checkIfFriends1.whereEqualTo("friend1", currentUser);
-        checkIfFriends1.whereEqualTo("friend2", friend );
+        checkIfFriends1.whereEqualTo("friend2", friend);
 
         ParseQuery checkIfFriends2 = new ParseQuery("Friendship");
         checkIfFriends2.whereEqualTo("friend2", currentUser);
-        checkIfFriends2.whereEqualTo("friend1", friend );
+        checkIfFriends2.whereEqualTo("friend1", friend);
 
         Object[] friendshipsList = null, friendshipsList2 = null;
         ParseObject tempFriendship = null;
@@ -961,11 +963,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 }
             }
 
-            if(friendshipsToDelete.size() ==1)
-            {
+            if (friendshipsToDelete.size() == 1) {
                 ParseInstallation.deleteAll(friendshipsToDelete);
-            }
-            else
+            } else
                 Log.i("deleteFriendship: ", "Problem with deleting friendship. Number of friendships different than 1.");
 
         } catch (ParseException e) {

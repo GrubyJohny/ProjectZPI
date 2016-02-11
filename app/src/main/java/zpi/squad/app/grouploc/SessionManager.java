@@ -237,7 +237,7 @@ public class SessionManager {
                 .decodeByteArray(decodedByte, 0, decodedByte.length);
     }
 
-    public static void refreshFriendsList() {
+    public void refreshFriendsList() {
         friends = getFriendsFromParse();
     }
 }

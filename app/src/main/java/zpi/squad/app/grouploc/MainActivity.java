@@ -89,8 +89,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import javax.security.auth.login.LoginException;
-
 
 public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
         LocationListener, NavigationView.OnNavigationItemSelectedListener/*, android.support.v4.app.FragmentManager.OnBackStackChangedListener*/ {
@@ -288,7 +286,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                                         adapter.notifyDataSetChanged();
                                         dialog.dismiss();
                                         Toast.makeText(getApplicationContext(), "Friend deleted", Toast.LENGTH_LONG).show();
-                                        SessionManager.refreshFriendsList();
+                                        session.refreshFriendsList();
 
                                     }
                                 });
@@ -920,43 +918,43 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         checkIfFriends2.whereEqualTo("friend2", currentUser);
         checkIfFriends2.whereEqualTo("friend1", friend );
 
-        Object[] friendsList = null, friendsList2 = null;
-        ParseObject temp = null;
-        List<ParseObject> mojaLista = new ArrayList<>();
+        Object[] friendshipsList = null, friendshipsList2 = null;
+        ParseObject tempFriendship = null;
+        List<ParseObject> friendshipsToDelete = new ArrayList<>();
 
 
         try {
-            friendsList = checkIfFriends1.find().toArray().clone();
+            friendshipsList = checkIfFriends1.find().toArray().clone();
 
-            if (friendsList.length > 0) {
-                for (int i = 0; i < friendsList.length; i++) {
+            if (friendshipsList.length > 0) {
+                for (int i = 0; i < friendshipsList.length; i++) {
                     //to jest typu Friendship
-                    temp = ((ParseObject) friendsList[i]);
+                    tempFriendship = ((ParseObject) friendshipsList[i]);
 
-                    if (temp.get("accepted").toString().equals("true"))
-                        mojaLista.add(temp);
+                    if (tempFriendship.get("accepted").toString().equals("true"))
+                        friendshipsToDelete.add(tempFriendship);
                 }
             }
 
 
-            friendsList2 = checkIfFriends2.find().toArray().clone();
+            friendshipsList2 = checkIfFriends2.find().toArray().clone();
 
-            if (friendsList2.length > 0) {
-                for (int i = 0; i < friendsList2.length; i++) {
+            if (friendshipsList2.length > 0) {
+                for (int i = 0; i < friendshipsList2.length; i++) {
                     //to jest typu Friendship
-                    temp = ((ParseObject) friendsList2[i]);
+                    tempFriendship = ((ParseObject) friendshipsList2[i]);
 
-                    if (temp.get("accepted").toString().equals("true"))
-                        mojaLista.add(temp);
+                    if (tempFriendship.get("accepted").toString().equals("true"))
+                        friendshipsToDelete.add(tempFriendship);
                 }
             }
 
-            if(mojaLista.size() ==1)
+            if(friendshipsToDelete.size() ==1)
             {
-                ParseInstallation.deleteAll(mojaLista);
+                ParseInstallation.deleteAll(friendshipsToDelete);
             }
             else
-                Log.i("deleteFriendship: ", "something went wrong");
+                Log.i("deleteFriendship: ", "Problem with deleting friendship. Number of friendships different than 1.");
 
         } catch (ParseException e) {
             Log.e("Parse: ", e.getLocalizedMessage());

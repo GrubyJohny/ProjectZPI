@@ -208,6 +208,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
 
     @Override
     public void onMapReady(GoogleMap map) {
+        this.map = map;
         map.addMarker(new MarkerOptions().position(new LatLng(50, 50)).title("Marker"));
         map.setBuildingsEnabled(true);
         map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
@@ -217,20 +218,13 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
         map.getUiSettings().setIndoorLevelPickerEnabled(true);
         map.getUiSettings().setAllGesturesEnabled(true);
 
-        CameraPosition cameraPosition = new CameraPosition.Builder()
-                .target(session.getCurrentLocation())
-                .zoom(17)
-                .bearing(0)
-                .tilt(30)
-                .build();
-        map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
-
         /*poniżej to coś na wzór tego, co chciałeś, żeby dodawać obiekty nie jako markery, tylko właśnie takie bardziej
         zintegrowane z mapą rzeczy. tylko nie da rady w nie klikać - czysto informacyjne.
         */
         map.addGroundOverlay(new GroundOverlayOptions().image(BitmapDescriptorFactory.fromResource(R.drawable.johny)).position(session.getCurrentLocation(), 20).visible(true));
 
-        this.map = map;
+        LatLng location = (mCurrentLocation==null? session.getCurrentLocation() : new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()));
+        moveMapCamera(location);
     }
 
 
@@ -1104,5 +1098,14 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
         return map;
     }
 
-
+    public static void moveMapCamera(LatLng position)
+    {
+        CameraPosition cameraPosition = new CameraPosition.Builder()
+                .target(position)
+                .zoom(17)
+                .bearing(0)
+                .tilt(30)
+                .build();
+        map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+    }
 }

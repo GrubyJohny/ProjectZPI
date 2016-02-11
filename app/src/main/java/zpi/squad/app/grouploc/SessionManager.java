@@ -23,7 +23,7 @@ public class SessionManager {
     private static SessionManager sessionManager;
     private SharedPreferences pref;
     private SharedPreferences.Editor editor;
-    public static ArrayList<Friend> friends;
+    private static ArrayList<Friend> friends;
     private LatLng currentLocation;
     public boolean requestLocationUpdate = true;
 
@@ -172,7 +172,7 @@ public class SessionManager {
                                 actual.get("name").toString(),
                                 actual.getEmail(),
                                 actual.get("photo") != null ? actual.get("photo").toString() : null,
-                                point.getLatitude(), point.getLongitude()));
+                                point.getLatitude(), point.getLongitude(), actual));
 
                         Log.d("Friend added: ", "" + actual.get("name").toString() + " " + point.getLatitude() + ", " + point.getLongitude());
                     }
@@ -200,7 +200,7 @@ public class SessionManager {
                                 actual.get("name").toString(),
                                 actual.getEmail(),
                                 actual.get("photo") != null ? actual.get("photo").toString() : null,
-                                point.getLatitude(), point.getLongitude()));
+                                point.getLatitude(), point.getLongitude(), actual));
 
                         Log.d("Friend added: ", "" + actual.get("name").toString() + " " + point.getLatitude() + ", " + point.getLongitude());
                     }
@@ -237,5 +237,7 @@ public class SessionManager {
                 .decodeByteArray(decodedByte, 0, decodedByte.length);
     }
 
-
+    public void refreshFriendsList() {
+        friends = getFriendsFromParse();
+    }
 }

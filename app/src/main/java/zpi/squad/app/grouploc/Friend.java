@@ -2,6 +2,7 @@ package zpi.squad.app.grouploc;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.parse.ParseGeoPoint;
+import com.parse.ParseUser;
 
 /**
  * Created by karol_000 on 2015-05-11.
@@ -13,6 +14,7 @@ public class Friend {
     String email;
     String photo;
     ParseGeoPoint location;
+    private ParseUser parseUser;
 
     public Friend() {
     }
@@ -31,6 +33,15 @@ public class Friend {
         this.email = email;
         this.photo = photo;
         this.location = new ParseGeoPoint(lat, lon);
+    }
+
+    public Friend(String uid, String name, String email, String photo, double lat, double lon, ParseUser pUser) {
+        this.uid = uid;
+        this.name = name;
+        this.email = email;
+        this.photo = photo;
+        this.location = new ParseGeoPoint(lat, lon);
+        this.parseUser = pUser;
     }
 
     public String getFriendID() {
@@ -85,5 +96,9 @@ public class Friend {
         this.location = new ParseGeoPoint(lat, lon);
     }
 
+    public ParseUser getParseUser()
+    {
+        return this.parseUser;
+    }
 
 }

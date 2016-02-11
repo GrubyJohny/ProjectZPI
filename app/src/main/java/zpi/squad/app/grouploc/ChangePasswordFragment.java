@@ -12,6 +12,7 @@ import android.view.InflateException;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 
 public class ChangePasswordFragment extends Fragment {
@@ -70,8 +71,8 @@ public class ChangePasswordFragment extends Fragment {
                     getActivity().getSupportFragmentManager().popBackStack();
                 }
 
-                /*InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.hideSoftInputFromWindow(tabhost.getApplicationWindowToken(), 0);*/
+                InputMethodManager imm = (InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
             }
         });
     }

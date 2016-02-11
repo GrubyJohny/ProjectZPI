@@ -76,7 +76,7 @@
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar"
-            android:windowSoftInputMode="adjustResize|stateHidden">
+            android:windowSoftInputMode="adjustNothing|stateHidden">
 
             <!-- Required OpenGL ES 2.0. for Maps V2 -->
 

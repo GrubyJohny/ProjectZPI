@@ -102,6 +102,9 @@ public class ChangePasswordFragment extends Fragment {
                 }
                 else if(pass.length()>0 & pass2.length()>0 & oldPass.length()>0 & pass.equals(pass2) ) {
 
+                    /*odtąd fajnie byłoby dac jakieś kółko oznaczające oczekiwanie - zmiana hasła nie trwa długo
+                    * ale jak ją przerwiesz, to trzeba resetować hasło, a normalny user może na to nie wpaść,
+                    * więc lepiej zasugerowac mu, żeby grzecznie poczekał te 2 sekundy :) */
                     final ParseUser currentUser = ParseUser.getCurrentUser();
                     final String userName = ParseUser.getCurrentUser().getUsername();
 
@@ -126,7 +129,6 @@ public class ChangePasswordFragment extends Fragment {
                                             newPassConfirmed.setText("");
                                             Toast.makeText(getActivity(), "Password changed succesfully!", Toast.LENGTH_SHORT).show();
 
-
                                             if (getActivity().getSupportFragmentManager().getBackStackEntryCount() > 1) {
                                                 getActivity().getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
                                                 getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.main_container, getActivity().getSupportFragmentManager().findFragmentByTag(mapTAG), mapTAG).setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN).commit();
@@ -137,29 +139,21 @@ public class ChangePasswordFragment extends Fragment {
                                             InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
                                             imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
 
-
-
-
-
-
-
+                                            /*prawdopodobnie w tym miejscu trzeba zmienić zaznaczoną opcję
+                                            * w drawerze po lewej (na mapę)*/
 
                                         } else
                                             Toast.makeText(getActivity(), "Network error", Toast.LENGTH_SHORT).show();
                                     }
                                 });
 
-
-
-
-
-
-
                             } else {
+                                currentPass.setText(""); newPass.setText(""); newPassConfirmed.setText("");
                                 Toast.makeText(getActivity(), "Old password incorrect", Toast.LENGTH_SHORT).show();
                             }
                         }
                     });
+                    /*dotąd*/
                 }
 
             }

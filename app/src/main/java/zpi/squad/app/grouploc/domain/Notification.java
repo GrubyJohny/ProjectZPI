@@ -1,4 +1,4 @@
-package zpi.squad.app.grouploc;
+package zpi.squad.app.grouploc.domain;
 
 /**
  * Created by karol_000 on 2015-05-12.
@@ -56,29 +56,6 @@ public class Notification {
     }
 
 
-    public String getSenderName() {
-        return senderName;
-    }
-
-    public String getSenderId() {
-        return senderId;
-    }
-
-    public String getSenderEmail() {
-        return senderEmail;
-    }
-
-    public String getGroupId() {
-        return groupId;
-    }
-
-    public String getReceiverId() {
-        return receiverId;
-    }
-
-    public String getType() {
-        return type;
-    }
 
     public boolean isChecked() {
         if (checked == 0)
@@ -87,9 +64,67 @@ public class Notification {
             return true;
     }
 
+    public String getSenderId() {
+        return senderId;
+    }
+
+    public void setSenderId(String senderId) {
+        this.senderId = senderId;
+    }
+
+    public String getSenderName() {
+        return senderName;
+    }
+
+    public void setSenderName(String senderName) {
+        this.senderName = senderName;
+    }
+
+    public String getSenderEmail() {
+        return senderEmail;
+    }
+
+    public void setSenderEmail(String senderEmail) {
+        this.senderEmail = senderEmail;
+    }
+
+    public String getReceiverId() {
+        return receiverId;
+    }
+
+    public void setReceiverId(String receiverId) {
+        this.receiverId = receiverId;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public String getGroupId() {
+        return groupId;
+    }
+
+    public void setGroupId(String groupId) {
+        this.groupId = groupId;
+    }
+
+    public String getMessageId() {
+        return messageId;
+    }
+
+    public void setMessageId(String messageId) {
+        this.messageId = messageId;
+    }
+
     public String getCreatedAt() {
         return createdAt;
     }
 
-
+    public void setCreatedAt(String createdAt) {
+        this.createdAt = createdAt;
+    }
 }

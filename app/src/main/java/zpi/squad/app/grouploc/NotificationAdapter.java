@@ -10,6 +10,8 @@ import android.widget.TextView;
 
 import java.util.List;
 
+import zpi.squad.app.grouploc.domain.Notification;
+
 public class NotificationAdapter extends ArrayAdapter {
     View notificationLayout;
 

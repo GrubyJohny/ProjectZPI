@@ -1,4 +1,4 @@
-package zpi.squad.app.grouploc;
+package zpi.squad.app.grouploc.domain;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.parse.ParseGeoPoint;
@@ -44,61 +44,51 @@ public class Friend {
         this.parseUser = pUser;
     }
 
-    public String getFriendID() {
+    public String getUid() {
         return uid;
     }
 
-    public void setFriendID(String uid) {
+    public void setUid(String uid) {
         this.uid = uid;
     }
 
-    public String getFriendName() {
+    public String getName() {
         return name;
     }
 
-    public void setFriendName(String name) {
+    public void setName(String name) {
         this.name = name;
     }
 
-    public String getFriendEmail() {
+    public String getEmail() {
         return email;
     }
 
-    public void setFriendEmail(String email) {
+    public void setEmail(String email) {
         this.email = email;
     }
 
-    public String getFriendPhoto() {
+    public String getPhoto() {
         return photo;
     }
 
-    public void setFriendPhoto(String email) {
+    public void setPhoto(String photo) {
         this.photo = photo;
     }
 
-    public LatLng getFriendLocationLatLng() {
-        return new LatLng(location.getLatitude(), location.getLongitude());
-    }
-
-    public ParseGeoPoint getFriendLocationParseGeoPoint() {
+    public ParseGeoPoint getLocation() {
         return location;
     }
 
-    public void setFriendLocation(LatLng loc) {
-        this.location = new ParseGeoPoint(loc.latitude, loc.longitude);
+    public void setLocation(ParseGeoPoint location) {
+        this.location = location;
     }
 
-    public void setFriendLocation(ParseGeoPoint point) {
-        this.location = point;
+    public ParseUser getParseUser() {
+        return parseUser;
     }
 
-    public void setFriendLocation(double lat, double lon) {
-        this.location = new ParseGeoPoint(lat, lon);
+    public void setParseUser(ParseUser parseUser) {
+        this.parseUser = parseUser;
     }
-
-    public ParseUser getParseUser()
-    {
-        return this.parseUser;
-    }
-
 }

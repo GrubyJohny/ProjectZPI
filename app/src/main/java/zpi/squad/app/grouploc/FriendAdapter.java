@@ -18,6 +18,8 @@ import com.parse.ParseGeoPoint;
 import java.util.ArrayList;
 import java.util.List;
 
+import zpi.squad.app.grouploc.domain.Friend;
+
 public class FriendAdapter extends ArrayAdapter<Friend> implements Filterable {
     private SessionManager session = SessionManager.getInstance();
     private ArrayList<Friend> items;
@@ -40,10 +42,10 @@ public class FriendAdapter extends ArrayAdapter<Friend> implements Filterable {
         ImageView photo = (ImageView) convertView.findViewById(R.id.img);
         // Populate the data into the template view using the data object
         //wpakowałem to do tej samej linijki, co nazwa użytkownika, ale pewnie jakoś to już ładnie porozbijasz ;)
-        Double distanceToMe = new ParseGeoPoint(session.getCurrentLocation().latitude, session.getCurrentLocation().longitude).distanceInKilometersTo(friend.getFriendLocationParseGeoPoint());
-        String text = friend.name + ", " + distanceToMe.intValue() + " km";
+        Double distanceToMe = new ParseGeoPoint(session.getCurrentLocation().latitude, session.getCurrentLocation().longitude).distanceInKilometersTo(friend.getLocation());
+        String text = friend.getName() + ", " + distanceToMe.intValue() + " km";
         name.setText(text);
-        photo.setImageBitmap(decodeBase64ToBitmap(friend.getFriendPhoto()));
+        photo.setImageBitmap(decodeBase64ToBitmap(friend.getPhoto()));
         // Return the completed view to render on screen
         return convertView;
     }
@@ -62,7 +64,7 @@ public class FriendAdapter extends ArrayAdapter<Friend> implements Filterable {
                 } else {
                     ArrayList<Friend> filteredList = new ArrayList<Friend>();
                     for (Friend f : allFriends) {
-                        if (f.getFriendName().toLowerCase().contains(constraint.toString().toLowerCase()))
+                        if (f.getName().toLowerCase().contains(constraint.toString().toLowerCase()))
                             filteredList.add(f);
                     }
                     result.values = filteredList;

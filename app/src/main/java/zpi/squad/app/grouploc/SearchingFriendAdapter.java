@@ -16,6 +16,8 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
+import zpi.squad.app.grouploc.domain.Friend;
+
 public class SearchingFriendAdapter extends ArrayAdapter<Friend> implements Filterable {
     private SessionManager session = SessionManager.getInstance();
     private ArrayList<Friend> items;
@@ -37,8 +39,8 @@ public class SearchingFriendAdapter extends ArrayAdapter<Friend> implements Filt
         TextView name = (TextView) convertView.findViewById(R.id.txt);
         ImageView photo = (ImageView) convertView.findViewById(R.id.img);
         // Populate the data into the template view using the data object
-        name.setText(friend.name);
-        photo.setImageBitmap(decodeBase64ToBitmap(friend.getFriendPhoto()));
+        name.setText(friend.getName());
+        photo.setImageBitmap(decodeBase64ToBitmap(friend.getPhoto()));
         // Return the completed view to render on screen
         return convertView;
     }
@@ -57,7 +59,7 @@ public class SearchingFriendAdapter extends ArrayAdapter<Friend> implements Filt
                 } else {
                     ArrayList<Friend> filteredList = new ArrayList<Friend>();
                     for (Friend f : allFriends) {
-                        if (f.getFriendName().toLowerCase().contains(constraint.toString().toLowerCase())) // DODAJ TEZ MAILA JESLI CHCESZ
+                        if (f.getName().toLowerCase().contains(constraint.toString().toLowerCase())) // DODAJ TEZ MAILA JESLI CHCESZ
                             filteredList.add(f);
                     }
                     result.values = filteredList;

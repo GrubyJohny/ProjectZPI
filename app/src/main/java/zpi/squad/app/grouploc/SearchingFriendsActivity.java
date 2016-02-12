@@ -13,6 +13,8 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 
+import zpi.squad.app.grouploc.domain.Friend;
+
 public class SearchingFriendsActivity extends AppCompatActivity {
     EditText searchFriendInput;
     ListView searchFriendListView;
@@ -38,7 +40,7 @@ public class SearchingFriendsActivity extends AppCompatActivity {
 
                 // TUTAJ ZROB MECHANIZM DODAWANIA :)
 
-                Toast.makeText(getApplicationContext(), "You added: " + item.getFriendName(), Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), "You added: " + item.getName(), Toast.LENGTH_LONG).show();
             }
         });
 

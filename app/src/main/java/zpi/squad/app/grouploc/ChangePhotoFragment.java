@@ -21,10 +21,7 @@ import com.facebook.AccessToken;
 import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
 import com.facebook.HttpMethod;
-import com.parse.ParseException;
-import com.parse.ParseFacebookUtils;
-import com.parse.ParseUser;
-import com.parse.SaveCallback;
+
 
 import org.json.JSONException;
 import org.json.JSONObject;

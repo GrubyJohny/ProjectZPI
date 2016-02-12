@@ -1,9 +1,7 @@
 package zpi.squad.app.grouploc;
 
 import android.content.Context;
-import android.graphics.drawable.Drawable;
 import android.util.Log;
-import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
@@ -17,12 +15,8 @@ import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -30,6 +24,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import zpi.squad.app.grouploc.domain.CustomMarker;
+import zpi.squad.app.grouploc.domain.Friend;
 
 /**
  * Created by sanczo on 2015-05-18.
@@ -324,11 +321,11 @@ public class Sender {
         StringBuilder result = new StringBuilder();
         if (!friendsList.isEmpty()) {
             current = friendsList.get(0);
-            result.append("U_ID=" + current.getFriendID());
+            result.append("U_ID=" + current.getUid());
         }
         for (int i = 1; i < friendsList.size(); i++) {
             current = friendsList.get(i);
-            result.append(" OR U_ID=" + current.getFriendID());
+            result.append(" OR U_ID=" + current.getUid());
         }
         return result.toString();
     }

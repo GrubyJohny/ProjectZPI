@@ -5,8 +5,6 @@ import android.animation.AnimatorListenerAdapter;
 import android.content.ActivityNotFoundException;
 import android.support.v7.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.location.LocationProvider;
-import android.os.AsyncTask;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
@@ -18,7 +16,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Path;
-import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
@@ -39,7 +36,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Filter;
 import android.widget.ImageButton;
@@ -60,17 +56,14 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.GroundOverlayOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.nhaarman.supertooltips.ToolTipRelativeLayout;
 import com.nhaarman.supertooltips.ToolTipView;
 
-import com.parse.Parse;
 import com.parse.ParseException;
 import com.parse.ParseGeoPoint;
 import com.parse.ParseInstallation;
@@ -91,6 +84,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+
+import zpi.squad.app.grouploc.activity.LoginActivity;
+import zpi.squad.app.grouploc.activity.SearchingFriendsActivity;
+import zpi.squad.app.grouploc.adapter.FriendAdapter;
+import zpi.squad.app.grouploc.adapter.NotificationAdapter;
+import zpi.squad.app.grouploc.domain.Friend;
+import zpi.squad.app.grouploc.domain.ListViewItem;
+import zpi.squad.app.grouploc.domain.Notification;
+import zpi.squad.app.grouploc.fragment.ChangePasswordFragment;
+import zpi.squad.app.grouploc.fragment.ChangePhotoFragment;
+import zpi.squad.app.grouploc.fragment.MapFragment;
+import zpi.squad.app.grouploc.utils.PoiJSONParser;
 
 
 public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
@@ -240,7 +245,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         Collections.sort(friendsList, new Comparator<Friend>() {
             @Override
             public int compare(Friend friend2, Friend friend1) {
-                return friend2.getFriendName().compareToIgnoreCase(friend1.getFriendName());
+                return friend2.getName().compareToIgnoreCase(friend1.getName());
             }
         });
 
@@ -260,7 +265,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 CharSequence options[] = new CharSequence[]{"Show on map", "Navigate to", "Delete"};
 
                 AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this, R.style.AppCompatAlertDialogStyle);
-                builder.setTitle(item.getFriendName());
+                builder.setTitle(item.getName());
                 builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -279,11 +284,11 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                                     getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
                                     getSupportFragmentManager().beginTransaction().replace(R.id.main_container, mapFragment, mapTAG).setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN).commit();
                                 }
-                                MapFragment.moveMapCamera(new LatLng(item.location.getLatitude(), item.location.getLongitude()));
-                                MapFragment.getMap().addGroundOverlay(new GroundOverlayOptions().image(BitmapDescriptorFactory.fromBitmap(session.decodeBase64ToBitmap(item.getFriendPhoto()))).position(new LatLng(item.location.getLatitude(), item.location.getLongitude()), 20).visible(true));
+                                MapFragment.moveMapCamera(new LatLng(item.getLocation().getLatitude(), item.getLocation().getLongitude()));
+                                MapFragment.getMap().addGroundOverlay(new GroundOverlayOptions().image(BitmapDescriptorFactory.fromBitmap(session.decodeBase64ToBitmap(item.getPhoto()))).position(new LatLng(item.getLocation().getLatitude(), item.getLocation().getLongitude()), 20).visible(true));
                                 break;
                             case 1:
-                                String uri = String.format(Locale.ENGLISH, "http://maps.google.com/maps?daddr=%f,%f (%s)", item.getFriendLocationLatLng().latitude, item.getFriendLocationLatLng().longitude, item.getFriendName());
+                                String uri = String.format(Locale.ENGLISH, "http://maps.google.com/maps?daddr=%f,%f (%s)", item.getLocation().getLatitude(), item.getLocation().getLongitude(), item.getName());
                                 Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
                                 intent.setClassName("com.google.android.apps.maps", "com.google.android.maps.MapsActivity");
                                 try {
@@ -320,7 +325,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                                         dialog.dismiss();
                                     }
                                 });
-                                builder.setMessage("Do you want to remove " + item.getFriendName() + " from your friends ?");
+                                builder.setMessage("Do you want to remove " + item.getName() + " from your friends ?");
                                 builder.show();
 
                                 break;
@@ -332,7 +337,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                     }
                 });
                 builder.show();
-                Toast.makeText(context, "You selected: " + item.getFriendName(), Toast.LENGTH_LONG).show();
+                Toast.makeText(context, "You selected: " + item.getName(), Toast.LENGTH_LONG).show();
             }
         });
 
@@ -656,7 +661,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         }*/
 
         startLocationUpdates();
-        MapFragment.moveMapCamera(new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()));
+        if(mCurrentLocation != null) {
+            MapFragment.moveMapCamera(new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()));
+        }
     }
 
     @Override

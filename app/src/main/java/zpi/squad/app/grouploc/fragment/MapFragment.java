@@ -1,4 +1,4 @@
-package zpi.squad.app.grouploc;
+package zpi.squad.app.grouploc.fragment;
 
 import android.app.AlertDialog;
 import android.content.Context;
@@ -32,27 +32,21 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.GoogleMapOptions;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.OnStreetViewPanoramaReadyCallback;
 import com.google.android.gms.maps.StreetViewPanorama;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
-import com.google.android.gms.maps.model.GroundOverlayOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
-import com.google.android.gms.maps.model.Tile;
-import com.google.android.gms.maps.model.TileOverlayOptions;
-import com.google.android.gms.maps.model.TileProvider;
 
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -62,6 +56,18 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+
+import zpi.squad.app.grouploc.AppController;
+import zpi.squad.app.grouploc.domain.CustomMarker;
+import zpi.squad.app.grouploc.utils.DirectionsJSONParser;
+import zpi.squad.app.grouploc.MarkerDialog;
+import zpi.squad.app.grouploc.POISpecies;
+import zpi.squad.app.grouploc.utils.PoiJSONParser;
+import zpi.squad.app.grouploc.R;
+import zpi.squad.app.grouploc.SQLiteHandler;
+import zpi.squad.app.grouploc.Sender;
+import zpi.squad.app.grouploc.SessionManager;
+import zpi.squad.app.grouploc.utils.ToolsForMarkerList;
 
 import static zpi.squad.app.grouploc.POISpecies.BAR;
 import static zpi.squad.app.grouploc.POISpecies.COFFEE;
@@ -638,7 +644,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
         //globalVariable.getMyMap().setMapType(GoogleMap.MAP_TYPE_HYBRID);
         globalVariable.getMyMap().setMapType(GoogleMap.MAP_TYPE_NORMAL);
 
-        Sender.putMarkersOnMapAgain(markers, globalVariable.getMyMap(),googleMarkers);
+        Sender.putMarkersOnMapAgain(markers, globalVariable.getMyMap(), googleMarkers);
 
         if (mCurrentLocation != null) {
             double latitude = mCurrentLocation.getLatitude();

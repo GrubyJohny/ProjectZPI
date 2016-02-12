@@ -16,6 +16,8 @@ import com.google.android.gms.maps.model.LatLng;
 
 import java.util.List;
 
+import zpi.squad.app.grouploc.domain.CustomMarker;
+
 public class AppController extends Application {
 
     public static final String TAG = AppController.class.getSimpleName();

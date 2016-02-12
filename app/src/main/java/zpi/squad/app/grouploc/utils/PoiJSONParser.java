@@ -1,4 +1,4 @@
-package zpi.squad.app.grouploc;
+package zpi.squad.app.grouploc.utils;
 
 import android.app.Activity;
 import android.util.Log;
@@ -12,6 +12,8 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+
+import zpi.squad.app.grouploc.R;
 
 
 /**

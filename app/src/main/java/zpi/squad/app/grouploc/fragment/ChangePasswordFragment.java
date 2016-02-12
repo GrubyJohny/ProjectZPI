@@ -1,4 +1,4 @@
-package zpi.squad.app.grouploc;
+package zpi.squad.app.grouploc.fragment;
 
 import android.app.Activity;
 import android.content.Context;
@@ -21,6 +21,8 @@ import com.parse.LogInCallback;
 import com.parse.ParseException;
 import com.parse.ParseInstallation;
 import com.parse.ParseUser;
+
+import zpi.squad.app.grouploc.R;
 
 public class ChangePasswordFragment extends Fragment {
     private static View view;

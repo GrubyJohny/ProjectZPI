@@ -1,4 +1,4 @@
-package zpi.squad.app.grouploc;
+package zpi.squad.app.grouploc.config;
 
 public class AppConfig {
     public static final String PARSE_CHANNEL = "GroupLoc";

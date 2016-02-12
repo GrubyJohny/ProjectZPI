@@ -1,4 +1,4 @@
-package zpi.squad.app.grouploc;
+package zpi.squad.app.grouploc.adapter;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -13,15 +13,21 @@ import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.parse.ParseGeoPoint;
+
 import java.util.ArrayList;
 import java.util.List;
 
-public class SearchingFriendAdapter extends ArrayAdapter<Friend> implements Filterable {
+import zpi.squad.app.grouploc.R;
+import zpi.squad.app.grouploc.SessionManager;
+import zpi.squad.app.grouploc.domain.Friend;
+
+public class FriendAdapter extends ArrayAdapter<Friend> implements Filterable {
     private SessionManager session = SessionManager.getInstance();
     private ArrayList<Friend> items;
 
-    public SearchingFriendAdapter(Context context, ArrayList<Friend> items) {
-        super(context, R.layout.search_friend_list_row, items);
+    public FriendAdapter(Context context, ArrayList<Friend> items) {
+        super(context, R.layout.friend_list_row, items);
         this.items = items;
     }
 
@@ -31,14 +37,17 @@ public class SearchingFriendAdapter extends ArrayAdapter<Friend> implements Filt
         Friend friend = getItem(position);
         // Check if an existing view is being reused, otherwise inflate the view
         if (convertView == null) {
-            convertView = LayoutInflater.from(getContext()).inflate(R.layout.search_friend_list_row, parent, false);
+            convertView = LayoutInflater.from(getContext()).inflate(R.layout.friend_list_row, parent, false);
         }
         // Lookup view for data population
         TextView name = (TextView) convertView.findViewById(R.id.txt);
         ImageView photo = (ImageView) convertView.findViewById(R.id.img);
         // Populate the data into the template view using the data object
-        name.setText(friend.name);
-        photo.setImageBitmap(decodeBase64ToBitmap(friend.getFriendPhoto()));
+        //wpakowałem to do tej samej linijki, co nazwa użytkownika, ale pewnie jakoś to już ładnie porozbijasz ;)
+        Double distanceToMe = new ParseGeoPoint(session.getCurrentLocation().latitude, session.getCurrentLocation().longitude).distanceInKilometersTo(friend.getLocation());
+        String text = friend.getName() + ", " + distanceToMe.intValue() + " km";
+        name.setText(text);
+        photo.setImageBitmap(decodeBase64ToBitmap(friend.getPhoto()));
         // Return the completed view to render on screen
         return convertView;
     }
@@ -50,14 +59,14 @@ public class SearchingFriendAdapter extends ArrayAdapter<Friend> implements Filt
             @Override
             protected FilterResults performFiltering(CharSequence constraint) {
                 FilterResults result = new FilterResults();
-                List<Friend> allFriends = session.getFriendsList(); // ZMIEN NA LISTE WSZYSTKICH
+                List<Friend> allFriends = session.getFriendsList();
                 if (constraint == null || constraint.length() == 0) {
                     result.values = allFriends;
                     result.count = allFriends.size();
                 } else {
                     ArrayList<Friend> filteredList = new ArrayList<Friend>();
                     for (Friend f : allFriends) {
-                        if (f.getFriendName().toLowerCase().contains(constraint.toString().toLowerCase())) // DODAJ TEZ MAILA JESLI CHCESZ
+                        if (f.getName().toLowerCase().contains(constraint.toString().toLowerCase()))
                             filteredList.add(f);
                     }
                     result.values = filteredList;

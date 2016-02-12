@@ -1,4 +1,4 @@
-package zpi.squad.app.grouploc;
+package zpi.squad.app.grouploc.activity;
 
 import android.app.Activity;
 import android.support.annotation.Nullable;
@@ -17,6 +17,8 @@ import android.widget.Toast;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
+
+import zpi.squad.app.grouploc.R;
 
 public class ResetPasswordActivity extends Activity implements AppCompatCallback {
 

@@ -10,6 +10,10 @@ import android.util.Log;
 import java.util.ArrayList;
 import java.util.List;
 
+import zpi.squad.app.grouploc.domain.CustomMarker;
+import zpi.squad.app.grouploc.domain.Friend;
+import zpi.squad.app.grouploc.domain.Notification;
+
 public class SQLiteHandler extends SQLiteOpenHelper {
 
     private static final String TAG = SQLiteHandler.class.getSimpleName();
@@ -167,8 +171,8 @@ public class SQLiteHandler extends SQLiteOpenHelper {
         cursor.moveToFirst();
 
         //friend.setFriendID(Integer.parseInt(cursor.getString(1)));
-        friend.setFriendName(cursor.getString(2));
-        friend.setFriendEmail(cursor.getString(3));
+        friend.setName(cursor.getString(2));
+        friend.setEmail(cursor.getString(3));
 
         cursor.close();
         db.close();
@@ -220,8 +224,8 @@ public class SQLiteHandler extends SQLiteOpenHelper {
             do {
                 Friend friend = new Friend();
                 //friend.setFriendID(Integer.parseInt(cursor.getString(1)));
-                friend.setFriendName(cursor.getString(2));
-                friend.setFriendEmail(cursor.getString(3));
+                friend.setName(cursor.getString(2));
+                friend.setEmail(cursor.getString(3));
 
 
                 // Adding friend to list

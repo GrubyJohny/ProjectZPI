@@ -17,6 +17,8 @@ import com.parse.ParseUser;
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 
+import zpi.squad.app.grouploc.domain.Friend;
+
 public class SessionManager {
 
     private static final String PREF_NAME = "userInfo";

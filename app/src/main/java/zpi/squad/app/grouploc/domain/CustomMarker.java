@@ -1,4 +1,4 @@
-package zpi.squad.app.grouploc;
+package zpi.squad.app.grouploc.domain;
 
 public class CustomMarker {
 
@@ -45,62 +45,12 @@ public class CustomMarker {
         this.name = name;
     }
 
-
-    public void setMarkerIdMySQL(String markerIdMySQL) {
-        this.markerIdMySQL = markerIdMySQL;
-    }
-
-    public void setUserId(String userId) {
-        UserId = userId;
-    }
-
-    public void setLatitude(double latitude) {
-        this.latitude = latitude;
-    }
-
-    public void setLongitude(double longitude) {
-        this.longitude = longitude;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setReplace(boolean replace) {
-        this.replace = replace;
-    }
-
-    public void setSaveOnServer(boolean saveOnServer) {
-        this.saveOnServer = saveOnServer;
-    }
-
     public String getMarkerIdMySQL() {
         return markerIdMySQL;
     }
 
-    public double getLatitude() {
-        return latitude;
-    }
-
-    public double getLongitude() {
-        return longitude;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public boolean isReplace() {
-        return replace;
-    }
-
-    public boolean isSaveOnServer() {
-        return saveOnServer;
-    }
-
-
-    public String getUserId() {
-        return UserId;
+    public void setMarkerIdMySQL(String markerIdMySQL) {
+        this.markerIdMySQL = markerIdMySQL;
     }
 
     public String getMarkerIdSQLite() {
@@ -111,5 +61,51 @@ public class CustomMarker {
         this.markerIdSQLite = markerIdSQLite;
     }
 
+    public String getUserId() {
+        return UserId;
+    }
 
+    public void setUserId(String userId) {
+        UserId = userId;
+    }
+
+    public double getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(double latitude) {
+        this.latitude = latitude;
+    }
+
+    public double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(double longitude) {
+        this.longitude = longitude;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public boolean isReplace() {
+        return replace;
+    }
+
+    public void setReplace(boolean replace) {
+        this.replace = replace;
+    }
+
+    public boolean isSaveOnServer() {
+        return saveOnServer;
+    }
+
+    public void setSaveOnServer(boolean saveOnServer) {
+        this.saveOnServer = saveOnServer;
+    }
 }

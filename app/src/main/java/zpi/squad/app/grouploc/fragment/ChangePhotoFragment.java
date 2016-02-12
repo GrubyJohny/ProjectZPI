@@ -1,4 +1,4 @@
-package zpi.squad.app.grouploc;
+package zpi.squad.app.grouploc.fragment;
 
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
@@ -30,6 +30,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+
+import zpi.squad.app.grouploc.R;
+import zpi.squad.app.grouploc.SessionManager;
 
 public class ChangePhotoFragment extends Fragment {
     private static View view;

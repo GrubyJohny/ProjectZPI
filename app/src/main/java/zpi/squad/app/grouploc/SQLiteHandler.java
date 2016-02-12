@@ -10,6 +10,7 @@ import android.util.Log;
 import java.util.ArrayList;
 import java.util.List;
 
+import zpi.squad.app.grouploc.domain.CustomMarker;
 import zpi.squad.app.grouploc.domain.Friend;
 import zpi.squad.app.grouploc.domain.Notification;
 

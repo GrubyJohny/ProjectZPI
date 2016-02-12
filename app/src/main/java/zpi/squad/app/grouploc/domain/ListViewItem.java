@@ -1,4 +1,4 @@
-package zpi.squad.app.grouploc;
+package zpi.squad.app.grouploc.domain;
 
 import android.graphics.drawable.Drawable;
 
@@ -13,5 +13,21 @@ public class ListViewItem {
         this.image = image;
         this.name = name;
         this.email = email;
+    }
+
+    public String getUid() {
+        return uid;
+    }
+
+    public Drawable getImage() {
+        return image;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getEmail() {
+        return email;
     }
 }

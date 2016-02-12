@@ -1,4 +1,4 @@
-package zpi.squad.app.grouploc;
+package zpi.squad.app.grouploc.utils;
 
 /**
  * Created by sanczo on 2015-04-24.

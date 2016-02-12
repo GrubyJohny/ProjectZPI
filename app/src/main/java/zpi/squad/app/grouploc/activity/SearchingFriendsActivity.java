@@ -1,4 +1,4 @@
-package zpi.squad.app.grouploc;
+package zpi.squad.app.grouploc.activity;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -13,6 +13,8 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 
+import zpi.squad.app.grouploc.R;
+import zpi.squad.app.grouploc.adapter.SearchingFriendAdapter;
 import zpi.squad.app.grouploc.domain.Friend;
 
 public class SearchingFriendsActivity extends AppCompatActivity {

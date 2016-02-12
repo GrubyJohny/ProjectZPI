@@ -85,8 +85,17 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import zpi.squad.app.grouploc.activity.LoginActivity;
+import zpi.squad.app.grouploc.activity.SearchingFriendsActivity;
+import zpi.squad.app.grouploc.adapter.FriendAdapter;
+import zpi.squad.app.grouploc.adapter.NotificationAdapter;
 import zpi.squad.app.grouploc.domain.Friend;
+import zpi.squad.app.grouploc.domain.ListViewItem;
 import zpi.squad.app.grouploc.domain.Notification;
+import zpi.squad.app.grouploc.fragment.ChangePasswordFragment;
+import zpi.squad.app.grouploc.fragment.ChangePhotoFragment;
+import zpi.squad.app.grouploc.fragment.MapFragment;
+import zpi.squad.app.grouploc.utils.PoiJSONParser;
 
 
 public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,

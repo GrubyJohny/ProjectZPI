@@ -1,4 +1,4 @@
-package zpi.squad.app.grouploc;
+package zpi.squad.app.grouploc.activity;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -21,6 +21,11 @@ import com.parse.ParseInstallation;
 import com.parse.ParseUser;
 
 import java.util.Date;
+
+import zpi.squad.app.grouploc.config.AppConfig;
+import zpi.squad.app.grouploc.MainActivity;
+import zpi.squad.app.grouploc.R;
+import zpi.squad.app.grouploc.SessionManager;
 
 public class RegisterActivity extends Activity implements AppCompatCallback {
 

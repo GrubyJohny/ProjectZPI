@@ -1,4 +1,4 @@
-package zpi.squad.app.grouploc;
+package zpi.squad.app.grouploc.adapter;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import java.util.List;
 
+import zpi.squad.app.grouploc.R;
 import zpi.squad.app.grouploc.domain.Notification;
 
 public class NotificationAdapter extends ArrayAdapter {

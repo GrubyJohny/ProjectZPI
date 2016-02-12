@@ -1,4 +1,4 @@
-package zpi.squad.app.grouploc;
+package zpi.squad.app.grouploc.adapter;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -18,6 +18,8 @@ import com.parse.ParseGeoPoint;
 import java.util.ArrayList;
 import java.util.List;
 
+import zpi.squad.app.grouploc.R;
+import zpi.squad.app.grouploc.SessionManager;
 import zpi.squad.app.grouploc.domain.Friend;
 
 public class FriendAdapter extends ArrayAdapter<Friend> implements Filterable {

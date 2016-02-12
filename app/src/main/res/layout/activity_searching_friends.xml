@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_margin="20dp"
-    tools:context="zpi.squad.app.grouploc.SearchingFriendsActivity">
+    tools:context=".activity.SearchingFriendsActivity">
 
     <EditText
         android:id="@+id/search_friends_input"

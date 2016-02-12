@@ -1,4 +1,4 @@
-package zpi.squad.app.grouploc;
+package zpi.squad.app.grouploc.activity;
 
 import android.app.Activity;
 import android.content.Context;
@@ -38,6 +38,13 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+
+import zpi.squad.app.grouploc.config.AppConfig;
+import zpi.squad.app.grouploc.AppController;
+import zpi.squad.app.grouploc.MainActivity;
+import zpi.squad.app.grouploc.R;
+import zpi.squad.app.grouploc.SQLiteHandler;
+import zpi.squad.app.grouploc.SessionManager;
 
 public class LoginActivity extends Activity implements AppCompatCallback {
     private Button btnLogin, btnLoginWithFacebook, btnRegister;

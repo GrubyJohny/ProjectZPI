@@ -209,7 +209,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
     @Override
     public void onMapReady(GoogleMap map) {
         this.map = map;
-        map.addMarker(new MarkerOptions().position(new LatLng(50, 50)).title("Marker"));
         map.setBuildingsEnabled(true);
         map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
         map.setMyLocationEnabled(true);
@@ -217,11 +216,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
         map.getUiSettings().setMapToolbarEnabled(true);
         map.getUiSettings().setIndoorLevelPickerEnabled(true);
         map.getUiSettings().setAllGesturesEnabled(true);
-
-        /*poniżej to coś na wzór tego, co chciałeś, żeby dodawać obiekty nie jako markery, tylko właśnie takie bardziej
-        zintegrowane z mapą rzeczy. tylko nie da rady w nie klikać - czysto informacyjne.
-        */
-        map.addGroundOverlay(new GroundOverlayOptions().image(BitmapDescriptorFactory.fromResource(R.drawable.johny)).position(session.getCurrentLocation(), 20).visible(true));
 
         LatLng location = (mCurrentLocation==null? session.getCurrentLocation() : new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()));
         moveMapCamera(location);

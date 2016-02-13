@@ -33,6 +33,9 @@
     <string name="rightDrawerTitle">Friends</string>
     <string name="facebook_login_button_text">Log in with facebook</string>
     <string name="listViewFilterNoResults">No results</string>
+    <string name="currentPassword">Current password</string>
+    <string name="newPassword">New password</string>
+    <string name="newPasswordAgain">New password again</string>
 
 
 </resources>

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="@dimen/nav_header_height"
     android:background="@drawable/side_nav_bar"
@@ -19,13 +20,20 @@
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
         android:textSize="35dp" />
 
-    <EditText
-        android:id="@+id/filterFriendsInput"
+    <android.support.design.widget.TextInputLayout
+        android:id="@+id/input_layout_drawer_friend"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:ems="15"
-        android:hint="@string/filterText"
-        android:inputType="textPersonName"
-        android:paddingTop="30dp" />
+        app:hintTextAppearance="@style/TextAppearance.AppCompat">
+
+        <EditText
+            android:id="@+id/filterFriendsInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="15"
+            android:hint="@string/filterText"
+            android:inputType="textPersonName" />
+
+    </android.support.design.widget.TextInputLayout>
 
 </LinearLayout>

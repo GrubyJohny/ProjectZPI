@@ -990,5 +990,14 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             e.printStackTrace();
         }
     }
+
+    @Override
+    public void onContentChanged() {
+        super.onContentChanged();
+
+        View empty = findViewById(R.id.emptyTextInDrawer);
+        ListView list = (ListView) findViewById(R.id.friendsListView);
+        list.setEmptyView(empty);
+    }
 }
 

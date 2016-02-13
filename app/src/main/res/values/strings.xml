@@ -32,6 +32,7 @@
     <string name="filterText">Enter friend name</string>
     <string name="rightDrawerTitle">Friends</string>
     <string name="facebook_login_button_text">Log in with facebook</string>
+    <string name="listViewFilterNoResults">No results</string>
 
 
 </resources>

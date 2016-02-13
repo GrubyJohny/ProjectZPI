@@ -67,4 +67,13 @@ public class SearchingFriendsActivity extends AppCompatActivity {
             }
         });
     }
+
+    @Override
+    public void onContentChanged() {
+        super.onContentChanged();
+
+        View empty = findViewById(R.id.emptyTextInSearching);
+        ListView list = (ListView) findViewById(R.id.searchingFriendsListView);
+        list.setEmptyView(empty);
+    }
 }

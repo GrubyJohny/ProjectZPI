@@ -10,7 +10,7 @@
         android:id="@+id/search_friends_input"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Enter friend name or email"/>
+        android:hint="Enter friend name or email" />
 
     <ListView
         android:id="@+id/searchingFriendsListView"
@@ -20,5 +20,15 @@
         android:choiceMode="singleChoice"
         android:divider="@null"
         android:dividerHeight="0dp" />
+
+    <TextView
+        android:id="@+id/emptyTextInSearching"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/search_friends_input"
+        android:gravity="center_horizontal"
+        android:padding="30dp"
+        android:text="@string/listViewFilterNoResults"
+        android:textSize="22sp" />
 
 </RelativeLayout>

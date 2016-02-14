@@ -36,6 +36,9 @@
     <string name="currentPassword">Current password</string>
     <string name="newPassword">New password</string>
     <string name="newPasswordAgain">New password again</string>
+    <string name="emailValid">Email address is invalid</string>
+    <string name="emailValidEmpty">Email is empty</string>
+    <string name="passwordValidEmpty">Password is empty</string>
 
 
 </resources>

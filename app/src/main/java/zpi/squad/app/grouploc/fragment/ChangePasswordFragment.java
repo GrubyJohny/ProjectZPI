@@ -2,16 +2,18 @@ package zpi.squad.app.grouploc.fragment;
 
 import android.app.Activity;
 import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
+import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.util.Log;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.InflateException;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
@@ -19,7 +21,6 @@ import android.widget.Toast;
 
 import com.parse.LogInCallback;
 import com.parse.ParseException;
-import com.parse.ParseInstallation;
 import com.parse.ParseUser;
 
 import zpi.squad.app.grouploc.R;
@@ -32,11 +33,12 @@ public class ChangePasswordFragment extends Fragment {
     private EditText currentPass, newPass, newPassConfirmed;
 
     String oldPass, pass, pass2;
+    private TextInputLayout inputLayoutOldPassword, inputLayoutNewPassword, inputLayoutNewPasswordAgain;
+    private boolean positiveValidate;
 
     public ChangePasswordFragment() {
         // Required empty public constructor
     }
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -74,6 +76,13 @@ public class ChangePasswordFragment extends Fragment {
         newPass = (EditText) getActivity().findViewById(R.id.passwordChangeEdit);
         newPassConfirmed = (EditText) getActivity().findViewById(R.id.passwordChangeEdit2);
 
+        inputLayoutOldPassword = (TextInputLayout) getActivity().findViewById(R.id.input_layout_passwords_old);
+        inputLayoutNewPassword = (TextInputLayout) getActivity().findViewById(R.id.input_layout_passwords_new1);
+        inputLayoutNewPasswordAgain = (TextInputLayout) getActivity().findViewById(R.id.input_layout_passwords_new2);
+
+        currentPass.addTextChangedListener(new MyTextWatcher(currentPass));
+        newPass.addTextChangedListener(new MyTextWatcher(newPass));
+        newPassConfirmed.addTextChangedListener(new MyTextWatcher(newPassConfirmed));
 
         confirm = (Button) getActivity().findViewById(R.id.confirmSettingsButton);
 
@@ -85,24 +94,8 @@ public class ChangePasswordFragment extends Fragment {
                 pass = newPass.getText().toString();
                 pass2 = newPassConfirmed.getText().toString();
 
-
-                if(oldPass.length()==0)
-                {
-                    Toast.makeText(getActivity(), "Please enter current password", Toast.LENGTH_LONG).show();
-                    currentPass.setText(""); newPass.setText(""); newPassConfirmed.setText("");
-
-                }
-                else if (pass.length() == 0 || pass2.length() == 0)
-                {
-                    Toast.makeText(getActivity(), "Please enter new password twice", Toast.LENGTH_LONG).show();
-                    currentPass.setText(""); newPass.setText(""); newPassConfirmed.setText("");
-                }
-                else if( ! pass.equals(pass2))
-                {
-                    Toast.makeText(getActivity(), "New passwords are not identical", Toast.LENGTH_LONG).show();
-                    currentPass.setText(""); newPass.setText(""); newPassConfirmed.setText("");
-                }
-                else if(pass.length()>0 & pass2.length()>0 & oldPass.length()>0 & pass.equals(pass2) ) {
+                submitForm();
+                if (positiveValidate) {
 
                     /*odtąd fajnie byłoby dac jakieś kółko oznaczające oczekiwanie - zmiana hasła nie trwa długo
                     * ale jak ją przerwiesz, to trzeba resetować hasło, a normalny user może na to nie wpaść,
@@ -150,15 +143,126 @@ public class ChangePasswordFragment extends Fragment {
                                 });
 
                             } else {
-                                currentPass.setText(""); newPass.setText(""); newPassConfirmed.setText("");
-                                Toast.makeText(getActivity(), "Old password incorrect", Toast.LENGTH_SHORT).show();
+                                InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                                imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+                                Toast.makeText(getActivity().getApplicationContext(), "Old password incorrect", Toast.LENGTH_SHORT).show();
                             }
                         }
                     });
                     /*dotąd*/
                 }
-
             }
         });
+    }
+
+    private void submitForm() {
+        positiveValidate = false;
+
+        if (!validateCurrentPassword()) {
+            return;
+        } else if (!validateNewPassword()) {
+            return;
+        } else if (!validateNewConfirmedPassword()) {
+            return;
+        } else if (!validateSamePasswords()) {
+            return;
+        } else
+            positiveValidate = true;
+    }
+
+    private boolean validateSamePasswords() {
+        if (!newPass.getText().toString().equals(newPassConfirmed.getText().toString())) {
+            inputLayoutNewPasswordAgain.setError(getString(R.string.passwordValidSame));
+            requestFocus(inputLayoutNewPasswordAgain);
+            return false;
+        } else {
+            inputLayoutNewPasswordAgain.setErrorEnabled(false);
+        }
+
+        return true;
+    }
+
+    private boolean validateCurrentPassword() {
+
+        if (currentPass.getText().toString().trim().isEmpty()) {
+            inputLayoutOldPassword.setError(getString(R.string.passwordValidEmpty));
+            requestFocus(inputLayoutOldPassword);
+            return false;
+        } else {
+            inputLayoutOldPassword.setErrorEnabled(false);
+        }
+
+        return true;
+    }
+
+    private boolean validateNewPassword() {
+        int minimumLength = 6;
+
+        if (newPass.getText().toString().trim().isEmpty()) {
+            inputLayoutNewPassword.setError(getString(R.string.passwordValidEmpty));
+            requestFocus(newPass);
+            return false;
+        } else if (newPass.getText().toString().trim().length() < minimumLength) {
+            inputLayoutNewPassword.setError(getString(R.string.passwordValidMoreThan));
+            requestFocus(newPass);
+            return false;
+        } else {
+            inputLayoutNewPassword.setErrorEnabled(false);
+        }
+
+        return true;
+    }
+
+    private boolean validateNewConfirmedPassword() {
+        int minimumLength = 6;
+
+        if (newPassConfirmed.getText().toString().trim().isEmpty()) {
+            inputLayoutNewPasswordAgain.setError(getString(R.string.passwordValidEmpty));
+            requestFocus(newPassConfirmed);
+            return false;
+        } else if (newPassConfirmed.getText().toString().trim().length() < minimumLength) {
+            inputLayoutNewPasswordAgain.setError(getString(R.string.passwordValidMoreThan));
+            requestFocus(newPassConfirmed);
+            return false;
+        } else {
+            inputLayoutNewPasswordAgain.setErrorEnabled(false);
+        }
+
+        return true;
+    }
+
+    private void requestFocus(View view) {
+        if (view.requestFocus()) {
+            getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+        }
+    }
+
+    private class MyTextWatcher implements TextWatcher {
+
+        private View view;
+
+        private MyTextWatcher(View view) {
+            this.view = view;
+        }
+
+        public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+        }
+
+        public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+        }
+
+        public void afterTextChanged(Editable editable) {
+            switch (view.getId()) {
+                case R.id.passwordChangeCurrentPassword:
+                    validateCurrentPassword();
+                    break;
+                case R.id.passwordChangeEdit:
+                    validateNewPassword();
+                    break;
+                case R.id.passwordChangeEdit2:
+                    validateNewConfirmedPassword();
+                    break;
+            }
+        }
     }
 }

@@ -34,6 +34,7 @@
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
                 android:hint="@string/hint_login"
+                android:inputType="textEmailAddress"
                 android:singleLine="true"
                 android:textColor="#ff000000" />
 

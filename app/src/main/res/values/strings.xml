@@ -33,6 +33,15 @@
     <string name="rightDrawerTitle">Friends</string>
     <string name="facebook_login_button_text">Log in with facebook</string>
     <string name="listViewFilterNoResults">No results</string>
-
+    <string name="currentPassword">Current password</string>
+    <string name="newPassword">New password</string>
+    <string name="newPasswordAgain">New password again</string>
+    <string name="emailValid">Email address is invalid</string>
+    <string name="emailValidEmpty">Email is empty</string>
+    <string name="passwordValidEmpty">Password is empty</string>
+    <string name="passwordValidMoreThan">Password should have at least 6 characters</string>
+    <string name="passwordValidSame">Passwords are not identical</string>
+    <string name="nameValidEmpty">Name is empty</string>
+    <string name="nameValidMoreThan">Name should have at least 2 characters</string>
 
 </resources>

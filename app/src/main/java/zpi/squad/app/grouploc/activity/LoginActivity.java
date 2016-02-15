@@ -8,12 +8,18 @@ import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.support.annotation.Nullable;
+import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatCallback;
 import android.support.v7.app.AppCompatDelegate;
 import android.support.v7.widget.Toolbar;
+import android.text.Editable;
+import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -39,17 +45,18 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-import zpi.squad.app.grouploc.config.AppConfig;
 import zpi.squad.app.grouploc.AppController;
 import zpi.squad.app.grouploc.MainActivity;
 import zpi.squad.app.grouploc.R;
 import zpi.squad.app.grouploc.SQLiteHandler;
 import zpi.squad.app.grouploc.SessionManager;
+import zpi.squad.app.grouploc.config.AppConfig;
 
 public class LoginActivity extends Activity implements AppCompatCallback {
     private Button btnLogin, btnLoginWithFacebook, btnRegister;
     private EditText inputEmail;
     private EditText inputPassword;
+    private TextInputLayout inputLayoutEmail, inputLayoutPassword;
     private TextView btnRemind;
     private SQLiteHandler db;
     public static Context context;
@@ -57,6 +64,7 @@ public class LoginActivity extends Activity implements AppCompatCallback {
     private Bitmap profileImageFromFacebook;
     private SessionManager session;
     private AppCompatDelegate delegate;
+    private boolean positiveValidate;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -92,8 +100,14 @@ public class LoginActivity extends Activity implements AppCompatCallback {
             // e.printStackTrace();
         }
 
+        inputLayoutEmail = (TextInputLayout) findViewById(R.id.input_layout_login_email);
+        inputLayoutPassword = (TextInputLayout) findViewById(R.id.input_layout_login_password);
+
         inputEmail = (EditText) findViewById(R.id.email);
         inputPassword = (EditText) findViewById(R.id.password);
+
+        inputEmail.addTextChangedListener(new MyTextWatcher(inputEmail));
+        inputPassword.addTextChangedListener(new MyTextWatcher(inputPassword));
 
         btnLogin = (Button) findViewById(R.id.btnLogin);
         btnLoginWithFacebook = (Button) findViewById(R.id.login_button_facebook);
@@ -107,17 +121,11 @@ public class LoginActivity extends Activity implements AppCompatCallback {
                 String email = inputEmail.getText().toString().trim();
                 String password = inputPassword.getText().toString();
 
-                if (!email.isEmpty() && password.isEmpty()) {
-                    Toast.makeText(getApplicationContext(),
-                            "Please enter password!", Toast.LENGTH_LONG).show();
-                } else if (email.isEmpty() && !password.isEmpty()) {
-                    Toast.makeText(getApplicationContext(),
-                            "Please enter your email address", Toast.LENGTH_LONG).show();
-                } else if (email.isEmpty() && password.isEmpty()) {
-                    Toast.makeText(getApplicationContext(),
-                            "Please enter the credentials!", Toast.LENGTH_LONG).show();
-                } else {
+                submitForm();
+                if(positiveValidate) {
                     if (AppController.checkConn(LoginActivity.this.getApplication())) {
+                        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
                         checkLogin(email, password);
                     } else {
                         Toast.makeText(getApplicationContext(),
@@ -125,7 +133,6 @@ public class LoginActivity extends Activity implements AppCompatCallback {
                     }
                 }
             }
-
         });
 
         permissions.add("public_profile");
@@ -333,5 +340,85 @@ public class LoginActivity extends Activity implements AppCompatCallback {
     @Override
     public android.support.v7.view.ActionMode onWindowStartingSupportActionMode(android.support.v7.view.ActionMode.Callback callback) {
         return null;
+    }
+
+    private void submitForm() {
+        positiveValidate = false;
+
+        if (!validateEmail()) {
+            return;
+        }
+        else if(!validatePassword()){
+            return;
+        }
+        else
+            positiveValidate = true;
+    }
+
+    private boolean validateEmail() {
+        String email = inputEmail.getText().toString().trim();
+
+        if(email.isEmpty()) {
+            inputLayoutEmail.setError(getString(R.string.emailValidEmpty));
+            requestFocus(inputEmail);
+            return false;
+        }
+        else if (!isValidEmail(email)) {
+            inputLayoutEmail.setError(getString(R.string.emailValid));
+            requestFocus(inputEmail);
+            return false;
+        } else {
+            inputLayoutEmail.setErrorEnabled(false);
+        }
+
+        return true;
+    }
+
+    private boolean validatePassword() {
+        if (inputPassword.getText().toString().trim().isEmpty()) {
+            inputLayoutPassword.setError(getString(R.string.passwordValidEmpty));
+            requestFocus(inputPassword);
+            return false;
+        } else {
+            inputLayoutPassword.setErrorEnabled(false);
+        }
+
+        return true;
+    }
+
+    private static boolean isValidEmail(String email) {
+        return !TextUtils.isEmpty(email) && android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches();
+    }
+
+    private void requestFocus(View view) {
+        if (view.requestFocus()) {
+            getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+        }
+    }
+
+    private class MyTextWatcher implements TextWatcher {
+
+        private View view;
+
+        private MyTextWatcher(View view) {
+            this.view = view;
+        }
+
+        public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+        }
+
+        public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+        }
+
+        public void afterTextChanged(Editable editable) {
+            switch (view.getId()) {
+                case R.id.email:
+                    validateEmail();
+                    break;
+                case R.id.password:
+                    validatePassword();
+                    break;
+            }
+        }
     }
 }

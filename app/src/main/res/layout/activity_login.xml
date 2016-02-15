@@ -21,7 +21,7 @@
         android:focusableInTouchMode="true"
         android:paddingLeft="20dp"
         android:paddingRight="20dp"
-        android:paddingTop="30dp">
+        android:paddingTop="20dp">
 
         <android.support.design.widget.TextInputLayout
             android:id="@+id/input_layout_login_email"

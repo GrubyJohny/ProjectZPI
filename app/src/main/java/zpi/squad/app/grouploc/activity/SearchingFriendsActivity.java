@@ -53,7 +53,6 @@ public class SearchingFriendsActivity extends AppCompatActivity {
 
                 try {
                     addFriendship(item.getEmail());
-                    Toast.makeText(getApplicationContext(), "You added: " + item.getName(), Toast.LENGTH_LONG).show();
                 } catch (Exception e) {
                     e.getLocalizedMessage();
                     e.printStackTrace();
@@ -70,6 +69,10 @@ public class SearchingFriendsActivity extends AppCompatActivity {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
 
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
                 query = ParseUser.getQuery();
                 query.whereContains("name", s.toString().trim());
 
@@ -105,11 +108,6 @@ public class SearchingFriendsActivity extends AppCompatActivity {
                     }
                 });
             }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-
-            }
         });
     }
 
@@ -126,88 +124,93 @@ public class SearchingFriendsActivity extends AppCompatActivity {
         ParseQuery queryGetUserByEmail = new ParseQuery(new ParseUser().getClassName());
         queryGetUserByEmail.whereEqualTo("email", friendEmail);
         ParseObject friend = null;
-        try {
-            friend = queryGetUserByEmail.getFirst();
-
-            if (friend != null) {
-                ParseQuery checkIfAlreadyExsists = new ParseQuery("Friendship");
-                checkIfAlreadyExsists.whereEqualTo("friend1", ParseUser.getCurrentUser());
-                ParseQuery checkIfAlreadyExsists2 = new ParseQuery("Friendship");
-                checkIfAlreadyExsists2.whereEqualTo("friend2", ParseUser.getCurrentUser());
-
-                Object[] friendsList = null, friendsList2 = null;
-                boolean alreadyFriends = false, alreadySent = false;
-                ParseObject temp = null;
-
-                friendsList = checkIfAlreadyExsists.find().toArray().clone();
-
-                if (friendsList.length > 0) {
-                    for (int i = 0; i < friendsList.length; i++) {
-                        //to jest typu Friendship
-                        temp = ((ParseObject) friendsList[i]);
-
-                        if (((ParseUser) temp.get("friend2")).fetchIfNeeded().getEmail().equals(friendEmail)) {
-                            if (temp.get("accepted").toString().equals("true")) {
-                                alreadyFriends = true;
-                            } else {
-                                alreadySent = true;
-                            }
-                        }
-                    }
-
-                }
+        if (!friendEmail.equals(ParseUser.getCurrentUser().getEmail())) {
 
 
-                friendsList2 = checkIfAlreadyExsists2.find().toArray().clone();
+            try {
+                friend = queryGetUserByEmail.getFirst();
 
-                if (friendsList2.length > 0) {
-                    for (int i = 0; i < friendsList2.length; i++) {
-                        //to jest typu Friendship
-                        temp = ((ParseObject) friendsList2[i]);
+                if (friend != null) {
+                    ParseQuery checkIfAlreadyExsists = new ParseQuery("Friendship");
+                    checkIfAlreadyExsists.whereEqualTo("friend1", ParseUser.getCurrentUser());
+                    ParseQuery checkIfAlreadyExsists2 = new ParseQuery("Friendship");
+                    checkIfAlreadyExsists2.whereEqualTo("friend2", ParseUser.getCurrentUser());
 
-                        if (((ParseUser) temp.get("friend1")).fetchIfNeeded().getEmail().equals(friendEmail)) {
-                            if (temp.get("accepted").toString().equals("true")) {
-                                alreadyFriends = true;
-                            } else {
-                                alreadySent = true;
+                    Object[] friendsList = null, friendsList2 = null;
+                    boolean alreadyFriends = false, alreadySent = false;
+                    ParseObject temp = null;
+
+                    friendsList = checkIfAlreadyExsists.find().toArray().clone();
+
+                    if (friendsList.length > 0) {
+                        for (int i = 0; i < friendsList.length; i++) {
+                            //to jest typu Friendship
+                            temp = ((ParseObject) friendsList[i]);
+
+                            if (((ParseUser) temp.get("friend2")).fetchIfNeeded().getEmail().equals(friendEmail)) {
+                                if (temp.get("accepted").toString().equals("true")) {
+                                    alreadyFriends = true;
+                                } else {
+                                    alreadySent = true;
+                                }
                             }
                         }
 
                     }
-                }
 
 
-                if (!alreadyFriends && !alreadySent) {
-                    ParseObject friendship = new ParseObject("Friendship");
-                    friendship.put("friend1", ParseUser.getCurrentUser());
-                    friendship.put("friend2", friend);
+                    friendsList2 = checkIfAlreadyExsists2.find().toArray().clone();
+
+                    if (friendsList2.length > 0) {
+                        for (int i = 0; i < friendsList2.length; i++) {
+                            //to jest typu Friendship
+                            temp = ((ParseObject) friendsList2[i]);
+
+                            if (((ParseUser) temp.get("friend1")).fetchIfNeeded().getEmail().equals(friendEmail)) {
+                                if (temp.get("accepted").toString().equals("true")) {
+                                    alreadyFriends = true;
+                                } else {
+                                    alreadySent = true;
+                                }
+                            }
+
+                        }
+                    }
+
+
+                    if (!alreadyFriends && !alreadySent) {
+                        ParseObject friendship = new ParseObject("Friendship");
+                        friendship.put("friend1", ParseUser.getCurrentUser());
+                        friendship.put("friend2", friend);
                     /*TUTAJ OCZYWISCIE
                     * TRZEBA ZMIENIC
                     * NA FALSE
                     * I ZAMIAST TEGO
                     * WYSYLAC POWIADOMIENIE*/
-                    friendship.put("accepted", true);
-                    friendship.saveInBackground();
-                    Toast.makeText(getApplicationContext(), "Invitation sent", Toast.LENGTH_LONG).show();
-                } else if (alreadySent)
-                    Toast.makeText(getApplicationContext(), "You've already sent invitation to this user", Toast.LENGTH_LONG).show();
-                else
-                    Toast.makeText(getApplicationContext(), "You are already friends", Toast.LENGTH_LONG).show();
+                        friendship.put("accepted", true);
+                        friendship.saveInBackground();
+                        Toast.makeText(getApplicationContext(), "Invitation sent", Toast.LENGTH_LONG).show();
+                    } else if (alreadySent)
+                        Toast.makeText(getApplicationContext(), "You've already sent invitation to this user", Toast.LENGTH_LONG).show();
+                    else
+                        Toast.makeText(getApplicationContext(), "You are already friends", Toast.LENGTH_LONG).show();
 
-            } else
-                Toast.makeText(getApplicationContext(), "Unexpected error", Toast.LENGTH_LONG).show();
-        } catch (ParseException e) {
-            if (e.getMessage().equals("no results found for query")) {
-                Toast.makeText(getApplicationContext(), "No such user", Toast.LENGTH_LONG).show();
-            } else {
+                } else
+                    Toast.makeText(getApplicationContext(), "Unexpected error", Toast.LENGTH_LONG).show();
+            } catch (ParseException e) {
+                if (e.getMessage().equals("no results found for query")) {
+                    Toast.makeText(getApplicationContext(), "No such user", Toast.LENGTH_LONG).show();
+                } else {
+                    Log.e("SendFriendShipRequest", e.getMessage());
+                    e.printStackTrace();
+                }
+
+            } catch (Exception e) {
                 Log.e("SendFriendShipRequest", e.getMessage());
                 e.printStackTrace();
+
             }
-
-        } catch (Exception e) {
-            Log.e("SendFriendShipRequest", e.getMessage());
-            e.printStackTrace();
-
-        }
+        } else
+            Toast.makeText(getApplicationContext(), "You can't be friend with yourself", Toast.LENGTH_LONG).show();
     }
 }

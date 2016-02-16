@@ -1,0 +1,8 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/share" android:title="opcja1" android:icon="@drawable/image5"/>
+    <item android:id="@+id/upload" android:title="opcja2" android:icon="@drawable/image5"/>
+    <item android:id="@+id/call" android:title="opcja3" android:icon="@drawable/image5"/>
+    <group android:id="@+id/helpgroup">
+        <item android:id="@+id/help" android:title="opcja4" android:icon="@drawable/image5"/>
+    </group>
+</menu>

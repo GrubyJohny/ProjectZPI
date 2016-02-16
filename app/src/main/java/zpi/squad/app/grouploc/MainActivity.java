@@ -711,6 +711,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     }
 
 
+
+
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

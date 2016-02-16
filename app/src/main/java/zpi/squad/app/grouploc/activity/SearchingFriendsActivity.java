@@ -67,47 +67,52 @@ public class SearchingFriendsActivity extends AppCompatActivity {
         searchFriendInput.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                searchFriendsList.clear();
+                adapter.notifyDataSetChanged();
             }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
 
+                try {
+
+                    query = ParseUser.getQuery();
+                    query.whereContains("name_lowercase", s.toString().trim());
+
+                    query.findInBackground(new FindCallback<ParseUser>() {
+                        @Override
+                        public void done(List<ParseUser> list, ParseException e) {
+
+                            if (e == null) {
+                                searchFriendsList.clear();
+                                for (int i = 0; i < list.size(); i++) {
+                                    temp = list.get(i);
+                                    searchFriendsList.add(new Friend(temp.getObjectId(), temp.get("name").toString(), temp.getEmail(), (temp.get("photo").toString()), ((ParseGeoPoint) temp.get("location")).getLatitude(), ((ParseGeoPoint) temp.get("location")).getLongitude()));
+                                }
+                                adapter.notifyDataSetChanged();
+                            } else {
+                                e.getLocalizedMessage();
+                                e.printStackTrace();
+                            }
+
+                        }
+                    });
+
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
             }
 
             @Override
             public void afterTextChanged(Editable s) {
-                query = ParseUser.getQuery();
-                query.whereContains("name", s.toString().trim());
+
 
                 adapter.getFilter().filter(s, new Filter.FilterListener() {
                     @Override
                     public void onFilterComplete(int count) {
-                        try {
 
-
-                            query.findInBackground(new FindCallback<ParseUser>() {
-                                @Override
-                                public void done(List<ParseUser> list, ParseException e) {
-
-                                    if (e == null) {
-                                        searchFriendsList.clear();
-                                        for (int i = 0; i < list.size(); i++) {
-                                            temp = list.get(i);
-                                            searchFriendsList.add(new Friend(temp.getObjectId(), temp.get("name").toString(), temp.getEmail(), (temp.get("photo").toString()), ((ParseGeoPoint) temp.get("location")).getLatitude(), ((ParseGeoPoint) temp.get("location")).getLongitude()));
-                                        }
-                                        adapter.notifyDataSetChanged();
-                                    } else {
-                                        e.getLocalizedMessage();
-                                        e.printStackTrace();
-                                    }
-
-                                }
-                            });
-
-
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
                     }
                 });
             }

@@ -1,15 +1,7 @@
 package zpi.squad.app.grouploc;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
-import android.content.ActivityNotFoundException;
-import android.support.v7.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.*;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -23,8 +15,15 @@ import android.os.Bundle;
 import android.os.StrictMode;
 import android.os.Vibrator;
 import android.provider.MediaStore;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -33,7 +32,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.EditText;
@@ -45,7 +43,6 @@ import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.support.design.widget.FloatingActionButton;
 
 import com.android.volley.Request;
 import com.android.volley.Response;
@@ -63,7 +60,6 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.nhaarman.supertooltips.ToolTipRelativeLayout;
 import com.nhaarman.supertooltips.ToolTipView;
-
 import com.parse.ParseException;
 import com.parse.ParseGeoPoint;
 import com.parse.ParseInstallation;
@@ -88,7 +84,6 @@ import java.util.Map;
 import zpi.squad.app.grouploc.activity.LoginActivity;
 import zpi.squad.app.grouploc.activity.SearchingFriendsActivity;
 import zpi.squad.app.grouploc.adapter.FriendAdapter;
-import zpi.squad.app.grouploc.adapter.NotificationAdapter;
 import zpi.squad.app.grouploc.domain.Friend;
 import zpi.squad.app.grouploc.domain.ListViewItem;
 import zpi.squad.app.grouploc.domain.Notification;
@@ -407,34 +402,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         myToolTipView.setOnToolTipViewClickedListener(MainActivity.this);
     }*/
 
-    private void notifications() {
-        // spinner2 = (Spinner) findViewById(R.id.spinner2);
-        readNotifications.add(0, new Notification("", "", "", "", "", "", "", "", 0));
-        NotificationAdapter noticeButtonOptions = new NotificationAdapter(this, readNotifications) {
-            @Override
-            public View getDropDownView(int position, View convertView, ViewGroup parent) {
-                View v = null;
-
-                // If this is the initial dummy entry, make it hidden
-                if (position == 0) {
-                    TextView tv = new TextView(getContext());
-                    tv.setHeight(0);
-                    tv.setVisibility(View.GONE);
-                    v = tv;
-                } else {
-                    // Pass convertView as null to prevent reuse of special case views
-                    v = super.getDropDownView(position, null, parent);
-                }
-
-                // Hide scroll bar because it appears sometimes unnecessarily, this does not prevent scrolling
-                parent.setVerticalScrollBarEnabled(false);
-                return v;
-            }
-        };
-        ;
-        spinner2.setAdapter(noticeButtonOptions);
-    }
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -716,18 +683,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        if (layoutMarker.getVisibility() == View.VISIBLE) {
-            layoutMarker.animate()
-                    .translationY(0)
-                    .alpha(0.0f)
-                    .setListener(new AnimatorListenerAdapter() {
-                        @Override
-                        public void onAnimationEnd(Animator animation) {
-                            super.onAnimationEnd(animation);
-                            layoutMarker.setVisibility(View.GONE);
-                        }
-                    });
-        } else if (drawer.isDrawerOpen(GravityCompat.START)) {
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else if (drawer.isDrawerOpen(GravityCompat.END)) {
             drawer.closeDrawer(GravityCompat.END);

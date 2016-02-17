@@ -236,7 +236,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         switch (which) {
-                            case R.id.help:
+                            case R.id.polyline:
                                 // action
                                 break;
                         }
@@ -245,7 +245,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
             }
         });
     }
-
 
     private void setupPoiButtons() {
 

@@ -14,7 +14,6 @@ import android.widget.Toast;
 
 import com.parse.FindCallback;
 import com.parse.ParseException;
-import com.parse.ParseGeoPoint;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
@@ -35,10 +34,8 @@ public class SearchingFriendsActivity extends AppCompatActivity {
     ArrayList<Friend> searchFriendsList = new ArrayList<>();
     ParseQuery<ParseUser> query, queryFriend;
     ParseQuery queryAlreadyFriends, queryAlreadyFriends2;
-    ParseUser temp, newFriend = null;
+    ParseUser newFriend = null;
     boolean alreadyFriends = false, alreadySent = false;
-    ArrayList<Friend> alreadyFriendsList ;
-    ArrayList<String> excludedFriendsNames;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,83 +68,11 @@ public class SearchingFriendsActivity extends AppCompatActivity {
 
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
+                //adapter.getFilter();
             }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-                searchFriendsList.clear();
-                adapter.notifyDataSetChanged();
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-
-                try {
-
-                    if(s.toString().trim().length()>1) {
-
-                        searchFriendsList.clear();
-                        adapter.notifyDataSetChanged();
-
-
-                        query = ParseUser.getQuery();
-                        query.whereContains("name_lowercase", s.toString().trim().toLowerCase());
-                        query.whereNotEqualTo("name_lowercase", ParseUser.getCurrentUser().get("name_lowercase"));
-
-                        alreadyFriendsList = SessionManager.getInstance().getFriendsList();
-                            /*for(int i=0; i<alreadyFriendsList.size(); i++) {
-                                query.whereNotEqualTo("name_lowercase", alreadyFriendsList.get(i).getName().toLowerCase());
-                            }*/
-
-
-                        query.clearCachedResult();
-
-                        query.findInBackground(new FindCallback<ParseUser>() {
-                            @Override
-                            public void done(List<ParseUser> list, ParseException e) {
-                                searchFriendsList.clear();
-                                adapter.notifyDataSetChanged();
-
-                                if (e == null) {
-
-
-                                    for (int i = 0; i < list.size(); i++) {
-                                        boolean alreadyIsFriend = false;
-                                        temp = list.get(i);
-
-                                        for (Friend f : alreadyFriendsList)
-                                            if (f.getEmail().equals(temp.getEmail()))
-                                                alreadyIsFriend = true;
-
-                                        if (!alreadyIsFriend)
-                                            searchFriendsList.add(new Friend(temp.getObjectId(), temp.get("name").toString(), temp.getEmail(), (temp.get("photo").toString()), ((ParseGeoPoint) temp.get("location")).getLatitude(), ((ParseGeoPoint) temp.get("location")).getLongitude()));
-
-                                        adapter.notifyDataSetChanged();
-                                    }
-
-
-                                } else {
-                                    e.getLocalizedMessage();
-                                    e.printStackTrace();
-                                }
-
-                            }
-                        });
-
-                    }
-                    else
-                    {
-                        searchFriendsList.clear();
-                        adapter.clear();
-                        adapter.notifyDataSetChanged();
-                    }
-
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-
                 adapter.getFilter().filter(s, new Filter.FilterListener() {
                     @Override
                     public void onFilterComplete(int count) {
@@ -156,6 +81,19 @@ public class SearchingFriendsActivity extends AppCompatActivity {
 
                     }
                 });
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+                /*adapter.getFilter().filter(s, new Filter.FilterListener() {
+                    @Override
+                    public void onFilterComplete(int count) {
+
+                        Log.e("FILTER COMPLETE: ","count= " + count );
+
+                    }
+                });*/
             }
         });
     }

@@ -220,13 +220,15 @@ public class SessionManager {
         return result;
     }
 
-    public ArrayList<Friend> getAllUsersFromParse()
+    public ArrayList<Friend> getAllUsersWithoutCurrentFromParse()
     {
         List<ParseUser> users = new ArrayList<>();
         ArrayList<Friend> result = new ArrayList<>();
 
         ParseQuery<ParseUser> query = ParseUser.getQuery();
         query.addAscendingOrder("name");
+        query.whereNotEqualTo("name_lowercase", ParseUser.getCurrentUser().get("name_lowercase"));
+        query.clearCachedResult();
         //query.setLimit(10);
 
         try {
@@ -235,15 +237,12 @@ public class SessionManager {
             e.printStackTrace();
         }
 
-        ParseGeoPoint point;
         for(int i=0; i<users.size(); i++ ) {
-            point =  (ParseGeoPoint) users.get(i).get("location");
             result.add(new Friend(
                     users.get(i).getObjectId(),
                     users.get(i).get("name").toString(),
                     users.get(i).getEmail(),
-                    users.get(i).get("photo") != null ? users.get(i).get("photo").toString() : null,
-                    point.getLatitude(), point.getLongitude(), users.get(i)));
+                    users.get(i).get("photo") != null ? users.get(i).get("photo").toString() : null));
         }
 
         return result;

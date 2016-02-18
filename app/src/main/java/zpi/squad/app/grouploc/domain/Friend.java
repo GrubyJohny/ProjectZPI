@@ -1,6 +1,5 @@
 package zpi.squad.app.grouploc.domain;
 
-import com.google.android.gms.maps.model.LatLng;
 import com.parse.ParseGeoPoint;
 import com.parse.ParseUser;
 
@@ -42,6 +41,13 @@ public class Friend {
         this.photo = photo;
         this.location = new ParseGeoPoint(lat, lon);
         this.parseUser = pUser;
+    }
+
+    public Friend(String uid, String name, String email, String photo) {
+        this.uid = uid;
+        this.name = name;
+        this.email = email;
+        this.photo = photo;
     }
 
     public String getUid() {

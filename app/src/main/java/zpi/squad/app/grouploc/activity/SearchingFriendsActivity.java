@@ -36,12 +36,22 @@ public class SearchingFriendsActivity extends AppCompatActivity {
     ParseQuery queryAlreadyFriends, queryAlreadyFriends2;
     ParseUser newFriend = null;
     boolean alreadyFriends = false, alreadySent = false;
+    private SessionManager session = SessionManager.getInstance();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_searching_friends);
 
+        searchFriendsList.addAll(session.getAllUsersWithoutCurrentFromParse());
+        ArrayList<Friend> alreadyFriendsList = session.getFriendsList();
+        for (int i = 0; i < searchFriendsList.size(); i++) {
+            for (int j = 0; j < alreadyFriendsList.size(); j++) {
+                if (alreadyFriendsList.get(j).getEmail().toString().equals(searchFriendsList.get(i).getEmail().toString())) {
+                    searchFriendsList.remove(i);
+                }
+            }
+        }
         adapter = new SearchingFriendAdapter(this, searchFriendsList);
         searchFriendListView = (ListView) findViewById(R.id.searchingFriendsListView);
         searchFriendListView.setAdapter(adapter);
@@ -68,7 +78,6 @@ public class SearchingFriendsActivity extends AppCompatActivity {
 
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                //adapter.getFilter();
             }
 
             @Override
@@ -85,15 +94,6 @@ public class SearchingFriendsActivity extends AppCompatActivity {
 
             @Override
             public void afterTextChanged(Editable s) {
-
-                /*adapter.getFilter().filter(s, new Filter.FilterListener() {
-                    @Override
-                    public void onFilterComplete(int count) {
-
-                        Log.e("FILTER COMPLETE: ","count= " + count );
-
-                    }
-                });*/
             }
         });
     }

@@ -27,6 +27,7 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.cocosw.bottomsheet.BottomSheet;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
@@ -58,15 +59,15 @@ import java.util.HashMap;
 import java.util.List;
 
 import zpi.squad.app.grouploc.AppController;
-import zpi.squad.app.grouploc.domain.CustomMarker;
-import zpi.squad.app.grouploc.utils.DirectionsJSONParser;
 import zpi.squad.app.grouploc.MarkerDialog;
 import zpi.squad.app.grouploc.POISpecies;
-import zpi.squad.app.grouploc.utils.PoiJSONParser;
 import zpi.squad.app.grouploc.R;
 import zpi.squad.app.grouploc.SQLiteHandler;
 import zpi.squad.app.grouploc.Sender;
 import zpi.squad.app.grouploc.SessionManager;
+import zpi.squad.app.grouploc.domain.CustomMarker;
+import zpi.squad.app.grouploc.utils.DirectionsJSONParser;
+import zpi.squad.app.grouploc.utils.PoiJSONParser;
 import zpi.squad.app.grouploc.utils.ToolsForMarkerList;
 
 import static zpi.squad.app.grouploc.POISpecies.BAR;
@@ -153,7 +154,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
         super.onCreate(savedInstanceState);
         //res = getResources();
 
-        layoutMarker = (View) getActivity().findViewById(R.id.markerLayout);
+
 //        tabs = (View) getActivity().findViewById(R.id.tabanim_tabs);
         context = getActivity().getApplicationContext();
         //globalVariable = (AppController) getActivity().getApplicationContext();
@@ -192,6 +193,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
             fm.beginTransaction().replace(R.id.map, fragment).commit();
         }
 
+        layoutMarker = (View) getActivity().findViewById(R.id.markerLayout);
+
         firstMarkerButton = (ImageButton) getActivity().findViewById(R.id.firstButton);
         secondMarkerButton = (ImageButton) getActivity().findViewById(R.id.secondButton);
         thirdMarkerButton = (ImageButton) getActivity().findViewById(R.id.thirdButton);
@@ -225,8 +228,23 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
 
         LatLng location = (mCurrentLocation==null? session.getCurrentLocation() : new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()));
         moveMapCamera(location);
-    }
 
+        map.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+            @Override
+            public void onMapClick(LatLng latLng) {
+                new BottomSheet.Builder(getActivity()).grid().title("Here will be title").sheet(R.menu.menu_bottom).listener(new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        switch (which) {
+                            case R.id.polyline:
+                                // action
+                                break;
+                        }
+                    }
+                }).show();
+            }
+        });
+    }
 
     private void setupPoiButtons() {
 
@@ -630,7 +648,11 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
             @Override
             public void onMapClick(LatLng latLng) {
 //                getActivity().findViewById(R.id.POIButtons).setVisibility(View.GONE);
-                layoutMarker.setVisibility(View.GONE);
+//                layoutMarker.setVisibility(View.GONE);
+                Animation bottomUp = AnimationUtils.loadAnimation(getActivity().getApplicationContext(),
+                        R.anim.bottom_up);
+                layoutMarker.startAnimation(bottomUp);
+                layoutMarker.setVisibility(View.VISIBLE);
             }
         });
     }

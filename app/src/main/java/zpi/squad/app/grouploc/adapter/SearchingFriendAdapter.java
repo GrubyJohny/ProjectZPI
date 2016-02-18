@@ -21,12 +21,14 @@ import zpi.squad.app.grouploc.SessionManager;
 import zpi.squad.app.grouploc.domain.Friend;
 
 public class SearchingFriendAdapter extends ArrayAdapter<Friend> implements Filterable {
+    private final ArrayList<Friend> helpList;
     private SessionManager session = SessionManager.getInstance();
     private ArrayList<Friend> items;
 
     public SearchingFriendAdapter(Context context, ArrayList<Friend> items) {
         super(context, R.layout.search_friend_list_row, items);
         this.items = items;
+        helpList = session.getAllUsersWithoutCurrentFromParse();
     }
 
     @Override
@@ -54,16 +56,26 @@ public class SearchingFriendAdapter extends ArrayAdapter<Friend> implements Filt
             @Override
             protected FilterResults performFiltering(CharSequence constraint) {
                 FilterResults result = new FilterResults();
-                List<Friend> allFriends = session.getFriendsList(); // ZMIEN NA LISTE WSZYSTKICH
+
+                List<Friend> allFriends = helpList;
+                ArrayList<Friend> alreadyFriendsList = session.getFriendsList();
+                for (int i = 0; i < allFriends.size(); i++) {
+                    for (int j = 0; j < alreadyFriendsList.size(); j++) {
+                        if (alreadyFriendsList.get(j).getEmail().toString().equals(allFriends.get(i).getEmail().toString())) {
+                            allFriends.remove(i);
+                        }
+                    }
+                }
                 if (constraint == null || constraint.length() == 0) {
                     result.values = allFriends;
                     result.count = allFriends.size();
                 } else {
                     ArrayList<Friend> filteredList = new ArrayList<Friend>();
                     for (Friend f : allFriends) {
-                        if (f.getName().toLowerCase().contains(constraint.toString().toLowerCase())) // DODAJ TEZ MAILA JESLI CHCESZ
+                        if (f.getName().toLowerCase().contains(constraint.toString().toLowerCase()) || f.getEmail().toString().toLowerCase().contains(constraint.toString().toLowerCase()))
                             filteredList.add(f);
                     }
+
                     result.values = filteredList;
                     result.count = filteredList.size();
                 }

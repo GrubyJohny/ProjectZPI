@@ -16,6 +16,7 @@ import com.parse.ParseUser;
 
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
+import java.util.List;
 
 import zpi.squad.app.grouploc.domain.Friend;
 
@@ -203,8 +204,6 @@ public class SessionManager {
                                 actual.getEmail(),
                                 actual.get("photo") != null ? actual.get("photo").toString() : null,
                                 point.getLatitude(), point.getLongitude(), actual));
-
-                        Log.d("Friend added: ", "" + actual.get("name").toString() + " " + point.getLatitude() + ", " + point.getLongitude());
                     }
 
                 }
@@ -220,6 +219,36 @@ public class SessionManager {
 
         return result;
     }
+
+    public ArrayList<Friend> getAllUsersWithoutCurrentFromParse()
+    {
+        List<ParseUser> users = new ArrayList<>();
+        ArrayList<Friend> result = new ArrayList<>();
+
+        ParseQuery<ParseUser> query = ParseUser.getQuery();
+        query.addAscendingOrder("name");
+        query.whereNotEqualTo("name_lowercase", ParseUser.getCurrentUser().get("name_lowercase"));
+        query.clearCachedResult();
+        //query.setLimit(10);
+
+        try {
+            users = query.find();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        for(int i=0; i<users.size(); i++ ) {
+            result.add(new Friend(
+                    users.get(i).getObjectId(),
+                    users.get(i).get("name").toString(),
+                    users.get(i).getEmail(),
+                    users.get(i).get("photo") != null ? users.get(i).get("photo").toString() : null));
+        }
+
+        return result;
+    }
+
+
 
     // method for bitmap to base64
     public String encodeBitmapTobase64(Bitmap image) {

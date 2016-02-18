@@ -153,6 +153,7 @@ public class LoginActivity extends Activity implements AppCompatCallback {
                                     String[] tempInfo = getFacebookUserInfo(AccessToken.getCurrentAccessToken());
                                     user.setEmail(tempInfo[0]);
                                     user.put("name", tempInfo[1]);
+                                    user.put("name_lowercase", tempInfo[1].toLowerCase());
                                     user.put("location", new ParseGeoPoint(55, 55));
                                     user.put("isFacebookAccount", true);
                                     try {

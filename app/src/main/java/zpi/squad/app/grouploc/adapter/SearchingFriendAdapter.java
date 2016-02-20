@@ -13,6 +13,9 @@ import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.parse.ParseQuery;
+import com.parse.ParseUser;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,11 +27,18 @@ public class SearchingFriendAdapter extends ArrayAdapter<Friend> implements Filt
     private final ArrayList<Friend> helpList;
     private SessionManager session = SessionManager.getInstance();
     private ArrayList<Friend> items;
+    private ArrayList<Friend> filteredList = new ArrayList<>();
+    private ParseQuery<ParseUser> query;
+    private ParseUser temp;
+    //private ArrayList<Friend> alreadyFriendsList ;
+    boolean alreadyIsFriend = false;
+    List<ParseUser> usersFromQuery;
 
     public SearchingFriendAdapter(Context context, ArrayList<Friend> items) {
         super(context, R.layout.search_friend_list_row, items);
         this.items = items;
-        helpList = session.getAllUsersWithoutCurrentFromParse();
+        helpList = session.getAllUsersFromParseWithoutCurrentAndFriends();
+
     }
 
     @Override
@@ -57,24 +67,45 @@ public class SearchingFriendAdapter extends ArrayAdapter<Friend> implements Filt
             protected FilterResults performFiltering(CharSequence constraint) {
                 FilterResults result = new FilterResults();
 
-                List<Friend> allFriends = helpList;
-                ArrayList<Friend> alreadyFriendsList = session.getFriendsList();
-                for (int i = 0; i < allFriends.size(); i++) {
-                    for (int j = 0; j < alreadyFriendsList.size(); j++) {
-                        if (alreadyFriendsList.get(j).getEmail().toString().equals(allFriends.get(i).getEmail().toString())) {
-                            allFriends.remove(i);
-                        }
-                    }
-                }
                 if (constraint == null || constraint.length() == 0) {
-                    result.values = allFriends;
-                    result.count = allFriends.size();
+                    result.values = helpList;
+                    result.count = helpList.size();
                 } else {
-                    ArrayList<Friend> filteredList = new ArrayList<Friend>();
-                    for (Friend f : allFriends) {
-                        if (f.getName().toLowerCase().contains(constraint.toString().toLowerCase()) || f.getEmail().toString().toLowerCase().contains(constraint.toString().toLowerCase()))
-                            filteredList.add(f);
-                    }
+
+                    if (filteredList == null)
+                        filteredList = new ArrayList<>();
+                    else
+                        filteredList.clear();
+
+                    for (int a = 0; a < helpList.size(); a++)
+                        if (helpList.get(a).getName().toLowerCase().contains(constraint.toString().trim().toLowerCase()))
+                            filteredList.add(helpList.get(a));
+
+
+                   /* try {
+                        query = ParseUser.getQuery();
+                        query.whereContains("name_lowercase", constraint.toString().trim().toLowerCase());
+
+                        usersFromQuery = query.find();        //lista wszystkich userów spełniających warunki query - czyli nazwa pasująca do wpisanego tekstu
+
+                        for (int i = 0; i < usersFromQuery.size(); i++) {
+                            alreadyIsFriend = false;        //czy aktualnie jest już w znajomych, bo jeśli tak, to nie powinien się znaleźć w "filteredList"
+                            temp = usersFromQuery.get(i).fetchIfNeeded();                     // i-ty element listy wynikwoej query
+
+                            for (Friend f : helpList)
+                                if (f.getEmail().equals(temp.getEmail()))   //jeśli i-ty element list wynikowej query znajduje się już na liście znajomych
+                                    alreadyIsFriend = true;                 //to znaczy, że jest już naszym znajomym
+
+                            if (!alreadyIsFriend)                           //jeśli nie, trafia do listy filteredList
+                                filteredList.add(new Friend(temp.getObjectId(), temp.get("name").toString(), temp.getEmail(), (temp.get("photo").toString()), ((ParseGeoPoint) temp.get("location")).getLatitude(), ((ParseGeoPoint) temp.get("location")).getLongitude()));
+
+                        }
+
+                    } catch (Exception e) {
+                        e.getLocalizedMessage();
+                        e.printStackTrace();
+                    }*/
+
 
                     result.values = filteredList;
                     result.count = filteredList.size();

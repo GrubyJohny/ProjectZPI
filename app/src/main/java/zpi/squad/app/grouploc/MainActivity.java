@@ -390,6 +390,10 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
         Log.e("LOKALIZACJA: ", session.getCurrentLocation().latitude + ", " + session.getCurrentLocation().longitude);
 
+        ParseInstallation.getCurrentInstallation().deleteInBackground();
+        ParseInstallation.getCurrentInstallation().put("name", ParseUser.getCurrentUser().getEmail());
+        ParseInstallation.getCurrentInstallation().saveInBackground();
+
     }
 
     /*private void addMyToolTipView() {

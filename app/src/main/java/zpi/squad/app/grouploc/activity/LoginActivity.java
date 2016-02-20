@@ -97,8 +97,6 @@ public class LoginActivity extends Activity implements AppCompatCallback {
 
         try {
             Parse.initialize(this);
-            ParseInstallation.getCurrentInstallation().put("name", ParseUser.getCurrentUser().getEmail());
-            ParseInstallation.getCurrentInstallation().saveInBackground();
         } catch (Exception e) {
             e.getLocalizedMessage();
             e.printStackTrace();

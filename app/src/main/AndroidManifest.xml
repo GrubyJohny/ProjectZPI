@@ -21,13 +21,22 @@
 
     <!-- Permission needed for Google Maps API -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <!-- Required to show current location -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
+    <!--
+      IMPORTANT: Change "com.parse.starter.permission.C2D_MESSAGE" in the lines below
+      to match your app's package name + ".permission.C2D_MESSAGE".
+    -->
+    <permission android:protectionLevel="signature"
+        android:name="zpi.squad.app.grouploc.permission.C2D_MESSAGE" />
+    <uses-permission android:name="zpi.squad.app.grouploc.permission.C2D_MESSAGE" />
 
     <application
         android:name=".AppController"
@@ -94,6 +103,13 @@
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
 
+        <meta-data
+            android:name="com.parse.APPLICATION_ID"
+            android:value="rMAJUrbPT4fIVGk8ePC7gavmnY8NmmaxWv8Lf8y4" />
+        <meta-data
+            android:name="com.parse.CLIENT_KEY"
+            android:value="NOKLzlyq0v5nj5js1ZoQbXPewym3MCSUCIlRudMy" />
+
         <!--
            <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
@@ -103,6 +119,27 @@
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyCM8Pn_F9kmL2QH6hyWBAXnDG7u1hj6tYE" />
+
+
+        <service android:name="com.parse.PushService" />
+        <receiver android:name="com.parse.ParsePushBroadcastReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.parse.push.intent.RECEIVE" />
+                <action android:name="com.parse.push.intent.DELETE" />
+                <action android:name="com.parse.push.intent.OPEN" />
+            </intent-filter>
+        </receiver>
+        <receiver android:name="com.parse.GcmBroadcastReceiver"
+            android:permission="com.google.android.c2dm.permission.SEND">
+            <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+                <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
+
+                <category android:name="zpi.squad.app.grouploc" />
+            </intent-filter>
+        </receiver>
+
     </application>
 
 </manifest>

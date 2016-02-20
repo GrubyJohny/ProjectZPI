@@ -5,6 +5,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
+import android.location.LocationProvider;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputLayout;
@@ -112,18 +113,19 @@ public class RegisterActivity extends Activity implements AppCompatCallback {
                     }
                     ParseInstallation installation = ParseInstallation.getCurrentInstallation();
 
-                        ParseUser user = new ParseUser();
-                        user.setUsername(email);
-                        user.setEmail(email);
-                        user.setPassword(password);
-                        user.put("isFacebookAccount", false);
-                        user.put("locationUpdateTime", new Date());
-                        //TO DO:
-                        //jeszcze muszę przemyśleć jak tą lokalizację ustawiać przy rejestracji1
-                        user.put("location", new ParseGeoPoint(50, 18));
-                        user.put("name", name);
-                        user.put("name_lowercase", name.toLowerCase());
-                        user.put("photo", session.encodeBitmapTobase64(BitmapFactory.decodeResource(getResources(), R.drawable.image5)));
+                    ParseUser user = new ParseUser();
+                    user.setUsername(email);
+                    user.setEmail(email);
+                    user.setPassword(password);
+                    user.put("isFacebookAccount", false);
+                    user.put("locationUpdateTime", new Date());
+                    //TO DO:
+                    //jeszcze muszę przemyśleć jak tą lokalizację ustawiać przy rejestracji1
+
+                    user.put("location", new ParseGeoPoint(50, 18));
+                    user.put("name", name);
+                    user.put("name_lowercase", name.toLowerCase());
+                    user.put("photo", session.encodeBitmapTobase64(BitmapFactory.decodeResource(getResources(), R.drawable.image5)));
 
                     try {
                         user.signUp();

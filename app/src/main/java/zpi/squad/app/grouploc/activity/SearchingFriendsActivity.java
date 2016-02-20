@@ -14,7 +14,9 @@ import android.widget.Toast;
 
 import com.parse.FindCallback;
 import com.parse.ParseException;
+import com.parse.ParseInstallation;
 import com.parse.ParseObject;
+import com.parse.ParsePush;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
@@ -59,7 +61,7 @@ public class SearchingFriendsActivity extends AppCompatActivity {
 
                 try {
                     addFriendship(item.getEmail());
-
+                    sendFriendshipNotofication(item.getEmail());
                 } catch (Exception e) {
                     e.getLocalizedMessage();
                     e.printStackTrace();
@@ -93,6 +95,7 @@ public class SearchingFriendsActivity extends AppCompatActivity {
         });
 
     }
+
 
     @Override
     public void onContentChanged() {
@@ -255,4 +258,14 @@ public class SearchingFriendsActivity extends AppCompatActivity {
 
         return success;
     }
+
+
+    private void sendFriendshipNotofication(String email) {
+        ParseQuery notificationQuery = ParseInstallation.getQuery().whereEqualTo("name", email);
+        ParsePush notification = new ParsePush();
+        notification.setQuery(notificationQuery);
+        notification.setMessage("Użytkownik " + ParseUser.getCurrentUser().get("name") + " wysłał Ci zaproszenie do znajomych!");
+        notification.sendInBackground();
+    }
+
 }

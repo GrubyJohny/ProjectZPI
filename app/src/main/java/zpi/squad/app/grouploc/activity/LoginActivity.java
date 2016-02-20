@@ -34,6 +34,7 @@ import com.parse.Parse;
 import com.parse.ParseException;
 import com.parse.ParseFacebookUtils;
 import com.parse.ParseGeoPoint;
+import com.parse.ParseInstallation;
 import com.parse.ParseUser;
 
 import org.json.JSONException;
@@ -95,9 +96,12 @@ public class LoginActivity extends Activity implements AppCompatCallback {
         StrictMode.setThreadPolicy(policy);
 
         try {
-            Parse.initialize(this, AppConfig.PARSE_APPLICATION_ID, AppConfig.PARSE_CLIENT_KEY);
+            Parse.initialize(this);
+            ParseInstallation.getCurrentInstallation().put("name", ParseUser.getCurrentUser().getEmail());
+            ParseInstallation.getCurrentInstallation().saveInBackground();
         } catch (Exception e) {
-            // e.printStackTrace();
+            e.getLocalizedMessage();
+            e.printStackTrace();
         }
 
         inputLayoutEmail = (TextInputLayout) findViewById(R.id.input_layout_login_email);
@@ -122,7 +126,7 @@ public class LoginActivity extends Activity implements AppCompatCallback {
                 String password = inputPassword.getText().toString();
 
                 submitForm();
-                if(positiveValidate) {
+                if (positiveValidate) {
                     if (AppController.checkConn(LoginActivity.this.getApplication())) {
                         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                         imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
@@ -348,23 +352,20 @@ public class LoginActivity extends Activity implements AppCompatCallback {
 
         if (!validateEmail()) {
             return;
-        }
-        else if(!validatePassword()){
+        } else if (!validatePassword()) {
             return;
-        }
-        else
+        } else
             positiveValidate = true;
     }
 
     private boolean validateEmail() {
         String email = inputEmail.getText().toString().trim();
 
-        if(email.isEmpty()) {
+        if (email.isEmpty()) {
             inputLayoutEmail.setError(getString(R.string.emailValidEmpty));
             requestFocus(inputEmail);
             return false;
-        }
-        else if (!isValidEmail(email)) {
+        } else if (!isValidEmail(email)) {
             inputLayoutEmail.setError(getString(R.string.emailValid));
             requestFocus(inputEmail);
             return false;

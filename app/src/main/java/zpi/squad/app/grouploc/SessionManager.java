@@ -29,7 +29,7 @@ public class SessionManager {
     private static ArrayList<Friend> friends;
     private LatLng currentLocation;
     public boolean requestLocationUpdate = true;
-
+    boolean isFriend;
 
     private SessionManager(Context context) {
         pref = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
@@ -220,15 +220,14 @@ public class SessionManager {
         return result;
     }
 
-    public ArrayList<Friend> getAllUsersWithoutCurrentFromParse()
-    {
+    public ArrayList<Friend> getAllUsersWithoutCurrentFromParse() {
         List<ParseUser> users = new ArrayList<>();
         ArrayList<Friend> result = new ArrayList<>();
 
         ParseQuery<ParseUser> query = ParseUser.getQuery();
         query.addAscendingOrder("name");
         query.whereNotEqualTo("name_lowercase", ParseUser.getCurrentUser().get("name_lowercase"));
-        query.clearCachedResult();
+        //query.clearCachedResult();
         //query.setLimit(10);
 
         try {
@@ -237,7 +236,7 @@ public class SessionManager {
             e.printStackTrace();
         }
 
-        for(int i=0; i<users.size(); i++ ) {
+        for (int i = 0; i < users.size(); i++) {
             result.add(new Friend(
                     users.get(i).getObjectId(),
                     users.get(i).get("name").toString(),
@@ -248,6 +247,44 @@ public class SessionManager {
         return result;
     }
 
+    public ArrayList<Friend> getAllUsersFromParseWithoutCurrentAndFriends() {
+        List<ParseUser> users = new ArrayList<>();
+        ArrayList<Friend> result = new ArrayList<>();
+
+        ParseQuery<ParseUser> query = ParseUser.getQuery();
+        query.whereNotEqualTo("email", ParseUser.getCurrentUser().getEmail());
+        query.addAscendingOrder("name_lowercase");
+
+        try {
+            users = query.find();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        ArrayList<Friend> fr = getFriendsList();
+        isFriend = false;
+
+
+        for (int i = 0; i < users.size(); i++) {
+            isFriend = false;
+            for (int j = 0; j < fr.size(); j++) {
+
+                if (fr.get(j).getEmail().equals(users.get(i).getEmail()))
+                    isFriend = true;
+
+            }
+
+            if (!isFriend)
+                result.add(new Friend(
+                        users.get(i).getObjectId(),
+                        users.get(i).get("name").toString(),
+                        users.get(i).getEmail(),
+                        users.get(i).get("photo") != null ? users.get(i).get("photo").toString() : null));
+        }
+
+
+        return result;
+    }
 
 
     // method for bitmap to base64

@@ -31,27 +31,21 @@ public class SearchingFriendsActivity extends AppCompatActivity {
     EditText searchFriendInput;
     ListView searchFriendListView;
     private SearchingFriendAdapter adapter;
-    ArrayList<Friend> searchFriendsList = new ArrayList<>();
     ParseQuery<ParseUser> query, queryFriend;
     ParseQuery queryAlreadyFriends, queryAlreadyFriends2;
     ParseUser newFriend = null;
-    boolean alreadyFriends = false, alreadySent = false;
+    boolean alreadyFriends = false, alreadySent = false, success = false;
     private SessionManager session = SessionManager.getInstance();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_searching_friends);
 
-        searchFriendsList.addAll(session.getAllUsersWithoutCurrentFromParse());
-        ArrayList<Friend> alreadyFriendsList = session.getFriendsList();
-        for (int i = 0; i < searchFriendsList.size(); i++) {
-            for (int j = 0; j < alreadyFriendsList.size(); j++) {
-                if (alreadyFriendsList.get(j).getEmail().toString().equals(searchFriendsList.get(i).getEmail().toString())) {
-                    searchFriendsList.remove(i);
-                }
-            }
-        }
+        ArrayList<Friend> searchFriendsList = new ArrayList<>();
+        searchFriendsList.addAll(session.getAllUsersFromParseWithoutCurrentAndFriends());
+
         adapter = new SearchingFriendAdapter(this, searchFriendsList);
         searchFriendListView = (ListView) findViewById(R.id.searchingFriendsListView);
         searchFriendListView.setAdapter(adapter);
@@ -65,6 +59,7 @@ public class SearchingFriendsActivity extends AppCompatActivity {
 
                 try {
                     addFriendship(item.getEmail());
+
                 } catch (Exception e) {
                     e.getLocalizedMessage();
                     e.printStackTrace();
@@ -86,7 +81,7 @@ public class SearchingFriendsActivity extends AppCompatActivity {
                     @Override
                     public void onFilterComplete(int count) {
 
-                        Log.e("FILTER COMPLETE: ","count= " + count );
+                        Log.e("FILTER COMPLETE: ", "count= " + count);
 
                     }
                 });
@@ -96,6 +91,7 @@ public class SearchingFriendsActivity extends AppCompatActivity {
             public void afterTextChanged(Editable s) {
             }
         });
+
     }
 
     @Override
@@ -107,7 +103,8 @@ public class SearchingFriendsActivity extends AppCompatActivity {
         list.setEmptyView(empty);
     }
 
-    private void addFriendship(final String newFriendEmail) {
+    private boolean addFriendship(final String newFriendEmail) {
+        success = false;
         alreadyFriends = false;
         alreadySent = false;
 
@@ -226,7 +223,7 @@ public class SearchingFriendsActivity extends AppCompatActivity {
 
                                                         //a tu jest optymistyczna droga zakończenia - usunięcie kółka
                                                         //reszta przypadków powinna się kończyć w miarę szybko
-
+                                                        success = true;
                                                         Log.e("Friendship: ", "saved");
                                                         Toast.makeText(getApplicationContext(), "Invitation sent to " + newFriend.get("name").toString(), Toast.LENGTH_LONG).show();
                                                     }
@@ -256,5 +253,6 @@ public class SearchingFriendsActivity extends AppCompatActivity {
             }
         }
 
+        return success;
     }
 }

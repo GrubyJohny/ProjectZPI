@@ -60,6 +60,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.nhaarman.supertooltips.ToolTipRelativeLayout;
 import com.nhaarman.supertooltips.ToolTipView;
+import com.parse.DeleteCallback;
 import com.parse.ParseException;
 import com.parse.ParseGeoPoint;
 import com.parse.ParseInstallation;
@@ -390,9 +391,14 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
         Log.e("LOKALIZACJA: ", session.getCurrentLocation().latitude + ", " + session.getCurrentLocation().longitude);
 
-        ParseInstallation.getCurrentInstallation().deleteInBackground();
-        ParseInstallation.getCurrentInstallation().put("name", ParseUser.getCurrentUser().getEmail());
-        ParseInstallation.getCurrentInstallation().saveInBackground();
+        ParseInstallation.getCurrentInstallation().deleteInBackground(new DeleteCallback() {
+            @Override
+            public void done(ParseException e) {
+                ParseInstallation.getCurrentInstallation().put("name", ParseUser.getCurrentUser().getEmail());
+                ParseInstallation.getCurrentInstallation().saveInBackground();
+            }
+        });
+
 
     }
 

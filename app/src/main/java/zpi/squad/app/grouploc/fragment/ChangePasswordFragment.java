@@ -1,6 +1,7 @@
 package zpi.squad.app.grouploc.fragment;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.design.widget.TextInputLayout;
@@ -35,6 +36,7 @@ public class ChangePasswordFragment extends Fragment {
     String oldPass, pass, pass2;
     private TextInputLayout inputLayoutOldPassword, inputLayoutNewPassword, inputLayoutNewPasswordAgain;
     private boolean positiveValidate;
+    private ProgressDialog progress;
 
     public ChangePasswordFragment() {
         // Required empty public constructor
@@ -96,60 +98,73 @@ public class ChangePasswordFragment extends Fragment {
 
                 submitForm();
                 if (positiveValidate) {
+                    progress = ProgressDialog.show(getActivity(), getString(R.string.pleaseWait),
+                            "Changing password request", true);
 
-                    /*odtąd fajnie byłoby dac jakieś kółko oznaczające oczekiwanie - zmiana hasła nie trwa długo
-                    * ale jak ją przerwiesz, to trzeba resetować hasło, a normalny user może na to nie wpaść,
-                    * więc lepiej zasugerowac mu, żeby grzecznie poczekał te 2 sekundy :) */
-                    final ParseUser currentUser = ParseUser.getCurrentUser();
-                    final String userName = ParseUser.getCurrentUser().getUsername();
-
-                    ParseUser.logInInBackground(userName, oldPass, new LogInCallback() {
+                    new Thread(new Runnable() {
                         @Override
-                        public void done(ParseUser user, ParseException e) {
-                            if (user != null) {
-                                currentUser.setPassword(pass);
-                                try {
-                                    currentUser.save();
-                                } catch (ParseException e1) {
-                                    e1.printStackTrace();
-                                    e1.getLocalizedMessage();
-                                }
-                                ParseUser.logOut();
-                                ParseUser.logInInBackground(userName, pass, new LogInCallback() {
-                                    @Override
-                                    public void done(ParseUser parseUser, ParseException e) {
-                                        if (e == null) {
-                                            currentPass.setText("");
-                                            newPass.setText("");
-                                            newPassConfirmed.setText("");
-                                            Toast.makeText(getActivity(), "Password changed succesfully!", Toast.LENGTH_SHORT).show();
+                        public void run() {
+                            // do the thing that takes a long time
 
-                                            if (getActivity().getSupportFragmentManager().getBackStackEntryCount() > 1) {
-                                                getActivity().getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
-                                                getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.main_container, getActivity().getSupportFragmentManager().findFragmentByTag(mapTAG), mapTAG).setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN).commit();
-                                            } else {
-                                                getActivity().getSupportFragmentManager().popBackStack();
-                                            }
+                            final ParseUser currentUser = ParseUser.getCurrentUser();
+                            final String userName = ParseUser.getCurrentUser().getUsername();
 
-                                            InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-                                            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+                            ParseUser.logInInBackground(userName, oldPass, new LogInCallback() {
+                                @Override
+                                public void done(ParseUser user, ParseException e) {
+                                    if (user != null) {
+                                        currentUser.setPassword(pass);
+                                        try {
+                                            currentUser.save();
+                                        } catch (ParseException e1) {
+                                            e1.printStackTrace();
+                                            e1.getLocalizedMessage();
+                                        }
+                                        ParseUser.logOut();
+                                        ParseUser.logInInBackground(userName, pass, new LogInCallback() {
+                                            @Override
+                                            public void done(ParseUser parseUser, ParseException e) {
+                                                if (e == null) {
+                                                    currentPass.setText("");
+                                                    newPass.setText("");
+                                                    newPassConfirmed.setText("");
+                                                    Toast.makeText(getActivity().getApplicationContext(), "Password changed succesfully!", Toast.LENGTH_SHORT).show();
+
+                                                    if (getActivity().getSupportFragmentManager().getBackStackEntryCount() > 1) {
+                                                        getActivity().getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+                                                        getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.main_container, getActivity().getSupportFragmentManager().findFragmentByTag(mapTAG), mapTAG).setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN).commit();
+                                                    } else {
+                                                        getActivity().getSupportFragmentManager().popBackStack();
+                                                    }
+
+                                                    InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                                                    imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
 
                                             /*prawdopodobnie w tym miejscu trzeba zmienić zaznaczoną opcję
                                             * w drawerze po lewej (na mapę)*/
 
-                                        } else
-                                            Toast.makeText(getActivity(), "Network error", Toast.LENGTH_SHORT).show();
-                                    }
-                                });
+                                                } else
+                                                    Toast.makeText(getActivity().getApplicationContext(), "Network error", Toast.LENGTH_SHORT).show();
+                                            }
+                                        });
 
-                            } else {
-                                InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-                                imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-                                Toast.makeText(getActivity().getApplicationContext(), "Old password incorrect", Toast.LENGTH_SHORT).show();
-                            }
+                                    } else {
+                                        InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                                        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+                                        Toast.makeText(getActivity().getApplicationContext(), "Old password incorrect", Toast.LENGTH_SHORT).show();
+                                    }
+                                    getActivity().runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            progress.dismiss();
+                                        }
+                                    });
+                                }
+                            });
+
+
                         }
-                    });
-                    /*dotąd*/
+                    }).start();
                 }
             }
         });

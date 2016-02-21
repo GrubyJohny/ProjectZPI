@@ -1,11 +1,12 @@
 package zpi.squad.app.grouploc.activity;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
+import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.ActionBar;
-import android.os.Bundle;
 import android.support.v7.app.AppCompatCallback;
 import android.support.v7.app.AppCompatDelegate;
 import android.support.v7.view.ActionMode;
@@ -34,6 +35,9 @@ public class ResetPasswordActivity extends Activity implements AppCompatCallback
     private AppCompatDelegate delegate;
     private boolean positiveValidate;
     private TextInputLayout inputLayoutEmail;
+    private ProgressDialog progress;
+    private boolean successReset = false;
+    private boolean resetFacebookEmail = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,37 +69,61 @@ public class ResetPasswordActivity extends Activity implements AppCompatCallback
                 * Dlatego sprawdzam tutaj, czy ktoś podaje naprawdę adres mailowy - nazwa usera z fejsa nie może mieć małpy,
                 * więc takie sprawdzenie powinno wystarczyć*/
 
-                String enteredEmail = emailInput.getText().toString().trim();
+                final String enteredEmail = emailInput.getText().toString().trim();
 
                 submitForm();
                 if (positiveValidate) {
-                    ParseQuery.clearAllCachedResults();
-                    ParseQuery<ParseUser> query = ParseUser.getQuery();
-                    query.whereEqualTo("email", enteredEmail);
+                    progress = ProgressDialog.show(ResetPasswordActivity.this, getString(R.string.pleaseWait), "Sending reset password request", true);
 
-                    Object[] queryResult;
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run()
+                        {
+                            // do the thing that takes a long time
+                            ParseQuery.clearAllCachedResults();
+                            ParseQuery<ParseUser> query = ParseUser.getQuery();
+                            query.whereEqualTo("email", enteredEmail);
 
-                    try {
-                        queryResult = query.find().toArray().clone();
+                            Object[] queryResult;
 
-                        if (queryResult.length == 0) {
-                            Toast.makeText(getApplicationContext(), "No user registered with email: " + enteredEmail, Toast.LENGTH_LONG).show();
-                            Log.e("RESET", " " + queryResult.length);
-                        } else if ((boolean) ((ParseUser) queryResult[0]).get("isFacebookAccount")) {
-                            Toast.makeText(getApplicationContext(), "You should log in with 'Log in with facebook' button", Toast.LENGTH_LONG).show();
-                        } else {
-                            ParseUser.requestPasswordResetInBackground(enteredEmail);
-                            Toast.makeText(getApplicationContext(),
-                                    "Password reset request sent to " + enteredEmail + ". Check your mailbox", Toast.LENGTH_LONG).show();
+                            try {
+                                queryResult = query.find().toArray().clone();
+
+                                if (queryResult.length == 0) {
+                                    successReset = false;
+                                    Log.e("RESET", " " + queryResult.length);
+                                } else if ((boolean) ((ParseUser) queryResult[0]).get("isFacebookAccount")) {
+                                    successReset = false;
+                                    resetFacebookEmail = true;
+                                } else {
+                                    ParseUser.requestPasswordResetInBackground(enteredEmail);
+                                    successReset = true;
+
+                                }
+
+                            } catch (ParseException e) {
+                                e.printStackTrace();
+                                Log.e("PASS REMINDER", e.getLocalizedMessage());
+                            }
+
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run()
+                                {
+                                    if (successReset) {
+                                        Toast.makeText(getApplicationContext(),
+                                                "Password reset request sent to " + enteredEmail + ". Check your mailbox", Toast.LENGTH_LONG).show();
+                                    } else if (resetFacebookEmail) {
+                                        Toast.makeText(getApplicationContext(), "You should log in with 'Log in with facebook' button", Toast.LENGTH_LONG).show();
+                                    }
+                                    else {
+                                        Toast.makeText(getApplicationContext(), "No user registered with email: " + enteredEmail, Toast.LENGTH_LONG).show();
+                                    }
+                                    progress.dismiss();
+                                }
+                            });
                         }
-
-                    } catch (ParseException e) {
-                        e.printStackTrace();
-                        Log.e("PASS REMINDER", e.getLocalizedMessage());
-
-                        if (e.getLocalizedMessage().contains("invalid email address"))
-                            Toast.makeText(getApplicationContext(), "Invalid email address", Toast.LENGTH_LONG).show();
-                    }
+                    }).start();
                 }
             }
         });

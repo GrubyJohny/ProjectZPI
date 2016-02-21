@@ -136,8 +136,6 @@ public class RegisterActivity extends Activity implements AppCompatCallback {
                                 System.out.println(e.getMessage());
                                 if (e.getMessage().contains("already been taken")) {
                                     registrationSuccessfully = false;
-                                } else if (e.getMessage().contains("invalid email address")) {
-                                    Toast.makeText(getApplicationContext(), "Invalid email address!", Toast.LENGTH_LONG).show();
                                 } else {
                                     e.printStackTrace();
                                 }

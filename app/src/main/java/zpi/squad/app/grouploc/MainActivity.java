@@ -11,6 +11,7 @@ import android.graphics.Path;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.os.Vibrator;
@@ -305,12 +306,15 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                                 builder.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
-                                        deleteFriendship(ParseUser.getCurrentUser(), item.getParseUser());
+
+                                        DeleteFriendship deleteFriend = new DeleteFriendship();
+                                        deleteFriend.execute(item);
+                                        dialog.dismiss();
                                         adapter.remove(item);
                                         adapter.notifyDataSetChanged();
-                                        dialog.dismiss();
                                         Toast.makeText(getApplicationContext(), "Friend deleted", Toast.LENGTH_LONG).show();
-                                        session.refreshFriendsList();
+
+
 
                                     }
                                 });
@@ -903,15 +907,15 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         return Uri.parse(path);
     }
 
-    private void deleteFriendship(ParseUser currentUser, ParseUser friend) {
+    private void deleteFriendship(ParseUser friend) {
         ArrayList<Friend> result = new ArrayList<>();
 
         ParseQuery checkIfFriends1 = new ParseQuery("Friendship");
-        checkIfFriends1.whereEqualTo("friend1", currentUser);
+        checkIfFriends1.whereEqualTo("friend1", ParseUser.getCurrentUser());
         checkIfFriends1.whereEqualTo("friend2", friend);
 
         ParseQuery checkIfFriends2 = new ParseQuery("Friendship");
-        checkIfFriends2.whereEqualTo("friend2", currentUser);
+        checkIfFriends2.whereEqualTo("friend2", ParseUser.getCurrentUser());
         checkIfFriends2.whereEqualTo("friend1", friend);
 
         Object[] friendshipsList = null, friendshipsList2 = null;
@@ -966,6 +970,16 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         View empty = findViewById(R.id.emptyTextInDrawer);
         ListView list = (ListView) findViewById(R.id.friendsListView);
         list.setEmptyView(empty);
+    }
+
+    private class DeleteFriendship extends AsyncTask<Friend, Void, Void>{
+        @Override
+        protected Void doInBackground(Friend... param) {
+            deleteFriendship(param[0].getParseUser());
+            session.refreshFriendsList();
+
+            return null;
+        }
     }
 }
 

@@ -289,7 +289,6 @@ public class ChangePasswordFragment extends Fragment {
         }
 
         public void afterTextChanged(Editable editable) {
-            System.out.println("Gowno");
             switch (view.getId()) {
                 case R.id.passwordChangeCurrentPassword:
                     validateCurrentPassword();

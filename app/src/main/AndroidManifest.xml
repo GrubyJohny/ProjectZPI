@@ -34,8 +34,9 @@
       IMPORTANT: Change "com.parse.starter.permission.C2D_MESSAGE" in the lines below
       to match your app's package name + ".permission.C2D_MESSAGE".
     -->
-    <permission android:protectionLevel="signature"
-        android:name="zpi.squad.app.grouploc.permission.C2D_MESSAGE" />
+    <permission
+        android:name="zpi.squad.app.grouploc.permission.C2D_MESSAGE"
+        android:protectionLevel="signature" />
     <uses-permission android:name="zpi.squad.app.grouploc.permission.C2D_MESSAGE" />
 
     <application
@@ -94,7 +95,9 @@
             android:name="com.facebook.FacebookActivity"
             android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
             android:label="@string/app_name"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+            android:theme="@style/FullyTranslucent" /> <!-- moze jeszcze nieco inna opcja - ciekawe czy dziala na 6.0 -->
+        <!--android:theme="@android:style/Theme.NoDisplay" />--> <!-- nie pojawia sie kolko logowania ... ale podobno powoduje crasha na android M -->
+        <!--android:theme="@android:style/Theme.Translucent.NoTitleBar" />--> <!-- to bylo pierwsze -->
 
         <meta-data
             android:name="com.facebook.sdk.ApplicationId"
@@ -122,7 +125,9 @@
 
 
         <service android:name="com.parse.PushService" />
-        <receiver android:name="com.parse.ParsePushBroadcastReceiver"
+
+        <receiver
+            android:name="com.parse.ParsePushBroadcastReceiver"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.parse.push.intent.RECEIVE" />
@@ -130,7 +135,8 @@
                 <action android:name="com.parse.push.intent.OPEN" />
             </intent-filter>
         </receiver>
-        <receiver android:name="com.parse.GcmBroadcastReceiver"
+        <receiver
+            android:name="com.parse.GcmBroadcastReceiver"
             android:permission="com.google.android.c2dm.permission.SEND">
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />

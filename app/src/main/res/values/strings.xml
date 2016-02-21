@@ -43,5 +43,6 @@
     <string name="passwordValidSame">Passwords are not identical</string>
     <string name="nameValidEmpty">Name is empty</string>
     <string name="nameValidMoreThan">Name should have at least 2 characters</string>
+    <string name="pleaseWait">Please wait ...</string>
 
 </resources>

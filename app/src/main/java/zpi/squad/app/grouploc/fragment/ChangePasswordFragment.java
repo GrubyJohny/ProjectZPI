@@ -73,6 +73,17 @@ public class ChangePasswordFragment extends Fragment {
         super.onDetach();
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        currentPass.setText("");
+        newPass.setText("");
+        newPassConfirmed.setText("");
+        currentPass.addTextChangedListener(new MyTextWatcher(currentPass));
+        newPass.addTextChangedListener(new MyTextWatcher(newPass));
+        newPassConfirmed.addTextChangedListener(new MyTextWatcher(newPassConfirmed));
+    }
+
     public void settingButtons() {
         currentPass = (EditText) getActivity().findViewById(R.id.passwordChangeCurrentPassword);
         newPass = (EditText) getActivity().findViewById(R.id.passwordChangeEdit);
@@ -81,10 +92,6 @@ public class ChangePasswordFragment extends Fragment {
         inputLayoutOldPassword = (TextInputLayout) getActivity().findViewById(R.id.input_layout_passwords_old);
         inputLayoutNewPassword = (TextInputLayout) getActivity().findViewById(R.id.input_layout_passwords_new1);
         inputLayoutNewPasswordAgain = (TextInputLayout) getActivity().findViewById(R.id.input_layout_passwords_new2);
-
-        currentPass.addTextChangedListener(new MyTextWatcher(currentPass));
-        newPass.addTextChangedListener(new MyTextWatcher(newPass));
-        newPassConfirmed.addTextChangedListener(new MyTextWatcher(newPassConfirmed));
 
         confirm = (Button) getActivity().findViewById(R.id.confirmSettingsButton);
 
@@ -95,6 +102,9 @@ public class ChangePasswordFragment extends Fragment {
                 oldPass = currentPass.getText().toString();
                 pass = newPass.getText().toString();
                 pass2 = newPassConfirmed.getText().toString();
+
+                InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
 
                 submitForm();
                 if (positiveValidate) {
@@ -149,8 +159,6 @@ public class ChangePasswordFragment extends Fragment {
                                         });
 
                                     } else {
-                                        InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-                                        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
                                         Toast.makeText(getActivity().getApplicationContext(), "Old password incorrect", Toast.LENGTH_SHORT).show();
                                     }
                                     getActivity().runOnUiThread(new Runnable() {
@@ -161,8 +169,6 @@ public class ChangePasswordFragment extends Fragment {
                                     });
                                 }
                             });
-
-
                         }
                     }).start();
                 }
@@ -267,6 +273,7 @@ public class ChangePasswordFragment extends Fragment {
         }
 
         public void afterTextChanged(Editable editable) {
+            System.out.println("Gowno");
             switch (view.getId()) {
                 case R.id.passwordChangeCurrentPassword:
                     validateCurrentPassword();

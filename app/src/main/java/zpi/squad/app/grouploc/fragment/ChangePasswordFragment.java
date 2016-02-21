@@ -185,18 +185,34 @@ public class ChangePasswordFragment extends Fragment {
             return;
         } else if (!validateNewConfirmedPassword()) {
             return;
-        } else if (!validateSamePasswords()) {
+        } else if (!validateSameNewPasswords()) {
+            return;
+        } else if (!validateOldSameAsNewPasswords()) {
             return;
         } else
             positiveValidate = true;
     }
 
-    private boolean validateSamePasswords() {
+    private boolean validateSameNewPasswords() {
         if (!newPass.getText().toString().equals(newPassConfirmed.getText().toString())) {
             inputLayoutNewPasswordAgain.setError(getString(R.string.passwordValidSame));
             requestFocus(inputLayoutNewPasswordAgain);
             return false;
         } else {
+            inputLayoutNewPasswordAgain.setErrorEnabled(false);
+        }
+
+        return true;
+    }
+
+    private boolean validateOldSameAsNewPasswords() {
+        if (currentPass.getText().toString().equals(newPass.getText().toString())) {
+            inputLayoutNewPassword.setError(getString(R.string.passwordValidOldSameAsNew));
+            inputLayoutNewPasswordAgain.setError(getString(R.string.passwordValidOldSameAsNew));
+            requestFocus(inputLayoutNewPassword);
+            return false;
+        } else {
+            inputLayoutNewPassword.setErrorEnabled(false);
             inputLayoutNewPasswordAgain.setErrorEnabled(false);
         }
 

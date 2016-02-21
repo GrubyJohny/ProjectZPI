@@ -40,7 +40,8 @@
     <string name="emailValidEmpty">Email is empty</string>
     <string name="passwordValidEmpty">Password is empty</string>
     <string name="passwordValidMoreThan">Password should have at least 6 characters</string>
-    <string name="passwordValidSame">Passwords are not identical</string>
+    <string name="passwordValidSame">New passwords are not identical</string>
+    <string name="passwordValidOldSameAsNew">Old and new passwords cannot be identical</string>
     <string name="nameValidEmpty">Name is empty</string>
     <string name="nameValidMoreThan">Name should have at least 2 characters</string>
     <string name="pleaseWait">Please wait ...</string>

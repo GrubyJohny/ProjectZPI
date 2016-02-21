@@ -5,7 +5,6 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
-import android.location.LocationProvider;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputLayout;
@@ -30,10 +29,10 @@ import com.parse.ParseUser;
 
 import java.util.Date;
 
-import zpi.squad.app.grouploc.config.AppConfig;
 import zpi.squad.app.grouploc.MainActivity;
 import zpi.squad.app.grouploc.R;
 import zpi.squad.app.grouploc.SessionManager;
+import zpi.squad.app.grouploc.config.AppConfig;
 
 public class RegisterActivity extends Activity implements AppCompatCallback {
 
@@ -42,13 +41,14 @@ public class RegisterActivity extends Activity implements AppCompatCallback {
     private EditText inputFullName;
     private EditText inputEmail;
     private EditText inputPassword;
-    private ProgressDialog pDialog;
     private SessionManager session;
     private AppCompatDelegate delegate;
     private TextInputLayout inputLayoutName;
     private TextInputLayout inputLayoutPassword;
     private TextInputLayout inputLayoutEmail;
     private boolean positiveValidate;
+    private ProgressDialog progressDialog;
+    boolean registrationSuccessfully = false;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -86,65 +86,79 @@ public class RegisterActivity extends Activity implements AppCompatCallback {
         btnRegister = (Button) findViewById(R.id.btnRegister);
         btnLinkToLogin = (Button) findViewById(R.id.btnLinkToLoginScreen);
 
-        pDialog = new ProgressDialog(this);
-        pDialog.setCancelable(false);
-
         setUpButtons();
     }
 
     private void setUpButtons() {
         btnRegister.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
-                String name = inputFullName.getText().toString().trim();
-                String email = inputEmail.getText().toString().trim();
-                String password = inputPassword.getText().toString();
-                boolean registrationSuccessfully = false;
+                final String name = inputFullName.getText().toString().trim();
+                final String email = inputEmail.getText().toString().trim();
+                final String password = inputPassword.getText().toString();
 
                 submitForm();
                 if (positiveValidate) {
                     InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                     imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-                    showDialog();
-                    try {
-                        Parse.initialize(getApplicationContext(), AppConfig.PARSE_APPLICATION_ID, AppConfig.PARSE_CLIENT_KEY);
-                    } catch (Exception e) {
-                        e.getLocalizedMessage();
-                        e.printStackTrace();
-                    }
-                    ParseInstallation installation = ParseInstallation.getCurrentInstallation();
 
-                    ParseUser user = new ParseUser();
-                    user.setUsername(email);
-                    user.setEmail(email);
-                    user.setPassword(password);
-                    user.put("isFacebookAccount", false);
-                    user.put("locationUpdateTime", new Date());
-                    //TO DO:
-                    //jeszcze muszę przemyśleć jak tą lokalizację ustawiać przy rejestracji1
+                    progressDialog = ProgressDialog.show(RegisterActivity.this, getString(R.string.pleaseWait), "Try to register new user", true);
 
-                    user.put("location", new ParseGeoPoint(50, 18));
-                    user.put("name", name);
-                    user.put("name_lowercase", name.toLowerCase());
-                    user.put("photo", session.encodeBitmapTobase64(BitmapFactory.decodeResource(getResources(), R.drawable.image5)));
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            // do the thing that takes a long time
+                            try {
+                                Parse.initialize(getApplicationContext(), AppConfig.PARSE_APPLICATION_ID, AppConfig.PARSE_CLIENT_KEY);
+                            } catch (Exception e) {
+                                e.getLocalizedMessage();
+                                e.printStackTrace();
+                            }
+                            ParseInstallation installation = ParseInstallation.getCurrentInstallation();
 
-                    try {
-                        user.signUp();
-                        registrationSuccessfully = true;
-                    } catch (Exception e) {
-                        System.out.println(e.getMessage());
-                        if (e.getMessage().contains("already been taken"))
-                            Toast.makeText(getApplicationContext(), "Email already in use, please log in or use other email", Toast.LENGTH_LONG).show();
-                        else if (e.getMessage().contains("invalid email address"))
-                            Toast.makeText(getApplicationContext(), "Invalid email address!", Toast.LENGTH_LONG).show();
-                        else
-                            e.printStackTrace();
-                    } finally {
-                        hideDialog();
-                        if (registrationSuccessfully) {
-                            Toast.makeText(getApplicationContext(), "Registration successfully!", Toast.LENGTH_LONG).show();
-                            finish();
+                            ParseUser user = new ParseUser();
+                            user.setUsername(email);
+                            user.setEmail(email);
+                            user.setPassword(password);
+                            user.put("isFacebookAccount", false);
+                            user.put("locationUpdateTime", new Date());
+                            //TO DO:
+                            //jeszcze muszę przemyśleć jak tą lokalizację ustawiać przy rejestracji1
+
+                            user.put("location", new ParseGeoPoint(50, 18));
+                            user.put("name", name);
+                            user.put("name_lowercase", name.toLowerCase());
+                            user.put("photo", session.encodeBitmapTobase64(BitmapFactory.decodeResource(getResources(), R.drawable.image5)));
+
+                            try {
+                                user.signUp();
+                                registrationSuccessfully = true;
+                            } catch (Exception e) {
+                                System.out.println(e.getMessage());
+                                if (e.getMessage().contains("already been taken")) {
+                                    registrationSuccessfully = false;
+                                } else {
+                                    e.printStackTrace();
+                                }
+                            } finally {
+                                if (registrationSuccessfully) {
+                                    finish();
+                                }
+                            }
+
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    if (registrationSuccessfully) {
+                                        Toast.makeText(getApplicationContext(), "Registration successfully!", Toast.LENGTH_LONG).show();
+                                    }
+                                    else {
+                                        Toast.makeText(getApplicationContext(), "Email already in use, please log in or use other email", Toast.LENGTH_LONG).show();
+                                    }
+                                    progressDialog.dismiss();
+                                }
+                            });
                         }
-                    }
+                    }).start();
                 }
             }
         });
@@ -154,16 +168,6 @@ public class RegisterActivity extends Activity implements AppCompatCallback {
                 finish();
             }
         });
-    }
-
-    private void showDialog() {
-        if (!pDialog.isShowing())
-            pDialog.show();
-    }
-
-    private void hideDialog() {
-        if (pDialog.isShowing())
-            pDialog.dismiss();
     }
 
     @Override

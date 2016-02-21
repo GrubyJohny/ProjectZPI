@@ -329,7 +329,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                             default:
                                 break;
                         }
-
                     }
                 });
                 builder.show();

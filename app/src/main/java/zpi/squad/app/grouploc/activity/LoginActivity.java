@@ -171,7 +171,7 @@ public class LoginActivity extends Activity implements AppCompatCallback {
                                             } catch (Exception e) {
                                                 e.getLocalizedMessage();
                                                 e.printStackTrace();
-                                                user.put("photo", session.encodeBitmapTobase64(BitmapFactory.decodeResource(getResources(), R.drawable.image5)));
+                                                user.put("photo", session.encodeBitmapTobase64(BitmapFactory.decodeResource(getResources(), R.drawable.default_avatar)));
                                             }
 
                                             user.save();

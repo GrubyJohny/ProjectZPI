@@ -132,7 +132,7 @@ public class RegisterActivity extends Activity implements AppCompatCallback {
                             user.put("location", new ParseGeoPoint(50, 18));
                             user.put("name", name);
                             user.put("name_lowercase", name.toLowerCase());
-                            user.put("photo", session.encodeBitmapTobase64(BitmapFactory.decodeResource(getResources(), R.drawable.image5)));
+                            user.put("photo", session.encodeBitmapTobase64(BitmapFactory.decodeResource(getResources(), R.drawable.default_avatar)));
 
                             try {
                                 user.signUp();

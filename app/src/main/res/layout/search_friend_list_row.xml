@@ -11,6 +11,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_marginRight="5dip"
+        android:layout_centerVertical="true"
         android:padding="3dip">
 
         <ImageView

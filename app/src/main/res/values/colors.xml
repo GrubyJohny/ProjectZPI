@@ -24,5 +24,6 @@
     <color name="colorAccent">#FF4081</color>
     <color name="panel_main">#4CAF50</color>
     <color name="other_buttons">#00796B</color>
+    <color name="list_divider">#F5F5F5</color>
 
 </resources>

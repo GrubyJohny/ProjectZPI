@@ -3,6 +3,7 @@ package zpi.squad.app.grouploc.adapter;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -49,10 +50,17 @@ public class SearchingFriendAdapter extends ArrayAdapter<Friend> implements Filt
         if (convertView == null) {
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.search_friend_list_row, parent, false);
         }
+        if (position % 2 == 1) {
+            convertView.setBackgroundResource(R.color.list_divider);
+        } else {
+            convertView.setBackgroundColor(Color.WHITE);
+        }
         // Lookup view for data population
         TextView name = (TextView) convertView.findViewById(R.id.txt);
+        TextView email = (TextView) convertView.findViewById(R.id.userEmail);
         ImageView photo = (ImageView) convertView.findViewById(R.id.img);
         // Populate the data into the template view using the data object
+        email.setText(friend.getEmail());
         name.setText(friend.getName());
         photo.setImageBitmap(decodeBase64ToBitmap(friend.getPhoto()));
         // Return the completed view to render on screen

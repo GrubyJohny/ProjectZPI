@@ -49,6 +49,8 @@ public class RegisterActivity extends Activity implements AppCompatCallback {
     private boolean positiveValidate;
     private ProgressDialog progressDialog;
     boolean registrationSuccessfully = false;
+    private TextInputLayout inputLayoutPasswordAgain;
+    private EditText inputPasswordAgain;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -74,14 +76,17 @@ public class RegisterActivity extends Activity implements AppCompatCallback {
         inputLayoutName = (TextInputLayout) findViewById(R.id.input_layout_register_fullname);
         inputLayoutEmail = (TextInputLayout) findViewById(R.id.input_layout_register_email);
         inputLayoutPassword = (TextInputLayout) findViewById(R.id.input_layout_register_password);
+        inputLayoutPasswordAgain = (TextInputLayout) findViewById(R.id.input_layout_register_password_again);
 
         inputFullName = (EditText) findViewById(R.id.registerName);
         inputEmail = (EditText) findViewById(R.id.registerEmail);
         inputPassword = (EditText) findViewById(R.id.registerPassword);
+        inputPasswordAgain = (EditText) findViewById(R.id.registerPasswordAgain);
 
         inputFullName.addTextChangedListener(new MyTextWatcher(inputFullName));
         inputEmail.addTextChangedListener(new MyTextWatcher(inputEmail));
         inputPassword.addTextChangedListener(new MyTextWatcher(inputPassword));
+        inputPasswordAgain.addTextChangedListener(new MyTextWatcher(inputPasswordAgain));
 
         btnRegister = (Button) findViewById(R.id.btnRegister);
         btnLinkToLogin = (Button) findViewById(R.id.btnLinkToLoginScreen);
@@ -195,8 +200,22 @@ public class RegisterActivity extends Activity implements AppCompatCallback {
             return;
         } else if (!validatePassword()) {
             return;
+        } else if (!validateSamePasswords()) {
+            return;
         } else
             positiveValidate = true;
+    }
+
+    private boolean validateSamePasswords() {
+        if (!inputPassword.getText().toString().equals(inputPasswordAgain.getText().toString())) {
+            inputLayoutPasswordAgain.setError(getString(R.string.registerPasswordsValidSame));
+            requestFocus(inputLayoutPasswordAgain);
+            return false;
+        } else {
+            inputLayoutPasswordAgain.setErrorEnabled(false);
+        }
+
+        return true;
     }
 
     private boolean validateEmail() {

@@ -20,6 +20,9 @@ import com.parse.ParsePush;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -193,7 +196,7 @@ public class SearchingFriendsActivity extends AppCompatActivity {
                         methodResult = "Invitation sent to " + newFriend.get("name").toString();
 
                     } else if (alreadySent)
-                        methodResult = "You've already sent invitation to " + newFriend.get("name").toString();
+                        methodResult = "Invitation not responded yet";
                 }
             } catch (ParseException e) {
                 e.getLocalizedMessage();
@@ -206,11 +209,14 @@ public class SearchingFriendsActivity extends AppCompatActivity {
     }
 
 
-    private void sendFriendshipNotification(String email) {
-        ParseQuery notificationQuery = ParseInstallation.getQuery().whereEqualTo("name", email);
+    private void sendFriendshipNotification(String email) throws JSONException {
+        //tu chwilowo jest wpisany mail currenta, zmienic na argument metody!!!
+        ParseQuery notificationQuery = ParseInstallation.getQuery().whereEqualTo("name", ParseUser.getCurrentUser().getEmail());
         ParsePush notification = new ParsePush();
         notification.setQuery(notificationQuery);
         notification.setMessage("Użytkownik " + ParseUser.getCurrentUser().get("name") + " wysłał Ci zaproszenie do znajomych!");
+        notification.setData(new JSONObject().put("kind_of_notification", 101).put("friend_email", email));
+        notification.setExpirationTimeInterval(60 * 60 * 24 * 7); //1 week
         notification.sendInBackground();
     }
 
@@ -251,8 +257,13 @@ public class SearchingFriendsActivity extends AppCompatActivity {
             if (params[0] != null) {
                 message = addFriendship(params[0].getEmail());
                 if (message.contains("Invitation sent to")) {
-                    sendFriendshipNotification(params[0].getEmail());
-                    correct = true;
+                    try {
+                        sendFriendshipNotification(params[0].getEmail());
+                        correct = true;
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
                 }
 
             } else

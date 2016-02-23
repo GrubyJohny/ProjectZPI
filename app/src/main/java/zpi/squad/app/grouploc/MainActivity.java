@@ -91,6 +91,7 @@ import zpi.squad.app.grouploc.domain.Notification;
 import zpi.squad.app.grouploc.fragment.ChangePasswordFragment;
 import zpi.squad.app.grouploc.fragment.ChangePhotoFragment;
 import zpi.squad.app.grouploc.fragment.MapFragment;
+import zpi.squad.app.grouploc.fragment.NotificationFragment;
 import zpi.squad.app.grouploc.utils.PoiJSONParser;
 
 
@@ -157,10 +158,12 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     MapFragment mapFragment;
     ChangePhotoFragment changePhotoFragment;
     ChangePasswordFragment changePasswordFragment;
+    NotificationFragment notificationFragment;
 
     final static String mapTAG = "MAP";
     final static String photoTAG = "PHOTO";
     final static String passwordTAG = "PASSWORD";
+    final static String notificationTAG = "NOTIFICATION";
 
     private static List<ListViewItem> mItems;
     private ListView friendsListView;
@@ -194,6 +197,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         mapFragment = new MapFragment();
         changePhotoFragment = new ChangePhotoFragment();
         changePasswordFragment = new ChangePasswordFragment();
+        notificationFragment = new NotificationFragment();
 
         getSupportFragmentManager().beginTransaction().replace(R.id.main_container, mapFragment, mapTAG).commit();
 
@@ -537,6 +541,13 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             if (!mapFragment.isVisible()) {
                 getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
                 getSupportFragmentManager().beginTransaction().replace(R.id.main_container, mapFragment, mapTAG).setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN).commit();
+            }
+        } else if (id == R.id.nav_notifications) {
+            if (getSupportFragmentManager().findFragmentByTag(notificationTAG) == null) {
+                getSupportFragmentManager().beginTransaction().replace(R.id.main_container, notificationFragment, notificationTAG).addToBackStack(mapTAG).setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN).commit();
+            } else {
+                if (!notificationFragment.isVisible())
+                    getSupportFragmentManager().popBackStack();
             }
         } else if (id == R.id.nav_password) {
             if (getSupportFragmentManager().findFragmentByTag(passwordTAG) == null) {

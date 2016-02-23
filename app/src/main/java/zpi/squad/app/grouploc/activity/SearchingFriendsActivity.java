@@ -214,8 +214,25 @@ public class SearchingFriendsActivity extends AppCompatActivity {
 
     private void sendFriendshipNotification(String email, String friendName, String friendshipId) throws JSONException {
         Log.e("do sendFriendshiNotif", "tak");
-        //tu chwilowo jest wpisany mail currenta, zmienic na argument metody!!!
-        ParseQuery notificationQuery = ParseInstallation.getQuery().whereEqualTo("name", ParseUser.getCurrentUser().getEmail());
+        String notificationId = null;
+        try {
+            ParseObject notific = new ParseObject("Notification");
+            notific.put("senderEmail", ParseUser.getCurrentUser().getEmail());
+            notific.put("receiverEmail", newFriend.getEmail());
+            notific.put("kindOfNotification", 101);
+            notific.put("markedAsRead", false);
+            notific.put("extra", friendshipId);
+
+
+            notific.save();
+            notific.fetch();
+            notificationId = notific.getObjectId();
+            Log.e("Notification object: ", "saved succesfully in Parse");
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        ParseQuery notificationQuery = ParseInstallation.getQuery().whereEqualTo("name", email);
         ParsePush notification = new ParsePush();
         notification.setQuery(notificationQuery);
         notification.setMessage("Użytkownik " + ParseUser.getCurrentUser().get("name") + " wysłał Ci zaproszenie do znajomych!");
@@ -225,10 +242,13 @@ public class SearchingFriendsActivity extends AppCompatActivity {
         message.put("friend_email", email);
         message.put("friendship_id", friendshipId);
         message.put("new_friend_name", friendName);
+        message.put("notification_id", notificationId);
 
         notification.setData(message);
         //notification.setExpirationTimeInterval(60 * 60 * 24 * 7); //1 week
         notification.sendInBackground();
+
+
         Log.e("z sendFriendshiNotif", "tak");
     }
 

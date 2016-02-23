@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import zpi.squad.app.grouploc.domain.Friend;
+import zpi.squad.app.grouploc.domain.Notification;
 
 public class SessionManager {
 
@@ -27,6 +28,7 @@ public class SessionManager {
     private SharedPreferences pref;
     private SharedPreferences.Editor editor;
     private static ArrayList<Friend> friends;
+    private static ArrayList<Notification> notifications;
     private LatLng currentLocation;
     public boolean requestLocationUpdate = true;
     boolean isFriend;
@@ -130,6 +132,7 @@ public class SessionManager {
         ParseUser.logOut();
         friends = null;
         requestLocationUpdate = false;
+        notifications = null;
     }
 
     public int getHintsLeft() {
@@ -144,6 +147,36 @@ public class SessionManager {
         if (friends == null)
             friends = getFriendsFromParse();
         return friends;
+    }
+
+    public ArrayList<Notification> getNotificationsList() {
+        if (notifications == null)
+            notifications = getNotificationsFromParse();
+        return notifications;
+    }
+
+    private ArrayList<Notification> getNotificationsFromParse() {
+        ArrayList<Notification> result = new ArrayList<>();
+
+        ParseQuery notifications = new ParseQuery("Notification");
+        notifications.whereEqualTo("receiverEmail", ParseUser.getCurrentUser().getEmail());
+        notifications.orderByDescending("createdAt");
+
+        Object[] notifList = null;
+
+        try {
+            notifList = notifications.find().toArray().clone();
+
+            if (notifList.length > 0) {
+                for (int i = 0; i < notifList.length; i++)
+                    result.add(new Notification("to", ((ParseObject) notifList[i]).getString("senderEmail"), ((ParseObject) notifList[i]).getString("senderEmail"), "probne", "friendshipRequest", ((ParseObject) notifList[i]).getString("extra"), "swietne", ((ParseObject) notifList[i]).getCreatedAt().toLocaleString(), 0));
+            } else
+                Log.e("There are any ", "notificationsfor current user.");
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        return result;
     }
 
     private static ArrayList<Friend> getFriendsFromParse() {
@@ -307,5 +340,9 @@ public class SessionManager {
 
     public void refreshFriendsList() {
         friends = getFriendsFromParse();
+    }
+
+    public void refreshNotificationsList() {
+        notifications = getNotificationsFromParse();
     }
 }

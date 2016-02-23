@@ -11,20 +11,20 @@ public class Notification {
     private String receiverId;
     private String type;
     private String groupId;
-    private String messageId;
+    private String message; //tutaj na razie będę przechowywać id do obiektów, których tyczy się powiadomienie
     private String createdAt;
     private int checked;
 
     public Notification() {
     }
 
-    public Notification(String senderId, String senderName, String senderEmail, String receiverId, String type, String messageId, String groupId, String createdAt, int checked) {
+    public Notification(String senderId, String senderName, String senderEmail, String receiverId, String type, String message, String groupId, String createdAt, int checked) {
         this.senderId = senderId;
         this.senderName = senderName;
         this.senderEmail = senderEmail;
         this.receiverId = receiverId;
         this.type = type;
-        this.messageId = messageId;
+        this.message = message;
         this.groupId = groupId;
         this.createdAt = createdAt;
         this.checked = checked;
@@ -54,7 +54,6 @@ public class Notification {
 
         return response;
     }
-
 
 
     public boolean isChecked() {
@@ -112,12 +111,12 @@ public class Notification {
         this.groupId = groupId;
     }
 
-    public String getMessageId() {
-        return messageId;
+    public String getMessage() {
+        return message;
     }
 
-    public void setMessageId(String messageId) {
-        this.messageId = messageId;
+    public void setMessage(String message) {
+        this.message = message;
     }
 
     public String getCreatedAt() {

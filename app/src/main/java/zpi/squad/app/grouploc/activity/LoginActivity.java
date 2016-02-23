@@ -99,7 +99,7 @@ public class LoginActivity extends Activity implements AppCompatCallback {
 
 
         try {
-            Parse.initialize(this);
+            Parse.initialize(this, "rMAJUrbPT4fIVGk8ePC7gavmnY8NmmaxWv8Lf8y4", "NOKLzlyq0v5nj5js1ZoQbXPewym3MCSUCIlRudMy");
         } catch (Exception e) {
             e.getLocalizedMessage();
         }

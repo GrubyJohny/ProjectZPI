@@ -2,14 +2,13 @@ package zpi.squad.app.grouploc.utils;
 
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
-import android.widget.Toast;
 
 import com.parse.ParsePushBroadcastReceiver;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import zpi.squad.app.grouploc.SessionManager;
 import zpi.squad.app.grouploc.activity.NewFriendshipRequestDialogActivity;
 
 /**
@@ -19,17 +18,16 @@ public class MyReceiver extends ParsePushBroadcastReceiver {
     JSONObject pushData = null;
 
     @Override
-    protected void onPushReceive(final Context mContext, Intent intent) {
+    protected void onPushReceive(Context mContext, Intent intent) {
         //enter your custom here generateNotification();
         super.onPushReceive(mContext, intent);
-        Log.e("onPushReceive", "weszło");
-        Toast.makeText(mContext, "NO i weszło", Toast.LENGTH_LONG).show();
-
 
         try {
             pushData = new JSONObject(intent.getStringExtra("com.parse.Data"));
 
             if (pushData != null) {
+
+                SessionManager.getInstance().refreshNotificationsList();
 
                 switch (pushData.getInt("kind_of_notification")) {
                     case 101: //friendship request to accept
@@ -40,6 +38,7 @@ public class MyReceiver extends ParsePushBroadcastReceiver {
                         i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         i.putExtra("new_friend_name", pushData.getString("new_friend_name"));
                         i.putExtra("friendship_id", pushData.getString("friendship_id"));
+                        i.putExtra("notification_id", pushData.getString("notification_id"));
 
                         mContext.startActivity(i);
 

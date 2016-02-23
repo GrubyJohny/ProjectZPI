@@ -23,6 +23,8 @@ public class NewFriendshipRequestDialogActivity extends Activity {
         super.onCreate(savedInstanceState);
         extras = this.getIntent().getExtras();
 
+       /* NotificationFragment.notificationsList.add(new Notification("to", "jest", "pierwsze", "probne", "piekne", "i", "swietne", extras.getString("senderEmail"), 0));
+        NotificationFragment.adapter.notifyDataSetChanged();*/
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder
@@ -33,8 +35,8 @@ public class NewFriendshipRequestDialogActivity extends Activity {
                     public void onClick(DialogInterface dialog, int id) {
                         ConfirmFriendship confirm = new ConfirmFriendship();
                         confirm.execute(extras.getString("friendship_id"));
-
                         //tutaj jeszcze powiadomienie a zaakceptowaniu zaproszenia
+
 
                         dialog.cancel();
                         finish();

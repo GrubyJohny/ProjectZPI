@@ -7,6 +7,10 @@
             android:icon="@drawable/ic_map"
             android:title="Map" />
         <item
+            android:id="@+id/nav_notifications"
+            android:icon="@drawable/alert_circle"
+            android:title="Notifications" />
+        <item
             android:id="@+id/nav_photo"
             android:icon="@drawable/ic_photo_change"
             android:title="Change photo" />

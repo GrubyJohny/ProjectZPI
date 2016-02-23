@@ -97,11 +97,11 @@ public class LoginActivity extends Activity implements AppCompatCallback {
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
 
+
         try {
             Parse.initialize(this);
         } catch (Exception e) {
             e.getLocalizedMessage();
-            e.printStackTrace();
         }
 
         inputLayoutEmail = (TextInputLayout) findViewById(R.id.input_layout_login_email);

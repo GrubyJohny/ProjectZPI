@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.parse.ParseException;
 import com.parse.ParseObject;
@@ -31,6 +32,7 @@ public class NotificationFragment extends Fragment {
     public static ArrayList<Notification> notificationsList;
     public static NotificationAdapter adapter;
     ConfirmFriendship confirm = new ConfirmFriendship();
+    private Activity actualActivity;
 
     public NotificationFragment() {
     }
@@ -89,6 +91,7 @@ public class NotificationFragment extends Fragment {
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
+        actualActivity = activity;
     }
 
     @Override
@@ -121,7 +124,7 @@ public class NotificationFragment extends Fragment {
         @Override
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
-            //Toast.makeText(getActivity(), "Friend added!", Toast.LENGTH_LONG).show();
+            Toast.makeText(actualActivity.getApplicationContext(), "Friend added!", Toast.LENGTH_LONG).show();
             Log.e("FRIEND ADDED", "SUCCESSFULLY!");
         }
     }

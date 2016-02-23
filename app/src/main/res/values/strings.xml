@@ -7,6 +7,7 @@
     <string name="title_activity_registration">Register</string>
     <string name="hint_login">E-mail</string>
     <string name="hint_password">Password</string>
+    <string name="hint_password_again">Password again</string>
     <string name="hint_name">Fullname</string>
     <string name="btn_login">LOG IN</string>
     <string name="btn_register">REGISTER</string>
@@ -15,18 +16,12 @@
     <string name="welcome">Welcome</string>
     <string name="btn_logout">LOGOUT</string>
     <string name="name">Fullname</string>
-    <string name="title_activity_my_map">MyMapActivity</string>
-    <string name="title_activity_meine_map">MeineMapActivity</string>
-    <string name="title_activity_go_to_map">GoToMapActivity</string>
     <string name="markerName">Name your marker</string>
     <string name="ok">ok</string>
     <string name="cancel">Cancel</string>
     <string name="app_id">1438605899775341</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
-
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="title_activity_friends">Friends</string>
     <string name="confirmButton">Confirm</string>
     <string name="filterText">Enter friend name</string>
@@ -45,5 +40,6 @@
     <string name="nameValidEmpty">Name is empty</string>
     <string name="nameValidMoreThan">Name should have at least 2 characters</string>
     <string name="pleaseWait">Please wait ...</string>
+    <string name="registerPasswordsValidSame">Passwords are not identical</string>
 
 </resources>

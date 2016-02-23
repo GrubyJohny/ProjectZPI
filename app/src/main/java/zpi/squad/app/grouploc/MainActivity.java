@@ -200,10 +200,10 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
         drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close){
+                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close) {
             public void onDrawerClosed(View view) {
                 super.onDrawerClosed(view);
-                InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
             }
         };
@@ -315,7 +315,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                                         Toast.makeText(getApplicationContext(), "Friend deleted", Toast.LENGTH_LONG).show();
 
 
-
                                     }
                                 });
                                 builder.setCancelable(true);
@@ -402,7 +401,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 ParseInstallation.getCurrentInstallation().saveInBackground();
             }
         });
-
 
     }
 
@@ -642,7 +640,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         }*/
 
         startLocationUpdates();
-        if(mCurrentLocation != null) {
+        if (mCurrentLocation != null) {
             MapFragment.moveMapCamera(new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()));
         }
     }
@@ -690,8 +688,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         canvas.drawBitmap(bitmap, 0, 0, null);
         return outputBitmap;
     }
-
-
 
 
     @Override
@@ -972,7 +968,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         list.setEmptyView(empty);
     }
 
-    private class DeleteFriendship extends AsyncTask<Friend, Void, Void>{
+    private class DeleteFriendship extends AsyncTask<Friend, Void, Void> {
         @Override
         protected Void doInBackground(Friend... param) {
             deleteFriendship(param[0].getParseUser());

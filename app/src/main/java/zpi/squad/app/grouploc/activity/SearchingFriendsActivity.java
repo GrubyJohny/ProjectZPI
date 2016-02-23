@@ -112,14 +112,14 @@ public class SearchingFriendsActivity extends AppCompatActivity {
         list.setEmptyView(empty);
     }
 
-    private String addFriendship(final String newFriendEmail) {
-        String methodResult = "";
+    private String[] addFriendship(final String newFriendEmail) {
+        String methodResult[] = null;
         success = false;
         alreadyFriends = false;
         alreadySent = false;
 
         if (newFriendEmail.equals(ParseUser.getCurrentUser().getEmail())) {
-            methodResult = "You can't be friend with yourself";
+            methodResult = new String[]{"You can't be friend with yourself"};
         } else {
 
             ArrayList<Friend> tempFriendsList = SessionManager.getInstance().getFriendsList();
@@ -191,12 +191,14 @@ public class SearchingFriendsActivity extends AppCompatActivity {
                         friendship.put("accepted", false);
 
                         friendship.save();
+                        friendship.fetch();
+
                         success = true;
-                        Log.e("Friendship: ", "saved");
-                        methodResult = "Invitation sent to " + newFriend.get("name").toString();
+                        Log.e("Friendship: ", friendship.getObjectId());
+                        methodResult = new String[]{("Invitation sent to " + newFriend.get("name").toString()), friendship.getObjectId()};
 
                     } else if (alreadySent)
-                        methodResult = "Invitation not responded yet";
+                        methodResult = new String[]{"Invitation not responded yet"};
                 }
             } catch (ParseException e) {
                 e.getLocalizedMessage();
@@ -205,19 +207,29 @@ public class SearchingFriendsActivity extends AppCompatActivity {
 
         }
 
+        Log.e("ROZMIAR RESULTU: ", methodResult == null ? "NULL" : methodResult[0]);
         return methodResult;
     }
 
 
-    private void sendFriendshipNotification(String email) throws JSONException {
+    private void sendFriendshipNotification(String email, String friendName, String friendshipId) throws JSONException {
+        Log.e("do sendFriendshiNotif", "tak");
         //tu chwilowo jest wpisany mail currenta, zmienic na argument metody!!!
         ParseQuery notificationQuery = ParseInstallation.getQuery().whereEqualTo("name", ParseUser.getCurrentUser().getEmail());
         ParsePush notification = new ParsePush();
         notification.setQuery(notificationQuery);
         notification.setMessage("Użytkownik " + ParseUser.getCurrentUser().get("name") + " wysłał Ci zaproszenie do znajomych!");
-        notification.setData(new JSONObject().put("kind_of_notification", 101).put("friend_email", email));
-        notification.setExpirationTimeInterval(60 * 60 * 24 * 7); //1 week
+
+        JSONObject message = new JSONObject();
+        message.put("kind_of_notification", 101);
+        message.put("friend_email", email);
+        message.put("friendship_id", friendshipId);
+        message.put("new_friend_name", friendName);
+
+        notification.setData(message);
+        //notification.setExpirationTimeInterval(60 * 60 * 24 * 7); //1 week
         notification.sendInBackground();
+        Log.e("z sendFriendshiNotif", "tak");
     }
 
     private class FillTheList extends AsyncTask<Void, Void, Void> {
@@ -243,8 +255,8 @@ public class SearchingFriendsActivity extends AppCompatActivity {
     }
 
     private class SendFriendshipRequest extends AsyncTask<Friend, Void, Void> {
-        boolean correct;
-        String message;
+
+        String[] temp;
 
         @Override
         protected void onPreExecute() {
@@ -255,20 +267,20 @@ public class SearchingFriendsActivity extends AppCompatActivity {
         @Override
         protected Void doInBackground(Friend... params) {
             if (params[0] != null) {
-                message = addFriendship(params[0].getEmail());
-                if (message.contains("Invitation sent to")) {
+                temp = addFriendship(params[0].getEmail());
+                if (temp.length > 1 && temp[0].contains("Invitation sent to")) {
                     try {
-                        sendFriendshipNotification(params[0].getEmail());
-                        correct = true;
+                        sendFriendshipNotification(params[0].getEmail(), params[0].getName(), temp[1]);
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
 
                 }
 
-            } else
+            } else {
                 Log.e("Wrong argument ", " in doInBackground: null");
 
+            }
             return null;
         }
 
@@ -276,7 +288,7 @@ public class SearchingFriendsActivity extends AppCompatActivity {
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
 
-            Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
+            Toast.makeText(getApplicationContext(), temp[0], Toast.LENGTH_LONG).show();
         }
     }
 }

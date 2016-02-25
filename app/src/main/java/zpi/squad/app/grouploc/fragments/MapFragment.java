@@ -1,4 +1,4 @@
-package zpi.squad.app.grouploc.fragment;
+package zpi.squad.app.grouploc.fragments;
 
 import android.app.AlertDialog;
 import android.content.Context;
@@ -65,7 +65,7 @@ import zpi.squad.app.grouploc.R;
 import zpi.squad.app.grouploc.SQLiteHandler;
 import zpi.squad.app.grouploc.Sender;
 import zpi.squad.app.grouploc.SessionManager;
-import zpi.squad.app.grouploc.domain.CustomMarker;
+import zpi.squad.app.grouploc.domains.CustomMarker;
 import zpi.squad.app.grouploc.utils.DirectionsJSONParser;
 import zpi.squad.app.grouploc.utils.PoiJSONParser;
 import zpi.squad.app.grouploc.utils.ToolsForMarkerList;

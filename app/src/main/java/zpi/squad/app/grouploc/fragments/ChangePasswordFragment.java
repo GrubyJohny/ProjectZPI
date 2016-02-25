@@ -1,4 +1,4 @@
-package zpi.squad.app.grouploc.fragment;
+package zpi.squad.app.grouploc.fragments;
 
 import android.app.Activity;
 import android.app.ProgressDialog;

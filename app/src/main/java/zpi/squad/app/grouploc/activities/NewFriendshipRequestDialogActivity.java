@@ -1,4 +1,4 @@
-package zpi.squad.app.grouploc.activity;
+package zpi.squad.app.grouploc.activities;
 
 import android.app.Activity;
 import android.app.AlertDialog;

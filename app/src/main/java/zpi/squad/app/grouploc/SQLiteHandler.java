@@ -10,9 +10,9 @@ import android.util.Log;
 import java.util.ArrayList;
 import java.util.List;
 
-import zpi.squad.app.grouploc.domain.CustomMarker;
-import zpi.squad.app.grouploc.domain.Friend;
-import zpi.squad.app.grouploc.domain.Notification;
+import zpi.squad.app.grouploc.domains.CustomMarker;
+import zpi.squad.app.grouploc.domains.Friend;
+import zpi.squad.app.grouploc.domains.Notification;
 
 public class SQLiteHandler extends SQLiteOpenHelper {
 

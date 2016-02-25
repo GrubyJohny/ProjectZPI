@@ -1,4 +1,4 @@
-package zpi.squad.app.grouploc.activity;
+package zpi.squad.app.grouploc.activities;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -47,10 +47,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import zpi.squad.app.grouploc.AppController;
-import zpi.squad.app.grouploc.MainActivity;
 import zpi.squad.app.grouploc.R;
 import zpi.squad.app.grouploc.SQLiteHandler;
 import zpi.squad.app.grouploc.SessionManager;
+import zpi.squad.app.grouploc.helpers.CommonMethods;
 
 public class LoginActivity extends Activity implements AppCompatCallback {
     private Button btnLogin, btnLoginWithFacebook, btnRegister;
@@ -68,6 +68,7 @@ public class LoginActivity extends Activity implements AppCompatCallback {
     private ProgressDialog progressLogin;
     private ProgressDialog progressFacebookLogin;
     private boolean successLogin = false;
+    private CommonMethods commonMethods = new CommonMethods();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -85,7 +86,6 @@ public class LoginActivity extends Activity implements AppCompatCallback {
         context = getApplicationContext();
         session = SessionManager.getInstance(context);
 
-
         if (session.isLoggedIn()) {
             Intent intent = new Intent(LoginActivity.this, MainActivity.class);
             finish();
@@ -96,7 +96,6 @@ public class LoginActivity extends Activity implements AppCompatCallback {
         //tę linijkę oczywiście trzeba później wyrzucić
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
-
 
         try {
             Parse.initialize(this, "rMAJUrbPT4fIVGk8ePC7gavmnY8NmmaxWv8Lf8y4", "NOKLzlyq0v5nj5js1ZoQbXPewym3MCSUCIlRudMy");
@@ -167,11 +166,11 @@ public class LoginActivity extends Activity implements AppCompatCallback {
                                             user.put("location", new ParseGeoPoint(55, 55));
                                             user.put("isFacebookAccount", true);
                                             try {
-                                                user.put("photo", session.encodeBitmapTobase64(getFacebookProfilePicture(AccessToken.getCurrentAccessToken())));
+                                                user.put("photo", commonMethods.encodeBitmapTobase64(getFacebookProfilePicture(AccessToken.getCurrentAccessToken())));
                                             } catch (Exception e) {
                                                 e.getLocalizedMessage();
                                                 e.printStackTrace();
-                                                user.put("photo", session.encodeBitmapTobase64(BitmapFactory.decodeResource(getResources(), R.drawable.default_avatar)));
+                                                user.put("photo", commonMethods.encodeBitmapTobase64(BitmapFactory.decodeResource(getResources(), R.drawable.default_avatar)));
                                             }
 
                                             user.save();

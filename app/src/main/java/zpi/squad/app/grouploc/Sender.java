@@ -25,8 +25,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import zpi.squad.app.grouploc.domain.CustomMarker;
-import zpi.squad.app.grouploc.domain.Friend;
+import zpi.squad.app.grouploc.domains.CustomMarker;
+import zpi.squad.app.grouploc.domains.Friend;
 
 /**
  * Created by sanczo on 2015-05-18.

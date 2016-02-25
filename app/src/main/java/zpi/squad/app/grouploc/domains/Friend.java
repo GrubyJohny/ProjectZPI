@@ -1,4 +1,4 @@
-package zpi.squad.app.grouploc.domain;
+package zpi.squad.app.grouploc.domains;
 
 import com.parse.ParseGeoPoint;
 import com.parse.ParseUser;

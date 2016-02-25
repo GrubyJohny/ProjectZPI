@@ -1,9 +1,6 @@
-package zpi.squad.app.grouploc.adapter;
+package zpi.squad.app.grouploc.adapters;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,15 +17,18 @@ import java.util.List;
 
 import zpi.squad.app.grouploc.R;
 import zpi.squad.app.grouploc.SessionManager;
-import zpi.squad.app.grouploc.domain.Friend;
+import zpi.squad.app.grouploc.domains.Friend;
+import zpi.squad.app.grouploc.helpers.CommonMethods;
 
 public class FriendAdapter extends ArrayAdapter<Friend> implements Filterable {
     private SessionManager session = SessionManager.getInstance();
     private ArrayList<Friend> items;
+    private CommonMethods commonMethods;
 
     public FriendAdapter(Context context, ArrayList<Friend> items) {
         super(context, R.layout.friend_list_row, items);
         this.items = items;
+        commonMethods = new CommonMethods(context);
     }
 
     @Override
@@ -49,7 +49,7 @@ public class FriendAdapter extends ArrayAdapter<Friend> implements Filterable {
         streetAndDistance.setText(distanceToMe.intValue() + " km");
         String text = friend.getName();
         name.setText(text);
-        photo.setImageBitmap(decodeBase64ToBitmap(friend.getPhoto()));
+        photo.setImageBitmap(commonMethods.decodeBase64ToBitmap(friend.getPhoto()));
         // Return the completed view to render on screen
         return convertView;
     }
@@ -90,11 +90,5 @@ public class FriendAdapter extends ArrayAdapter<Friend> implements Filterable {
         items.clear();
         items.addAll(values);
         notifyDataSetChanged();
-    }
-
-    public Bitmap decodeBase64ToBitmap(String input) {
-        byte[] decodedByte = Base64.decode(input, 0);
-        return BitmapFactory
-                .decodeByteArray(decodedByte, 0, decodedByte.length);
     }
 }

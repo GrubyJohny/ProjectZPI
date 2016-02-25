@@ -9,18 +9,25 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import zpi.squad.app.grouploc.SessionManager;
-import zpi.squad.app.grouploc.activity.NewFriendshipRequestDialogActivity;
+import zpi.squad.app.grouploc.activities.NewFriendshipRequestDialogActivity;
+import zpi.squad.app.grouploc.fragments.NotificationFragment;
+import zpi.squad.app.grouploc.helpers.CommonMethods;
 
 /**
  * Created by gruby on 19.02.2016.
  */
 public class MyReceiver extends ParsePushBroadcastReceiver {
     JSONObject pushData = null;
+    CommonMethods commonMethods;
 
     @Override
     protected void onPushReceive(Context mContext, Intent intent) {
         //enter your custom here generateNotification();
         super.onPushReceive(mContext, intent);
+
+        commonMethods = new CommonMethods(mContext);
+
+        commonMethods.reloadNotificationsData(NotificationFragment.adapter);
 
         try {
             pushData = new JSONObject(intent.getStringExtra("com.parse.Data"));
@@ -43,7 +50,6 @@ public class MyReceiver extends ParsePushBroadcastReceiver {
                         mContext.startActivity(i);
 
                         break;
-
                     }
                     case 102: //friendship request accepted - info only and need to refresh friends list
                     {
@@ -54,25 +60,17 @@ public class MyReceiver extends ParsePushBroadcastReceiver {
 
                         break;
                     }
-
                     default:
                         break;
-
                 }
             }
-
-
         } catch (JSONException e) {
             e.printStackTrace();
         }
-
-
     }
 
     @Override
     protected void onPushOpen(final Context context, Intent intent) {
         super.onPushOpen(context, intent);
-
     }
-
 }

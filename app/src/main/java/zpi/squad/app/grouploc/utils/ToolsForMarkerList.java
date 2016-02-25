@@ -3,7 +3,7 @@ package zpi.squad.app.grouploc.utils;
 import java.util.List;
 
 import zpi.squad.app.grouploc.SQLiteHandler;
-import zpi.squad.app.grouploc.domain.CustomMarker;
+import zpi.squad.app.grouploc.domains.CustomMarker;
 
 public class ToolsForMarkerList {
 

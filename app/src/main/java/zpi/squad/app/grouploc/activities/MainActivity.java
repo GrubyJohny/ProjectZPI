@@ -1,21 +1,16 @@
-package zpi.squad.app.grouploc;
+package zpi.squad.app.grouploc.activities;
 
-import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Path;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.StrictMode;
-import android.os.Vibrator;
-import android.provider.MediaStore;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.FragmentManager;
@@ -28,7 +23,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -37,30 +31,19 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.Filter;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.ScrollView;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.volley.Request;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.GroundOverlayOptions;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
-import com.nhaarman.supertooltips.ToolTipRelativeLayout;
-import com.nhaarman.supertooltips.ToolTipView;
 import com.parse.ParseException;
 import com.parse.ParseGeoPoint;
 import com.parse.ParseInstallation;
@@ -68,60 +51,35 @@ import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.ByteArrayOutputStream;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
-import zpi.squad.app.grouploc.activity.LoginActivity;
-import zpi.squad.app.grouploc.activity.SearchingFriendsActivity;
-import zpi.squad.app.grouploc.adapter.FriendAdapter;
-import zpi.squad.app.grouploc.domain.Friend;
-import zpi.squad.app.grouploc.domain.ListViewItem;
-import zpi.squad.app.grouploc.domain.Notification;
-import zpi.squad.app.grouploc.fragment.ChangePasswordFragment;
-import zpi.squad.app.grouploc.fragment.ChangePhotoFragment;
-import zpi.squad.app.grouploc.fragment.MapFragment;
-import zpi.squad.app.grouploc.fragment.NotificationFragment;
-import zpi.squad.app.grouploc.utils.PoiJSONParser;
-
+import zpi.squad.app.grouploc.AppController;
+import zpi.squad.app.grouploc.R;
+import zpi.squad.app.grouploc.SessionManager;
+import zpi.squad.app.grouploc.adapters.FriendAdapter;
+import zpi.squad.app.grouploc.domains.Friend;
+import zpi.squad.app.grouploc.fragments.ChangePasswordFragment;
+import zpi.squad.app.grouploc.fragments.ChangePhotoFragment;
+import zpi.squad.app.grouploc.fragments.MapFragment;
+import zpi.squad.app.grouploc.fragments.NotificationFragment;
+import zpi.squad.app.grouploc.helpers.CommonMethods;
 
 public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
         LocationListener, NavigationView.OnNavigationItemSelectedListener/*, android.support.v4.app.FragmentManager.OnBackStackChangedListener*/ {
 
     private SessionManager session;
-    private ProgressDialog pDialog;
-    private SQLiteHandler db;
-    Vibrator v;
-    protected boolean inhibit_spinner = true;
-    private Spinner spinner1, spinner2, spinner3;
-    private View layoutMarker;
-    private GoogleMap myMap;
     private LocationManager locationManager;
     public static final int PICK_FROM_CAMERA = 1;
     public static final int PICK_FROM_GALLERY = 2;
     public static final int CROP_IMAGE = 3;
-    private ImageButton firstMarkerButton;
-    private ImageButton secondMarkerButton;
-    private ImageButton thirdMarkerButton;
-    private ImageButton fourthMarkerButton;
-    // private Button closeMarkerButton;
-    private Marker ostatniMarker;
 
-    private ScrollView POIScrollView;
-    PoiJSONParser poiBase = new PoiJSONParser();
     public static Context context;
-    ArrayList<Notification> readNotifications = new ArrayList<Notification>();
-
 
     //Andoridowy obiekt przechowujący dane o położeniu(np latitude, longitude, kiedy zostało zarejestrowane)
     private Location mCurrentLocation;
@@ -135,19 +93,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     //jest często przekazywany jako argument, gdy coś o tego api chcemy
     private GoogleApiClient mGoogleApiClient;
 
-    //OstatniKliknietyNaMapi
-    private LatLng lastClikOnMap;
-
-    Bitmap profilePictureRaw;
-
     AppController globalVariable;
-
-    private ToolTipView myToolTipView;
-    private ToolTipView friendEmailToolTipView;
-    ToolTipRelativeLayout toolTipRelativeLayout;
-
-    private boolean hints = false;
-    int hintsL;
     DrawerLayout drawer;
     NavigationView navigationViewLeft;
     private ImageView navigationViewLeftProfilePicture;
@@ -165,11 +111,11 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     final static String passwordTAG = "PASSWORD";
     final static String notificationTAG = "NOTIFICATION";
 
-    private static List<ListViewItem> mItems;
     private ListView friendsListView;
     private EditText inputSearch;
-    private FriendAdapter adapter;
+    public static FriendAdapter adapter;
     private FloatingActionButton addFriendButton;
+    private CommonMethods commonMethods;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -178,26 +124,22 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         context = getApplicationContext();
+        commonMethods = new CommonMethods(context);
         globalVariable = (AppController) getApplicationContext();
         if (globalVariable.getDialog() != null && globalVariable.getDialog().isShowing()) {
             globalVariable.getDialog().dismiss();
         }
-        v = (Vibrator) getApplicationContext().getSystemService(Context.VIBRATOR_SERVICE);
         StrictMode.setThreadPolicy(policy);
         createLocationRequest();
         buildGoogleApiClient();
 
         mGoogleApiClient.connect();
         session = SessionManager.getInstance(getApplicationContext());
-        db = new SQLiteHandler(getApplicationContext());
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_main);
         setSupportActionBar(toolbar);
 
-        mapFragment = new MapFragment();
-        changePhotoFragment = new ChangePhotoFragment();
-        changePasswordFragment = new ChangePasswordFragment();
-        notificationFragment = new NotificationFragment();
+        initializeFragments();
 
         getSupportFragmentManager().beginTransaction().replace(R.id.main_container, mapFragment, mapTAG).commit();
 
@@ -221,7 +163,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         }
 
         navigationViewLeftProfilePicture = (ImageView) findViewById(R.id.profilePicture);
-        mainPhoto = clipBitmap(session.decodeBase64ToBitmap(session.getUserPhoto()), navigationViewLeftProfilePicture);
+        mainPhoto = commonMethods.clipBitmap(commonMethods.decodeBase64ToBitmap(session.getUserPhoto()), navigationViewLeftProfilePicture);
         navigationViewLeftProfilePicture.setImageBitmap(mainPhoto);
 
         navigationViewLeftFullName = (TextView) findViewById(R.id.Fullname);
@@ -239,6 +181,45 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             }
         });
 
+        friendListSettings();
+
+        inputSearch = (EditText) findViewById(R.id.filterFriendsInput);
+        inputSearch.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                adapter.getFilter().filter(s, new Filter.FilterListener() {
+                    @Override
+                    public void onFilterComplete(int count) {
+                    }
+                });
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            buildAlertMessageNoGps();
+        }
+
+//        notifications();
+//        messages();
+//        noticeAndMessageButtons();
+
+        Log.e("LOKALIZACJA: ", session.getCurrentLocation().latitude + ", " + session.getCurrentLocation().longitude);
+
+        ParseInstallation.getCurrentInstallation().put("name", ParseUser.getCurrentUser().getEmail());
+        ParseInstallation.getCurrentInstallation().saveInBackground();
+    }
+
+    private void friendListSettings() {
         ArrayList<Friend> friendsList = new ArrayList<>();
         friendsList.addAll(session.getFriendsList());
 
@@ -285,7 +266,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                                     getSupportFragmentManager().beginTransaction().replace(R.id.main_container, mapFragment, mapTAG).setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN).commit();
                                 }
                                 MapFragment.moveMapCamera(new LatLng(item.getLocation().getLatitude(), item.getLocation().getLongitude()));
-                                MapFragment.getMap().addGroundOverlay(new GroundOverlayOptions().image(BitmapDescriptorFactory.fromBitmap(session.decodeBase64ToBitmap(item.getPhoto()))).position(new LatLng(item.getLocation().getLatitude(), item.getLocation().getLongitude()), 20).visible(true));
+                                MapFragment.getMap().addGroundOverlay(new GroundOverlayOptions().image(BitmapDescriptorFactory.fromBitmap(commonMethods.decodeBase64ToBitmap(item.getPhoto()))).position(new LatLng(item.getLocation().getLatitude(), item.getLocation().getLongitude()), 20).visible(true));
                                 break;
                             case 1:
                                 String uri = String.format(Locale.ENGLISH, "http://maps.google.com/maps?daddr=%f,%f (%s)", item.getLocation().getLatitude(), item.getLocation().getLongitude(), item.getName());
@@ -303,7 +284,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                                 }
                                 break;
                             case 2:
-
                                 AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this, R.style.AppCompatAlertDialogStyle);
                                 builder.setTitle("Delete friend");
                                 builder.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
@@ -316,8 +296,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                                         adapter.remove(item);
                                         adapter.notifyDataSetChanged();
                                         Toast.makeText(getApplicationContext(), "Friend deleted", Toast.LENGTH_LONG).show();
-
-
+                                        commonMethods.reloadSearchingFriendsData(SearchingFriendsActivity.adapter);
                                     }
                                 });
                                 builder.setCancelable(true);
@@ -331,7 +310,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                                 builder.show();
 
                                 break;
-
                             default:
                                 break;
                         }
@@ -341,75 +319,14 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 Toast.makeText(context, "You selected: " + item.getName(), Toast.LENGTH_LONG).show();
             }
         });
-
-        inputSearch = (EditText) findViewById(R.id.filterFriendsInput);
-        inputSearch.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                adapter.getFilter().filter(s, new Filter.FilterListener() {
-                    @Override
-                    public void onFilterComplete(int count) {
-                    }
-                });
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-
-            }
-        });
-
-        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-            buildAlertMessageNoGps();
-        }
-
-
-//        notifications();
-//        messages();
-//        noticeAndMessageButtons();
-
-//        addListenerOnSpinner();
-//        addListenerOnSpinner2();
-//        addListenerOnSpinner3();
-
-        layoutMarker = (View) findViewById(R.id.markerLayout);
-
-        firstMarkerButton = (ImageButton) findViewById(R.id.firstButton);
-        secondMarkerButton = (ImageButton) findViewById(R.id.secondButton);
-        thirdMarkerButton = (ImageButton) findViewById(R.id.thirdButton);
-        fourthMarkerButton = (ImageButton) findViewById(R.id.fourthButton);
-
-        pDialog = new ProgressDialog(MainActivity.this);
-        pDialog.setCancelable(false);
-
-        POIScrollView = (ScrollView) findViewById(R.id.POIScroll);
-
-        //  toolTipRelativeLayout = (ToolTipRelativeLayout) findViewById(R.id.activity_main_tooltipRelativeLayout);
-//        toolTipRelativeLayout.bringToFront();
-
-        hintsL = session.getHintsLeft();
-
-        Log.e("LOKALIZACJA: ", session.getCurrentLocation().latitude + ", " + session.getCurrentLocation().longitude);
-
-
-        ParseInstallation.getCurrentInstallation().put("name", ParseUser.getCurrentUser().getEmail());
-        ParseInstallation.getCurrentInstallation().saveInBackground();
     }
 
-    /*private void addMyToolTipView() {
-        ToolTip toolTip = new ToolTip()
-                .withText("Click here for settings")
-                .withShadow()
-                .withColor(Color.RED)
-                .withAnimationType(ToolTip.AnimationType.FROM_TOP);
-        myToolTipView = toolTipRelativeLayout.showToolTipForView(toolTip, findViewById(R.id.circleButton));
-        myToolTipView.setOnToolTipViewClickedListener(MainActivity.this);
-    }*/
+    private void initializeFragments() {
+        mapFragment = new MapFragment();
+        changePhotoFragment = new ChangePhotoFragment();
+        changePasswordFragment = new ChangePasswordFragment();
+        notificationFragment = new NotificationFragment();
+    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -422,11 +339,11 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                     Bitmap photo = extras2.getParcelable("data");
 
                     ParseUser user = ParseUser.getCurrentUser();
-                    user.put("photo", session.encodeBitmapTobase64(photo));
+                    user.put("photo", commonMethods.encodeBitmapTobase64(photo));
                     user.saveInBackground();
-                    session.setUserPhoto(session.encodeBitmapTobase64(photo));
+                    session.setUserPhoto(commonMethods.encodeBitmapTobase64(photo));
 
-                    mainPhoto = clipBitmap(session.decodeBase64ToBitmap(session.getUserPhoto()), navigationViewLeftProfilePicture);
+                    mainPhoto = commonMethods.clipBitmap(commonMethods.decodeBase64ToBitmap(session.getUserPhoto()), navigationViewLeftProfilePicture);
                     navigationViewLeftProfilePicture.setImageBitmap(mainPhoto);
 
                     Toast.makeText(this, "OK", Toast.LENGTH_LONG).show();
@@ -452,10 +369,10 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                     Bitmap photo = extras2.getParcelable("data");
 
                     ParseUser user = ParseUser.getCurrentUser();
-                    user.put("photo", session.encodeBitmapTobase64(photo));
+                    user.put("photo", commonMethods.encodeBitmapTobase64(photo));
                     user.saveInBackground();
-                    session.setUserPhoto(session.encodeBitmapTobase64(photo));
-                    mainPhoto = clipBitmap(session.decodeBase64ToBitmap(session.getUserPhoto()), navigationViewLeftProfilePicture);
+                    session.setUserPhoto(commonMethods.encodeBitmapTobase64(photo));
+                    mainPhoto = commonMethods.clipBitmap(commonMethods.decodeBase64ToBitmap(session.getUserPhoto()), navigationViewLeftProfilePicture);
                     navigationViewLeftProfilePicture.setImageBitmap(mainPhoto);
 
                     Toast.makeText(this, "OK", Toast.LENGTH_LONG).show();
@@ -465,13 +382,10 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 Log.e("RESULT CODE: ", "" + resultCode);
                 Log.e("REQUEST CODE: ", "" + requestCode);
             }
-
-
         } catch (Exception e) {
             Toast.makeText(this, "Something went wrong", Toast.LENGTH_LONG).show();
             e.printStackTrace();
         }
-
     }
 
     private void buildAlertMessageNoGps() {
@@ -500,8 +414,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         // TO JEST PRZYKLAD JAK POMALOWAC IKONKE W MENU, PRZYDA SIE NA KIEDYS
         /*Drawable d =  menu.getItem(0).getIcon();
         d.setColorFilter(Color.RED, PorterDuff.Mode.SRC_IN);*/
-        return true;
 
+        return true;
     }
 
     @Override
@@ -596,15 +510,14 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
     }
 
-
     @Override
     public void onLocationChanged(Location location) {
         mCurrentLocation = location;
         Date lastUpdate = new Date();
         mLastUpdateTime = DateFormat.getTimeInstance().format(lastUpdate);
         //Log.e(AppController.TAG, "Location has changed");
-        double latitude = (double) location.getLatitude();
-        double longitude = (double) location.getLongitude();
+        double latitude = location.getLatitude();
+        double longitude = location.getLongitude();
 
         //
         if (session.isLoggedIn() && session.requestLocationUpdate) {
@@ -622,9 +535,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 e.printStackTrace();
             }
         }
-
     }
-
 
     protected synchronized void buildGoogleApiClient() {
         mGoogleApiClient = new GoogleApiClient.Builder(getApplicationContext())
@@ -658,41 +569,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     public void onConnectionFailed(ConnectionResult connectionResult) {
         startLocationUpdates();
     }
-
-
-    public Bitmap clipBitmap(Bitmap bitmap, ImageView x) {
-        if (bitmap == null)
-            return null;
-        final int width = x.getLayoutParams().width;
-        final int height = x.getLayoutParams().height;
-        bitmap = bitmap.createScaledBitmap(bitmap, width, height, true);
-
-        final int bWidth = bitmap.getWidth();
-        final int bHeight = bitmap.getHeight();
-
-        //System.out.println("WYMIARY " + width + "," + height + " ; bitmapa " + bWidth + ", " + bHeight);
-
-        DisplayMetrics metrics = new DisplayMetrics();
-
-        //zakomentowałem to, bo w Sender.java nie mogłem użyć getWindowManager()
-        // wygląda jakby działało bez tego w porządku /Johny
-        //getWindowManager().getDefaultDisplay().getMetrics(metrics);
-
-        final Bitmap outputBitmap = Bitmap.createBitmap(metrics, width, height, Bitmap.Config.ARGB_8888);
-
-        final Path path = new Path();
-        path.addCircle(
-                (float) (width / 2)
-                , (float) (height / 2)
-                , (float) Math.min(width, (height / 2))
-                , Path.Direction.CCW);
-
-        final Canvas canvas = new Canvas(outputBitmap);
-        canvas.clipPath(path);
-        canvas.drawBitmap(bitmap, 0, 0, null);
-        return outputBitmap;
-    }
-
 
     @Override
     public void onBackPressed() {
@@ -734,179 +610,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         // stopLocationUpdates();
     }
 
-    public void onFriendshipRequest(final Notification not) {
-        new AlertDialog.Builder(this).
-                setTitle("FriendshipRequest")
-                .setMessage("Do you want to add " + not.getSenderName() + " to your friends ?")
-                .setNegativeButton(android.R.string.no, null)
-                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        if (not.getType().equals("friendshipRequest")) {
-                            // sendFriendshipAcceptance(session.getUserId(), not.getSenderId(), not.getSenderName(), not.getSenderEmail());
-
-
-                        }
-                    }
-                }).create().show();
-    }
-
-    public void onGroupRequest(final Notification not) {
-        new AlertDialog.Builder(this).
-                setTitle("Group Request")
-                .setMessage("Do you want to add " + not.getSenderName() + " to your group ?")
-                .setNegativeButton(android.R.string.no, null)
-                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        if (not.getType().equals("groupRequest")) {
-                            sendGroupRequestAcceptance(not.getSenderId(), not.getGroupId());
-
-
-                        }
-                    }
-                }).create().show();
-    }
-
-    private void showDialog() {
-        if (!pDialog.isShowing()) {
-            pDialog.create();
-            pDialog.show();
-        }
-    }
-
-    private void hideDialog() {
-        if (pDialog.isShowing())
-            pDialog.dismiss();
-    }
-
-   /* private void sendFriendshipAcceptance(final String senderId, final String myreceiverid, final String receiverName, final String receiverEmail) {
-
-        String tag_string_req = "req_friendshipRequest";
-        pDialog.setMessage("Sending friendship acceptance");
-        showDialog();
-        final String TAG = "addFriend";
-
-        StringRequest strReq = new StringRequest(Request.Method.POST, AppConfig.URL_REGISTER, new Response.Listener<String>() {
-
-            @Override
-            public void onResponse(String response) {
-                Log.d(TAG, "Friendship acceptance Response: " + response.toString());
-                hideDialog();
-
-                try {
-
-                    JSONObject jObj = new JSONObject(response);
-                    boolean error = jObj.getBoolean("error");
-
-                    if (!error) {
-
-                        Toast.makeText(getApplicationContext(), "Acceptance has been sent successfully", Toast.LENGTH_LONG).show();
-                        db.addFriend(myreceiverid, receiverName, receiverEmail);
-                        FriendsFragment.addFriend(new Friend(myreceiverid, receiverName, receiverEmail, null));
-
-
-                    } else {
-
-                        String errorMsg = jObj.getString("error_msg");
-                        Toast.makeText(getApplicationContext(), errorMsg, Toast.LENGTH_LONG).show();
-                    }
-                } catch (JSONException e) {
-                    Toast.makeText(getApplicationContext(), "Connection problem. Try again.", Toast.LENGTH_LONG).show();
-                    e.printStackTrace();
-                }
-
-            }
-        }, new Response.ErrorListener() {
-
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.e(TAG, "Friendship request Error: " + error.toString());
-
-                Toast.makeText(getApplicationContext(), error.getMessage(), Toast.LENGTH_LONG).show();
-                hideDialog();
-
-            }
-        }) {
-
-            @Override
-            protected Map<String, String> getParams() {
-                Map<String, String> params = new HashMap<String, String>();
-                params.put("tag", "addFriend");
-                params.put("senderId", senderId);
-                params.put("receiverId", myreceiverid);
-
-                return params;
-            }
-
-        };
-
-        AppController.getInstance().addToRequestQueue(strReq, tag_string_req);
-    }*/
-
-    private void sendGroupRequestAcceptance(final String senderId, final String groupId) {
-
-        String tag_string_req = "req_friendshipRequest";
-        pDialog.setMessage("Sending group request acceptance");
-        showDialog();
-        final String TAG = "addFriendToGroup";
-
-        StringRequest strReq = new StringRequest(Request.Method.POST, "" /*AppConfig.URL_REGISTER*/, new Response.Listener<String>() {
-
-            @Override
-            public void onResponse(String response) {
-                Log.d(TAG, "Friend to group acceptance Response: " + response.toString());
-                hideDialog();
-
-                try {
-
-                    JSONObject jObj = new JSONObject(response);
-                    boolean error = jObj.getBoolean("error");
-
-                    if (!error) {
-                        Toast.makeText(getApplicationContext(), "Acceptance has been sent successfully", Toast.LENGTH_LONG).show();
-                    } else {
-                        String errorMsg = jObj.getString("error_msg");
-                        Toast.makeText(getApplicationContext(), errorMsg, Toast.LENGTH_LONG).show();
-                    }
-                } catch (JSONException e) {
-                    Toast.makeText(getApplicationContext(), "Connection problem. Try again.", Toast.LENGTH_LONG).show();
-                    e.printStackTrace();
-                }
-
-            }
-        }, new Response.ErrorListener() {
-
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.e(TAG, "Friendship request Error: " + error.toString());
-                Toast.makeText(getApplicationContext(), error.getMessage(), Toast.LENGTH_LONG).show();
-                hideDialog();
-            }
-        }) {
-
-            @Override
-            protected Map<String, String> getParams() {
-                Map<String, String> params = new HashMap<String, String>();
-                params.put("tag", "addFriendToGroupAcceptance");
-                params.put("uid", senderId);
-                params.put("aid", session.getUserId());
-                params.put("gid", groupId);
-                return params;
-            }
-        };
-
-        AppController.getInstance().addToRequestQueue(strReq, tag_string_req);
-    }
-
-
-    public Uri getImageUri(Context inContext, Bitmap inImage) {
-        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-        inImage.compress(Bitmap.CompressFormat.PNG, 100, bytes);
-        String path = MediaStore.Images.Media.insertImage(inContext.getContentResolver(), inImage, "Title", null);
-        return Uri.parse(path);
-    }
-
     private void deleteFriendship(ParseUser friend) {
         ArrayList<Friend> result = new ArrayList<>();
 
@@ -935,7 +638,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                         friendshipsToDelete.add(tempFriendship);
                 }
             }
-
 
             friendshipsList2 = checkIfFriends2.find().toArray().clone();
 

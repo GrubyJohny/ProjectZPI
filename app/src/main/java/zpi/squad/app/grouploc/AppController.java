@@ -16,7 +16,7 @@ import com.google.android.gms.maps.model.LatLng;
 
 import java.util.List;
 
-import zpi.squad.app.grouploc.domain.CustomMarker;
+import zpi.squad.app.grouploc.domains.CustomMarker;
 
 public class AppController extends Application {
 

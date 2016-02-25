@@ -2,9 +2,6 @@ package zpi.squad.app.grouploc;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.util.Base64;
 import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
@@ -14,12 +11,11 @@ import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
-import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import zpi.squad.app.grouploc.domain.Friend;
-import zpi.squad.app.grouploc.domain.Notification;
+import zpi.squad.app.grouploc.domains.Friend;
+import zpi.squad.app.grouploc.domains.Notification;
 
 public class SessionManager {
 
@@ -36,7 +32,6 @@ public class SessionManager {
     private SessionManager(Context context) {
         pref = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         editor = pref.edit();
-
     }
 
     public static SessionManager getInstance(Context context) {
@@ -53,18 +48,12 @@ public class SessionManager {
         throw new IllegalArgumentException("Should use getInstance(Context) at least once before using this method.");
     }
 
-
-    private static String TAG = "SessionManager";
-
-    private static int hintsLeft = 3;
-
     private static String userId = "id";
     private static String userName = "name";
     private static String userEmail = "email";
     private static String userPhoto = "photo";
     private static Boolean userIsLoggedIn = false;
     private static Boolean userIsLoggedByFacebook = false;
-
 
     public void setLoggedIn(boolean isLoggedIn) {
         userIsLoggedIn = isLoggedIn;
@@ -133,14 +122,6 @@ public class SessionManager {
         friends = null;
         requestLocationUpdate = false;
         notifications = null;
-    }
-
-    public int getHintsLeft() {
-        return hintsLeft;
-    }
-
-    public void setHintsLeft(int hLeft) {
-        hintsLeft = hLeft;
     }
 
     public ArrayList<Friend> getFriendsList() {
@@ -212,12 +193,8 @@ public class SessionManager {
 
                         Log.d("Friend added: ", "" + actual.get("name").toString() + " " + point.getLatitude() + ", " + point.getLongitude());
                     }
-
                 }
-
             }
-
-
             friendsList2 = checkIfFriends2.find().toArray().clone();
 
             if (friendsList2.length > 0) {
@@ -230,7 +207,6 @@ public class SessionManager {
                         ParseUser actual = ((ParseUser) temp.get("friend1")).fetchIfNeeded();
                         ParseGeoPoint point = (ParseGeoPoint) actual.get("location");
 
-
                         result.add(new Friend(
                                 actual.getObjectId(),
                                 actual.get("name").toString(),
@@ -241,7 +217,6 @@ public class SessionManager {
 
                 }
             }
-
         } catch (ParseException e) {
             Log.e("Parse: ", e.getLocalizedMessage());
             e.printStackTrace();
@@ -297,14 +272,12 @@ public class SessionManager {
         ArrayList<Friend> fr = getFriendsList();
         isFriend = false;
 
-
         for (int i = 0; i < users.size(); i++) {
             isFriend = false;
             for (int j = 0; j < fr.size(); j++) {
 
                 if (fr.get(j).getEmail().equals(users.get(i).getEmail()))
                     isFriend = true;
-
             }
 
             if (!isFriend)
@@ -315,27 +288,7 @@ public class SessionManager {
                         users.get(i).get("photo") != null ? users.get(i).get("photo").toString() : null));
         }
 
-
         return result;
-    }
-
-
-    // method for bitmap to base64
-    public String encodeBitmapTobase64(Bitmap image) {
-        Bitmap immage = image;
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        immage.compress(Bitmap.CompressFormat.PNG, 100, baos);
-        byte[] b = baos.toByteArray();
-        String imageEncoded = Base64.encodeToString(b, Base64.DEFAULT);
-        //Log.d("Image Log:", imageEncoded);
-        return imageEncoded;
-    }
-
-    // method for base64 to bitmap
-    public Bitmap decodeBase64ToBitmap(String input) {
-        byte[] decodedByte = Base64.decode(input, 0);
-        return BitmapFactory
-                .decodeByteArray(decodedByte, 0, decodedByte.length);
     }
 
     public void refreshFriendsList() {

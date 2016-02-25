@@ -1,4 +1,4 @@
-package zpi.squad.app.grouploc.fragment;
+package zpi.squad.app.grouploc.fragments;
 
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
@@ -10,7 +10,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.InflateException;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,7 +21,6 @@ import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
 import com.facebook.HttpMethod;
 
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -33,6 +31,7 @@ import java.net.URL;
 
 import zpi.squad.app.grouploc.R;
 import zpi.squad.app.grouploc.SessionManager;
+import zpi.squad.app.grouploc.helpers.CommonMethods;
 
 public class ChangePhotoFragment extends Fragment {
     private static View view;
@@ -45,6 +44,7 @@ public class ChangePhotoFragment extends Fragment {
     public static final int CROP_IMAGE = 3;
     private SessionManager session;
     private Bitmap profileImageFromFacebook;
+    private CommonMethods commonMethods = new CommonMethods();
 
     public ChangePhotoFragment() {
         // Required empty public constructor
@@ -181,7 +181,7 @@ public class ChangePhotoFragment extends Fragment {
         changeImgFromAdjust.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Bitmap photo = session.decodeBase64ToBitmap(session.getUserPhoto());
+                Bitmap photo = commonMethods.decodeBase64ToBitmap(session.getUserPhoto());
                 Uri uri = getImageUri(getActivity().getApplicationContext(), photo);
 
                 Intent cropIntent = new Intent("com.android.camera.action.CROP");

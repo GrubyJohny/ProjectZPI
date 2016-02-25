@@ -1,4 +1,4 @@
-package zpi.squad.app.grouploc.activity;
+package zpi.squad.app.grouploc.activities;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -29,10 +29,10 @@ import com.parse.ParseUser;
 
 import java.util.Date;
 
-import zpi.squad.app.grouploc.MainActivity;
 import zpi.squad.app.grouploc.R;
 import zpi.squad.app.grouploc.SessionManager;
 import zpi.squad.app.grouploc.config.AppConfig;
+import zpi.squad.app.grouploc.helpers.CommonMethods;
 
 public class RegisterActivity extends Activity implements AppCompatCallback {
 
@@ -51,6 +51,7 @@ public class RegisterActivity extends Activity implements AppCompatCallback {
     boolean registrationSuccessfully = false;
     private TextInputLayout inputLayoutPasswordAgain;
     private EditText inputPasswordAgain;
+    private CommonMethods commonMethods = new CommonMethods();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -132,7 +133,7 @@ public class RegisterActivity extends Activity implements AppCompatCallback {
                             user.put("location", new ParseGeoPoint(50, 18));
                             user.put("name", name);
                             user.put("name_lowercase", name.toLowerCase());
-                            user.put("photo", session.encodeBitmapTobase64(BitmapFactory.decodeResource(getResources(), R.drawable.default_avatar)));
+                            user.put("photo", commonMethods.encodeBitmapTobase64(BitmapFactory.decodeResource(getResources(), R.drawable.default_avatar)));
 
                             try {
                                 user.signUp();

@@ -1,4 +1,4 @@
-package zpi.squad.app.grouploc.domain;
+package zpi.squad.app.grouploc.domains;
 
 /**
  * Created by karol_000 on 2015-05-12.

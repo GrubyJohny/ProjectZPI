@@ -1,10 +1,7 @@
-package zpi.squad.app.grouploc.adapter;
+package zpi.squad.app.grouploc.adapters;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,32 +11,28 @@ import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.parse.ParseQuery;
-import com.parse.ParseUser;
-
 import java.util.ArrayList;
 import java.util.List;
 
 import zpi.squad.app.grouploc.R;
 import zpi.squad.app.grouploc.SessionManager;
-import zpi.squad.app.grouploc.domain.Friend;
+import zpi.squad.app.grouploc.domains.Friend;
+import zpi.squad.app.grouploc.helpers.CommonMethods;
 
 public class SearchingFriendAdapter extends ArrayAdapter<Friend> implements Filterable {
     private final ArrayList<Friend> helpList;
+    private final CommonMethods commonMethods;
     private SessionManager session = SessionManager.getInstance();
     private ArrayList<Friend> items;
     private ArrayList<Friend> filteredList = new ArrayList<>();
-    private ParseQuery<ParseUser> query;
-    private ParseUser temp;
     //private ArrayList<Friend> alreadyFriendsList ;
     boolean alreadyIsFriend = false;
-    List<ParseUser> usersFromQuery;
 
     public SearchingFriendAdapter(Context context, ArrayList<Friend> items) {
         super(context, R.layout.search_friend_list_row, items);
         this.items = items;
         helpList = session.getAllUsersFromParseWithoutCurrentAndFriends();
-
+        commonMethods = new CommonMethods(context);
     }
 
     @Override
@@ -62,7 +55,7 @@ public class SearchingFriendAdapter extends ArrayAdapter<Friend> implements Filt
         // Populate the data into the template view using the data object
         email.setText(friend.getEmail());
         name.setText(friend.getName());
-        photo.setImageBitmap(decodeBase64ToBitmap(friend.getPhoto()));
+        photo.setImageBitmap(commonMethods.decodeBase64ToBitmap(friend.getPhoto()));
         // Return the completed view to render on screen
         return convertView;
     }
@@ -114,10 +107,10 @@ public class SearchingFriendAdapter extends ArrayAdapter<Friend> implements Filt
                         e.printStackTrace();
                     }*/
 
-
                     result.values = filteredList;
                     result.count = filteredList.size();
                 }
+
                 return result;
             }
 
@@ -134,11 +127,5 @@ public class SearchingFriendAdapter extends ArrayAdapter<Friend> implements Filt
         items.clear();
         items.addAll(values);
         notifyDataSetChanged();
-    }
-
-    public Bitmap decodeBase64ToBitmap(String input) {
-        byte[] decodedByte = Base64.decode(input, 0);
-        return BitmapFactory
-                .decodeByteArray(decodedByte, 0, decodedByte.length);
     }
 }

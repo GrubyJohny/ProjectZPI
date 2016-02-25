@@ -1,4 +1,4 @@
-package zpi.squad.app.grouploc.activity;
+package zpi.squad.app.grouploc.activities;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -28,13 +28,13 @@ import java.util.List;
 
 import zpi.squad.app.grouploc.R;
 import zpi.squad.app.grouploc.SessionManager;
-import zpi.squad.app.grouploc.adapter.SearchingFriendAdapter;
-import zpi.squad.app.grouploc.domain.Friend;
+import zpi.squad.app.grouploc.adapters.SearchingFriendAdapter;
+import zpi.squad.app.grouploc.domains.Friend;
 
 public class SearchingFriendsActivity extends AppCompatActivity {
     EditText searchFriendInput;
     ListView searchFriendListView;
-    private SearchingFriendAdapter adapter;
+    public static SearchingFriendAdapter adapter;
     ArrayList<Friend> searchFriendsList;
     ParseQuery<ParseUser> query, queryFriend;
     ParseQuery queryAlreadyFriends, queryAlreadyFriends2;
@@ -43,7 +43,6 @@ public class SearchingFriendsActivity extends AppCompatActivity {
     private SessionManager session = SessionManager.getInstance();
     View empty;
     private int selectedItem = -1;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,9 +85,7 @@ public class SearchingFriendsActivity extends AppCompatActivity {
                 adapter.getFilter().filter(s, new Filter.FilterListener() {
                     @Override
                     public void onFilterComplete(int count) {
-
-                        Log.e("FILTER COMPLETE: ", "count= " + count);
-
+                        Log.e("FILTER COMPLETE: ", "count = " + count);
                     }
                 });
             }
@@ -97,7 +94,6 @@ public class SearchingFriendsActivity extends AppCompatActivity {
             public void afterTextChanged(Editable s) {
             }
         });
-
         FillTheList fill = new FillTheList();
         fill.execute();
     }

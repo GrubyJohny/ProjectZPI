@@ -1,4 +1,4 @@
-package zpi.squad.app.grouploc.fragment;
+package zpi.squad.app.grouploc.fragments;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -21,10 +21,12 @@ import com.parse.ParseQuery;
 import java.util.ArrayList;
 import java.util.List;
 
+import zpi.squad.app.grouploc.activities.MainActivity;
 import zpi.squad.app.grouploc.R;
 import zpi.squad.app.grouploc.SessionManager;
-import zpi.squad.app.grouploc.adapter.NotificationAdapter;
-import zpi.squad.app.grouploc.domain.Notification;
+import zpi.squad.app.grouploc.adapters.NotificationAdapter;
+import zpi.squad.app.grouploc.domains.Notification;
+import zpi.squad.app.grouploc.helpers.CommonMethods;
 
 public class NotificationFragment extends Fragment {
 
@@ -33,6 +35,8 @@ public class NotificationFragment extends Fragment {
     public static NotificationAdapter adapter;
     ConfirmFriendship confirm = new ConfirmFriendship();
     private Activity actualActivity;
+    private SessionManager session = SessionManager.getInstance();
+    CommonMethods commonMethods;
 
     public NotificationFragment() {
     }
@@ -52,6 +56,8 @@ public class NotificationFragment extends Fragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        commonMethods = new CommonMethods(getActivity().getApplicationContext());
+
         notificationsList = SessionManager.getInstance().getNotificationsList();
 
         adapter = new NotificationAdapter(getActivity().getApplicationContext(), notificationsList);
@@ -70,6 +76,8 @@ public class NotificationFragment extends Fragment {
 
                                 confirm.execute(((Notification) adapter.getItem(position)).getMessage());
                                 //tutaj jeszcze powiadomienie a zaakceptowaniu zaproszenia
+
+                                commonMethods.reloadFriendsData(MainActivity.adapter);
 
                                 dialog.cancel();
                                 getFragmentManager().popBackStack();
@@ -127,5 +135,13 @@ public class NotificationFragment extends Fragment {
             Toast.makeText(actualActivity.getApplicationContext(), "Friend added!", Toast.LENGTH_LONG).show();
             Log.e("FRIEND ADDED", "SUCCESSFULLY!");
         }
+    }
+
+    private void reloadNotificationsData() {
+        session.refreshNotificationsList();
+        List<Notification> objects = session.getNotificationsList();
+        adapter.clear();
+        adapter.addAll(objects);
+        adapter.notifyDataSetChanged();
     }
 }

@@ -248,7 +248,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
         map.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
             @Override
             public void onMapLongClick(LatLng latLng) {
-                globalVariable.setLastClikOnMap(latLng);
                 MarkerDialog markerDialog = new MarkerDialog();
                 markerDialog.setTargetFragment(MapFragment.this, 0);
                 markerDialog.show(getFragmentManager(), "Marker Dialog");

@@ -601,6 +601,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             session.requestLocationUpdate = true;
             startLocationUpdates();
         }
+
+        commonMethods.reloadFriendsData(adapter);
     }
 
     @Override

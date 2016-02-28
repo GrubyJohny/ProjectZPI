@@ -77,8 +77,7 @@ public class ResetPasswordActivity extends Activity implements AppCompatCallback
 
                     new Thread(new Runnable() {
                         @Override
-                        public void run()
-                        {
+                        public void run() {
                             // do the thing that takes a long time
                             ParseQuery.clearAllCachedResults();
                             ParseQuery<ParseUser> query = ParseUser.getQuery();
@@ -98,9 +97,7 @@ public class ResetPasswordActivity extends Activity implements AppCompatCallback
                                 } else {
                                     ParseUser.requestPasswordResetInBackground(enteredEmail);
                                     successReset = true;
-
                                 }
-
                             } catch (ParseException e) {
                                 e.printStackTrace();
                                 Log.e("PASS REMINDER", e.getLocalizedMessage());
@@ -108,15 +105,14 @@ public class ResetPasswordActivity extends Activity implements AppCompatCallback
 
                             runOnUiThread(new Runnable() {
                                 @Override
-                                public void run()
-                                {
+                                public void run() {
                                     if (successReset) {
                                         Toast.makeText(getApplicationContext(),
                                                 "Password reset request sent to " + enteredEmail + ". Check your mailbox", Toast.LENGTH_LONG).show();
                                     } else if (resetFacebookEmail) {
+                                        resetFacebookEmail = false;
                                         Toast.makeText(getApplicationContext(), "You should log in with 'Log in with facebook' button", Toast.LENGTH_LONG).show();
-                                    }
-                                    else {
+                                    } else {
                                         Toast.makeText(getApplicationContext(), "No user registered with email: " + enteredEmail, Toast.LENGTH_LONG).show();
                                     }
                                     progress.dismiss();
@@ -157,8 +153,7 @@ public class ResetPasswordActivity extends Activity implements AppCompatCallback
 
         if (!validateEmail()) {
             return;
-        }
-        else
+        } else
             positiveValidate = true;
     }
 

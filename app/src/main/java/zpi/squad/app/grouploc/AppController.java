@@ -13,6 +13,10 @@ import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
+import com.parse.Parse;
+import com.parse.ParseACL;
+import com.parse.ParseInstallation;
+import com.parse.ParseUser;
 
 import java.util.List;
 
@@ -44,6 +48,23 @@ public class AppController extends Application {
     public void onCreate() {
         super.onCreate();
         mInstance = this;
+
+        try {
+            Parse.initialize(this, "rMAJUrbPT4fIVGk8ePC7gavmnY8NmmaxWv8Lf8y4", "NOKLzlyq0v5nj5js1ZoQbXPewym3MCSUCIlRudMy");
+        }
+        catch (Exception e)
+        {
+            e.getLocalizedMessage();
+        }
+
+        ParseUser.enableAutomaticUser();
+        ParseACL defaultACL = new ParseACL();
+
+        ParseACL.setDefaultACL(defaultACL, true);
+
+        // save the installation
+        ParseInstallation.getCurrentInstallation().saveInBackground();
+
     }
 
     public static synchronized AppController getInstance() {

@@ -32,6 +32,9 @@ public class CommonMethods {
     public void reloadNotificationsData(NotificationAdapter adapter) {
         session.refreshNotificationsList();
         List<Notification> objects = session.getNotificationsList();
+
+        //tutj po otrzymaniu powiadomienia wypieprza nulla z adaptera
+        // !
         adapter.clear();
         adapter.addAll(objects);
         adapter.notifyDataSetChanged();

@@ -14,12 +14,12 @@ import com.android.volley.toolbox.Volley;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
 import com.parse.Parse;
-import com.parse.ParseACL;
+import com.parse.ParseFacebookUtils;
 import com.parse.ParseInstallation;
-import com.parse.ParseUser;
 
 import java.util.List;
 
+import zpi.squad.app.grouploc.config.AppConfig;
 import zpi.squad.app.grouploc.domains.CustomMarker;
 
 public class AppController extends Application {
@@ -50,20 +50,15 @@ public class AppController extends Application {
         mInstance = this;
 
         try {
-            Parse.initialize(this, "rMAJUrbPT4fIVGk8ePC7gavmnY8NmmaxWv8Lf8y4", "NOKLzlyq0v5nj5js1ZoQbXPewym3MCSUCIlRudMy");
-        }
-        catch (Exception e)
-        {
+            Parse.initialize(getApplicationContext(), AppConfig.PARSE_APPLICATION_ID, AppConfig.PARSE_CLIENT_KEY);
+            ParseFacebookUtils.initialize(this);
+            ParseInstallation.getCurrentInstallation().saveInBackground();
+
+        } catch (Exception e) {
             e.getLocalizedMessage();
+            e.printStackTrace();
         }
 
-        ParseUser.enableAutomaticUser();
-        ParseACL defaultACL = new ParseACL();
-
-        ParseACL.setDefaultACL(defaultACL, true);
-
-        // save the installation
-        ParseInstallation.getCurrentInstallation().saveInBackground();
 
     }
 

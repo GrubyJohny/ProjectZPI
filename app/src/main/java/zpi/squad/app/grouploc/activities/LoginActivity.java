@@ -35,6 +35,7 @@ import com.parse.Parse;
 import com.parse.ParseException;
 import com.parse.ParseFacebookUtils;
 import com.parse.ParseGeoPoint;
+import com.parse.ParseInstallation;
 import com.parse.ParseUser;
 
 import org.json.JSONException;
@@ -69,6 +70,7 @@ public class LoginActivity extends Activity implements AppCompatCallback {
     private ProgressDialog progressFacebookLogin;
     private boolean successLogin = false;
     private CommonMethods commonMethods = new CommonMethods();
+    private ParseUser current;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -97,11 +99,6 @@ public class LoginActivity extends Activity implements AppCompatCallback {
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
 
-        try {
-            Parse.initialize(this, "rMAJUrbPT4fIVGk8ePC7gavmnY8NmmaxWv8Lf8y4", "NOKLzlyq0v5nj5js1ZoQbXPewym3MCSUCIlRudMy");
-        } catch (Exception e) {
-            e.getLocalizedMessage();
-        }
 
         inputLayoutEmail = (TextInputLayout) findViewById(R.id.input_layout_login_email);
         inputLayoutPassword = (TextInputLayout) findViewById(R.id.input_layout_login_password);
@@ -151,7 +148,7 @@ public class LoginActivity extends Activity implements AppCompatCallback {
                         @Override
                         public void run() {
                             // do the thing that takes a long time
-                            ParseFacebookUtils.initialize(context);
+
                             ParseFacebookUtils.logInWithReadPermissionsInBackground(LoginActivity.this, permissions, new LogInCallback() {
                                 @Override
                                 public void done(final ParseUser user, ParseException err) {
@@ -161,6 +158,7 @@ public class LoginActivity extends Activity implements AppCompatCallback {
                                         try {
                                             String[] tempInfo = getFacebookUserInfo(AccessToken.getCurrentAccessToken());
                                             user.setEmail(tempInfo[0]);
+
                                             user.put("name", tempInfo[1]);
                                             user.put("name_lowercase", tempInfo[1].toLowerCase());
                                             user.put("location", new ParseGeoPoint(55, 55));
@@ -174,29 +172,38 @@ public class LoginActivity extends Activity implements AppCompatCallback {
                                             }
 
                                             user.save();
+
                                         } catch (Exception e) {
                                             e.getLocalizedMessage();
                                             e.printStackTrace();
                                         }
                                     }
 
-                                    ParseUser current = ParseUser.getCurrentUser();
 
                                     try {
-                                        session.setUserEmail(current.fetchIfNeeded().getEmail());
-                                        session.setUserName(current.fetchIfNeeded().get("name").toString());
-                                        session.setUserPhoto(current.fetchIfNeeded().get("photo").toString());
-                                        session.setUserId(current.fetchIfNeeded().getObjectId());
+
+                                        //jedna kurwa, jebana linijka, pezez którą pieprzyłem się z tym 3 dni
+                                        user.save();
+
+
+                                        current = ParseUser.getCurrentUser().fetchIfNeeded();
+                                        Log.e("SMUTAS", "" + current.getEmail());
+
+                                        session.setUserEmail(current.getEmail());
+                                        session.setUserName(current.get("name").toString());
+                                        session.setUserPhoto(current.get("photo").toString());
+                                        session.setUserId(current.getObjectId());
                                         session.setUserCurrentLocation(current.getParseGeoPoint("location").getLatitude(), current.getParseGeoPoint("location").getLongitude());
                                         session.setUserIsLoggedByFacebook(true);
+
+                                        session.setLoggedIn(true);
+                                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                                        finish();
+                                        startActivity(intent);
                                     } catch (ParseException e) {
                                         e.printStackTrace();
                                     }
 
-                                    session.setLoggedIn(true);
-                                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                                    finish();
-                                    startActivity(intent);
                                 }
                             });
                         }
@@ -238,6 +245,8 @@ public class LoginActivity extends Activity implements AppCompatCallback {
                 }
             }
         });
+
+        ParseInstallation.getCurrentInstallation().deleteInBackground();
     }
 
     @Override
@@ -267,6 +276,11 @@ public class LoginActivity extends Activity implements AppCompatCallback {
             public void run() {
                 // do the thing that takes a long time
                 try {
+                    try {
+                        Parse.initialize(context, "rMAJUrbPT4fIVGk8ePC7gavmnY8NmmaxWv8Lf8y4", "NOKLzlyq0v5nj5js1ZoQbXPewym3MCSUCIlRudMy");
+                    } catch (Exception e) {
+                        e.getLocalizedMessage();
+                    }
                     ParseUser.logIn(email, password);
                     successLogin = true;
 

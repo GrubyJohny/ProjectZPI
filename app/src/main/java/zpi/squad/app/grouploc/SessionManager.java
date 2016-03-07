@@ -298,4 +298,73 @@ public class SessionManager {
     public void refreshNotificationsList() {
         notifications = getNotificationsFromParse();
     }
+
+
+    public static ArrayList<Friend> getNotAcceptedFriendsFromParse() {
+        ArrayList<Friend> result = new ArrayList<>();
+
+        ParseQuery checkIfFriends1 = new ParseQuery("Friendship");
+        checkIfFriends1.whereEqualTo("friend1", ParseUser.getCurrentUser());
+        ParseQuery checkIfFriends2 = new ParseQuery("Friendship");
+        checkIfFriends2.whereEqualTo("friend2", ParseUser.getCurrentUser());
+
+        Object[] friendsList = null, friendsList2 = null;
+        ParseObject temp = null;
+
+        try {
+            friendsList = checkIfFriends1.find().toArray().clone();
+
+            if (friendsList.length > 0) {
+                for (int i = 0; i < friendsList.length; i++) {
+                    //to jest typu Friendship
+                    temp = ((ParseObject) friendsList[i]);
+
+                    if (temp.get("accepted").toString().equals("false")) {
+
+                        ParseUser actual = ((ParseUser) temp.get("friend2")).fetchIfNeeded();
+                        ParseGeoPoint point = (ParseGeoPoint) actual.get("location");
+
+                        result.add(new Friend(
+                                actual.getObjectId(),
+                                actual.get("name").toString(),
+                                actual.getEmail(),
+                                actual.get("photo") != null ? actual.get("photo").toString() : null,
+                                point.getLatitude(), point.getLongitude(), actual));
+
+                        Log.d("Friend added: ", "" + actual.get("name").toString() + " " + point.getLatitude() + ", " + point.getLongitude());
+                    }
+                }
+            }
+            friendsList2 = checkIfFriends2.find().toArray().clone();
+
+            if (friendsList2.length > 0) {
+                for (int i = 0; i < friendsList2.length; i++) {
+                    //to jest typu Friendship
+                    temp = ((ParseObject) friendsList2[i]);
+
+                    if (temp.get("accepted").toString().equals("false")) {
+
+                        ParseUser actual = ((ParseUser) temp.get("friend1")).fetchIfNeeded();
+                        ParseGeoPoint point = (ParseGeoPoint) actual.get("location");
+
+                        result.add(new Friend(
+                                actual.getObjectId(),
+                                actual.get("name").toString(),
+                                actual.getEmail(),
+                                actual.get("photo") != null ? actual.get("photo").toString() : null,
+                                point.getLatitude(), point.getLongitude(), actual));
+                    }
+
+                }
+            }
+        } catch (ParseException e) {
+            Log.e("Parse: ", e.getLocalizedMessage());
+            e.printStackTrace();
+        } catch (Exception e) {
+            Log.e("Exception: ", e.getLocalizedMessage());
+            e.printStackTrace();
+        }
+
+        return result;
+    }
 }

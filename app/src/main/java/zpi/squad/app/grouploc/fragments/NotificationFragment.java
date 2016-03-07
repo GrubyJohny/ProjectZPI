@@ -133,6 +133,7 @@ public class NotificationFragment extends Fragment {
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
             Toast.makeText(actualActivity.getApplicationContext(), "Friend added!", Toast.LENGTH_LONG).show();
+            commonMethods.reloadFriendsData(MainActivity.adapter);
             Log.e("FRIEND ADDED", "SUCCESSFULLY!");
         }
     }

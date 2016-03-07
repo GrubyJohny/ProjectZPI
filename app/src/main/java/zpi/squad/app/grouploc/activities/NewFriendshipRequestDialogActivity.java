@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.parse.Parse;
 import com.parse.ParseException;
 import com.parse.ParseInstallation;
 import com.parse.ParseObject;
@@ -21,12 +20,13 @@ import org.json.JSONObject;
 
 import java.util.List;
 
+import zpi.squad.app.grouploc.helpers.CommonMethods;
 
 public class NewFriendshipRequestDialogActivity extends Activity {
     Bundle extras;
     ConfirmFriendship confirm = new ConfirmFriendship();
     SendFriendshipAcceptanceNotification sendAcceptNotif = new SendFriendshipAcceptanceNotification();
-
+    CommonMethods commonMethods = new CommonMethods();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,7 +49,6 @@ public class NewFriendshipRequestDialogActivity extends Activity {
                             }
                         });
 
-
                         dialog.cancel();
                         finish();
                     }
@@ -58,8 +57,6 @@ public class NewFriendshipRequestDialogActivity extends Activity {
                     public void onClick(DialogInterface dialog, int id) {
                         dialog.cancel();
                         finish();
-                        getFragmentManager().popBackStack();
-
                     }
                 });
         AlertDialog alert = builder.create();

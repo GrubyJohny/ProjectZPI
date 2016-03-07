@@ -65,16 +65,18 @@ public class SearchingFriendAdapter extends ArrayAdapter<Friend> implements Filt
         } else {
             convertView.setBackgroundColor(Color.WHITE);
         }
-        inviteFriendButton = (ImageView) convertView.findViewById(R.id.inviteFriend);
 
+        inviteFriendButton = (ImageView) convertView.findViewById(R.id.inviteFriend);
+        final View finalConvertView = convertView;
         inviteFriendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                inviteFriendButton = (ImageView) finalConvertView.findViewById(R.id.inviteFriend);
                 new SendFriendshipRequest().execute(friend);
             }
         });
-        if (friend.alreadyInvited) { // tutaj jakiś fajny warunek
-            inviteFriendButton.setImageDrawable(convertView.getResources().getDrawable(R.drawable.plus_circle_gray));
+        if (friend.alreadyInvited) {
+            inviteFriendButton.setBackgroundResource(R.drawable.plus_circle_gray);
             inviteFriendButton.setClickable(false);
         }
         // Lookup view for data population
@@ -163,7 +165,8 @@ public class SearchingFriendAdapter extends ArrayAdapter<Friend> implements Filt
         @Override
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
-
+            inviteFriendButton.setBackgroundResource(R.drawable.plus_circle_gray);
+            inviteFriendButton.setClickable(false);
             Toast.makeText(MainActivity.context, temp[0], Toast.LENGTH_LONG).show();
         }
     }

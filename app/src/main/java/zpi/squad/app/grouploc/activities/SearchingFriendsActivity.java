@@ -13,6 +13,7 @@ import android.widget.Filter;
 import android.widget.ListView;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import zpi.squad.app.grouploc.R;
 import zpi.squad.app.grouploc.SessionManager;
@@ -90,7 +91,21 @@ public class SearchingFriendsActivity extends AppCompatActivity {
         @Override
         protected Void doInBackground(Void... params) {
             searchFriendsList.clear();
-            searchFriendsList.addAll(session.getAllUsersFromParseWithoutCurrentAndFriends());
+            List<Friend> all = session.getAllUsersFromParseWithoutCurrentAndFriends();
+            List<Friend> notAccepted = SessionManager.getNotAcceptedFriendsFromParse();
+            boolean notAcceptedAlready;
+            for (int i = 0; i < all.size(); i++) {
+                notAcceptedAlready = false;
+                for (int j = 0; j < notAccepted.size(); j++) {
+                    if (all.get(i).getEmail().equals(notAccepted.get(j).getEmail())) {
+                        all.get(i).alreadyInvited = true;
+                    }
+                }
+
+                searchFriendsList.add(all.get(i));
+
+            }
+            //searchFriendsList.addAll(session.getAllUsersFromParseWithoutCurrentAndFriends());
             return null;
         }
 

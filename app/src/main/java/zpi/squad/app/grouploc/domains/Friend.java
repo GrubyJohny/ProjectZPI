@@ -14,6 +14,7 @@ public class Friend {
     String photo;
     ParseGeoPoint location;
     private ParseUser parseUser;
+    public boolean alreadyInvited;
 
     public Friend() {
     }
@@ -34,13 +35,14 @@ public class Friend {
         this.location = new ParseGeoPoint(lat, lon);
     }
 
-    public Friend(String uid, String name, String email, String photo, double lat, double lon, ParseUser pUser) {
+    public Friend(String uid, String name, String email, String photo, double lat, double lon, ParseUser pUser, boolean alreadyInvited) {
         this.uid = uid;
         this.name = name;
         this.email = email;
         this.photo = photo;
         this.location = new ParseGeoPoint(lat, lon);
         this.parseUser = pUser;
+        this.alreadyInvited = alreadyInvited;
     }
 
     public Friend(String uid, String name, String email, String photo) {

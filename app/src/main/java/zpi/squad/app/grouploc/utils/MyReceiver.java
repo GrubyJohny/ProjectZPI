@@ -2,6 +2,7 @@ package zpi.squad.app.grouploc.utils;
 
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 
 import com.parse.ParsePushBroadcastReceiver;
 
@@ -39,8 +40,6 @@ public class MyReceiver extends ParsePushBroadcastReceiver {
                 switch (pushData.getInt("kind_of_notification")) {
                     case 101: //friendship request to accept
                     {
-                        //z poziomou tego gnoja Receivera nie da rady wyświetlać żadnych okienek, dlatego
-                        //osobna aktywność, mam nadzieję, że to przeczytasz zanim mnie zjedziesz jak burą sukę :D
                         Intent i = new Intent(mContext, NewFriendshipRequestDialogActivity.class);
                         i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         i.putExtra("new_friend_name", pushData.getString("new_friend_name"));
@@ -53,6 +52,9 @@ public class MyReceiver extends ParsePushBroadcastReceiver {
                     }
                     case 102: //friendship request accepted - info only and need to refresh friends list
                     {
+                        Log.e("NOTIF 102: ", "friendship accepted");
+                        commonMethods.reloadNotificationsData(NotificationFragment.adapter);
+
                         break;
                     }
                     case 103: //friendship deleted - need to refresh friends list

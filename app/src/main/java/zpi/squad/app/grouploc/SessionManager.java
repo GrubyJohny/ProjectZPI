@@ -189,7 +189,7 @@ public class SessionManager {
                                 actual.get("name").toString(),
                                 actual.getEmail(),
                                 actual.get("photo") != null ? actual.get("photo").toString() : null,
-                                point.getLatitude(), point.getLongitude(), actual));
+                                point.getLatitude(), point.getLongitude(), actual, false));
 
                         Log.d("Friend added: ", "" + actual.get("name").toString() + " " + point.getLatitude() + ", " + point.getLongitude());
                     }
@@ -212,7 +212,7 @@ public class SessionManager {
                                 actual.get("name").toString(),
                                 actual.getEmail(),
                                 actual.get("photo") != null ? actual.get("photo").toString() : null,
-                                point.getLatitude(), point.getLongitude(), actual));
+                                point.getLatitude(), point.getLongitude(), actual, false));
                     }
 
                 }
@@ -297,5 +297,93 @@ public class SessionManager {
 
     public void refreshNotificationsList() {
         notifications = getNotificationsFromParse();
+    }
+
+
+    public static ArrayList<Friend> getNotAcceptedFriendsFromParse() {
+        ArrayList<Friend> result = new ArrayList<>();
+
+        ParseQuery checkIfFriends1 = new ParseQuery("Friendship");
+        checkIfFriends1.whereEqualTo("friend1", ParseUser.getCurrentUser());
+        ParseQuery checkIfFriends2 = new ParseQuery("Friendship");
+        checkIfFriends2.whereEqualTo("friend2", ParseUser.getCurrentUser());
+
+        Object[] friendsList = null, friendsList2 = null;
+        ParseObject temp = null;
+
+        try {
+            friendsList = checkIfFriends1.find().toArray().clone();
+
+            if (friendsList.length > 0) {
+                for (int i = 0; i < friendsList.length; i++) {
+                    //to jest typu Friendship
+                    temp = ((ParseObject) friendsList[i]);
+
+                    if (temp.get("accepted").toString().equals("false")) {
+
+                        ParseUser actual = ((ParseUser) temp.get("friend2")).fetchIfNeeded();
+                        ParseGeoPoint point = (ParseGeoPoint) actual.get("location");
+
+                        result.add(new Friend(
+                                actual.getObjectId(),
+                                actual.get("name").toString(),
+                                actual.getEmail(),
+                                actual.get("photo") != null ? actual.get("photo").toString() : null,
+                                point.getLatitude(), point.getLongitude(), actual, true));
+
+                        Log.d("Friend added: ", "" + actual.get("name").toString() + " " + point.getLatitude() + ", " + point.getLongitude());
+                    }
+                }
+            }
+            friendsList2 = checkIfFriends2.find().toArray().clone();
+
+            if (friendsList2.length > 0) {
+                for (int i = 0; i < friendsList2.length; i++) {
+                    //to jest typu Friendship
+                    temp = ((ParseObject) friendsList2[i]);
+
+                    if (temp.get("accepted").toString().equals("false")) {
+
+                        ParseUser actual = ((ParseUser) temp.get("friend1")).fetchIfNeeded();
+                        ParseGeoPoint point = (ParseGeoPoint) actual.get("location");
+
+                        result.add(new Friend(
+                                actual.getObjectId(),
+                                actual.get("name").toString(),
+                                actual.getEmail(),
+                                actual.get("photo") != null ? actual.get("photo").toString() : null,
+                                point.getLatitude(), point.getLongitude(), actual, true));
+                    }
+
+                }
+            }
+        } catch (ParseException e) {
+            Log.e("Parse: ", e.getLocalizedMessage());
+            e.printStackTrace();
+        } catch (Exception e) {
+            Log.e("Exception: ", e.getLocalizedMessage());
+            e.printStackTrace();
+        }
+
+        return result;
+    }
+
+    public static ArrayList<Friend> getUsersWithoutCurrentFriendsAndWithGrayAlmostFriends() {
+        ArrayList<Friend> searchFriendsList = new ArrayList<>();
+        List<Friend> all = SessionManager.getInstance().getAllUsersFromParseWithoutCurrentAndFriends();
+        List<Friend> notAccepted = SessionManager.getNotAcceptedFriendsFromParse();
+        boolean notAcceptedAlready;
+        for (int i = 0; i < all.size(); i++) {
+            notAcceptedAlready = false;
+            for (int j = 0; j < notAccepted.size(); j++) {
+                if (all.get(i).getEmail().equals(notAccepted.get(j).getEmail())) {
+                    all.get(i).alreadyInvited = true;
+                }
+            }
+
+            searchFriendsList.add(all.get(i));
+
+        }
+        return searchFriendsList;
     }
 }

@@ -189,7 +189,7 @@ public class SessionManager {
                                 actual.get("name").toString(),
                                 actual.getEmail(),
                                 actual.get("photo") != null ? actual.get("photo").toString() : null,
-                                point.getLatitude(), point.getLongitude(), actual));
+                                point.getLatitude(), point.getLongitude(), actual, false));
 
                         Log.d("Friend added: ", "" + actual.get("name").toString() + " " + point.getLatitude() + ", " + point.getLongitude());
                     }
@@ -212,7 +212,7 @@ public class SessionManager {
                                 actual.get("name").toString(),
                                 actual.getEmail(),
                                 actual.get("photo") != null ? actual.get("photo").toString() : null,
-                                point.getLatitude(), point.getLongitude(), actual));
+                                point.getLatitude(), point.getLongitude(), actual, false));
                     }
 
                 }
@@ -329,7 +329,7 @@ public class SessionManager {
                                 actual.get("name").toString(),
                                 actual.getEmail(),
                                 actual.get("photo") != null ? actual.get("photo").toString() : null,
-                                point.getLatitude(), point.getLongitude(), actual));
+                                point.getLatitude(), point.getLongitude(), actual, true));
 
                         Log.d("Friend added: ", "" + actual.get("name").toString() + " " + point.getLatitude() + ", " + point.getLongitude());
                     }
@@ -352,7 +352,7 @@ public class SessionManager {
                                 actual.get("name").toString(),
                                 actual.getEmail(),
                                 actual.get("photo") != null ? actual.get("photo").toString() : null,
-                                point.getLatitude(), point.getLongitude(), actual));
+                                point.getLatitude(), point.getLongitude(), actual, true));
                     }
 
                 }
@@ -366,5 +366,24 @@ public class SessionManager {
         }
 
         return result;
+    }
+
+    public static ArrayList<Friend> getUsersWithoutCurrentFriendsAndWithGrayAlmostFriends() {
+        ArrayList<Friend> searchFriendsList = new ArrayList<>();
+        List<Friend> all = SessionManager.getInstance().getAllUsersFromParseWithoutCurrentAndFriends();
+        List<Friend> notAccepted = SessionManager.getNotAcceptedFriendsFromParse();
+        boolean notAcceptedAlready;
+        for (int i = 0; i < all.size(); i++) {
+            notAcceptedAlready = false;
+            for (int j = 0; j < notAccepted.size(); j++) {
+                if (all.get(i).getEmail().equals(notAccepted.get(j).getEmail())) {
+                    all.get(i).alreadyInvited = true;
+                }
+            }
+
+            searchFriendsList.add(all.get(i));
+
+        }
+        return searchFriendsList;
     }
 }

@@ -48,7 +48,7 @@ public class SearchingFriendAdapter extends ArrayAdapter<Friend> implements Filt
     public SearchingFriendAdapter(Context context, ArrayList<Friend> items) {
         super(context, R.layout.search_friend_list_row, items);
         this.items = items;
-        helpList = session.getAllUsersFromParseWithoutCurrentAndFriends();
+        helpList = SessionManager.getUsersWithoutCurrentFriendsAndWithGrayAlmostFriends();
         commonMethods = new CommonMethods(context);
     }
 
@@ -66,16 +66,17 @@ public class SearchingFriendAdapter extends ArrayAdapter<Friend> implements Filt
             convertView.setBackgroundColor(Color.WHITE);
         }
         inviteFriendButton = (ImageView) convertView.findViewById(R.id.inviteFriend);
-        if (false) { // tutaj jakiś fajny warunek
-            inviteFriendButton.setImageDrawable(convertView.getResources().getDrawable(R.drawable.plus_circle_gray));
-            inviteFriendButton.setClickable(false);
-        }
+
         inviteFriendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 new SendFriendshipRequest().execute(friend);
             }
         });
+        if (friend.alreadyInvited) { // tutaj jakiś fajny warunek
+            inviteFriendButton.setImageDrawable(convertView.getResources().getDrawable(R.drawable.plus_circle_gray));
+            inviteFriendButton.setClickable(false);
+        }
         // Lookup view for data population
         TextView name = (TextView) convertView.findViewById(R.id.txt);
         TextView email = (TextView) convertView.findViewById(R.id.userEmail);

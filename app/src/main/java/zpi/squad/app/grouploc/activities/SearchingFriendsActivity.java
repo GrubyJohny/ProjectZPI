@@ -98,9 +98,7 @@ public class SearchingFriendsActivity extends AppCompatActivity {
                 notAcceptedAlready = false;
                 for (int j = 0; j < notAccepted.size(); j++) {
                     if (all.get(i).getEmail().equals(notAccepted.get(j).getEmail())) {
-                        notAcceptedAlready = true;
-                        all.get(i).setName("SLAWEK TO ROWNY GOSC");
-                        all.get(i).setEmail("TYLKO POD SUFITEM MA NIEROWNO");
+                        all.get(i).alreadyInvited = true;
                     }
                 }
 

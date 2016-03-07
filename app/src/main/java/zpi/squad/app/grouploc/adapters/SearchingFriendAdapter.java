@@ -66,6 +66,10 @@ public class SearchingFriendAdapter extends ArrayAdapter<Friend> implements Filt
             convertView.setBackgroundColor(Color.WHITE);
         }
         inviteFriendButton = (ImageView) convertView.findViewById(R.id.inviteFriend);
+        if (false) { // tutaj jakiś fajny warunek
+            inviteFriendButton.setImageDrawable(convertView.getResources().getDrawable(R.drawable.plus_circle_gray));
+            inviteFriendButton.setClickable(false);
+        }
         inviteFriendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

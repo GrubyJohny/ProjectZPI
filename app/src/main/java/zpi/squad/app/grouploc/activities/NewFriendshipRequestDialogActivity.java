@@ -20,13 +20,10 @@ import org.json.JSONObject;
 
 import java.util.List;
 
-import zpi.squad.app.grouploc.helpers.CommonMethods;
-
 public class NewFriendshipRequestDialogActivity extends Activity {
     Bundle extras;
     ConfirmFriendship confirm = new ConfirmFriendship();
     SendFriendshipAcceptanceNotification sendAcceptNotif = new SendFriendshipAcceptanceNotification();
-    CommonMethods commonMethods = new CommonMethods();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,7 +45,6 @@ public class NewFriendshipRequestDialogActivity extends Activity {
                                 sendAcceptNotif.execute(extras.getString(("friendship_id")));
                             }
                         });
-
                         dialog.cancel();
                         finish();
                     }

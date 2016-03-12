@@ -7,6 +7,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ArrayAdapter;
 import android.widget.Filter;
 import android.widget.Filterable;
@@ -139,10 +141,13 @@ public class SearchingFriendAdapter extends ArrayAdapter<Friend> implements Filt
     private class SendFriendshipRequest extends AsyncTask<Friend, Void, Void> {
 
         String[] temp;
+        Animation animation = AnimationUtils.loadAnimation(getContext(), R.anim.rotate);
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
+
+            inviteFriendButton.startAnimation(animation);
         }
 
         @Override
@@ -165,6 +170,7 @@ public class SearchingFriendAdapter extends ArrayAdapter<Friend> implements Filt
         @Override
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
+            inviteFriendButton.clearAnimation();
             inviteFriendButton.setBackgroundResource(R.drawable.plus_circle_gray);
             inviteFriendButton.setClickable(false);
             Toast.makeText(MainActivity.context, temp[0], Toast.LENGTH_LONG).show();

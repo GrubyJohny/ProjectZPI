@@ -31,6 +31,7 @@ import java.net.URL;
 
 import zpi.squad.app.grouploc.R;
 import zpi.squad.app.grouploc.SessionManager;
+import zpi.squad.app.grouploc.activities.MainActivity;
 import zpi.squad.app.grouploc.helpers.CommonMethods;
 
 public class ChangePhotoFragment extends Fragment {
@@ -73,6 +74,7 @@ public class ChangePhotoFragment extends Fragment {
 
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        ((MainActivity) getActivity()).setActionBarTitle("Change photo");
         settingButtons();
     }
 

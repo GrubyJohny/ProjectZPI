@@ -56,6 +56,8 @@ public class NotificationFragment extends Fragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        ((MainActivity) getActivity()).setActionBarTitle("Notifications");
+
         commonMethods = new CommonMethods(getActivity().getApplicationContext());
 
         notificationsList = SessionManager.getInstance().getNotificationsList();

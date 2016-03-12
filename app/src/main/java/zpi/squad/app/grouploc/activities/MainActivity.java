@@ -223,8 +223,10 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         {
             e.getLocalizedMessage();
         }
+    }
 
-
+    public void setActionBarTitle(String title) {
+        getSupportActionBar().setTitle(title);
     }
 
     private void friendListSettings() {

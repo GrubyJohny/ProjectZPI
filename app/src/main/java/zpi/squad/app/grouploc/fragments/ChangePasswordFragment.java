@@ -25,6 +25,7 @@ import com.parse.ParseException;
 import com.parse.ParseUser;
 
 import zpi.squad.app.grouploc.R;
+import zpi.squad.app.grouploc.activities.MainActivity;
 
 public class ChangePasswordFragment extends Fragment {
     private static View view;
@@ -60,6 +61,7 @@ public class ChangePasswordFragment extends Fragment {
 
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        ((MainActivity) getActivity()).setActionBarTitle("Change password");
         settingButtons();
     }
 

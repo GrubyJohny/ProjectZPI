@@ -65,6 +65,7 @@ import zpi.squad.app.grouploc.R;
 import zpi.squad.app.grouploc.SQLiteHandler;
 import zpi.squad.app.grouploc.Sender;
 import zpi.squad.app.grouploc.SessionManager;
+import zpi.squad.app.grouploc.activities.MainActivity;
 import zpi.squad.app.grouploc.domains.CustomMarker;
 import zpi.squad.app.grouploc.utils.DirectionsJSONParser;
 import zpi.squad.app.grouploc.utils.PoiJSONParser;
@@ -544,6 +545,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        ((MainActivity) getActivity()).setActionBarTitle("Map");
         //setUpMap(true);
 
     }

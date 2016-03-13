@@ -1,10 +1,8 @@
 package zpi.squad.app.grouploc.domains;
 
-/**
- * Created by karol_000 on 2015-05-12.
- */
 public class Notification {
 
+    private String notificationId;
     private String senderId;
     private String senderName;
     private String senderEmail;
@@ -14,6 +12,8 @@ public class Notification {
     private String message; //tutaj na razie będę przechowywać id do obiektów, których tyczy się powiadomienie
     private String createdAt;
     private int checked;
+
+    private boolean markedAsRead;
 
     public Notification() {
     }
@@ -28,7 +28,16 @@ public class Notification {
         this.groupId = groupId;
         this.createdAt = createdAt;
         this.checked = checked;
+    }
 
+    public Notification(String notificationId, String senderName, String senderEmail, String type, String message, String createdAt, boolean markedAsRead) {
+        this.notificationId = notificationId;
+        this.senderName = senderName;
+        this.senderEmail = senderEmail;
+        this.type = type;
+        this.message = message;
+        this.createdAt = createdAt;
+        this.markedAsRead = markedAsRead;
     }
 
 
@@ -125,5 +134,17 @@ public class Notification {
 
     public void setCreatedAt(String createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public boolean isMarkedAsRead() {
+        return markedAsRead;
+    }
+
+    public void setMarkedAsRead(boolean markedAsRead) {
+        this.markedAsRead = markedAsRead;
+    }
+
+    public String getNotificationId() {
+        return notificationId;
     }
 }

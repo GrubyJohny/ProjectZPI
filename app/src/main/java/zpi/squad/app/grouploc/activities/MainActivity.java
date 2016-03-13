@@ -38,24 +38,18 @@ import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.GroundOverlayOptions;
 import com.google.android.gms.maps.model.LatLng;
-import com.parse.Parse;
-import com.parse.ParseACL;
 import com.parse.ParseException;
-import com.parse.ParseFacebookUtils;
 import com.parse.ParseGeoPoint;
 import com.parse.ParseInstallation;
 import com.parse.ParseObject;
-import com.parse.ParsePush;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
-import com.parse.RefreshCallback;
 
 import java.text.DateFormat;
 import java.util.ArrayList;
@@ -229,8 +223,10 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         {
             e.getLocalizedMessage();
         }
+    }
 
-
+    public void setActionBarTitle(String title) {
+        getSupportActionBar().setTitle(title);
     }
 
     private void friendListSettings() {
@@ -310,7 +306,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                                         adapter.remove(item);
                                         adapter.notifyDataSetChanged();
                                         Toast.makeText(getApplicationContext(), "Friend deleted", Toast.LENGTH_LONG).show();
-                                        commonMethods.reloadSearchingFriendsData(SearchingFriendsActivity.adapter);
+//                                        commonMethods.reloadSearchingFriendsData(SearchingFriendsActivity.adapter);
                                     }
                                 });
                                 builder.setCancelable(true);

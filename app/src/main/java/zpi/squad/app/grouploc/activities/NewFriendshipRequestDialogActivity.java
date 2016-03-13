@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.parse.Parse;
 import com.parse.ParseException;
 import com.parse.ParseInstallation;
 import com.parse.ParseObject;
@@ -21,12 +20,10 @@ import org.json.JSONObject;
 
 import java.util.List;
 
-
 public class NewFriendshipRequestDialogActivity extends Activity {
     Bundle extras;
     ConfirmFriendship confirm = new ConfirmFriendship();
     SendFriendshipAcceptanceNotification sendAcceptNotif = new SendFriendshipAcceptanceNotification();
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,8 +45,6 @@ public class NewFriendshipRequestDialogActivity extends Activity {
                                 sendAcceptNotif.execute(extras.getString(("friendship_id")));
                             }
                         });
-
-
                         dialog.cancel();
                         finish();
                     }
@@ -58,8 +53,6 @@ public class NewFriendshipRequestDialogActivity extends Activity {
                     public void onClick(DialogInterface dialog, int id) {
                         dialog.cancel();
                         finish();
-                        getFragmentManager().popBackStack();
-
                     }
                 });
         AlertDialog alert = builder.create();

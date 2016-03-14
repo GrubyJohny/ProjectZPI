@@ -40,6 +40,7 @@ public class MyReceiver extends ParsePushBroadcastReceiver {
                 switch (pushData.getInt("kind_of_notification")) {
                     case 101: //friendship request to accept
                     {
+                        Log.e("NOTIF 101: ", "friendship requested");
                         Intent i = new Intent(mContext, NewFriendshipRequestDialogActivity.class);
                         i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         i.putExtra("new_friend_name", pushData.getString("new_friend_name"));
@@ -58,6 +59,11 @@ public class MyReceiver extends ParsePushBroadcastReceiver {
                         break;
                     }
                     case 103: //friendship deleted - need to refresh friends list
+                    {
+
+                        break;
+                    }
+                    case 104: //marker received from friend
                     {
 
                         break;

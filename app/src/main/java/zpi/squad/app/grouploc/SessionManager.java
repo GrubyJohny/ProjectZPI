@@ -151,14 +151,14 @@ public class SessionManager {
             if (notifList.length > 0) {
                 for (int i = 0; i < notifList.length; i++)
                     result.add(new Notification(((ParseObject) notifList[i]).getObjectId(),
+                            ((ParseObject) notifList[i]).getString("senderName"),
                             ((ParseObject) notifList[i]).getString("senderEmail"),
-                            ((ParseObject) notifList[i]).getString("senderEmail"),
-                            "friendshipRequest",
+                            (((ParseObject) notifList[i]).getInt("kindOfNotification")),
                             ((ParseObject) notifList[i]).getString("extra"),
                             ((ParseObject) notifList[i]).getCreatedAt().toLocaleString(),
                             ((ParseObject) notifList[i]).getBoolean("markedAsRead")));
             } else
-                Log.e("There are any ", "notificationsfor current user.");
+                Log.e("There are any ", "notifications for current user.");
         } catch (ParseException e) {
             e.printStackTrace();
         }

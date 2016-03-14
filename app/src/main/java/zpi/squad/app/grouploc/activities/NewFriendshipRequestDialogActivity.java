@@ -93,12 +93,13 @@ public class NewFriendshipRequestDialogActivity extends Activity {
 
             ParseQuery<ParseObject> query = ParseQuery.getQuery("Friendship");
             query.whereEqualTo("objectId", params[0]);
-
+            Log.e("MOZE TU", " WEJdZIE");
             try {
                 List<ParseObject> res = query.find();
                 if (res.size() > 0) {
                     String notifReceiver = "";
                     //String frinedshipId= res.get(0).fetch().getObjectId();
+                    Log.e("ID OBDZEKTU: ", ((ParseObject) res.get(0).fetch().get("friend1")).getObjectId());
                     if (((ParseObject) res.get(0).fetch().get("friend1")).getObjectId().equals(ParseUser.getCurrentUser().getObjectId()))
                         notifReceiver = ((ParseObject) res.get(0).fetch().get("friend2")).getString("email");
                     else
@@ -143,13 +144,13 @@ public class NewFriendshipRequestDialogActivity extends Activity {
 
         JSONObject message = new JSONObject();
         message.put("kind_of_notification", 102);
-        message.put("friend_email", email);
+        message.put("friend_email", ParseUser.getCurrentUser().getEmail());
         message.put("friendship_id", friendshipId);
         message.put("origin_sender_name", ParseUser.getCurrentUser().get("name"));
         message.put("notification_id", notificationId);
 
         notification.setData(message);
-        //notification.setExpirationTimeInterval(60 * 60 * 24 * 7); //1 week
+        notification.setExpirationTimeInterval(60 * 60 * 24 * 7 * 4); //4 weeks
         notification.sendInBackground();
     }
 }

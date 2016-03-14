@@ -270,14 +270,14 @@ public class SQLiteHandler extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = db.rawQuery(selectQuery, null);
 
-        if (cursor.moveToFirst()) {
+        /*if (cursor.moveToFirst()) {
             do {
                 Notification notificaion = new Notification(cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4), cursor.getString(5), cursor.getString(6), cursor.getString(7), cursor.getString(8), cursor.getInt(6));
 
                 // Adding notification to list
                 notificationsList.add(0, notificaion);
             } while (cursor.moveToNext());
-        }
+        }*/
 
         return notificationsList;
     }

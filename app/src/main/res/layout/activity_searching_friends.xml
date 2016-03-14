@@ -11,7 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
-        android:hint="Enter friend name or email" />
+        android:hint="@string/searching_friends_text" />
 
     <ListView
         android:id="@+id/searchingFriendsListView"
@@ -32,5 +32,15 @@
         android:padding="30dp"
         android:text="@string/listViewFilterNoResults"
         android:textSize="22sp" />
+
+    <com.github.rahatarmanahmed.cpv.CircularProgressView xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/progress_view"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_below="@id/search_friends_input"
+        android:layout_centerHorizontal="true"
+        app:cpv_animAutostart="true"
+        app:cpv_indeterminate="true"
+        app:cpv_color="#2196F3" />
 
 </RelativeLayout>

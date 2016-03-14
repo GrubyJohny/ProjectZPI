@@ -25,5 +25,6 @@
     <color name="panel_main">#4CAF50</color>
     <color name="other_buttons">#00796B</color>
     <color name="list_divider">#FAFAFA</color>
+    <color name="unread_notification">#CCE5FF</color>
 
 </resources>

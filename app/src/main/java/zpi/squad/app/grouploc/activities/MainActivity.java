@@ -176,7 +176,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         addFriendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, SearchingFriendsActivity.class);
+                Intent intent = new Intent(getApplicationContext(), SearchingFriendsActivity.class);
                 startActivity(intent);
             }
         });

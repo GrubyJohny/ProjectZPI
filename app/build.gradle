@@ -68,12 +68,15 @@ android {
 
 
 
+
+
+
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile files('volley.jar')
     compile 'com.google.android.gms:play-services:6.5.87'
     /*    compile 'com.android.support:support-v4:22.0.0'
-                                                                                                        compile 'com.android.support:appcompat-v7:22.0.0'*/
+                                                                                                            compile 'com.android.support:appcompat-v7:22.0.0'*/
     compile 'com.facebook.android:facebook-android-sdk:4.1.2'
     compile 'com.nhaarman.supertooltips:library:3.0.+'
     compile files('commons-net-ftp-2.0.jar')
@@ -81,4 +84,5 @@ dependencies {
     compile files('Parse-1.9.4.jar')
     compile files('ParseFacebookUtilsV4-1.9.4.jar')
     compile 'com.cocosw:bottomsheet:1.+@aar'
+    compile 'com.github.rahatarmanahmed:circularprogressview:2.4.0'
 }

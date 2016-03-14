@@ -12,6 +12,8 @@ import android.widget.EditText;
 import android.widget.Filter;
 import android.widget.ListView;
 
+import com.github.rahatarmanahmed.cpv.CircularProgressView;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -69,6 +71,12 @@ public class SearchingFriendsActivity extends AppCompatActivity {
             public void afterTextChanged(Editable s) {
             }
         });
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
         FillTheList fill = new FillTheList();
         fill.execute();
     }
@@ -84,10 +92,14 @@ public class SearchingFriendsActivity extends AppCompatActivity {
     }
 
     private class FillTheList extends AsyncTask<Void, Void, Void> {
+        CircularProgressView progressView = (CircularProgressView) findViewById(R.id.progress_view);
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
+
+            progressView.startAnimation();
+            empty.setVisibility(View.INVISIBLE);
         }
 
         @Override
@@ -95,9 +107,7 @@ public class SearchingFriendsActivity extends AppCompatActivity {
             searchFriendsList.clear();
             List<Friend> all = session.getAllUsersFromParseWithoutCurrentAndFriends();
             List<Friend> notAccepted = SessionManager.getNotAcceptedFriendsFromParse();
-            boolean notAcceptedAlready;
             for (int i = 0; i < all.size(); i++) {
-                notAcceptedAlready = false;
                 for (int j = 0; j < notAccepted.size(); j++) {
                     if (all.get(i).getEmail().equals(notAccepted.get(j).getEmail())) {
                         all.get(i).alreadyInvited = true;
@@ -116,6 +126,7 @@ public class SearchingFriendsActivity extends AppCompatActivity {
             super.onPostExecute(aVoid);
 
             adapter.notifyDataSetChanged();
+            progressView.setVisibility(View.GONE);
         }
     }
 }

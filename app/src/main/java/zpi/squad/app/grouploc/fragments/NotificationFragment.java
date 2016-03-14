@@ -93,6 +93,7 @@ public class NotificationFragment extends Fragment {
                                         commonMethods.reloadFriendsData(MainActivity.adapter);
                                         notificationsList.get(position).setMarkedAsRead(true);
                                         new MarkAsReadNotification().execute(((Notification) adapter.getItem(position)).getNotificationId());
+                                        getViewByPosition(position, notificationListView).setBackgroundResource(0);
                                         dialog.cancel();
                                     }
                                 })
@@ -110,6 +111,18 @@ public class NotificationFragment extends Fragment {
 
         DownloadPhotos downloadPhotos = new DownloadPhotos();
         downloadPhotos.execute();
+
+        notificationListView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+            @Override
+            public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
+                for (int i = 0; i < notificationsList.size(); i++) {
+                    if (!notificationsList.get(i).isMarkedAsRead()) {
+                        getViewByPosition(i, notificationListView).setBackgroundResource(R.color.unread_notification);
+                    }
+                }
+            }
+        });
+
     }
 
     @Override
@@ -174,14 +187,6 @@ public class NotificationFragment extends Fragment {
             commonMethods.reloadFriendsData(MainActivity.adapter);
             Log.e("FRIEND ADDED", "SUCCESSFULLY!");
         }
-    }
-
-    private void reloadNotificationsData() {
-        session.refreshNotificationsList();
-        List<Notification> objects = session.getNotificationsList();
-        adapter.clear();
-        adapter.addAll(objects);
-        adapter.notifyDataSetChanged();
     }
 
     class SendFriendshipAcceptanceNotification extends AsyncTask<String, Void, Void> {
@@ -280,6 +285,18 @@ public class NotificationFragment extends Fragment {
 
             adapter.notifyDataSetChanged();
 
+        }
+    }
+
+    public View getViewByPosition(int pos, ListView listView) {
+        final int firstListItemPosition = listView.getFirstVisiblePosition();
+        final int lastListItemPosition = firstListItemPosition + listView.getChildCount() - 1;
+
+        if (pos < firstListItemPosition || pos > lastListItemPosition) {
+            return listView.getAdapter().getView(pos, null, listView);
+        } else {
+            final int childIndex = pos - firstListItemPosition;
+            return listView.getChildAt(childIndex);
         }
     }
 }

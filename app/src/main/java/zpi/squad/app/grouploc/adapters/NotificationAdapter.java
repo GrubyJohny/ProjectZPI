@@ -45,7 +45,10 @@ public class NotificationAdapter extends ArrayAdapter {
         Notification item = (Notification) getItem(position);
         viewHolder.notificationTextView.setText(item.toString());
         viewHolder.notificationDate.setText(item.getCreatedAt());
-        viewHolder.notificationImg.setImageResource(R.drawable.image3);
+        if (item.getPhoto() == null)
+            viewHolder.notificationImg.setImageResource(R.drawable.image3);
+        else
+            viewHolder.notificationImg.setImageBitmap(item.getPhoto());
         /*if(item.isChecked())
             viewHolder.notificationLayout.setBackgroundResource(R.color.material_blue_grey_900);*/
         if (item.isChecked())

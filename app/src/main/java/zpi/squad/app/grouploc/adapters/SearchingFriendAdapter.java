@@ -183,7 +183,8 @@ public class SearchingFriendAdapter extends ArrayAdapter<Friend> implements Filt
         try {
             ParseObject notific = new ParseObject("Notification");
             notific.put("senderEmail", ParseUser.getCurrentUser().getEmail());
-            notific.put("receiverEmail", newFriend.getEmail());
+            notific.put("senderName", session.getUserName());
+            notific.put("receiverEmail", email);
             notific.put("kindOfNotification", 101);
             notific.put("markedAsRead", false);
             notific.put("extra", friendshipId);
@@ -204,13 +205,13 @@ public class SearchingFriendAdapter extends ArrayAdapter<Friend> implements Filt
 
         JSONObject message = new JSONObject();
         message.put("kind_of_notification", 101);
-        message.put("friend_email", email);
+        message.put("friend_email", session.getUserEmail());
         message.put("friendship_id", friendshipId);
-        message.put("new_friend_name", friendName);
+        message.put("new_friend_name", session.getUserName());
         message.put("notification_id", notificationId);
 
         notification.setData(message);
-        //notification.setExpirationTimeInterval(60 * 60 * 24 * 7); //1 week
+        notification.setExpirationTimeInterval(60 * 60 * 24 * 7 * 4); //4 weeks
         notification.sendInBackground();
 
         Log.e("z sendFriendshiNotif", "tak");

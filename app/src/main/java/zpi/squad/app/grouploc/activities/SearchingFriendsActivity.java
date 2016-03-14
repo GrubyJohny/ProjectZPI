@@ -28,6 +28,7 @@ public class SearchingFriendsActivity extends AppCompatActivity {
     private SessionManager session = SessionManager.getInstance();
     View empty;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -71,6 +72,7 @@ public class SearchingFriendsActivity extends AppCompatActivity {
         FillTheList fill = new FillTheList();
         fill.execute();
     }
+
 
     @Override
     public void onContentChanged() {

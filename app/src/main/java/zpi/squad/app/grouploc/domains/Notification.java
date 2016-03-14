@@ -1,5 +1,7 @@
 package zpi.squad.app.grouploc.domains;
 
+import android.graphics.Bitmap;
+
 public class Notification {
 
     private String notificationId;
@@ -7,18 +9,19 @@ public class Notification {
     private String senderName;
     private String senderEmail;
     private String receiverId;
-    private String type;
+    private int type;
     private String groupId;
     private String message; //tutaj na razie będę przechowywać id do obiektów, których tyczy się powiadomienie
     private String createdAt;
     private int checked;
+    private Bitmap photo;
 
     private boolean markedAsRead;
 
     public Notification() {
     }
 
-    public Notification(String senderId, String senderName, String senderEmail, String receiverId, String type, String message, String groupId, String createdAt, int checked) {
+    /*public Notification(String senderId, String senderName, String senderEmail, String receiverId, String type, String message, String groupId, String createdAt, int checked) {
         this.senderId = senderId;
         this.senderName = senderName;
         this.senderEmail = senderEmail;
@@ -28,9 +31,9 @@ public class Notification {
         this.groupId = groupId;
         this.createdAt = createdAt;
         this.checked = checked;
-    }
+    }*/
 
-    public Notification(String notificationId, String senderName, String senderEmail, String type, String message, String createdAt, boolean markedAsRead) {
+    public Notification(String notificationId, String senderName, String senderEmail, int type, String message, String createdAt, boolean markedAsRead) {
         this.notificationId = notificationId;
         this.senderName = senderName;
         this.senderEmail = senderEmail;
@@ -42,22 +45,21 @@ public class Notification {
 
 
     public String toString() {
-        String response = null;
+        String response = "";
 
-        if (type.equals("friendshipRequest")) {
-            response = "Użytkownik " + senderName + " zaprosił Cię do znajomych";
-        } else if (type.equals("friendshipAgreed")) {
-            response = "Użytkownik " + senderName + " zaakceptował Twoje zaproszenie";
-        } else if (type.equals("friendshipDisagreed")) {
-            response = "Użytkownik " + senderName + " odrzucił Twoje zaproszenie";
-        } else if (type.equals("friendshipCanceled")) {
-            response = "Użytkownik " + senderName + " wyrzucił Cię ze znajomych";
-        } else if (type.equals("shareMarker")) {
-            response = "Użykownik " + senderName + " udostępnił Ci nowy punkt na mapie";
-        } else if (type.equals("groupRequest")) {
-            response = "Użykownik " + senderName + " poprosił Cię o dodanie do grupy";
-        } else if (type.equals("userAddedToGroup")) {
-            response = "Zostałeś dodany do grupy nr " + groupId;
+        switch (type) {
+            case 101: {
+                response = senderName + " has invited you to friends";
+                break;
+            }
+            case 102: {
+                response = senderName + " has accepted your friends request";
+                break;
+            }
+            default: {
+                response = "This should never happen";
+                break;
+            }
         }
 
 
@@ -104,11 +106,11 @@ public class Notification {
         this.receiverId = receiverId;
     }
 
-    public String getType() {
+    public int getType() {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(int type) {
         this.type = type;
     }
 
@@ -146,5 +148,13 @@ public class Notification {
 
     public String getNotificationId() {
         return notificationId;
+    }
+
+    public Bitmap getPhoto() {
+        return photo;
+    }
+
+    public void setPhoto(Bitmap b) {
+        this.photo = b;
     }
 }

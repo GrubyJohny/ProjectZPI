@@ -21,6 +21,7 @@ import java.util.List;
 
 import zpi.squad.app.grouploc.config.AppConfig;
 import zpi.squad.app.grouploc.domains.CustomMarker;
+import zpi.squad.app.grouploc.fragments.MapFragment;
 
 public class AppController extends Application {
 
@@ -31,7 +32,7 @@ public class AppController extends Application {
     private static AppController mInstance;
 
     private LatLng lastClikOnMap;
-    private GoogleMap myMap;
+    public static GoogleMap myMap;
     private List<CustomMarker> markers;
     private ProgressDialog dialog;
 
@@ -59,7 +60,7 @@ public class AppController extends Application {
             e.printStackTrace();
         }
 
-
+        myMap = MapFragment.getMap();
     }
 
     public static synchronized AppController getInstance() {
@@ -90,7 +91,7 @@ public class AppController extends Application {
         }
     }
 
-    public GoogleMap getMyMap() {
+    public static GoogleMap getMyMap() {
         return myMap;
     }
 

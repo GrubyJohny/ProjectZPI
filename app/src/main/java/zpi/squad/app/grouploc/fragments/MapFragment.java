@@ -18,13 +18,9 @@ import android.view.InflateException;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ScrollView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.cocosw.bottomsheet.BottomSheet;
@@ -45,6 +41,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.parse.ParseException;
+import com.parse.ParseGeoPoint;
 
 import org.json.JSONObject;
 
@@ -142,6 +139,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
 
     private static GoogleMap map;
 
+    public static ParseGeoPoint lastClickOnMap;
+
     AppController globalVariable;
 
     private static final CharSequence[] MAP_TYPE_ITEMS =
@@ -159,7 +158,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
 
 //        tabs = (View) getActivity().findViewById(R.id.tabanim_tabs);
         context = getActivity().getApplicationContext();
-        //globalVariable = (AppController) getActivity().getApplicationContext();
+        globalVariable = (AppController) getActivity().getApplicationContext();
         db = new SQLiteHandler(getActivity().getApplicationContext());
         markers = db.getAllMarkers();
         googleMarkers=new HashMap<String,Marker>();
@@ -220,6 +219,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
     @Override
     public void onMapReady(GoogleMap map) {
         this.map = map;
+        AppController.myMap = map;
         map.setBuildingsEnabled(true);
         map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
         map.setMyLocationEnabled(true);
@@ -592,26 +592,29 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
         markersShops = poiBase.getJsonWithSelectedData(7, new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()), "shop");
         markersMarkets = poiBase.getJsonWithSelectedData(8, new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()), "market");
     }
-
+/*
     public void setMapListener() {
         globalVariable.getMyMap().setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
             @Override
             public void onMapLongClick(LatLng latLng) {
-                globalVariable.setLastClikOnMap(latLng);
+                Bundle bundle = new Bundle();
+                Log.e("lirwadsgdf", "asdgisdf");
+                bundle.putDouble("lat", latLng.latitude);
+                bundle.putDouble("lng", latLng.longitude);
                 MarkerDialog markerDialog = new MarkerDialog();
+                markerDialog.setArguments(bundle);
                 markerDialog.setTargetFragment(MapFragment.this,0);
                 markerDialog.show(getFragmentManager(), "Marker Dialog");
             }
         });
-
 
         globalVariable.getMyMap().setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
                 ostatniMarker = marker;
                 globalVariable.getMyMap().animateCamera(CameraUpdateFactory.newLatLng(marker.getPosition()));
-                /*layoutMarker.setX((float) globalVariable.getMyMap().getProjection().toScreenLocation(marker.getPosition()).x - layoutMarker.getWidth() / 2);
-                layoutMarker.setY((float) globalVariable.getMyMap().getProjection().toScreenLocation(marker.getPosition()).y - layoutMarker.getHeight() + 180);*/
+                *//*layoutMarker.setX((float) globalVariable.getMyMap().getProjection().toScreenLocation(marker.getPosition()).x - layoutMarker.getWidth() / 2);
+                layoutMarker.setY((float) globalVariable.getMyMap().getProjection().toScreenLocation(marker.getPosition()).y - layoutMarker.getHeight() + 180);*//*
                 TextView name = (TextView) layoutMarker.findViewById(R.id.titleOfMarker);
                 Log.d("tittle", name + "");
                 name.setText(marker.getTitle());
@@ -656,11 +659,11 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
                         R.anim.bottom_up);
                 layoutMarker.startAnimation(bottomUp);
                 layoutMarker.setVisibility(View.VISIBLE);
-                /*layoutMarker.setVisibility(View.VISIBLE);
+                *//*layoutMarker.setVisibility(View.VISIBLE);
                 layoutMarker.setAlpha(0.0f);
                 layoutMarker.animate()
                         .translationY(1500)
-                        .alpha(1.0f);*/
+                        .alpha(1.0f);*//*
                 return true;
             }
         });
@@ -676,7 +679,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
                 layoutMarker.setVisibility(View.VISIBLE);
             }
         });
-    }
+    }*/
 
     private void setUpMap(boolean hardSetup) {
 
@@ -1114,7 +1117,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
 
     @Override
     public void onDialogPositiveClick(android.support.v4.app.DialogFragment dialog) {
-
+/*
         MarkerDialog md = (MarkerDialog) dialog;
         String name = md.getName();
         Log.d("Marker Dialog", name);
@@ -1133,7 +1136,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
         googleMarkers.put(markerIdInteler,marker);
         Log.d("ADD_MARKER", markerIdExtrenal + "," + markerIdInteler);
         InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.hideSoftInputFromWindow(md.getInput().getWindowToken(), 0);
+        imm.hideSoftInputFromWindow(md.getInput().getWindowToken(), 0);*/
     }
 
     public static GoogleMap getMap()

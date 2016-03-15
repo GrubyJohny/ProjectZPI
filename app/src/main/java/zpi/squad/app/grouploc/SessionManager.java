@@ -25,6 +25,7 @@ public class SessionManager {
     private SharedPreferences pref;
     private SharedPreferences.Editor editor;
     private static ArrayList<Friend> friends;
+    private static ArrayList<Marker> friendsMarkers;
     private static ArrayList<Notification> notifications;
     private static ArrayList<Marker> markers;
     private LatLng currentLocation;

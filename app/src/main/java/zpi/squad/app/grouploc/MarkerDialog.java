@@ -9,6 +9,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
 
+import com.parse.ParseGeoPoint;
+import com.parse.ParseObject;
+import com.parse.ParseUser;
+
+import zpi.squad.app.grouploc.fragments.MapFragment;
+
 /**
  * Created by sanczo on 2015-05-22.
  */
@@ -76,7 +82,9 @@ public class MarkerDialog extends DialogFragment {
                     public void onClick(DialogInterface dialog, int id) {
                         name = input.getText().toString();
 
-                        mListener.onDialogPositiveClick(MarkerDialog.this);
+                        //mListener.onDialogPositiveClick(MarkerDialog.this);
+
+                        saveMarker();
                     }
                 })
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -86,6 +94,16 @@ public class MarkerDialog extends DialogFragment {
                 });
 
         return builder.create();
+    }
+
+    private void saveMarker() {
+        ParseObject marker = new ParseObject("Marker");
+
+        marker.put("name", name);
+        marker.put("localization", new ParseGeoPoint(MapFragment.getMap().getCameraPosition().target.latitude, MapFragment.getMap().getCameraPosition().target.longitude));
+        marker.put("owner", ParseUser.getCurrentUser());
+
+        marker.saveInBackground();
     }
 
 }

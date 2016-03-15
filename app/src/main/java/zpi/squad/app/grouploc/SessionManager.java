@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import zpi.squad.app.grouploc.domains.Friend;
+import zpi.squad.app.grouploc.domains.Marker;
 import zpi.squad.app.grouploc.domains.Notification;
 
 public class SessionManager {
@@ -24,7 +25,9 @@ public class SessionManager {
     private SharedPreferences pref;
     private SharedPreferences.Editor editor;
     private static ArrayList<Friend> friends;
+    private static ArrayList<Marker> friendsMarkers;
     private static ArrayList<Notification> notifications;
+    private static ArrayList<Marker> markers;
     private LatLng currentLocation;
     public boolean requestLocationUpdate = true;
     boolean isFriend;
@@ -122,6 +125,7 @@ public class SessionManager {
         friends = null;
         requestLocationUpdate = false;
         notifications = null;
+        markers = null;
     }
 
     public ArrayList<Friend> getFriendsList() {
@@ -135,6 +139,42 @@ public class SessionManager {
             notifications = getNotificationsFromParse();
         return notifications;
     }
+
+    public ArrayList<Marker> getMarkersList() {
+        if (markers == null)
+            markers = getMarkersFromParse();
+        return markers;
+    }
+
+    private ArrayList<Marker> getMarkersFromParse() {
+        ArrayList<Marker> result = new ArrayList<>();
+
+        ParseQuery markers = new ParseQuery("Marker");
+        markers.whereEqualTo("owner", ParseUser.getCurrentUser());
+
+        Object[] markersList = null;
+
+        try {
+            markersList = markers.find().toArray().clone();
+
+            if (markersList.length > 0) {
+                for (int i = 0; i < markersList.length; i++)
+                    result.add(new Marker(((ParseObject) markersList[i]).getObjectId(),
+                            ((ParseObject) markersList[i]).getString("name"),
+                            (((ParseObject) markersList[i]).getParseUser("owner")),
+                            (((ParseObject) markersList[i]).getParseGeoPoint("localization"))));
+
+                Log.e("ILE MARKERKÓW? ", "" + result.size());
+            } else
+                Log.e("There are any ", "markers for current user.");
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+
+        return result;
+    }
+
 
     private ArrayList<Notification> getNotificationsFromParse() {
         ArrayList<Notification> result = new ArrayList<>();

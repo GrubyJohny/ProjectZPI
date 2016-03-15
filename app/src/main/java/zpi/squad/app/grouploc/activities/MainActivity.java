@@ -224,7 +224,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             e.getLocalizedMessage();
         }
 
-        session.getMarkersList();
     }
 
     public void setActionBarTitle(String title) {

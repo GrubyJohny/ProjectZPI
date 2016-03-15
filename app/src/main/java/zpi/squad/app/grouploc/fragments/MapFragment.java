@@ -44,6 +44,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.parse.ParseException;
 
 import org.json.JSONObject;
 
@@ -254,6 +255,20 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
                 markerDialog.show(getFragmentManager(), "Marker Dialog");
             }
         });
+
+        ArrayList<zpi.squad.app.grouploc.domains.Marker> markers = session.getMarkersList();
+        for (int i = 0; i < markers.size(); i++) {
+            try {
+                map.addMarker(new MarkerOptions()
+                        .title(markers.get(i).getName() + "(from " + markers.get(i).getOwner().fetchIfNeeded().get("name") + ")")
+                        .position(new LatLng(markers.get(i).getLocalization().getLatitude(), markers.get(i).getLocalization().getLongitude()))
+                        .visible(true)
+                        .draggable(false));
+            } catch (ParseException e) {
+                e.getLocalizedMessage();
+                e.printStackTrace();
+            }
+        }
     }
 
     private void setupPoiButtons() {

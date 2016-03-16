@@ -256,6 +256,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
             }
         });
 
+        //add own markers
         ArrayList<zpi.squad.app.grouploc.domains.Marker> markers = session.getMarkersList();
         for (int i = 0; i < markers.size(); i++) {
             try {
@@ -268,6 +269,17 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
                 e.getLocalizedMessage();
                 e.printStackTrace();
             }
+        }
+
+        //add markers with friends location
+        ArrayList<zpi.squad.app.grouploc.domains.Marker> friendsMarkers = session.getFriendsMarkers();
+        for (int i = 0; i < friendsMarkers.size(); i++) {
+            map.addMarker(new MarkerOptions()
+                            .title(friendsMarkers.get(i).getName())
+                            .position(new LatLng(friendsMarkers.get(i).getLocalization().getLatitude(), friendsMarkers.get(i).getLocalization().getLongitude()))
+                            .visible(true)
+                            .draggable(false)
+            );
         }
     }
 

@@ -20,14 +20,30 @@ import zpi.squad.app.grouploc.domains.Friend;
 import zpi.squad.app.grouploc.domains.Notification;
 
 public class CommonMethods {
-    private SessionManager session;
+    private SessionManager session = SessionManager.getInstance();
+    private static CommonMethods commonMethods;
 
     public CommonMethods() {
     }
 
     public CommonMethods(Context context) {
-        session = SessionManager.getInstance(context);
+        commonMethods = CommonMethods.getInstance(context);
     }
+
+    public static CommonMethods getInstance(Context context) {
+        if (commonMethods == null)
+            commonMethods = new CommonMethods(context.getApplicationContext());
+
+        return commonMethods;
+    }
+
+    public static CommonMethods getInstance() {
+        if (commonMethods != null)
+            return commonMethods;
+
+        throw new IllegalArgumentException("Should use getInstance(Context) at least once before using this method.");
+    }
+
 
     public void reloadNotificationsData(NotificationAdapter adapter) {
         session.refreshNotificationsList();

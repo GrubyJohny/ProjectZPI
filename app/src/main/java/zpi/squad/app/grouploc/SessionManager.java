@@ -17,6 +17,8 @@ import java.util.List;
 import zpi.squad.app.grouploc.domains.Friend;
 import zpi.squad.app.grouploc.domains.Marker;
 import zpi.squad.app.grouploc.domains.Notification;
+import zpi.squad.app.grouploc.fragments.MapFragment;
+import zpi.squad.app.grouploc.helpers.CommonMethods;
 
 public class SessionManager {
 
@@ -126,6 +128,7 @@ public class SessionManager {
         requestLocationUpdate = false;
         notifications = null;
         markers = null;
+        MapFragment.getMap().clear();
     }
 
     public ArrayList<Friend> getFriendsList() {
@@ -162,7 +165,9 @@ public class SessionManager {
                     result.add(new Marker(((ParseObject) markersList[i]).getObjectId(),
                             ((ParseObject) markersList[i]).getString("name"),
                             (((ParseObject) markersList[i]).getParseUser("owner")),
-                            (((ParseObject) markersList[i]).getParseGeoPoint("localization"))));
+                            (((ParseObject) markersList[i]).getParseGeoPoint("localization"))
+                            //      ,((ParseObject) markersList[i]).getString("icon")==null? jakieafultowyObrazek : CommonMethods.getInstance().decodeBase64ToBitmap(((ParseObject) markersList[i]).getString("icon"))
+                    ));
 
                 Log.e("ILE MARKERKÓW? ", "" + result.size());
             } else
@@ -171,6 +176,18 @@ public class SessionManager {
             e.printStackTrace();
         }
 
+
+        return result;
+    }
+
+    public ArrayList<Marker> getFriendsMarkers() {
+        ArrayList<Marker> result = new ArrayList<>();
+        ArrayList<Friend> friends = getFriendsList();
+
+        for (int i = 0; i < friends.size(); i++)
+            result.add(new Marker(friends.get(i).getUid(), friends.get(i).getName(), friends.get(i).getParseUser(), friends.get(i).getLocation(), CommonMethods.getInstance().decodeBase64ToBitmap(friends.get(i).getPhoto())));
+
+        Log.e("FRIENDS MARKERS: ", "" + friends.size());
 
         return result;
     }

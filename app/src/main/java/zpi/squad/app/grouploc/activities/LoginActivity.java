@@ -69,7 +69,7 @@ public class LoginActivity extends Activity implements AppCompatCallback {
     private ProgressDialog progressLogin;
     private ProgressDialog progressFacebookLogin;
     private boolean successLogin = false;
-    private CommonMethods commonMethods = new CommonMethods();
+    private CommonMethods commonMethods;
     private ParseUser current;
 
     @Override
@@ -87,6 +87,7 @@ public class LoginActivity extends Activity implements AppCompatCallback {
 
         context = getApplicationContext();
         session = SessionManager.getInstance(context);
+        commonMethods = CommonMethods.getInstance(context);
 
         if (session.isLoggedIn()) {
             Intent intent = new Intent(LoginActivity.this, MainActivity.class);
@@ -184,10 +185,9 @@ public class LoginActivity extends Activity implements AppCompatCallback {
 
                                         //jedna kurwa, jebana linijka, pezez którą pieprzyłem się z tym 3 dni
                                         user.save();
-
+                                        //jak nie ma internetu, to tu wypieprza
 
                                         current = ParseUser.getCurrentUser().fetchIfNeeded();
-                                        Log.e("SMUTAS", "" + current.getEmail());
 
                                         session.setUserEmail(current.getEmail());
                                         session.setUserName(current.get("name").toString());

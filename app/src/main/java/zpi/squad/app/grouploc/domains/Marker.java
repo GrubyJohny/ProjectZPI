@@ -1,5 +1,7 @@
 package zpi.squad.app.grouploc.domains;
 
+import android.graphics.Bitmap;
+
 import com.parse.ParseGeoPoint;
 import com.parse.ParseUser;
 
@@ -12,12 +14,21 @@ public class Marker {
     private String name;
     private ParseUser owner;
     private ParseGeoPoint localization;
+    private Bitmap icon;
 
     public Marker(String id, String n, ParseUser o, ParseGeoPoint l) {
         this.objectId = id;
         this.name = n;
         this.owner = o;
         this.localization = l;
+    }
+
+    public Marker(String id, String n, ParseUser o, ParseGeoPoint l, Bitmap ic) {
+        this.objectId = id;
+        this.name = n;
+        this.owner = o;
+        this.localization = l;
+        this.icon = ic;
     }
 
     public String getName() {
@@ -46,6 +57,14 @@ public class Marker {
 
     public String getObjectId() {
         return this.objectId;
+    }
+
+    public Bitmap getIcon() {
+        return this.icon;
+    }
+
+    public void setIcon(Bitmap b) {
+        this.icon = b;
     }
 
 }

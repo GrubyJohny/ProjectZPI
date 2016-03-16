@@ -20,18 +20,36 @@ import zpi.squad.app.grouploc.domains.Friend;
 import zpi.squad.app.grouploc.domains.Notification;
 
 public class CommonMethods {
-    private SessionManager session;
+
+    private static CommonMethods commonMethods;
 
     public CommonMethods() {
+
     }
 
     public CommonMethods(Context context) {
-        session = SessionManager.getInstance(context);
+
+        //commonMethods = CommonMethods.getInstance(context);
     }
 
+    public static CommonMethods getInstance(Context context) {
+        if (commonMethods == null)
+            commonMethods = new CommonMethods(context);
+
+        return commonMethods;
+    }
+
+    public static CommonMethods getInstance() {
+        if (commonMethods != null)
+            return commonMethods;
+
+        throw new IllegalArgumentException("Should use getInstance(Context) at least once before using this method.");
+    }
+
+
     public void reloadNotificationsData(NotificationAdapter adapter) {
-        session.refreshNotificationsList();
-        List<Notification> objects = session.getNotificationsList();
+        SessionManager.getInstance().refreshNotificationsList();
+        List<Notification> objects = SessionManager.getInstance().getNotificationsList();
 
         //tutj po otrzymaniu powiadomienia wypieprza nulla z adaptera
         // !
@@ -41,15 +59,15 @@ public class CommonMethods {
     }
 
     public void reloadFriendsData(FriendAdapter adapter) {
-        session.refreshFriendsList();
-        List<Friend> objects = session.getFriendsList();
+        SessionManager.getInstance().refreshFriendsList();
+        List<Friend> objects = SessionManager.getInstance().getFriendsList();
         adapter.clear();
         adapter.addAll(objects);
         adapter.notifyDataSetChanged();
     }
 
     public void reloadSearchingFriendsData(SearchingFriendAdapter adapter) {
-        List<Friend> objects = session.getAllUsersFromParseWithoutCurrentAndFriends();
+        List<Friend> objects = SessionManager.getInstance().getAllUsersFromParseWithoutCurrentAndFriends();
         adapter.clear();
         adapter.addAll(objects);
         adapter.notifyDataSetChanged();

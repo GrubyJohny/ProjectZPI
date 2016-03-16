@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationManager;
@@ -231,6 +232,39 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
         LatLng location = (mCurrentLocation==null? session.getCurrentLocation() : new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()));
         moveMapCamera(location);
 
+        map.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+
+                if (marker.getSnippet().equals("own")) {
+                    new BottomSheet.Builder(getActivity()).grid().title("Own marker").sheet(R.menu.menu_bottom).listener(new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            switch (which) {
+                                case R.id.polyline:
+                                    // action
+                                    break;
+                            }
+                        }
+                    }).show();
+
+                } else if (marker.getSnippet().equals("friends")) {
+
+                    new BottomSheet.Builder(getActivity()).grid().title("Friend marker").sheet(R.menu.menu_bottom).listener(new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            switch (which) {
+                                case R.id.polyline:
+                                    // action
+                                    break;
+                            }
+                        }
+                    }).show();
+                }
+                return false;
+            }
+        });
+        /*
         map.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
             public void onMapClick(LatLng latLng) {
@@ -246,7 +280,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
                 }).show();
             }
         });
-
+        */
         map.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
             @Override
             public void onMapLongClick(LatLng latLng) {
@@ -256,18 +290,39 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
             }
         });
 
+        new PrepareMarkers().execute();
+    }
+
+    private void prepareMarkers() {
+        //add own markers
         ArrayList<zpi.squad.app.grouploc.domains.Marker> markers = session.getMarkersList();
         for (int i = 0; i < markers.size(); i++) {
             try {
                 map.addMarker(new MarkerOptions()
-                        .title(markers.get(i).getName() + "(from " + markers.get(i).getOwner().fetchIfNeeded().get("name") + ")")
+                        .title(markers.get(i).getName() + " (from " + markers.get(i).getOwner().fetchIfNeeded().get("name") + ")")
                         .position(new LatLng(markers.get(i).getLocalization().getLatitude(), markers.get(i).getLocalization().getLongitude()))
+                        .snippet("own")
                         .visible(true)
                         .draggable(false));
             } catch (ParseException e) {
                 e.getLocalizedMessage();
                 e.printStackTrace();
             }
+        }
+
+        //add markers with friends location
+        ArrayList<zpi.squad.app.grouploc.domains.Marker> friendsMarkers = session.getFriendsMarkers();
+
+        for (int i = 0; i < friendsMarkers.size(); i++) {
+            map.addMarker(new MarkerOptions()
+                            .title(friendsMarkers.get(i).getName())
+                            .position(new LatLng(friendsMarkers.get(i).getLocalization().getLatitude(), friendsMarkers.get(i).getLocalization().getLongitude()))
+                            .snippet("friends")
+                                    // PONIŻEJ TO RACZEJ KTOŚ, KTO SIĘ ZNA, POWINIEN TO MĄDRZE WYSKALOWAĆ
+                            .icon(BitmapDescriptorFactory.fromBitmap(Bitmap.createScaledBitmap(friendsMarkers.get(i).getIcon(), 150, 150, true)))
+                            .visible(true)
+                            .draggable(false)
+            );
         }
     }
 
@@ -280,10 +335,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
         clearPoiButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Collection<HashMap<String,Marker>> allMarkers= active.values();
-                for(HashMap<String,Marker> markerMap:allMarkers) {
-                    Collection<Marker> markerList= markerMap.values();
-                    for (Marker m : markerList){
+                Collection<HashMap<String, Marker>> allMarkers = active.values();
+                for (HashMap<String, Marker> markerMap : allMarkers) {
+                    Collection<Marker> markerList = markerMap.values();
+                    for (Marker m : markerList) {
                         m.remove();
                     }
                 }
@@ -1153,5 +1208,21 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
                 .tilt(30)
                 .build();
         map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+    }
+
+    private class PrepareMarkers extends AsyncTask<Void, Void, Void> {
+
+        @Override
+        protected Void doInBackground(Void... params) {
+
+            SessionManager.getInstance().getMarkersList();
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            prepareMarkers();
+        }
     }
 }

@@ -41,8 +41,6 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.GroundOverlayOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.parse.ParseException;
 import com.parse.ParseGeoPoint;
@@ -115,7 +113,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     private EditText inputSearch;
     public static FriendAdapter adapter;
     private FloatingActionButton addFriendButton;
-    private CommonMethods commonMethods;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -124,7 +121,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         context = getApplicationContext();
-        commonMethods = new CommonMethods(context);
         globalVariable = (AppController) getApplicationContext();
         if (globalVariable.getDialog() != null && globalVariable.getDialog().isShowing()) {
             globalVariable.getDialog().dismiss();
@@ -163,7 +159,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         }
 
         navigationViewLeftProfilePicture = (ImageView) findViewById(R.id.profilePicture);
-        mainPhoto = commonMethods.clipBitmap(commonMethods.decodeBase64ToBitmap(session.getUserPhoto()), navigationViewLeftProfilePicture);
+        mainPhoto = CommonMethods.getInstance().clipBitmap(CommonMethods.getInstance().decodeBase64ToBitmap(session.getUserPhoto()), navigationViewLeftProfilePicture);
         navigationViewLeftProfilePicture.setImageBitmap(mainPhoto);
 
         navigationViewLeftFullName = (TextView) findViewById(R.id.Fullname);
@@ -277,7 +273,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                                     getSupportFragmentManager().beginTransaction().replace(R.id.main_container, mapFragment, mapTAG).setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN).commit();
                                 }
                                 MapFragment.moveMapCamera(new LatLng(item.getLocation().getLatitude(), item.getLocation().getLongitude()));
-                                MapFragment.getMap().addGroundOverlay(new GroundOverlayOptions().image(BitmapDescriptorFactory.fromBitmap(commonMethods.decodeBase64ToBitmap(item.getPhoto()))).position(new LatLng(item.getLocation().getLatitude(), item.getLocation().getLongitude()), 20).visible(true));
+                                //MapFragment.getMap().addGroundOverlay(new GroundOverlayOptions().image(BitmapDescriptorFactory.fromBitmap(CommonMethods.getInstance().decodeBase64ToBitmap(item.getPhoto()))).position(new LatLng(item.getLocation().getLatitude(), item.getLocation().getLongitude()), 20).visible(true));
                                 break;
                             case 1:
                                 String uri = String.format(Locale.ENGLISH, "http://maps.google.com/maps?daddr=%f,%f (%s)", item.getLocation().getLatitude(), item.getLocation().getLongitude(), item.getName());
@@ -350,11 +346,11 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                     Bitmap photo = extras2.getParcelable("data");
 
                     ParseUser user = ParseUser.getCurrentUser();
-                    user.put("photo", commonMethods.encodeBitmapTobase64(photo));
+                    user.put("photo", CommonMethods.getInstance().encodeBitmapTobase64(photo));
                     user.saveInBackground();
-                    session.setUserPhoto(commonMethods.encodeBitmapTobase64(photo));
+                    session.setUserPhoto(CommonMethods.getInstance().encodeBitmapTobase64(photo));
 
-                    mainPhoto = commonMethods.clipBitmap(commonMethods.decodeBase64ToBitmap(session.getUserPhoto()), navigationViewLeftProfilePicture);
+                    mainPhoto = CommonMethods.getInstance().clipBitmap(CommonMethods.getInstance().decodeBase64ToBitmap(session.getUserPhoto()), navigationViewLeftProfilePicture);
                     navigationViewLeftProfilePicture.setImageBitmap(mainPhoto);
 
                     Toast.makeText(this, "OK", Toast.LENGTH_LONG).show();
@@ -380,10 +376,10 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                     Bitmap photo = extras2.getParcelable("data");
 
                     ParseUser user = ParseUser.getCurrentUser();
-                    user.put("photo", commonMethods.encodeBitmapTobase64(photo));
+                    user.put("photo", CommonMethods.getInstance().encodeBitmapTobase64(photo));
                     user.saveInBackground();
-                    session.setUserPhoto(commonMethods.encodeBitmapTobase64(photo));
-                    mainPhoto = commonMethods.clipBitmap(commonMethods.decodeBase64ToBitmap(session.getUserPhoto()), navigationViewLeftProfilePicture);
+                    session.setUserPhoto(CommonMethods.getInstance().encodeBitmapTobase64(photo));
+                    mainPhoto = CommonMethods.getInstance().clipBitmap(CommonMethods.getInstance().decodeBase64ToBitmap(session.getUserPhoto()), navigationViewLeftProfilePicture);
                     navigationViewLeftProfilePicture.setImageBitmap(mainPhoto);
 
                     Toast.makeText(this, "OK", Toast.LENGTH_LONG).show();
@@ -613,7 +609,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             startLocationUpdates();
         }
 
-        commonMethods.reloadFriendsData(adapter);
+        CommonMethods.getInstance().reloadFriendsData(adapter);
     }
 
     @Override

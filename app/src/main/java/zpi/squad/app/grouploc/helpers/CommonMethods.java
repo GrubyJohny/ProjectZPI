@@ -20,19 +20,21 @@ import zpi.squad.app.grouploc.domains.Friend;
 import zpi.squad.app.grouploc.domains.Notification;
 
 public class CommonMethods {
-    private SessionManager session = SessionManager.getInstance();
+
     private static CommonMethods commonMethods;
 
     public CommonMethods() {
+
     }
 
     public CommonMethods(Context context) {
-        commonMethods = CommonMethods.getInstance(context);
+
+        //commonMethods = CommonMethods.getInstance(context);
     }
 
     public static CommonMethods getInstance(Context context) {
         if (commonMethods == null)
-            commonMethods = new CommonMethods(context.getApplicationContext());
+            commonMethods = new CommonMethods(context);
 
         return commonMethods;
     }
@@ -46,8 +48,8 @@ public class CommonMethods {
 
 
     public void reloadNotificationsData(NotificationAdapter adapter) {
-        session.refreshNotificationsList();
-        List<Notification> objects = session.getNotificationsList();
+        SessionManager.getInstance().refreshNotificationsList();
+        List<Notification> objects = SessionManager.getInstance().getNotificationsList();
 
         //tutj po otrzymaniu powiadomienia wypieprza nulla z adaptera
         // !
@@ -57,15 +59,15 @@ public class CommonMethods {
     }
 
     public void reloadFriendsData(FriendAdapter adapter) {
-        session.refreshFriendsList();
-        List<Friend> objects = session.getFriendsList();
+        SessionManager.getInstance().refreshFriendsList();
+        List<Friend> objects = SessionManager.getInstance().getFriendsList();
         adapter.clear();
         adapter.addAll(objects);
         adapter.notifyDataSetChanged();
     }
 
     public void reloadSearchingFriendsData(SearchingFriendAdapter adapter) {
-        List<Friend> objects = session.getAllUsersFromParseWithoutCurrentAndFriends();
+        List<Friend> objects = SessionManager.getInstance().getAllUsersFromParseWithoutCurrentAndFriends();
         adapter.clear();
         adapter.addAll(objects);
         adapter.notifyDataSetChanged();

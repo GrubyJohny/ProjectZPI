@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
-import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationManager;
@@ -21,6 +20,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ListView;
 import android.widget.ScrollView;
 import android.widget.Toast;
 
@@ -41,7 +41,6 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
-import com.parse.ParseException;
 import com.parse.ParseGeoPoint;
 
 import org.json.JSONObject;
@@ -53,7 +52,6 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
@@ -66,23 +64,14 @@ import zpi.squad.app.grouploc.Sender;
 import zpi.squad.app.grouploc.SessionManager;
 import zpi.squad.app.grouploc.activities.MainActivity;
 import zpi.squad.app.grouploc.domains.CustomMarker;
+import zpi.squad.app.grouploc.helpers.CommonMethods;
 import zpi.squad.app.grouploc.utils.DirectionsJSONParser;
 import zpi.squad.app.grouploc.utils.PoiJSONParser;
 import zpi.squad.app.grouploc.utils.ToolsForMarkerList;
 
-import static zpi.squad.app.grouploc.POISpecies.BAR;
-import static zpi.squad.app.grouploc.POISpecies.COFFEE;
-import static zpi.squad.app.grouploc.POISpecies.KFC;
-import static zpi.squad.app.grouploc.POISpecies.MARKET;
-import static zpi.squad.app.grouploc.POISpecies.McDonald;
-import static zpi.squad.app.grouploc.POISpecies.NIGHT_CLUB;
-import static zpi.squad.app.grouploc.POISpecies.PARK;
-import static zpi.squad.app.grouploc.POISpecies.RESTERAUNT;
-import static zpi.squad.app.grouploc.POISpecies.SHOPPING_MALL;
-import static zpi.squad.app.grouploc.POISpecies.STORE;
 import static zpi.squad.app.grouploc.POISpecies.getRightSpecies;
 
-public class MapFragment extends Fragment implements OnMapReadyCallback, OnStreetViewPanoramaReadyCallback, GoogleApiClient.ConnectionCallbacks,MarkerDialog.NoticeDialogListener {
+public class MapFragment extends Fragment implements OnMapReadyCallback, OnStreetViewPanoramaReadyCallback, GoogleApiClient.ConnectionCallbacks, MarkerDialog.NoticeDialogListener {
 
     private SupportMapFragment fragment;
     //private GoogleMapOptions mapOptions = new GoogleMapOptions().liteMode(true);
@@ -107,8 +96,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
     private ArrayList<MarkerOptions> markersParks = new ArrayList<MarkerOptions>();
     private ArrayList<MarkerOptions> markersFriends = new ArrayList<MarkerOptions>();//?
     private ArrayList<ArrayList<MarkerOptions>> activePoiMarkers = new ArrayList<>();
-    private HashMap<POISpecies,HashMap<String,Marker>> active = new HashMap<POISpecies,HashMap<String, Marker>>();
-    private HashMap<String,Polyline> visibleRouts=new HashMap<String,Polyline>();
+    private HashMap<POISpecies, HashMap<String, Marker>> active = new HashMap<POISpecies, HashMap<String, Marker>>();
+    private HashMap<String, Polyline> visibleRouts = new HashMap<String, Polyline>();
 
     private boolean poiIsUpToDate = false;
     private Location mCurrentLocation;
@@ -119,7 +108,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
 
 
     private List<CustomMarker> markers;
-    private HashMap<String,Marker> googleMarkers;
+    private HashMap<String, Marker> googleMarkers;
 
 
     private SQLiteHandler db;
@@ -162,9 +151,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
         globalVariable = (AppController) getActivity().getApplicationContext();
         db = new SQLiteHandler(getActivity().getApplicationContext());
         markers = db.getAllMarkers();
-        googleMarkers=new HashMap<String,Marker>();
-        for(CustomMarker m : markers){
-            if(m.isSaveOnServer()){
+        googleMarkers = new HashMap<String, Marker>();
+        for (CustomMarker m : markers) {
+            if (m.isSaveOnServer()) {
 
             }
         }
@@ -202,16 +191,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
         thirdMarkerButton = (ImageButton) getActivity().findViewById(R.id.thirdButton);
         fourthMarkerButton = (ImageButton) getActivity().findViewById(R.id.fourthButton);
         fifthMarkerButton = (ImageButton) getActivity().findViewById(R.id.fifthButton);
-        /*closeMarkerButton = (Button) getActivity().findViewById(R.id.closeMarkerButton);
-
-        closeMarkerButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                layoutMarker.setVisibility(View.GONE);
-            }
-        });*/
-
-
 
 
 //        inclizaidListenerForMarkerMenu();
@@ -229,20 +208,29 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
         map.getUiSettings().setIndoorLevelPickerEnabled(true);
         map.getUiSettings().setAllGesturesEnabled(true);
 
-        LatLng location = (mCurrentLocation==null? session.getCurrentLocation() : new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()));
+        final LatLng location = (mCurrentLocation == null ? session.getCurrentLocation() : new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()));
         moveMapCamera(location);
 
         map.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
-            public boolean onMarkerClick(Marker marker) {
+            public boolean onMarkerClick(final Marker marker) {
 
                 if (marker.getSnippet().equals("own")) {
-                    new BottomSheet.Builder(getActivity()).grid().title("Own marker").sheet(R.menu.menu_bottom).listener(new DialogInterface.OnClickListener() {
+                    new BottomSheet.Builder(getActivity()).grid().title("Own marker").sheet(R.menu.menu_bottom_own).listener(new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             switch (which) {
                                 case R.id.polyline:
-                                    // action
+                                    doPolyline(marker);
+                                    break;
+                                case R.id.navigate:
+                                    doNavigation(marker);
+                                    break;
+                                case R.id.share:
+                                    dialogShare();
+                                    break;
+                                case R.id.delete:
+                                    //TODO
                                     break;
                             }
                         }
@@ -250,12 +238,15 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
 
                 } else if (marker.getSnippet().equals("friends")) {
 
-                    new BottomSheet.Builder(getActivity()).grid().title("Friend marker").sheet(R.menu.menu_bottom).listener(new DialogInterface.OnClickListener() {
+                    new BottomSheet.Builder(getActivity()).grid().title("Friend marker").sheet(R.menu.menu_bottom_friend).listener(new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             switch (which) {
                                 case R.id.polyline:
-                                    // action
+                                    doPolyline(marker);
+                                    break;
+                                case R.id.navigate:
+                                    doNavigation(marker);
                                     break;
                             }
                         }
@@ -263,28 +254,69 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
                 }
                 return false;
             }
-        });
-        /*
-        map.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
-            @Override
-            public void onMapClick(LatLng latLng) {
-                new BottomSheet.Builder(getActivity()).grid().title("Here will be title").sheet(R.menu.menu_bottom).listener(new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        switch (which) {
-                            case R.id.polyline:
-                                // action
-                                break;
-                        }
-                    }
-                }).show();
+
+            private void dialogShare() {
+                final CharSequence[] items = {"Andrzej", "Stefek", "Gruby"};
+                final ArrayList seletedItems = new ArrayList();
+
+                AlertDialog shareDialog = new AlertDialog.Builder(getActivity())
+                        .setTitle("Choose friends to share")
+                        .setMultiChoiceItems(items, null, new DialogInterface.OnMultiChoiceClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int indexSelected, boolean isChecked) {
+                                if (isChecked) {
+                                    seletedItems.add(indexSelected);
+                                } else if (seletedItems.contains(indexSelected)) {
+                                    seletedItems.remove(Integer.valueOf(indexSelected));
+                                }
+                            }
+                        }).setPositiveButton("Share", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int id) {
+
+                            }
+                        }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int id) {
+
+                            }
+                        })
+                        .setNeutralButton("Share for all", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                ListView list = ((AlertDialog) dialog).getListView();
+                                for (int i = 0; i < list.getCount(); i++) {
+                                    list.setItemChecked(i, true);
+                                }
+                            }
+                        }).create();
+                shareDialog.show();
+            }
+
+            private void doNavigation(Marker marker) {
+                Uri gmmIntentUri = Uri.parse("google.navigation:q=" + marker.getPosition().latitude + "," + marker.getPosition().longitude);
+                Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+                mapIntent.setPackage("com.google.android.apps.maps");
+                startActivity(mapIntent);
+            }
+
+            private void doPolyline(Marker marker) {
+                if (visibleRouts.containsKey(marker.getId())) {
+                    deleteRoute(marker.getId());
+                    Log.d("Fuck", "usuwam");
+                } else {
+                    LatLng origin = location;
+                    LatLng dest = new LatLng(marker.getPosition().latitude, marker.getPosition().longitude);
+                    String url = getDirectionUrl(origin, dest);
+                    DownloadTask downloadTask = new DownloadTask(marker.getId());
+                    downloadTask.execute(url);
+                }
             }
         });
-        */
+
         map.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
             @Override
             public void onMapLongClick(LatLng latLng) {
-                MarkerDialog markerDialog = new MarkerDialog();
+                MarkerDialog markerDialog = new MarkerDialog(latLng);
                 markerDialog.setTargetFragment(MapFragment.this, 0);
                 markerDialog.show(getFragmentManager(), "Marker Dialog");
             }
@@ -297,17 +329,12 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
         //add own markers
         ArrayList<zpi.squad.app.grouploc.domains.Marker> markers = session.getMarkersList();
         for (int i = 0; i < markers.size(); i++) {
-            try {
-                map.addMarker(new MarkerOptions()
-                        .title(markers.get(i).getName() + " (from " + markers.get(i).getOwner().fetchIfNeeded().get("name") + ")")
-                        .position(new LatLng(markers.get(i).getLocalization().getLatitude(), markers.get(i).getLocalization().getLongitude()))
-                        .snippet("own")
-                        .visible(true)
-                        .draggable(false));
-            } catch (ParseException e) {
-                e.getLocalizedMessage();
-                e.printStackTrace();
-            }
+            map.addMarker(new MarkerOptions()
+                    .title(markers.get(i).getName())
+                    .position(new LatLng(markers.get(i).getLocalization().getLatitude(), markers.get(i).getLocalization().getLongitude()))
+                    .snippet("own")
+                    .visible(true)
+                    .draggable(false));
         }
 
         //add markers with friends location
@@ -319,249 +346,21 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
                             .position(new LatLng(friendsMarkers.get(i).getLocalization().getLatitude(), friendsMarkers.get(i).getLocalization().getLongitude()))
                             .snippet("friends")
                                     // PONIŻEJ TO RACZEJ KTOŚ, KTO SIĘ ZNA, POWINIEN TO MĄDRZE WYSKALOWAĆ
-                            .icon(BitmapDescriptorFactory.fromBitmap(Bitmap.createScaledBitmap(friendsMarkers.get(i).getIcon(), 150, 150, true)))
+                            .icon(BitmapDescriptorFactory.fromBitmap(CommonMethods.getInstance().clipBitmap(friendsMarkers.get(i).getIcon(), 150, 150)))
                             .visible(true)
                             .draggable(false)
             );
         }
     }
 
-    private void setupPoiButtons() {
-
-
-        mainPoiButton = (Button) getActivity().findViewById(R.id.buttonPOIFiltering);
-
-        clearPoiButton = (Button) getActivity().findViewById(R.id.ButtonClearPoi);
-        clearPoiButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Collection<HashMap<String, Marker>> allMarkers = active.values();
-                for (HashMap<String, Marker> markerMap : allMarkers) {
-                    Collection<Marker> markerList = markerMap.values();
-                    for (Marker m : markerList) {
-                        m.remove();
-                    }
-                }
-                active.clear();
-            }
-
-        });
-
-        POIScrollView = (ScrollView) getActivity().findViewById(R.id.POIScroll);
-
-        mainPoiButton.setOnClickListener(new View.OnClickListener() {
-
-
-            public void onClick(View view) {
-                layoutMarker.setVisibility(View.GONE);
-
-                if ((getActivity().findViewById(R.id.POIButtons)).getVisibility() == View.GONE) {
-
-                    if (!poiIsUpToDate) {
-                        AsyncTaskRunner runner = new AsyncTaskRunner();
-                        runner.execute();
-
-                    }
-                    POIScrollView.scrollTo(0, 0);
-                    getActivity().findViewById(R.id.POIButtons).setVisibility(View.VISIBLE);
-                } else {
-                    getActivity().findViewById(R.id.POIButtons).setVisibility(View.GONE);
-                }
-            }
-
-        });
-
-        changeMapTypeButton = (Button) getActivity().findViewById(R.id.changeMapTypeButton);
-        changeMapTypeButton.setText("Hybrid");
-
-        /*changeMapTypeButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                System.out.println("JAJECZKO");
-                if (globalVariable.getMyMap().getMapType() == GoogleMap.MAP_TYPE_HYBRID) {
-                    layoutMarker.setBackgroundColor(Color.LTGRAY);
-                    globalVariable.getMyMap().setMapType(GoogleMap.MAP_TYPE_NORMAL);
-                    changeMapTypeButton.setText("Hybrid");
-                } else {
-                    layoutMarker.setBackgroundColor(Color.parseColor("#EEEEEE"));
-                    globalVariable.getMyMap().setMapType(GoogleMap.MAP_TYPE_HYBRID);
-                    changeMapTypeButton.setText("Normal");
-                }
-                //showMapTypeSelectorDialog();
-            }
-        });*/
-
-        //final Button myButtonFood = (Button) findViewById(R.id.ButtonFood);
-        final ImageButton myButtonFoodBar = (ImageButton) getActivity().findViewById(R.id.ButtonFoodBar);
-        final ImageButton myButtonFoodCoffee = (ImageButton) getActivity().findViewById(R.id.ButtonFoodCoffee);
-        final ImageButton myButtonFoodKfc = (ImageButton) getActivity().findViewById(R.id.ButtonFoodKfc);
-        final ImageButton myButtonFoodMcDonald = (ImageButton) getActivity().findViewById(R.id.ButtonFoodMcDonald);
-        final ImageButton myButtonFoodRestaurant = (ImageButton) getActivity().findViewById(R.id.ButtonFoodRestaurant);
-        final ImageButton myButtonShopsMarket = (ImageButton) getActivity().findViewById(R.id.ButtonShopsMarket);
-        final ImageButton myButtonShopsStores = (ImageButton) getActivity().findViewById(R.id.ButtonShopsStores);
-        final ImageButton myButtonShopsShoppingMalls = (ImageButton) getActivity().findViewById(R.id.ButtonShopsShoppingMall);
-        //final Button myButtonShops = (Button) findViewById(R.id.ButtonShops);
-        final ImageButton myButtonLeisureClubs = (ImageButton) getActivity().findViewById(R.id.ButtonLeisureClubs);
-        final ImageButton myButtonLeisureParks = (ImageButton) getActivity().findViewById(R.id.ButtonLeisureParks);
-        //final Button myButtonLeisure = (Button) findViewById(R.id.ButtonLeisure);
-
-        myButtonFoodBar.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (active.containsKey(BAR))
-                    deleteSelectedPOIFromMap(BAR);
-                else addSelectedPOItoMap(markersBars,BAR);
-
-            }
-        });
-
-        myButtonFoodCoffee.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (active.containsKey(COFFEE))
-                    deleteSelectedPOIFromMap(COFFEE);
-                else addSelectedPOItoMap(markersCoffee,COFFEE);
-            }
-        });
-
-        myButtonFoodKfc.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (active.containsKey(KFC))
-                    deleteSelectedPOIFromMap(KFC);
-                else addSelectedPOItoMap(markersKfc,KFC);
-            }
-        });
-
-        myButtonFoodMcDonald.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (active.containsKey(McDonald))
-                    deleteSelectedPOIFromMap(McDonald);
-                else addSelectedPOItoMap(markersMcdonalds,McDonald);
-            }
-        });
-
-        myButtonFoodRestaurant.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (active.containsKey(RESTERAUNT))
-                    deleteSelectedPOIFromMap(RESTERAUNT);
-                else addSelectedPOItoMap(markersRestaurants,RESTERAUNT);
-            }
-        });
-
-
-        myButtonShopsMarket.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (active.containsKey(MARKET))
-                    deleteSelectedPOIFromMap(MARKET);
-                else addSelectedPOItoMap(markersMarkets,MARKET);
-            }
-        });
-
-        myButtonShopsStores.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (active.containsKey(STORE))
-                    deleteSelectedPOIFromMap(STORE);
-                else addSelectedPOItoMap(markersShops,STORE);
-            }
-        });
-
-        myButtonShopsShoppingMalls.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (active.containsKey(SHOPPING_MALL))
-                    deleteSelectedPOIFromMap(SHOPPING_MALL);
-                else addSelectedPOItoMap(markersShoppingMalls,SHOPPING_MALL);
-            }
-        });
-
-
-        myButtonLeisureClubs.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (active.containsKey(NIGHT_CLUB))
-                    deleteSelectedPOIFromMap(NIGHT_CLUB);
-                else addSelectedPOItoMap(markersNightClubs,NIGHT_CLUB);
-            }
-        });
-        myButtonLeisureParks.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (active.containsKey(PARK))
-                    deleteSelectedPOIFromMap(PARK);
-                else addSelectedPOItoMap(markersParks,PARK);
-            }
-        });
-    }
-
-    private void hide2OptionsFromMarker() {
-        thirdMarkerButton.setVisibility(View.GONE);
-        fourthMarkerButton.setVisibility(View.GONE);
-    }
-
-    private void hide3OptionsFromMarker() {
-        thirdMarkerButton.setVisibility(View.GONE);
-        fourthMarkerButton.setVisibility(View.GONE);
-        fifthMarkerButton.setVisibility(View.GONE);
-    }
-
-
-    private void showSomeOptionsFromMarker() {
-        thirdMarkerButton.setVisibility(View.VISIBLE);
-        fourthMarkerButton.setVisibility(View.VISIBLE);
-        fifthMarkerButton.setVisibility(View.VISIBLE);
-    }
-
-/*    private void markersSelectionChanged() {
-        globalVariable.getMyMap().clear();
-
-        for (ArrayList<MarkerOptions> marks : activePoiMarkers) {
-            for (int i = 0; i < marks.size(); i++)
-                globalVariable.getMyMap().addMarker(marks.get(i));
-        }
-
-        for (int i = 0; i < markersFriends.size(); i++)
-            globalVariable.getMyMap().addMarker(markersFriends.get(i));
-
-
-        Sender.putMarkersOnMapAgain(markers, globalVariable.getMyMap(), null);
-    }*/
-
-    public void addSelectedPOItoMap(List<MarkerOptions> POItoAdd,POISpecies tag)
-    {
-        /*HashMap<String,Marker> googleMarkers=new HashMap<>();
-        for(MarkerOptions markOption :POItoAdd)
-        {
-            Marker marker= globalVariable.getMyMap().addMarker(markOption.snippet("POI,"+tag));
-            googleMarkers.put(marker.getId(), marker);
-        }
-        active.put(tag,googleMarkers);*/
-    }
-
-    public void deleteSelectedPOIFromMap(POISpecies tag)
-    {
-        Collection<Marker> markers=active.remove(tag).values();
-        for(Marker m:markers) {
-            if(visibleRouts.containsKey(m.getId()))
-                deleteRoute(m.getId());
-            m.remove();
-
-        }
-    }
-    public void deleteRoute(String tag)
-    {
-        Polyline route=visibleRouts.remove(tag);
+    public void deleteRoute(String tag) {
+        Polyline route = visibleRouts.remove(tag);
         route.remove();
     }
 
     @Override
     public void onStreetViewPanoramaReady(StreetViewPanorama streetViewPanorama) {
         streetViewPanorama.setZoomGesturesEnabled(true);
-
     }
 
     class AsyncTaskRunner extends AsyncTask<String, String, String> {
@@ -577,23 +376,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
             }
             String resp = "done";
             return resp;
-        }
-
-        @Override
-        protected void onPostExecute(String result) {
-            // execution of result of Long time consuming operation
-        }
-
-        @Override
-        protected void onPreExecute() {
-            // Things to be done before execution of long running operation. For
-            // example showing ProgessDialog
-        }
-
-        @Override
-        protected void onProgressUpdate(String... text) {
-            // Things to be done while execution of long running operation is in
-            // progress. For example updating ProgessDialog
         }
     }
 
@@ -617,124 +399,12 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
         super.onViewCreated(view, savedInstanceState);
         ((MainActivity) getActivity()).setActionBarTitle("Map");
         //setUpMap(true);
-
     }
-
-
-
 
     @Override
     public void onResume() {
         super.onResume();
-/*
-        if (globalVariable.getMyMap() == null) {
-            globalVariable.setMyMap(fragment.getMap());
-            //map.addMarker(new MarkerOptions().position(new LatLng(0, 0)));
-        }
-*/
     }
-
-    protected void preparePoiPoints() throws IOException {
-
-        markersKfc = poiBase.getJsonWithSelectedData(0, 0, new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()), "kfclogo");
-        markersMcdonalds = poiBase.getJsonWithSelectedData(0, 1, new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()), "mcdonaldslogo");
-        markersRestaurants = poiBase.getJsonWithSelectedData(1, new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()), "restaurant");
-        markersBars = poiBase.getJsonWithSelectedData(2, new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()), "bar");
-        markersCoffee = poiBase.getJsonWithSelectedData(3, new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()), "coffee");
-        markersNightClubs = poiBase.getJsonWithSelectedData(4, new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()), "nightclub");
-        markersParks = poiBase.getJsonWithSelectedData(5, new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()), "park");
-        markersShoppingMalls = poiBase.getJsonWithSelectedData(6, new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()), "shoppingmall");
-        markersShops = poiBase.getJsonWithSelectedData(7, new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()), "shop");
-        markersMarkets = poiBase.getJsonWithSelectedData(8, new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()), "market");
-    }
-/*
-    public void setMapListener() {
-        globalVariable.getMyMap().setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
-            @Override
-            public void onMapLongClick(LatLng latLng) {
-                Bundle bundle = new Bundle();
-                Log.e("lirwadsgdf", "asdgisdf");
-                bundle.putDouble("lat", latLng.latitude);
-                bundle.putDouble("lng", latLng.longitude);
-                MarkerDialog markerDialog = new MarkerDialog();
-                markerDialog.setArguments(bundle);
-                markerDialog.setTargetFragment(MapFragment.this,0);
-                markerDialog.show(getFragmentManager(), "Marker Dialog");
-            }
-        });
-
-        globalVariable.getMyMap().setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
-            @Override
-            public boolean onMarkerClick(Marker marker) {
-                ostatniMarker = marker;
-                globalVariable.getMyMap().animateCamera(CameraUpdateFactory.newLatLng(marker.getPosition()));
-                *//*layoutMarker.setX((float) globalVariable.getMyMap().getProjection().toScreenLocation(marker.getPosition()).x - layoutMarker.getWidth() / 2);
-                layoutMarker.setY((float) globalVariable.getMyMap().getProjection().toScreenLocation(marker.getPosition()).y - layoutMarker.getHeight() + 180);*//*
-                TextView name = (TextView) layoutMarker.findViewById(R.id.titleOfMarker);
-                Log.d("tittle", name + "");
-                name.setText(marker.getTitle());
-                //getActivity().findViewById(R.id.POIButtons).setVisibility(View.GONE);
-                String snippet = marker.getSnippet();
-                String ids[] = snippet.split(",");
-
-                for(int i=0;i<ids.length;i++)
-                {
-                    Log.d("co w snippecie",ids[i]);
-                }
-                if(ids[0].equals("POI")){ // jest POI
-                    hide2OptionsFromMarker();
-                    fourthMarkerButton.setVisibility(View.VISIBLE);
-                    Log.d("MARKERY", "POI");
-                }
-                else if(ids.length == 1){ // znajomy
-                    hide3OptionsFromMarker();
-                    Log.d("MARKERY", "znajomy");
-                }
-                else if(ids[0].equals("NULL")){ // nie ma na serwerze
-                    showSomeOptionsFromMarker();
-                    Log.d("MARKERY", "nie ma na serwerze, pomaranczowy");
-                }
-                else{
-                    if(marker.getTitle().contains(" (od")){
-                        fourthMarkerButton.setVisibility(View.VISIBLE);
-                        fifthMarkerButton.setVisibility(View.GONE);
-                        thirdMarkerButton.setVisibility(View.GONE);
-                        Log.d("MARKERY", "jest na serwerze, zielony");
-                    }
-                    else {
-                        fourthMarkerButton.setVisibility(View.VISIBLE);
-                        fifthMarkerButton.setVisibility(View.VISIBLE);
-                        thirdMarkerButton.setVisibility(View.GONE);
-                        Log.d("MARKERY", "jest na serwerze, niebieski");
-                    }
-                }
-
-
-                Animation bottomUp = AnimationUtils.loadAnimation(getActivity().getApplicationContext(),
-                        R.anim.bottom_up);
-                layoutMarker.startAnimation(bottomUp);
-                layoutMarker.setVisibility(View.VISIBLE);
-                *//*layoutMarker.setVisibility(View.VISIBLE);
-                layoutMarker.setAlpha(0.0f);
-                layoutMarker.animate()
-                        .translationY(1500)
-                        .alpha(1.0f);*//*
-                return true;
-            }
-        });
-
-        globalVariable.getMyMap().setOnMapClickListener(new GoogleMap.OnMapClickListener() {
-            @Override
-            public void onMapClick(LatLng latLng) {
-//                getActivity().findViewById(R.id.POIButtons).setVisibility(View.GONE);
-//                layoutMarker.setVisibility(View.GONE);
-                Animation bottomUp = AnimationUtils.loadAnimation(getActivity().getApplicationContext(),
-                        R.anim.bottom_up);
-                layoutMarker.startAnimation(bottomUp);
-                layoutMarker.setVisibility(View.VISIBLE);
-            }
-        });
-    }*/
 
     private void setUpMap(boolean hardSetup) {
 
@@ -768,16 +438,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
         return new GoogleMap.OnCameraChangeListener() {
             @Override
             public void onCameraChange(CameraPosition position) {
-                /*if (ostatniMarker != null) {
-                    if (*//*layoutMarker.getX() < 0 || *//*layoutMarker.getY() < (tabs.getY() + tabs.getMeasuredHeight() * 2) *//*|| layoutMarker.getX() + layoutMarker.getWidth() > width || layoutMarker.getY() + layoutMarker.getHeight() > height*//*) {
-                        layoutMarker.setVisibility(View.GONE);
-                    } else {
-                        layoutMarker.setX((float) globalVariable.getMyMap().getProjection().toScreenLocation(ostatniMarker.getPosition()).x - layoutMarker.getWidth() / 2);
-                        layoutMarker.setY((float) globalVariable.getMyMap().getProjection().toScreenLocation(ostatniMarker.getPosition()).y - layoutMarker.getHeight() + 180);
-                    }
-                }*/
-//                getActivity().findViewById(R.id.POIButtons).setVisibility(View.GONE);
-                //addItemsToMap(markers);
+
             }
         };
     }
@@ -865,11 +526,12 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
 
     private class DownloadTask extends AsyncTask<String, Void, String> {
         String markID;
-        public DownloadTask (String markID)
-        {
+
+        public DownloadTask(String markID) {
             super();
-            this.markID=markID;
+            this.markID = markID;
         }
+
         //Pobieranie danych w innym w�tku ni� ten opowiedzialny za wy�wietlanie grafiki
         @Override
         protected String doInBackground(String... url) {
@@ -895,10 +557,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
     }
 
     private class ParseTask extends AsyncTask<String, Integer, List<List<HashMap<String, String>>>> {
-       String markID;
-        public ParseTask(String markID)
-        {
-            this.markID=markID;
+        String markID;
+
+        public ParseTask(String markID) {
+            this.markID = markID;
         }
 
         //Przetwrzanie danych w w�tku innym ni� ten odpowiedzialny za wy�wietlanie grafiki
@@ -959,10 +621,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
 
             }
             //Dodaje do słownika z wszystkimi drogami
-           Polyline polyline= globalVariable.getMyMap().addPolyline(lineOptions);
-            visibleRouts.put(markID,polyline);
-
-
+            Polyline polyline = map.addPolyline(lineOptions);
+            visibleRouts.put(markID, polyline);
         }
     }
 
@@ -985,55 +645,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
     }
 
     public void inclizaidListenerForMarkerMenu() {
-        firstMarkerButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.d(AppController.TAG, "odebra�em zdarzenie");
-
-               // String[] ids = ostatniMarker.getSnippet().split(",");
-                String markerId = ostatniMarker.getId();
-
-                if(visibleRouts.containsKey(markerId))
-                {
-                    deleteRoute(markerId);
-                    Log.d("Fuck","usuwam");
-                }else{
-                    double latitude = mCurrentLocation.getLatitude();
-                    double longitude = mCurrentLocation.getLongitude();
-                    LatLng origin = new LatLng(latitude, longitude);
-                    latitude = ostatniMarker.getPosition().latitude;
-                    longitude = ostatniMarker.getPosition().longitude;
-
-                    LatLng dest = new LatLng(latitude, longitude);
-                    String url = getDirectionUrl(origin, dest);
-                    DownloadTask downloadTask = new DownloadTask(markerId);
-
-                    //no to zaczynamy zabaw�
-                    downloadTask.execute(url);
-                }
-                layoutMarker.setVisibility(View.GONE);
-
-
-            }
-        });
-        secondMarkerButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                double latitude = mCurrentLocation.getLatitude();
-                double longitude = mCurrentLocation.getLongitude();
-                LatLng origin = new LatLng(latitude, longitude);
-                latitude = ostatniMarker.getPosition().latitude;
-                longitude = ostatniMarker.getPosition().longitude;
-                LatLng dest = new LatLng(latitude, longitude);
-                layoutMarker.setVisibility(View.GONE);
-
-                Uri gmmIntentUri = Uri.parse("google.navigation:q=" + latitude + "," + longitude);
-                Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
-                mapIntent.setPackage("com.google.android.apps.maps");
-                startActivity(mapIntent);
-            }
-        });
-
         fifthMarkerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -1073,50 +684,45 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
             public void onClick(View v) {
                 String snippet = ostatniMarker.getSnippet();
                 String[] ids = snippet.split(",");
-                String markId= ostatniMarker.getId();
-                if(ids.length==1)
+                String markId = ostatniMarker.getId();
+                if (ids.length == 1)
                 //Przyjaciel
                 {
-                    Toast.makeText(getActivity(),"Fukcjonalność jeszcze nie zaimplementowana",Toast.LENGTH_SHORT).show();
-                }
-                else
-                    if(ids[0].equals("POI"))
-                    //POI
-                    {
-                        String kind=ids[1];
-                        POISpecies species=getRightSpecies(kind);
-                        HashMap<String,Marker> mapWithSelectedKindOfPOI=active.get(species);
-                        Marker m=mapWithSelectedKindOfPOI.remove(markId);
-                        m.remove();
-                        if(mapWithSelectedKindOfPOI.isEmpty())
-                            active.remove(species);
+                    Toast.makeText(getActivity(), "Fukcjonalność jeszcze nie zaimplementowana", Toast.LENGTH_SHORT).show();
+                } else if (ids[0].equals("POI"))
+                //POI
+                {
+                    String kind = ids[1];
+                    POISpecies species = getRightSpecies(kind);
+                    HashMap<String, Marker> mapWithSelectedKindOfPOI = active.get(species);
+                    Marker m = mapWithSelectedKindOfPOI.remove(markId);
+                    m.remove();
+                    if (mapWithSelectedKindOfPOI.isEmpty())
+                        active.remove(species);
 
 
-                    }else
-                    {
-                        String markerIdMySql = ids[0];
-                        String markerIdSQLITE = ids[1];
-                        Log.d("REMOVE_MARKER", "MySQL id " + markerIdMySql);
-                        Log.d("REMOVE_MARKER", "SQLite id " + markerIdSQLITE);
-                        CustomMarker toRemove = ToolsForMarkerList.getSpecificMarker(markers, markerIdSQLITE);
-                        markers.remove(toRemove);
-                        boolean znacznik = db.removeMarker(markerIdSQLITE);
-                        Log.d("REMOVE_MARKER", " Operacja usuwania zako�czy�a si� sukcesem" + znacznik);
-                        if (toRemove.isSaveOnServer()) {
-                            Log.d("REMOVE_MARKER", "Usuwam z serwera");
-                            Sender.sendRequestAboutRemoveMarker(markerIdMySql, globalVariable.getMyMap(), markers);
-                        }
-
-                        Marker marker=googleMarkers.remove(markerIdSQLITE);
-                        Log.d("REMOVE_MARKER",marker.getSnippet()+" "+markerIdSQLITE+"OSTATNI"+ostatniMarker.getSnippet());
-                        ostatniMarker.remove();
-
-
+                } else {
+                    String markerIdMySql = ids[0];
+                    String markerIdSQLITE = ids[1];
+                    Log.d("REMOVE_MARKER", "MySQL id " + markerIdMySql);
+                    Log.d("REMOVE_MARKER", "SQLite id " + markerIdSQLITE);
+                    CustomMarker toRemove = ToolsForMarkerList.getSpecificMarker(markers, markerIdSQLITE);
+                    markers.remove(toRemove);
+                    boolean znacznik = db.removeMarker(markerIdSQLITE);
+                    Log.d("REMOVE_MARKER", " Operacja usuwania zako�czy�a si� sukcesem" + znacznik);
+                    if (toRemove.isSaveOnServer()) {
+                        Log.d("REMOVE_MARKER", "Usuwam z serwera");
+                        Sender.sendRequestAboutRemoveMarker(markerIdMySql, globalVariable.getMyMap(), markers);
                     }
+
+                    Marker marker = googleMarkers.remove(markerIdSQLITE);
+                    Log.d("REMOVE_MARKER", marker.getSnippet() + " " + markerIdSQLITE + "OSTATNI" + ostatniMarker.getSnippet());
+                    ostatniMarker.remove();
+
+
+                }
                 if (visibleRouts.containsKey(markId))
                     deleteRoute(markId);
-
-
 
 
                 layoutMarker.setVisibility(View.GONE);
@@ -1125,49 +731,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
 
             }
         });
-    }
-
-    private void showMapTypeSelectorDialog() {
-        // Prepare the dialog by setting up a Builder.
-        final String fDialogTitle = "Select Map Type";
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setTitle(fDialogTitle);
-
-        // Find the current map type to pre-check the item representing the current state.
-        int checkItem = globalVariable.getMyMap().getMapType() - 1;
-
-        // Add an OnClickListener to the dialog, so that the selection will be handled.
-        builder.setSingleChoiceItems(
-                MAP_TYPE_ITEMS,
-                checkItem,
-                new DialogInterface.OnClickListener() {
-
-                    public void onClick(DialogInterface dialog, int item) {
-                        // Locally create a finalised object.
-
-                        // Perform an action depending on which item was selected.
-                        switch (item) {
-                            case 1:
-                                globalVariable.getMyMap().setMapType(GoogleMap.MAP_TYPE_SATELLITE);
-                                break;
-                            case 2:
-                                globalVariable.getMyMap().setMapType(GoogleMap.MAP_TYPE_TERRAIN);
-                                break;
-                            case 3:
-                                globalVariable.getMyMap().setMapType(GoogleMap.MAP_TYPE_HYBRID);
-                                break;
-                            default:
-                                globalVariable.getMyMap().setMapType(GoogleMap.MAP_TYPE_NORMAL);
-                        }
-                        dialog.dismiss();
-                    }
-                }
-        );
-
-        // Build the dialog and show it.
-        AlertDialog fMapTypeDialog = builder.create();
-        fMapTypeDialog.setCanceledOnTouchOutside(true);
-        fMapTypeDialog.show();
     }
 
     @Override
@@ -1194,13 +757,11 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
         imm.hideSoftInputFromWindow(md.getInput().getWindowToken(), 0);*/
     }
 
-    public static GoogleMap getMap()
-    {
+    public static GoogleMap getMap() {
         return map;
     }
 
-    public static void moveMapCamera(LatLng position)
-    {
+    public static void moveMapCamera(LatLng position) {
         CameraPosition cameraPosition = new CameraPosition.Builder()
                 .target(position)
                 .zoom(17)

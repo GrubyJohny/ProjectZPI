@@ -153,6 +153,26 @@ public class SessionManager {
         return notifications;
     }
 
+    private HashMap<MarkerOptions, Friend> getFriendsMarkersFromParse() {
+
+        HashMap<MarkerOptions, Friend> result = new HashMap<>();
+        ArrayList<Friend> friends = getFriendsFromParse();
+
+        for (int i = 0; i < friends.size(); i++)
+            result.put(new MarkerOptions()
+                            .position(new LatLng(friends.get(i).getLocation().getLatitude(), friends.get(i).getLocation().getLongitude()))
+                            .snippet("friends")
+                            .title(friends.get(i).getName())
+                            .icon(BitmapDescriptorFactory.fromBitmap(CommonMethods.getInstance().clipBitmap(CommonMethods.getInstance().decodeBase64ToBitmap(friends.get(i).getPhoto()), 150, 150)))
+                            .visible(true)
+                            .draggable(false),
+                    friends.get(i));
+
+        friendsMarkers = result;
+
+        return result;
+    }
+
     private void getOwnMarkersFromParse() {
 
         ArrayList<MyMarker> myMarkersResult = new ArrayList<>();
@@ -250,6 +270,12 @@ public class SessionManager {
         return sharedMarkers;
     }
 
+    public HashMap<MarkerOptions, Friend> getFriendsMarkers() {
+        getFriendsMarkersFromParse();
+
+        return friendsMarkers;
+    }
+
     public void refreshOwnMarkers() {
         getOwnMarkersFromParse();
     }
@@ -258,17 +284,7 @@ public class SessionManager {
         getOwnMarkersFromParse();
     }
 
-    public ArrayList<MyMarker> getFriendsMarkers() {
-        ArrayList<MyMarker> result = new ArrayList<>();
-        ArrayList<Friend> friends = getFriendsList();
 
-        for (int i = 0; i < friends.size(); i++)
-            result.add(new MyMarker(friends.get(i).getUid(), friends.get(i).getName(), friends.get(i).getParseUser(), friends.get(i).getLocation(), CommonMethods.getInstance().decodeBase64ToBitmap(friends.get(i).getPhoto())));
-
-        Log.e("FRIENDS MARKERS: ", "" + friends.size());
-
-        return result;
-    }
 
     public ArrayList<MyMarker> getRefreshedFriendsMarkers() {
         ArrayList<MyMarker> result = new ArrayList<>();

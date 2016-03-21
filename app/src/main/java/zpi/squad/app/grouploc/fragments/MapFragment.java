@@ -362,6 +362,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
         for (MarkerOptions m : sharedMarkers.keySet())
             actualShowingOnMapMarkers.put(map.addMarker(m).getId(), m);
 
+        HashMap<MarkerOptions, Friend> friendsMarkers = session.getFriendsMarkers();
+        for (MarkerOptions m : friendsMarkers.keySet())
+            actualShowingOnMapMarkers.put(map.addMarker(m).getId(), m);
 /*
                             .icon(BitmapDescriptorFactory.fromBitmap(CommonMethods.getInstance().clipBitmap(friendsMarkers.get(i).getIcon(), 150, 150)))
         */

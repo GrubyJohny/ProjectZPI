@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
 
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.parse.ParseException;
@@ -35,8 +36,9 @@ public class SessionManager {
     public boolean requestLocationUpdate = true;
     boolean isFriend;
     private int refreshFriendsPositionInterval = 10; //w sekundach
-    private static HashMap<MarkerOptions, MyMarker> ownMarkers = new HashMap<>();
-    private static HashMap<MarkerOptions, Friend> friendsMarkers = new HashMap<>();
+    private static HashMap<MarkerOptions, MyMarker> ownMarkers = new HashMap<>();       //własne markery
+    private static HashMap<MarkerOptions, MyMarker> sharedMarkers = new HashMap<>();     //otrzymane od znajomych
+    private static HashMap<MarkerOptions, Friend> friendsMarkers = new HashMap<>();     //znajomi
 
 
     private SessionManager(Context context) {
@@ -151,14 +153,7 @@ public class SessionManager {
         return notifications;
     }
 
-    /*public ArrayList<MyMarker> getMarkersList() {
-        if (markers == null)
-            markers = getOwnMarkersFromParse();
-        return markers;
-    }*/
-
     private void getOwnMarkersFromParse() {
-
 
         ArrayList<MyMarker> myMarkersResult = new ArrayList<>();
         ownMarkers.clear();
@@ -199,14 +194,67 @@ public class SessionManager {
 
     }
 
+    private void getSharedMarkersFromParse() {
+
+        ArrayList<MyMarker> sharedMarkersResult = new ArrayList<>();
+        sharedMarkers.clear();
+
+        ParseQuery markers = new ParseQuery("SharedMarker");
+        markers.whereEqualTo("sharedUser", ParseUser.getCurrentUser());
+
+        Object[] markersList = null;
+
+        try {
+            markersList = markers.find().toArray().clone();
+
+            if (markersList.length > 0) {
+                for (int i = 0; i < markersList.length; i++)
+                    sharedMarkersResult.add(new MyMarker(((ParseObject) markersList[i]).fetchIfNeeded().getParseObject("marker").fetchIfNeeded().getObjectId(),
+                            ((ParseObject) markersList[i]).fetchIfNeeded().getParseObject("marker").fetchIfNeeded().getString("name"),
+                            (((ParseObject) markersList[i]).fetchIfNeeded().getParseObject("marker").fetchIfNeeded().getParseUser("owner")),
+                            (((ParseObject) markersList[i]).fetchIfNeeded().getParseObject("marker").fetchIfNeeded().getParseGeoPoint("localization"))
+                            //      ,((ParseObject) markersList[i]).getString("icon")==null? jakieafaultowyObrazek : CommonMethods.getInstance().decodeBase64ToBitmap(((ParseObject) markersList[i]).getString("icon"))
+                    ));
+
+
+                for (int i = 0; i < sharedMarkersResult.size(); i++) {
+                    sharedMarkers.put(new MarkerOptions()
+                            .title(sharedMarkersResult.get(i).getName())
+                            .position(new LatLng(sharedMarkersResult.get(i).getLocalization().getLatitude(), sharedMarkersResult.get(i).getLocalization().getLongitude()))
+                            .snippet("from " + sharedMarkersResult.get(i).getOwner().fetchIfNeeded().get("name"))
+                            .visible(true)
+                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.mapmarkerhiblue))
+                            .draggable(false), sharedMarkersResult.get(i));
+                }
+
+
+            } else
+                Log.e("There are any ", "markers for current user.");
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+    }
+
     public HashMap<MarkerOptions, MyMarker> getOwnMarkers() {
-        if (ownMarkers == null)
+        //if (ownMarkers == null)
             getOwnMarkersFromParse();
 
         return ownMarkers;
     }
 
+    public HashMap<MarkerOptions, MyMarker> getSharedMarkers() {
+        //if(sharedMarkers == null)
+        getSharedMarkersFromParse();
+
+        return sharedMarkers;
+    }
+
     public void refreshOwnMarkers() {
+        getOwnMarkersFromParse();
+    }
+
+    public void refreshSharedMarkers() {
         getOwnMarkersFromParse();
     }
 
@@ -233,8 +281,6 @@ public class SessionManager {
 
         return result;
     }
-
-
 
 
     private ArrayList<Notification> getNotificationsFromParse() {
@@ -493,5 +539,4 @@ public class SessionManager {
         }
         return searchFriendsList;
     }
-
 }

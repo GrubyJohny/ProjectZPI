@@ -69,7 +69,6 @@ import zpi.squad.app.grouploc.activities.MainActivity;
 import zpi.squad.app.grouploc.domains.CustomMarker;
 import zpi.squad.app.grouploc.domains.Friend;
 import zpi.squad.app.grouploc.domains.MyMarker;
-import zpi.squad.app.grouploc.helpers.CommonMethods;
 import zpi.squad.app.grouploc.utils.DirectionsJSONParser;
 import zpi.squad.app.grouploc.utils.PoiJSONParser;
 import zpi.squad.app.grouploc.utils.ToolsForMarkerList;
@@ -263,7 +262,11 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
                             }
                         }
                     }).show();
+                } else if (marker.getSnippet().startsWith("from ")) { //udostępniony przez znajomego
+
+                    //TO DO
                 }
+
                 return false;
             }
 
@@ -350,41 +353,18 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
     }
 
     private void prepareMarkers() {
-        /*//add own markers_old
-        markers = session.getMarkersList();
-        for (int i = 0; i < markers.size(); i++) {
-            map.addMarker(new MarkerOptions()
-                    .title(markers.get(i).getName())
-                    .position(new LatLng(markers.get(i).getLocalization().getLatitude(), markers.get(i).getLocalization().getLongitude()))
-                    .snippet("own")
-                    .visible(true)
-                    .draggable(false));
-
-        }*/
 
         HashMap<MarkerOptions, MyMarker> ownMarkers = session.getOwnMarkers();
-
-        Log.e("OWN MARKERS W PREP:", "" + ownMarkers.size());
-
-        for (MarkerOptions m : ownMarkers.keySet()) {
+        for (MarkerOptions m : ownMarkers.keySet())
             actualShowingOnMapMarkers.put(map.addMarker(m).getId(), m);
-        }
 
+        HashMap<MarkerOptions, MyMarker> sharedMarkers = session.getSharedMarkers();
+        for (MarkerOptions m : sharedMarkers.keySet())
+            actualShowingOnMapMarkers.put(map.addMarker(m).getId(), m);
 
-        //add markers_old with friends location
-        friendsMarkers = session.getFriendsMarkers();
-
-        for (int i = 0; i < friendsMarkers.size(); i++) {
-            map.addMarker(new MarkerOptions()
-                            .title(friendsMarkers.get(i).getName())
-                            .position(new LatLng(friendsMarkers.get(i).getLocalization().getLatitude(), friendsMarkers.get(i).getLocalization().getLongitude()))
-                            .snippet("friends")
-                                    // PONIŻEJ TO RACZEJ KTOŚ, KTO SIĘ ZNA, POWINIEN TO MĄDRZE WYSKALOWAĆ
+/*
                             .icon(BitmapDescriptorFactory.fromBitmap(CommonMethods.getInstance().clipBitmap(friendsMarkers.get(i).getIcon(), 150, 150)))
-                            .visible(true)
-                            .draggable(false)
-            );
-        }
+        */
     }
 
     public void deleteRoute(String tag) {

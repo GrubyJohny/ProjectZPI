@@ -189,7 +189,7 @@ public class Sender {
                             {
                                 try {
                                     //tylko aktualizuj współrzędne
-                                    Marker oldFriendMarker = friends.get(id);
+                                    MyMarker oldFriendMarker = friends.get(id);
                                     //ale może najpierw sprawdzę czy faktycznie się zmieniły
                                     if (!latLng.equals(oldFriendMarker.getPosition())) {
                                         oldFriendMarker.setPosition(latLng);
@@ -207,7 +207,7 @@ public class Sender {
                             {
                                 //dodaj nowy marker ze zdjęciem użytkownika
                                 Drawable ikona;
-                                Marker dodany = null;
+                                MyMarker dodany = null;
                               try {
                                   MainActivity main = new MainActivity();
                                   ikona = main.getImageFromFTP(Integer.parseInt(id));
@@ -265,13 +265,13 @@ public class Sender {
             String markerIdInteler = (sqliteID == null || sqliteID.equals("")) ? "NULL" : sqliteID;
             String snippet = markerIdExtrenal + "," + markerIdInteler;
             if(cM.getName().contains("(od ")) {
-                Marker marker=myMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromResource(R.drawable.mapmarkerhigreen)).position(new LatLng(cM.getLatitude(), cM.getLongitude())).title(cM.getName()).snippet(snippet));
+                MyMarker marker=myMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromResource(R.drawable.mapmarkerhigreen)).position(new LatLng(cM.getLatitude(), cM.getLongitude())).title(cM.getName()).snippet(snippet));
                 googleMarkers.put(sqliteID,marker);
             } else if (cM.isSaveOnServer()) {
-                Marker marker= myMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromResource(R.drawable.mapmarkerhiblue)).position(new LatLng(cM.getLatitude(), cM.getLongitude())).title(cM.getName()).snippet(snippet));
+                MyMarker marker= myMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromResource(R.drawable.mapmarkerhiblue)).position(new LatLng(cM.getLatitude(), cM.getLongitude())).title(cM.getName()).snippet(snippet));
                 googleMarkers.put(sqliteID,marker);
             } else {
-                Marker marker= myMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromResource(R.drawable.mapmarkerhi)).position(new LatLng(cM.getLatitude(), cM.getLongitude())).title(cM.getName()).snippet(snippet));
+                MyMarker marker= myMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromResource(R.drawable.mapmarkerhi)).position(new LatLng(cM.getLatitude(), cM.getLongitude())).title(cM.getName()).snippet(snippet));
                 googleMarkers.put(sqliteID,marker);
             }
             Log.d("PUT", "Snippet ustawiony dla tej instancji customMarkera to " + snippet);
@@ -341,7 +341,7 @@ public class Sender {
                 try {
                     JSONObject jObj = new JSONObject(response);
                     if (!jObj.getBoolean("error")) {
-                        Toast.makeText(context, "Marker sent successfully", Toast.LENGTH_SHORT);
+                        Toast.makeText(context, "MyMarker sent successfully", Toast.LENGTH_SHORT);
                     } else {
                         Log.d(TAG, "Sharing marker problem");
                     }

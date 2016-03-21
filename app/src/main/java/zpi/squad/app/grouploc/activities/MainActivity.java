@@ -84,7 +84,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     //obiekt będący parametrem, przy wysłaniu żądania o aktualizację lokacji
     private LocationRequest mLocationRequest;
     private String mLastUpdateTime;
-    private Date mLastUpdateDate = new Date();
+    // private Date mLastUpdateDate = new Date();
     private ParseGeoPoint mParseLocation = new ParseGeoPoint();
 
     //Obiekt w ogólności reprezentujący googlowe api service,

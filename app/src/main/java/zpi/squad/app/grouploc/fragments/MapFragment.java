@@ -41,7 +41,10 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.parse.ParseException;
 import com.parse.ParseGeoPoint;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
 
 import org.json.JSONObject;
 
@@ -64,6 +67,8 @@ import zpi.squad.app.grouploc.Sender;
 import zpi.squad.app.grouploc.SessionManager;
 import zpi.squad.app.grouploc.activities.MainActivity;
 import zpi.squad.app.grouploc.domains.CustomMarker;
+import zpi.squad.app.grouploc.domains.Friend;
+import zpi.squad.app.grouploc.domains.MyMarker;
 import zpi.squad.app.grouploc.helpers.CommonMethods;
 import zpi.squad.app.grouploc.utils.DirectionsJSONParser;
 import zpi.squad.app.grouploc.utils.PoiJSONParser;
@@ -107,7 +112,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
     private View tabs;
 
 
-    private List<CustomMarker> markers;
+    private List<CustomMarker> markers_old;
     private HashMap<String, Marker> googleMarkers;
 
 
@@ -139,6 +144,11 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
     int width;
     int height;
 
+    ArrayList<MyMarker> markers;
+    ArrayList<MyMarker> friendsMarkers;
+
+    public HashMap<Marker, MyMarker> allMarkers = new HashMap<>();
+    public HashMap<String, MarkerOptions> actualShowingOnMapMarkers = new HashMap<>();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -149,23 +159,22 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
 //        tabs = (View) getActivity().findViewById(R.id.tabanim_tabs);
         context = getActivity().getApplicationContext();
         globalVariable = (AppController) getActivity().getApplicationContext();
-        db = new SQLiteHandler(getActivity().getApplicationContext());
-        markers = db.getAllMarkers();
+        session = SessionManager.getInstance(context);
+        /*db = new SQLiteHandler(getActivity().getApplicationContext());
+        markers_old = db.getAllMarkers();
         googleMarkers = new HashMap<String, Marker>();
-        for (CustomMarker m : markers) {
+        for (CustomMarker m : markers_old) {
             if (m.isSaveOnServer()) {
 
             }
-        }
-        //globalVariable.setMarkers(markers);
+        }*/
+        //globalVariable.setMarkers(markers_old);
 
         //mRequestingLocationUpdates = true;
         //createLocationRequest();
         buildGoogleApiClient();
         mGoogleApiClient.connect();
         mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-
-        session = SessionManager.getInstance(context);
 
         width = context.getResources().getDisplayMetrics().widthPixels;
         height = context.getResources().getDisplayMetrics().heightPixels;
@@ -208,8 +217,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
         map.getUiSettings().setIndoorLevelPickerEnabled(true);
         map.getUiSettings().setAllGesturesEnabled(true);
 
+
         final LatLng location = (mCurrentLocation == null ? session.getCurrentLocation() : new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()));
         moveMapCamera(location);
+
 
         map.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
@@ -227,7 +238,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
                                     doNavigation(marker);
                                     break;
                                 case R.id.share:
-                                    dialogShare();
+
+                                    dialogShare(marker);
                                     break;
                                 case R.id.delete:
                                     //TODO
@@ -255,7 +267,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
                 return false;
             }
 
-            private void dialogShare() {
+            private void dialogShare(final Marker marker) {
                 final CharSequence[] items = {"Andrzej", "Stefek", "Gruby"};
                 final ArrayList seletedItems = new ArrayList();
 
@@ -273,6 +285,14 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
                         }).setPositiveButton("Share", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int id) {
+/*
+
+                                List<String> arg = new ArrayList<>();
+                                arg.add("yZQJ883hiw");
+                                arg.add("a@a.a");
+                                ShareMarker sha = new ShareMarker();
+                                sha.execute(arg);
+*/
 
                             }
                         }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -287,6 +307,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
                                 for (int i = 0; i < list.getCount(); i++) {
                                     list.setItemChecked(i, true);
                                 }
+
+                                ShareMarkerForAllFriends shareAll = new ShareMarkerForAllFriends();
+                                shareAll.execute(marker);
+
                             }
                         }).create();
                 shareDialog.show();
@@ -326,8 +350,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
     }
 
     private void prepareMarkers() {
-        //add own markers
-        ArrayList<zpi.squad.app.grouploc.domains.Marker> markers = session.getMarkersList();
+        /*//add own markers_old
+        markers = session.getMarkersList();
         for (int i = 0; i < markers.size(); i++) {
             map.addMarker(new MarkerOptions()
                     .title(markers.get(i).getName())
@@ -335,10 +359,20 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
                     .snippet("own")
                     .visible(true)
                     .draggable(false));
+
+        }*/
+
+        HashMap<MarkerOptions, MyMarker> ownMarkers = session.getOwnMarkers();
+
+        Log.e("OWN MARKERS W PREP:", "" + ownMarkers.size());
+
+        for (MarkerOptions m : ownMarkers.keySet()) {
+            actualShowingOnMapMarkers.put(map.addMarker(m).getId(), m);
         }
 
-        //add markers with friends location
-        ArrayList<zpi.squad.app.grouploc.domains.Marker> friendsMarkers = session.getFriendsMarkers();
+
+        //add markers_old with friends location
+        friendsMarkers = session.getFriendsMarkers();
 
         for (int i = 0; i < friendsMarkers.size(); i++) {
             map.addMarker(new MarkerOptions()
@@ -415,7 +449,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
         //globalVariable.getMyMap().setMapType(GoogleMap.MAP_TYPE_HYBRID);
         globalVariable.getMyMap().setMapType(GoogleMap.MAP_TYPE_NORMAL);
 
-        Sender.putMarkersOnMapAgain(markers, globalVariable.getMyMap(), googleMarkers);
+        Sender.putMarkersOnMapAgain(markers_old, globalVariable.getMyMap(), googleMarkers);
 
         if (mCurrentLocation != null) {
             double latitude = mCurrentLocation.getLatitude();
@@ -651,7 +685,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
                 String uid = session.getUserId();
                 double latitude = ostatniMarker.getPosition().latitude;
                 double longitude = ostatniMarker.getPosition().longitude;
-                CustomMarker custom = ToolsForMarkerList.getSpecificMarkerByLatitudeAndLongitude(markers, latitude, longitude);
+                CustomMarker custom = ToolsForMarkerList.getSpecificMarkerByLatitudeAndLongitude(markers_old, latitude, longitude);
                 String name = ostatniMarker.getTitle();
                 if (name == null)
                     name = "brak";
@@ -668,7 +702,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
                 String uid = session.getUserId();
                 double latitude = ostatniMarker.getPosition().latitude;
                 double longitude = ostatniMarker.getPosition().longitude;
-                CustomMarker custom = ToolsForMarkerList.getSpecificMarkerByLatitudeAndLongitude(markers, latitude, longitude);
+                CustomMarker custom = ToolsForMarkerList.getSpecificMarkerByLatitudeAndLongitude(markers_old, latitude, longitude);
                 String name = ostatniMarker.getTitle();
                 if (name == null)
                     name = "brak";
@@ -706,13 +740,13 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
                     String markerIdSQLITE = ids[1];
                     Log.d("REMOVE_MARKER", "MySQL id " + markerIdMySql);
                     Log.d("REMOVE_MARKER", "SQLite id " + markerIdSQLITE);
-                    CustomMarker toRemove = ToolsForMarkerList.getSpecificMarker(markers, markerIdSQLITE);
-                    markers.remove(toRemove);
+                    CustomMarker toRemove = ToolsForMarkerList.getSpecificMarker(markers_old, markerIdSQLITE);
+                    markers_old.remove(toRemove);
                     boolean znacznik = db.removeMarker(markerIdSQLITE);
                     Log.d("REMOVE_MARKER", " Operacja usuwania zako�czy�a si� sukcesem" + znacznik);
                     if (toRemove.isSaveOnServer()) {
                         Log.d("REMOVE_MARKER", "Usuwam z serwera");
-                        Sender.sendRequestAboutRemoveMarker(markerIdMySql, globalVariable.getMyMap(), markers);
+                        Sender.sendRequestAboutRemoveMarker(markerIdMySql, globalVariable.getMyMap(), markers_old);
                     }
 
                     Marker marker = googleMarkers.remove(markerIdSQLITE);
@@ -726,7 +760,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
 
 
                 layoutMarker.setVisibility(View.GONE);
-                /*Sender.sendRequestAboutMarkers(session.getUserId(),markers,myMap);*/
+                /*Sender.sendRequestAboutMarkers(session.getUserId(),markers_old,myMap);*/
 
 
             }
@@ -738,9 +772,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
 /*
         MarkerDialog md = (MarkerDialog) dialog;
         String name = md.getName();
-        Log.d("Marker Dialog", name);
-        Log.d("Marker Dialog", "myMap " + globalVariable.getMyMap());
-        Log.d("Marker Dialog", "my LatLong " + globalVariable.getLastClikOnMap());
+        Log.d("MyMarker Dialog", name);
+        Log.d("MyMarker Dialog", "myMap " + globalVariable.getMyMap());
+        Log.d("MyMarker Dialog", "my LatLong " + globalVariable.getLastClikOnMap());
 
 
 
@@ -750,7 +784,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
         nowyMarker.setMarkerIdSQLite(Long.toString(id));
         String markerIdExtrenal = "NULL";
         String markerIdInteler = Long.toString(id);
-        Marker marker=globalVariable.getMyMap().addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromResource(R.drawable.mapmarkerhi)).position(globalVariable.getLastClikOnMap()).draggable(true).title(name).snippet(markerIdExtrenal + "," + markerIdInteler));
+        MyMarker marker=globalVariable.getMyMap().addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromResource(R.drawable.mapmarkerhi)).position(globalVariable.getLastClikOnMap()).draggable(true).title(name).snippet(markerIdExtrenal + "," + markerIdInteler));
         googleMarkers.put(markerIdInteler,marker);
         Log.d("ADD_MARKER", markerIdExtrenal + "," + markerIdInteler);
         InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -776,7 +810,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
         @Override
         protected Void doInBackground(Void... params) {
 
-            SessionManager.getInstance().getMarkersList();
+            SessionManager.getInstance().refreshOwnMarkers();
             return null;
         }
 
@@ -786,4 +820,39 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
             prepareMarkers();
         }
     }
+
+    private class ShareMarkerForAllFriends extends AsyncTask<Marker, Void, Void> {
+        @Override
+        protected Void doInBackground(Marker... params) {
+
+            try {
+                ParseObject originMarker = ParseQuery.getQuery("Marker").whereEqualTo("objectId", session.getOwnMarkers().get(actualShowingOnMapMarkers.get(params[0].getId())).getObjectId()).getFirst().fetchIfNeeded();
+                List<Friend> fri = session.getFriendsList();
+                for (int i = 0; i < fri.size(); i++) {
+                    ParseObject marker = new ParseObject("SharedMarker");
+                    marker.put("marker", originMarker);
+                    marker.put("sharedUser", fri.get(i).getParseUser());
+
+                    marker.saveInBackground();
+                }
+
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+
+
+            return null;
+        }
+    }
+
+    private class RefreshFriendsPosition extends AsyncTask<Void, Void, Void> {
+
+        @Override
+        protected Void doInBackground(Void... params) {
+
+            SessionManager.getInstance().getRefreshedFriendsMarkers();
+            return null;
+        }
+    }
+
 }

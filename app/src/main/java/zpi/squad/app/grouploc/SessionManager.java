@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.parse.ParseException;
 import com.parse.ParseGeoPoint;
 import com.parse.ParseObject;
@@ -12,10 +13,11 @@ import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import zpi.squad.app.grouploc.domains.Friend;
-import zpi.squad.app.grouploc.domains.Marker;
+import zpi.squad.app.grouploc.domains.MyMarker;
 import zpi.squad.app.grouploc.domains.Notification;
 import zpi.squad.app.grouploc.fragments.MapFragment;
 import zpi.squad.app.grouploc.helpers.CommonMethods;
@@ -27,12 +29,15 @@ public class SessionManager {
     private SharedPreferences pref;
     private SharedPreferences.Editor editor;
     private static ArrayList<Friend> friends;
-    private static ArrayList<Marker> friendsMarkers;
     private static ArrayList<Notification> notifications;
-    private static ArrayList<Marker> markers;
+    private static ArrayList<MyMarker> markers;
     private LatLng currentLocation;
     public boolean requestLocationUpdate = true;
     boolean isFriend;
+    private int refreshFriendsPositionInterval = 10; //w sekundach
+    private static HashMap<MarkerOptions, MyMarker> ownMarkers = new HashMap<>();
+    private static HashMap<MarkerOptions, Friend> friendsMarkers = new HashMap<>();
+
 
     private SessionManager(Context context) {
         pref = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
@@ -128,7 +133,10 @@ public class SessionManager {
         requestLocationUpdate = false;
         notifications = null;
         markers = null;
-        MapFragment.getMap().clear();
+        try {
+            MapFragment.getMap().clear();
+        } catch (Exception e) {
+        }
     }
 
     public ArrayList<Friend> getFriendsList() {
@@ -143,14 +151,17 @@ public class SessionManager {
         return notifications;
     }
 
-    public ArrayList<Marker> getMarkersList() {
+    /*public ArrayList<MyMarker> getMarkersList() {
         if (markers == null)
-            markers = getMarkersFromParse();
+            markers = getOwnMarkersFromParse();
         return markers;
-    }
+    }*/
 
-    private ArrayList<Marker> getMarkersFromParse() {
-        ArrayList<Marker> result = new ArrayList<>();
+    private void getOwnMarkersFromParse() {
+
+
+        ArrayList<MyMarker> myMarkersResult = new ArrayList<>();
+        ownMarkers.clear();
 
         ParseQuery markers = new ParseQuery("Marker");
         markers.whereEqualTo("owner", ParseUser.getCurrentUser());
@@ -162,35 +173,68 @@ public class SessionManager {
 
             if (markersList.length > 0) {
                 for (int i = 0; i < markersList.length; i++)
-                    result.add(new Marker(((ParseObject) markersList[i]).getObjectId(),
+                    myMarkersResult.add(new MyMarker(((ParseObject) markersList[i]).getObjectId(),
                             ((ParseObject) markersList[i]).getString("name"),
                             (((ParseObject) markersList[i]).getParseUser("owner")),
                             (((ParseObject) markersList[i]).getParseGeoPoint("localization"))
-                            //      ,((ParseObject) markersList[i]).getString("icon")==null? jakieafultowyObrazek : CommonMethods.getInstance().decodeBase64ToBitmap(((ParseObject) markersList[i]).getString("icon"))
+                            //      ,((ParseObject) markersList[i]).getString("icon")==null? jakieafaultowyObrazek : CommonMethods.getInstance().decodeBase64ToBitmap(((ParseObject) markersList[i]).getString("icon"))
                     ));
 
-                Log.e("ILE MARKERKÓW? ", "" + result.size());
+
+                for (int i = 0; i < myMarkersResult.size(); i++) {
+                    ownMarkers.put(new MarkerOptions()
+                            .title(myMarkersResult.get(i).getName())
+                            .position(new LatLng(myMarkersResult.get(i).getLocalization().getLatitude(), myMarkersResult.get(i).getLocalization().getLongitude()))
+                            .snippet("own")
+                            .visible(true)
+                            .draggable(false), myMarkersResult.get(i));
+                }
+
+
             } else
                 Log.e("There are any ", "markers for current user.");
         } catch (ParseException e) {
             e.printStackTrace();
         }
 
-
-        return result;
     }
 
-    public ArrayList<Marker> getFriendsMarkers() {
-        ArrayList<Marker> result = new ArrayList<>();
+    public HashMap<MarkerOptions, MyMarker> getOwnMarkers() {
+        if (ownMarkers == null)
+            getOwnMarkersFromParse();
+
+        return ownMarkers;
+    }
+
+    public void refreshOwnMarkers() {
+        getOwnMarkersFromParse();
+    }
+
+    public ArrayList<MyMarker> getFriendsMarkers() {
+        ArrayList<MyMarker> result = new ArrayList<>();
         ArrayList<Friend> friends = getFriendsList();
 
         for (int i = 0; i < friends.size(); i++)
-            result.add(new Marker(friends.get(i).getUid(), friends.get(i).getName(), friends.get(i).getParseUser(), friends.get(i).getLocation(), CommonMethods.getInstance().decodeBase64ToBitmap(friends.get(i).getPhoto())));
+            result.add(new MyMarker(friends.get(i).getUid(), friends.get(i).getName(), friends.get(i).getParseUser(), friends.get(i).getLocation(), CommonMethods.getInstance().decodeBase64ToBitmap(friends.get(i).getPhoto())));
 
         Log.e("FRIENDS MARKERS: ", "" + friends.size());
 
         return result;
     }
+
+    public ArrayList<MyMarker> getRefreshedFriendsMarkers() {
+        ArrayList<MyMarker> result = new ArrayList<>();
+        ArrayList<Friend> friends = getFriendsFromParse();
+
+        for (int i = 0; i < friends.size(); i++)
+            result.add(new MyMarker(friends.get(i).getUid(), friends.get(i).getName(), friends.get(i).getParseUser(), friends.get(i).getLocation(), CommonMethods.getInstance().decodeBase64ToBitmap(friends.get(i).getPhoto())));
+
+        Log.e("FRIENDS MARKERS: ", "" + friends.size());
+
+        return result;
+    }
+
+
 
 
     private ArrayList<Notification> getNotificationsFromParse() {
@@ -449,4 +493,5 @@ public class SessionManager {
         }
         return searchFriendsList;
     }
+
 }

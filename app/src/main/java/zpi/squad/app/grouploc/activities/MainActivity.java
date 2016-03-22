@@ -160,15 +160,19 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             navigationViewLeft.getMenu().removeItem(R.id.nav_password);
         }
 
-        navigationViewLeftProfilePicture = (ImageView) findViewById(R.id.profilePicture);
+        View headerLeft = navigationViewLeft.getHeaderView(0);
+
+        navigationViewLeftProfilePicture = (ImageView) headerLeft.findViewById(R.id.profilePicture);
         mainPhoto = CommonMethods.getInstance().clipBitmap(CommonMethods.getInstance().decodeBase64ToBitmap(session.getUserPhoto()), navigationViewLeftProfilePicture);
         navigationViewLeftProfilePicture.setImageBitmap(mainPhoto);
 
-        navigationViewLeftFullName = (TextView) findViewById(R.id.Fullname);
+        navigationViewLeftFullName = (TextView) headerLeft.findViewById(R.id.Fullname);
         navigationViewLeftFullName.setText(session.getUserName());
 
         navigationViewRight = (NavigationView) findViewById(R.id.nav_view_right);
         navigationViewRight.setNavigationItemSelectedListener(this);
+
+        View headerRight = navigationViewRight.getHeaderView(0);
 
         addFriendButton = (FloatingActionButton) findViewById(R.id.addFriendButton);
         addFriendButton.setOnClickListener(new View.OnClickListener() {
@@ -181,7 +185,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
         friendListSettings();
 
-        inputSearch = (EditText) findViewById(R.id.filterFriendsInput);
+        inputSearch = (EditText) headerRight.findViewById(R.id.filterFriendsInput);
         inputSearch.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -219,7 +223,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         } catch (Exception e) {
             e.getLocalizedMessage();
         }
-
     }
 
     public void setActionBarTitle(String title) {

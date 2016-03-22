@@ -5,7 +5,11 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
@@ -20,6 +24,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ScrollView;
 import android.widget.Toast;
@@ -216,10 +221,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
         map.getUiSettings().setIndoorLevelPickerEnabled(true);
         map.getUiSettings().setAllGesturesEnabled(true);
 
-
         final LatLng location = (mCurrentLocation == null ? session.getCurrentLocation() : new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()));
         moveMapCamera(location);
-
 
         map.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
@@ -237,7 +240,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
                                     doNavigation(marker);
                                     break;
                                 case R.id.share:
-
                                     dialogShare(marker);
                                     break;
                                 case R.id.delete:
@@ -368,6 +370,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
 /*
                             .icon(BitmapDescriptorFactory.fromBitmap(CommonMethods.getInstance().clipBitmap(friendsMarkers.get(i).getIcon(), 150, 150)))
         */
+        // .icon(BitmapDescriptorFactory.fromBitmap(getMarkerBitmapFromView(friendsMarkers.get(i).getIcon())))
     }
 
     public void deleteRoute(String tag) {
@@ -378,6 +381,28 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
     @Override
     public void onStreetViewPanoramaReady(StreetViewPanorama streetViewPanorama) {
         streetViewPanorama.setZoomGesturesEnabled(true);
+    }
+
+    private Bitmap getMarkerBitmapFromView(Bitmap bitmap) {
+        View customMarkerView = ((LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.view_custom_marker, null);
+        ImageView markerImageView = (ImageView) customMarkerView.findViewById(R.id.marker_image);
+
+        markerImageView.setImageBitmap(bitmap);
+        customMarkerView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
+        customMarkerView.layout(0, 0, customMarkerView.getMeasuredWidth(), customMarkerView.getMeasuredHeight());
+        customMarkerView.buildDrawingCache();
+
+        Bitmap returnedBitmap = Bitmap.createBitmap(customMarkerView.getMeasuredWidth(), customMarkerView.getMeasuredHeight(),
+                Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(returnedBitmap);
+        canvas.drawColor(Color.WHITE, PorterDuff.Mode.SRC_IN);
+
+        Drawable drawable = customMarkerView.getBackground();
+        if (drawable != null)
+            drawable.draw(canvas);
+        customMarkerView.draw(canvas);
+
+        return returnedBitmap;
     }
 
     class AsyncTaskRunner extends AsyncTask<String, String, String> {

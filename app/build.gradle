@@ -9,8 +9,8 @@ android {
             storeFile file('C:/key.jks')
         }
     }
-    compileSdkVersion 22
-    buildToolsVersion "21.1.2"
+    compileSdkVersion 23
+    buildToolsVersion '23.0.1'
     defaultConfig {
         applicationId "zpi.squad.app.grouploc"
         minSdkVersion 19
@@ -18,6 +18,8 @@ android {
         versionCode 20
         versionName "1.0"
         signingConfig signingConfigs.config
+        generatedDensities = []
+        multiDexEnabled true
     }
     buildTypes {
         release {
@@ -30,59 +32,21 @@ android {
     }
     productFlavors {
     }
+    aaptOptions {
+        additionalParameters "--no-version-vectors"
+    }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile files('volley.jar')
-    compile 'com.google.android.gms:play-services:6.5.87'
-    /*    compile 'com.android.support:support-v4:22.0.0'
-                                                                                                            compile 'com.android.support:appcompat-v7:22.0.0'*/
+    compile 'com.google.android.gms:play-services:8.4.0'
     compile 'com.facebook.android:facebook-android-sdk:4.1.2'
     compile 'com.nhaarman.supertooltips:library:3.0.+'
     compile files('commons-net-ftp-2.0.jar')
-    compile 'com.android.support:design:22.2.1'
     compile files('Parse-1.9.4.jar')
     compile files('ParseFacebookUtilsV4-1.9.4.jar')
     compile 'com.cocosw:bottomsheet:1.+@aar'
     compile 'com.github.rahatarmanahmed:circularprogressview:2.4.0'
+    compile 'com.android.support:design:23.2.1'
 }

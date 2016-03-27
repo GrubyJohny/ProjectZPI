@@ -142,9 +142,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
 
     AppController globalVariable;
 
-    private static final CharSequence[] MAP_TYPE_ITEMS =
-            {"Road Map", "Hybrid", "Satellite", "Terrain"};
-
     int width;
     int height;
 
@@ -224,52 +221,62 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
         final LatLng location = (mCurrentLocation == null ? session.getCurrentLocation() : new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()));
         moveMapCamera(location);
 
-        map.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+        getMap().setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(final Marker marker) {
+                getMap().animateCamera(CameraUpdateFactory.newLatLng(marker.getPosition()), new GoogleMap.CancelableCallback() {
 
-                if (marker.getSnippet().equals("own")) {
-                    new BottomSheet.Builder(getActivity()).grid().title("Own marker").sheet(R.menu.menu_bottom_own).listener(new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            switch (which) {
-                                case R.id.polyline:
-                                    doPolyline(marker);
-                                    break;
-                                case R.id.navigate:
-                                    doNavigation(marker);
-                                    break;
-                                case R.id.share:
-                                    dialogShare(marker);
-                                    break;
-                                case R.id.delete:
-                                    //TODO
-                                    break;
-                            }
+                    @Override
+                    public void onFinish() {
+                        if (marker.getSnippet().equals("own")) {
+                            new BottomSheet.Builder(getActivity()).grid().title("Own marker").sheet(R.menu.menu_bottom_own).listener(new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    switch (which) {
+                                        case R.id.polyline:
+                                            doPolyline(marker);
+                                            break;
+                                        case R.id.navigate:
+                                            doNavigation(marker);
+                                            break;
+                                        case R.id.share:
+                                            dialogShare(marker);
+                                            break;
+                                        case R.id.delete:
+                                            //TODO
+                                            break;
+                                    }
+                                }
+                            }).show();
+
+                        } else if (marker.getSnippet().equals("friends")) {
+
+                            new BottomSheet.Builder(getActivity()).grid().title("Friend marker").sheet(R.menu.menu_bottom_friend).listener(new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    switch (which) {
+                                        case R.id.polyline:
+                                            doPolyline(marker);
+                                            break;
+                                        case R.id.navigate:
+                                            doNavigation(marker);
+                                            break;
+                                    }
+                                }
+                            }).show();
+                        } else if (marker.getSnippet().startsWith("from ")) { //udostępniony przez znajomego
+
+                            //TO DO
                         }
-                    }).show();
+                    }
 
-                } else if (marker.getSnippet().equals("friends")) {
+                    @Override
+                    public void onCancel() {
 
-                    new BottomSheet.Builder(getActivity()).grid().title("Friend marker").sheet(R.menu.menu_bottom_friend).listener(new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            switch (which) {
-                                case R.id.polyline:
-                                    doPolyline(marker);
-                                    break;
-                                case R.id.navigate:
-                                    doNavigation(marker);
-                                    break;
-                            }
-                        }
-                    }).show();
-                } else if (marker.getSnippet().startsWith("from ")) { //udostępniony przez znajomego
+                    }
+                });
 
-                    //TO DO
-                }
-
-                return false;
+                return true;
             }
 
             private void dialogShare(final Marker marker) {

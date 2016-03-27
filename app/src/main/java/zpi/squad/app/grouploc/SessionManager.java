@@ -2,7 +2,15 @@ package zpi.squad.app.grouploc;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.ImageView;
 
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
@@ -25,6 +33,7 @@ import zpi.squad.app.grouploc.helpers.CommonMethods;
 
 public class SessionManager {
 
+    private Context context;
     private static final String PREF_NAME = "userInfo";
     private static SessionManager sessionManager;
     private SharedPreferences pref;
@@ -44,6 +53,7 @@ public class SessionManager {
     private SessionManager(Context context) {
         pref = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         editor = pref.edit();
+        this.context = context;
     }
 
     public static SessionManager getInstance(Context context) {
@@ -163,7 +173,7 @@ public class SessionManager {
                             .position(new LatLng(friends.get(i).getLocation().getLatitude(), friends.get(i).getLocation().getLongitude()))
                             .snippet("friends")
                             .title(friends.get(i).getName())
-                            .icon(BitmapDescriptorFactory.fromBitmap(CommonMethods.getInstance().clipBitmap(CommonMethods.getInstance().decodeBase64ToBitmap(friends.get(i).getPhoto()), 150, 150)))
+                            .icon(BitmapDescriptorFactory.fromBitmap(getMarkerBitmapFromView(CommonMethods.getInstance().decodeBase64ToBitmap(friends.get(i).getPhoto()))))
                             .visible(true)
                             .draggable(false),
                     friends.get(i));
@@ -171,6 +181,28 @@ public class SessionManager {
         friendsMarkers = result;
 
         return result;
+    }
+
+    private Bitmap getMarkerBitmapFromView(Bitmap bitmap) {
+        View customMarkerView = ((LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.view_custom_marker, null);
+        ImageView markerImageView = (ImageView) customMarkerView.findViewById(R.id.marker_image);
+
+        markerImageView.setImageBitmap(bitmap);
+        customMarkerView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
+        customMarkerView.layout(0, 0, customMarkerView.getMeasuredWidth(), customMarkerView.getMeasuredHeight());
+        customMarkerView.buildDrawingCache();
+
+        Bitmap returnedBitmap = Bitmap.createBitmap(customMarkerView.getMeasuredWidth(), customMarkerView.getMeasuredHeight(),
+                Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(returnedBitmap);
+        canvas.drawColor(Color.WHITE, PorterDuff.Mode.SRC_IN);
+
+        Drawable drawable = customMarkerView.getBackground();
+        if (drawable != null)
+            drawable.draw(canvas);
+        customMarkerView.draw(canvas);
+
+        return returnedBitmap;
     }
 
     private void getOwnMarkersFromParse() {

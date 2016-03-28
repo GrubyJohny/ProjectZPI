@@ -11,7 +11,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
-        android:hint="@string/searching_friends_text" />
+        android:hint="@string/searching_friends_text"
+        android:singleLine="true"/>
 
     <ListView
         android:id="@+id/searchingFriendsListView"

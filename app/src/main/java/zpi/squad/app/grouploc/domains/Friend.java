@@ -15,6 +15,7 @@ public class Friend {
     ParseGeoPoint location;
     private ParseUser parseUser;
     public boolean alreadyInvited;
+    boolean hasChanged = true;
 
     public Friend() {
     }

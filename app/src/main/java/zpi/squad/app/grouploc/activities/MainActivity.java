@@ -84,7 +84,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     //obiekt będący parametrem, przy wysłaniu żądania o aktualizację lokacji
     private LocationRequest mLocationRequest;
     private String mLastUpdateTime;
-    private Date mLastUpdateDate = new Date();
+    // private Date mLastUpdateDate = new Date();
     private ParseGeoPoint mParseLocation = new ParseGeoPoint();
 
     //Obiekt w ogólności reprezentujący googlowe api service,
@@ -113,6 +113,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     private EditText inputSearch;
     public static FriendAdapter adapter;
     private FloatingActionButton addFriendButton;
+    private int navigationLeftClickedOneBeforeId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -153,20 +154,25 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
         navigationViewLeft = (NavigationView) findViewById(R.id.nav_view_left);
         navigationViewLeft.setNavigationItemSelectedListener(this);
+        navigationViewLeft.getMenu().getItem(0).setChecked(true);
 
         if (session.isLoggedByFacebook()) {
             navigationViewLeft.getMenu().removeItem(R.id.nav_password);
         }
 
-        navigationViewLeftProfilePicture = (ImageView) findViewById(R.id.profilePicture);
+        View headerLeft = navigationViewLeft.getHeaderView(0);
+
+        navigationViewLeftProfilePicture = (ImageView) headerLeft.findViewById(R.id.profilePicture);
         mainPhoto = CommonMethods.getInstance().clipBitmap(CommonMethods.getInstance().decodeBase64ToBitmap(session.getUserPhoto()), navigationViewLeftProfilePicture);
         navigationViewLeftProfilePicture.setImageBitmap(mainPhoto);
 
-        navigationViewLeftFullName = (TextView) findViewById(R.id.Fullname);
+        navigationViewLeftFullName = (TextView) headerLeft.findViewById(R.id.Fullname);
         navigationViewLeftFullName.setText(session.getUserName());
 
         navigationViewRight = (NavigationView) findViewById(R.id.nav_view_right);
         navigationViewRight.setNavigationItemSelectedListener(this);
+
+        View headerRight = navigationViewRight.getHeaderView(0);
 
         addFriendButton = (FloatingActionButton) findViewById(R.id.addFriendButton);
         addFriendButton.setOnClickListener(new View.OnClickListener() {
@@ -179,7 +185,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
         friendListSettings();
 
-        inputSearch = (EditText) findViewById(R.id.filterFriendsInput);
+        inputSearch = (EditText) headerRight.findViewById(R.id.filterFriendsInput);
         inputSearch.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -211,15 +217,12 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
         Log.e("LOKALIZACJA: ", session.getCurrentLocation().latitude + ", " + session.getCurrentLocation().longitude);
 
-        try{
+        try {
             ParseInstallation.getCurrentInstallation().put("name", ParseUser.getCurrentUser().getEmail());
             ParseInstallation.getCurrentInstallation().saveInBackground();
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             e.getLocalizedMessage();
         }
-
     }
 
     public void setActionBarTitle(String title) {
@@ -443,6 +446,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         int id = item.getItemId();
+        navigationLeftClickedOneBeforeId = id;
         if (id == R.id.nav_about) {
             AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this, R.style.AppCompatAlertDialogStyle);
             builder.setTitle("About us");
@@ -486,7 +490,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
-        item.setChecked(true);
+        if (id != R.id.nav_about)
+            item.setChecked(true);
         return true;
     }
 
@@ -596,8 +601,13 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                             MainActivity.super.onBackPressed();
                         }
                     }).create().show();
+        } else if (getSupportFragmentManager().getBackStackEntryCount() >= 2) {
+            getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+            getSupportFragmentManager().beginTransaction().replace(R.id.main_container, mapFragment, mapTAG).setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN).commit();
+            navigationViewLeft.getMenu().getItem(0).setChecked(true);
         } else {
             super.onBackPressed();
+            navigationViewLeft.getMenu().getItem(0).setChecked(true);
         }
     }
 

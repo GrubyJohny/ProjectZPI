@@ -8,7 +8,7 @@ import com.parse.ParseUser;
 /**
  * Created by gruby on 15.03.2016.
  */
-public class Marker {
+public class MyMarker {
 
     private String objectId;
     private String name;
@@ -16,14 +16,15 @@ public class Marker {
     private ParseGeoPoint localization;
     private Bitmap icon;
 
-    public Marker(String id, String n, ParseUser o, ParseGeoPoint l) {
+
+    public MyMarker(String id, String n, ParseUser o, ParseGeoPoint l) {
         this.objectId = id;
         this.name = n;
         this.owner = o;
         this.localization = l;
     }
 
-    public Marker(String id, String n, ParseUser o, ParseGeoPoint l, Bitmap ic) {
+    public MyMarker(String id, String n, ParseUser o, ParseGeoPoint l, Bitmap ic) {
         this.objectId = id;
         this.name = n;
         this.owner = o;
@@ -66,5 +67,6 @@ public class Marker {
     public void setIcon(Bitmap b) {
         this.icon = b;
     }
+
 
 }

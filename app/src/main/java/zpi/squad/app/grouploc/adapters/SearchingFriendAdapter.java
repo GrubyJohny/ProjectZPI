@@ -69,6 +69,7 @@ public class SearchingFriendAdapter extends ArrayAdapter<Friend> implements Filt
         }
 
         inviteFriendButton = (ImageView) convertView.findViewById(R.id.inviteFriend);
+        inviteFriendButton.setImageResource(R.drawable.plus_circle);
         final View finalConvertView = convertView;
         inviteFriendButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -78,7 +79,7 @@ public class SearchingFriendAdapter extends ArrayAdapter<Friend> implements Filt
             }
         });
         if (friend.alreadyInvited) {
-            inviteFriendButton.setBackgroundResource(R.drawable.plus_circle_gray);
+            inviteFriendButton.setImageResource(R.drawable.plus_circle_gray);
             inviteFriendButton.setClickable(false);
         }
         // Lookup view for data population
@@ -142,12 +143,13 @@ public class SearchingFriendAdapter extends ArrayAdapter<Friend> implements Filt
 
         String[] temp;
         Animation animation = AnimationUtils.loadAnimation(getContext(), R.anim.rotate);
+        final ImageView inviteButton = inviteFriendButton;
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
 
-            inviteFriendButton.startAnimation(animation);
+            inviteButton.startAnimation(animation);
         }
 
         @Override
@@ -170,9 +172,9 @@ public class SearchingFriendAdapter extends ArrayAdapter<Friend> implements Filt
         @Override
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
-            inviteFriendButton.clearAnimation();
-            inviteFriendButton.setBackgroundResource(R.drawable.plus_circle_gray);
-            inviteFriendButton.setClickable(false);
+            inviteButton.clearAnimation();
+            inviteButton.setImageResource(R.drawable.plus_circle_gray);
+            inviteButton.setClickable(false);
             Toast.makeText(MainActivity.context, temp[0], Toast.LENGTH_LONG).show();
         }
     }

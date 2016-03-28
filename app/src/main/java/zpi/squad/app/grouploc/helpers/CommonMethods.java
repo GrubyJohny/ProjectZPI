@@ -114,4 +114,26 @@ public class CommonMethods {
         canvas.drawBitmap(bitmap, 0, 0, null);
         return outputBitmap;
     }
+
+    public Bitmap clipBitmap(Bitmap bitmap, final int width, final int height) {
+        if (bitmap == null)
+            return null;
+        bitmap = bitmap.createScaledBitmap(bitmap, width, height, true);
+
+        DisplayMetrics metrics = new DisplayMetrics();
+
+        final Bitmap outputBitmap = Bitmap.createBitmap(metrics, width, height, Bitmap.Config.ARGB_8888);
+
+        final Path path = new Path();
+        path.addCircle(
+                (float) (width / 2)
+                , (float) (height / 2)
+                , (float) Math.min(width, (height / 2))
+                , Path.Direction.CCW);
+
+        final Canvas canvas = new Canvas(outputBitmap);
+        canvas.clipPath(path);
+        canvas.drawBitmap(bitmap, 0, 0, null);
+        return outputBitmap;
+    }
 }

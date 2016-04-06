@@ -19,7 +19,6 @@ android {
         versionName "1.0"
         signingConfig signingConfigs.config
         generatedDensities = []
-        multiDexEnabled true
     }
     buildTypes {
         release {

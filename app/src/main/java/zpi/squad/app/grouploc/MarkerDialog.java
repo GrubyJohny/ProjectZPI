@@ -22,6 +22,9 @@ import zpi.squad.app.grouploc.fragments.MapFragment;
  * Created by sanczo on 2015-05-22.
  */
 public class MarkerDialog extends DialogFragment {
+    public MarkerDialog() {
+    }
+
     LatLng markerLocation;
 
     public MarkerDialog(LatLng latLng) {

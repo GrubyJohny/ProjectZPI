@@ -331,16 +331,16 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
             }
 
             private void doPolyline(Marker marker) {
-                if (visibleRouts.containsKey(marker.getId())) {
-                    deleteRoute(marker.getId());
-                    Log.d("Fuck", "usuwam");
-                } else {
-                    LatLng origin = location;
-                    LatLng dest = new LatLng(marker.getPosition().latitude, marker.getPosition().longitude);
-                    String url = getDirectionUrl(origin, dest);
-                    DownloadTask downloadTask = new DownloadTask(marker.getId());
-                    downloadTask.execute(url);
+                if (visibleRouts.size() > 0) {
+                    deleteRoute(visibleRouts.keySet().iterator().next());
+                    visibleRouts.clear();
                 }
+                LatLng origin = location;
+                LatLng dest = new LatLng(marker.getPosition().latitude, marker.getPosition().longitude);
+                String url = getDirectionUrl(origin, dest);
+                DownloadTask downloadTask = new DownloadTask(marker.getId());
+                downloadTask.execute(url);
+
             }
         });
 

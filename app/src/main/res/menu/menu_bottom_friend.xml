@@ -1,6 +1,4 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:id="@+id/polyline" android:title="Polyline" android:icon="@drawable/vector_polyline"/>
     <item android:id="@+id/navigate" android:title="Navigate to" android:icon="@drawable/navigation"/>
-    <item android:id="@+id/share" android:title="Share Marker" android:icon="@drawable/share_variant"/>
-    <item android:id="@+id/delete" android:title="Delete" android:icon="@drawable/delete"/>
 </menu>

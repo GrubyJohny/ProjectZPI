@@ -41,6 +41,7 @@
     <string name="nameValidMoreThan">Name should have at least 2 characters</string>
     <string name="pleaseWait">Please wait ...</string>
     <string name="registerPasswordsValidSame">Passwords are not identical</string>
+    <string name="google_app_id">api-project-631031851579</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>

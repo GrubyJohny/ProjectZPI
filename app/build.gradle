@@ -36,19 +36,21 @@ android {
     }
 }
 
+
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile files('volley.jar')
+    compile files('commons-net-ftp-2.0.jar')
+    compile files('Parse-1.9.4.jar')
+    compile files('ParseFacebookUtilsV4-1.9.4.jar')
     compile 'com.google.android.gms:play-services-auth:8.4.0'
     compile 'com.google.android.gms:play-services-appindexing:8.4.0'
     compile 'com.google.android.gms:play-services-gcm:8.4.0'
     compile 'com.google.android.gms:play-services-maps:8.4.0'
     compile 'com.google.android.gms:play-services-location:8.4.0'
     compile 'com.facebook.android:facebook-android-sdk:4.1.2'
-    compile files('commons-net-ftp-2.0.jar')
-    compile files('Parse-1.9.4.jar')
-    compile files('ParseFacebookUtilsV4-1.9.4.jar')
     compile 'com.cocosw:bottomsheet:1.+@aar'
     compile 'com.github.rahatarmanahmed:circularprogressview:2.4.0'
     compile 'com.android.support:design:23.2.1'
+    compile 'com.android.support:support-v4:23.2.1'
 }

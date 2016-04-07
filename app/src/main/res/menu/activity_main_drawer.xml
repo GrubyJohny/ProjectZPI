@@ -18,6 +18,10 @@
             android:id="@+id/nav_password"
             android:icon="@drawable/ic_password"
             android:title="Change password" />
+        <item
+            android:id="@+id/nav_settings"
+            android:icon="@drawable/ic_settings"
+            android:title="Settings" />
     </group>
 
     <group android:checkableBehavior="single">

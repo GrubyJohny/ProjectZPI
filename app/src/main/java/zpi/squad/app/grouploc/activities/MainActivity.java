@@ -66,6 +66,7 @@ import zpi.squad.app.grouploc.fragments.ChangePasswordFragment;
 import zpi.squad.app.grouploc.fragments.ChangePhotoFragment;
 import zpi.squad.app.grouploc.fragments.MapFragment;
 import zpi.squad.app.grouploc.fragments.NotificationFragment;
+import zpi.squad.app.grouploc.fragments.SettingsFragment;
 import zpi.squad.app.grouploc.helpers.CommonMethods;
 
 public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
@@ -103,17 +104,18 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     ChangePhotoFragment changePhotoFragment;
     ChangePasswordFragment changePasswordFragment;
     NotificationFragment notificationFragment;
+    SettingsFragment settingsFragment;
 
     final static String mapTAG = "MAP";
     final static String photoTAG = "PHOTO";
     final static String passwordTAG = "PASSWORD";
     final static String notificationTAG = "NOTIFICATION";
+    final static String settingsTAG = "SETTINGS";
 
     private ListView friendsListView;
     private EditText inputSearch;
     public static FriendAdapter adapter;
     private FloatingActionButton addFriendButton;
-    private int navigationLeftClickedOneBeforeId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -336,6 +338,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         changePhotoFragment = new ChangePhotoFragment();
         changePasswordFragment = new ChangePasswordFragment();
         notificationFragment = new NotificationFragment();
+        settingsFragment = new SettingsFragment();
     }
 
     @Override
@@ -446,7 +449,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         int id = item.getItemId();
-        navigationLeftClickedOneBeforeId = id;
         if (id == R.id.nav_about) {
             AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this, R.style.AppCompatAlertDialogStyle);
             builder.setTitle("About us");
@@ -482,6 +484,13 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 getSupportFragmentManager().beginTransaction().replace(R.id.main_container, changePhotoFragment, photoTAG).addToBackStack(mapTAG).setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN).commit();
             } else {
                 if (!changePhotoFragment.isVisible())
+                    getSupportFragmentManager().popBackStack();
+            }
+        } else if (id == R.id.nav_settings) {
+            if (getSupportFragmentManager().findFragmentByTag(settingsTAG) == null) {
+                getSupportFragmentManager().beginTransaction().replace(R.id.main_container, settingsFragment, settingsTAG).addToBackStack(mapTAG).setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN).commit();
+            } else {
+                if (!settingsFragment.isVisible())
                     getSupportFragmentManager().popBackStack();
             }
         } else if (id == R.id.nav_logout) {

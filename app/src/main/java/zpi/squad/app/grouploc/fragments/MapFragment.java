@@ -34,7 +34,6 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.OnStreetViewPanoramaReadyCallback;
 import com.google.android.gms.maps.StreetViewPanorama;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
@@ -62,8 +61,6 @@ import zpi.squad.app.grouploc.AppController;
 import zpi.squad.app.grouploc.MarkerDialog;
 import zpi.squad.app.grouploc.POISpecies;
 import zpi.squad.app.grouploc.R;
-import zpi.squad.app.grouploc.SQLiteHandler;
-import zpi.squad.app.grouploc.Sender;
 import zpi.squad.app.grouploc.SessionManager;
 import zpi.squad.app.grouploc.activities.MainActivity;
 import zpi.squad.app.grouploc.domains.CustomMarker;
@@ -71,23 +68,29 @@ import zpi.squad.app.grouploc.domains.Friend;
 import zpi.squad.app.grouploc.domains.MyMarker;
 import zpi.squad.app.grouploc.utils.DirectionsJSONParser;
 import zpi.squad.app.grouploc.utils.PoiJSONParser;
-import zpi.squad.app.grouploc.utils.ToolsForMarkerList;
-
-import static zpi.squad.app.grouploc.POISpecies.getRightSpecies;
 
 public class MapFragment extends Fragment implements OnMapReadyCallback, OnStreetViewPanoramaReadyCallback, GoogleApiClient.ConnectionCallbacks, MarkerDialog.NoticeDialogListener {
 
-    private SupportMapFragment fragment;
+    public static Context context;
     //private GoogleMapOptions mapOptions = new GoogleMapOptions().liteMode(true);
-
+    public static ParseGeoPoint lastClickOnMap;
     private static View view;
+    private static GoogleMap map;
+    public HashMap<Marker, MyMarker> allMarkers = new HashMap<>();
+    public HashMap<String, MarkerOptions> actualShowingOnMapMarkers = new HashMap<>();
+    PoiJSONParser poiBase = new PoiJSONParser();
+    Resources res;
+    AppController globalVariable;
+    int width;
+    int height;
+    ArrayList<MyMarker> markers;
+    ArrayList<MyMarker> friendsMarkers;
+    private SupportMapFragment fragment;
     //OstatniKliknietyNaMapi
     private LatLng lastClikOnMap;
     private ScrollView POIScrollView;
     private Button mainPoiButton;
     private Button clearPoiButton;
-    PoiJSONParser poiBase = new PoiJSONParser();
-    public static Context context;
     private ArrayList<MarkerOptions> markersRestaurants = new ArrayList<MarkerOptions>();
     private ArrayList<MarkerOptions> markersKfc = new ArrayList<MarkerOptions>();
     private ArrayList<MarkerOptions> markersMcdonalds = new ArrayList<MarkerOptions>();
@@ -102,23 +105,14 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
     private ArrayList<ArrayList<MarkerOptions>> activePoiMarkers = new ArrayList<>();
     private HashMap<POISpecies, HashMap<String, Marker>> active = new HashMap<POISpecies, HashMap<String, Marker>>();
     private HashMap<String, Polyline> visibleRouts = new HashMap<String, Polyline>();
-
     private boolean poiIsUpToDate = false;
     private Location mCurrentLocation;
-
     private Marker ostatniMarker;
     private View layoutMarker;
     private View tabs;
-
-
     private List<CustomMarker> markers_old;
     private HashMap<String, Marker> googleMarkers;
-
-
-    private SQLiteHandler db;
     private GoogleApiClient mGoogleApiClient;
-    Resources res;
-
     private boolean mRequestingLocationUpdates;
     private LocationManager locationManager;
     private LocationRequest mLocationRequest;
@@ -131,20 +125,19 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
     private Button changeMapTypeButton;
     private SessionManager session;
 
-    private static GoogleMap map;
+    public static GoogleMap getMap() {
+        return map;
+    }
 
-    public static ParseGeoPoint lastClickOnMap;
-
-    AppController globalVariable;
-
-    int width;
-    int height;
-
-    ArrayList<MyMarker> markers;
-    ArrayList<MyMarker> friendsMarkers;
-
-    public HashMap<Marker, MyMarker> allMarkers = new HashMap<>();
-    public HashMap<String, MarkerOptions> actualShowingOnMapMarkers = new HashMap<>();
+    public static void moveMapCamera(LatLng position) {
+        CameraPosition cameraPosition = new CameraPosition.Builder()
+                .target(position)
+                .zoom(17)
+                .bearing(0)
+                .tilt(30)
+                .build();
+        map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -156,14 +149,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
         context = getActivity().getApplicationContext();
         globalVariable = (AppController) getActivity().getApplicationContext();
         session = SessionManager.getInstance(context);
-        /*db = new SQLiteHandler(getActivity().getApplicationContext());
-        markers_old = db.getAllMarkers();
-        googleMarkers = new HashMap<String, Marker>();
-        for (CustomMarker m : markers_old) {
-            if (m.isSaveOnServer()) {
 
-            }
-        }*/
         //globalVariable.setMarkers(markers_old);
 
         //mRequestingLocationUpdates = true;
@@ -385,22 +371,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
         streetViewPanorama.setZoomGesturesEnabled(true);
     }
 
-    class AsyncTaskRunner extends AsyncTask<String, String, String> {
-        @Override
-        protected String doInBackground(String... params) {
-            try {
-                //preparePoiPoints();
-                //Log.d("POI JOHNY", "poi gotowe");
-                //poiIsUpToDate = true;
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            String resp = "done";
-            return resp;
-        }
-    }
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         if (view != null) {
@@ -436,8 +406,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
 
         //globalVariable.getMyMap().setMapType(GoogleMap.MAP_TYPE_HYBRID);
         globalVariable.getMyMap().setMapType(GoogleMap.MAP_TYPE_NORMAL);
-
-        Sender.putMarkersOnMapAgain(markers_old, globalVariable.getMyMap(), googleMarkers);
 
         if (mCurrentLocation != null) {
             double latitude = mCurrentLocation.getLatitude();
@@ -501,18 +469,17 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
 
     }
 
+    /*protected void startLocationUpdates() {
+        LocationServices.FusedLocationApi
+                .requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
+    }*/
+
     private void createLocationRequest() {
         mLocationRequest = new LocationRequest();
         mLocationRequest.setInterval(10000);
         mLocationRequest.setFastestInterval(5000);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
     }
-
-    /*protected void startLocationUpdates() {
-        LocationServices.FusedLocationApi
-                .requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
-    }*/
-
 
     private String downloadUrl(String strUrl) throws IOException {
 
@@ -544,6 +511,63 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
             urlConnection.disconnect();
         }
         return data;
+    }
+
+    private String getDirectionUrl(LatLng origin, LatLng dest) {
+        //Sk�d wyruszamy
+        String str_origin = "origin=" + origin.latitude + "," + origin.longitude;
+
+        //Quo vadis
+        String str_dest = "destination=" + dest.latitude + "," + dest.longitude;
+        //Sensor enabled
+        String sensor = "sensor=false";
+        //Sk�adanie w ca�o��, aby m�c przekaza� to web service
+        String parameters = str_origin + "&" + str_dest + "&" + sensor;
+        //Definiowanie formatu wyniku
+        String output = "json";
+        //Z�o�enie ko�cowego �a�cucha URL, mo�e pocz�tek tego url warto zapisa� jako sta��?
+        String url = "http://maps.googleapis.com/maps/api/directions/" + output + "?" + parameters;
+        return url;
+    }
+
+    @Override
+    public void onDialogPositiveClick(android.support.v4.app.DialogFragment dialog) {
+/*
+        MarkerDialog md = (MarkerDialog) dialog;
+        String name = md.getName();
+        Log.d("MyMarker Dialog", name);
+        Log.d("MyMarker Dialog", "myMap " + globalVariable.getMyMap());
+        Log.d("MyMarker Dialog", "my LatLong " + globalVariable.getLastClikOnMap());
+
+
+
+        CustomMarker nowyMarker = new CustomMarker(null, session.getUserId(), globalVariable.getLastClikOnMap().latitude, globalVariable.getLastClikOnMap().longitude, name);
+        globalVariable.addToMarkers(nowyMarker);
+        long id = db.addMarker(nowyMarker);
+        nowyMarker.setMarkerIdSQLite(Long.toString(id));
+        String markerIdExtrenal = "NULL";
+        String markerIdInteler = Long.toString(id);
+        MyMarker marker=globalVariable.getMyMap().addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromResource(R.drawable.mapmarkerhi)).position(globalVariable.getLastClikOnMap()).draggable(true).title(name).snippet(markerIdExtrenal + "," + markerIdInteler));
+        googleMarkers.put(markerIdInteler,marker);
+        Log.d("ADD_MARKER", markerIdExtrenal + "," + markerIdInteler);
+        InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(md.getInput().getWindowToken(), 0);*/
+    }
+
+    class AsyncTaskRunner extends AsyncTask<String, String, String> {
+        @Override
+        protected String doInBackground(String... params) {
+            try {
+                //preparePoiPoints();
+                //Log.d("POI JOHNY", "poi gotowe");
+                //poiIsUpToDate = true;
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            String resp = "done";
+            return resp;
+        }
     }
 
     private class DownloadTask extends AsyncTask<String, Void, String> {
@@ -646,151 +670,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
             Polyline polyline = map.addPolyline(lineOptions);
             visibleRouts.put(markID, polyline);
         }
-    }
-
-
-    private String getDirectionUrl(LatLng origin, LatLng dest) {
-        //Sk�d wyruszamy
-        String str_origin = "origin=" + origin.latitude + "," + origin.longitude;
-
-        //Quo vadis
-        String str_dest = "destination=" + dest.latitude + "," + dest.longitude;
-        //Sensor enabled
-        String sensor = "sensor=false";
-        //Sk�adanie w ca�o��, aby m�c przekaza� to web service
-        String parameters = str_origin + "&" + str_dest + "&" + sensor;
-        //Definiowanie formatu wyniku
-        String output = "json";
-        //Z�o�enie ko�cowego �a�cucha URL, mo�e pocz�tek tego url warto zapisa� jako sta��?
-        String url = "http://maps.googleapis.com/maps/api/directions/" + output + "?" + parameters;
-        return url;
-    }
-
-    public void inclizaidListenerForMarkerMenu() {
-        fifthMarkerButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String uid = session.getUserId();
-                double latitude = ostatniMarker.getPosition().latitude;
-                double longitude = ostatniMarker.getPosition().longitude;
-                CustomMarker custom = ToolsForMarkerList.getSpecificMarkerByLatitudeAndLongitude(markers_old, latitude, longitude);
-                String name = ostatniMarker.getTitle();
-                if (name == null)
-                    name = "brak";
-                layoutMarker.setVisibility(View.GONE);
-
-                Sender.shareMarker(getActivity().getApplicationContext(), uid, name, Double.toString(latitude), Double.toString(longitude));
-            }
-        });
-
-        //Zapisywanie na stałe
-        thirdMarkerButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String uid = session.getUserId();
-                double latitude = ostatniMarker.getPosition().latitude;
-                double longitude = ostatniMarker.getPosition().longitude;
-                CustomMarker custom = ToolsForMarkerList.getSpecificMarkerByLatitudeAndLongitude(markers_old, latitude, longitude);
-                String name = ostatniMarker.getTitle();
-                if (name == null)
-                    name = "brak";
-                layoutMarker.setVisibility(View.GONE);
-                ostatniMarker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.mapmarkerhiblue));
-
-                Sender.sendMarker(getActivity().getApplicationContext(), custom, ostatniMarker, db);
-            }
-        });
-
-        fourthMarkerButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String snippet = ostatniMarker.getSnippet();
-                String[] ids = snippet.split(",");
-                String markId = ostatniMarker.getId();
-                if (ids.length == 1)
-                //Przyjaciel
-                {
-                    Toast.makeText(getActivity(), "Fukcjonalność jeszcze nie zaimplementowana", Toast.LENGTH_SHORT).show();
-                } else if (ids[0].equals("POI"))
-                //POI
-                {
-                    String kind = ids[1];
-                    POISpecies species = getRightSpecies(kind);
-                    HashMap<String, Marker> mapWithSelectedKindOfPOI = active.get(species);
-                    Marker m = mapWithSelectedKindOfPOI.remove(markId);
-                    m.remove();
-                    if (mapWithSelectedKindOfPOI.isEmpty())
-                        active.remove(species);
-
-
-                } else {
-                    String markerIdMySql = ids[0];
-                    String markerIdSQLITE = ids[1];
-                    Log.d("REMOVE_MARKER", "MySQL id " + markerIdMySql);
-                    Log.d("REMOVE_MARKER", "SQLite id " + markerIdSQLITE);
-                    CustomMarker toRemove = ToolsForMarkerList.getSpecificMarker(markers_old, markerIdSQLITE);
-                    markers_old.remove(toRemove);
-                    boolean znacznik = db.removeMarker(markerIdSQLITE);
-                    Log.d("REMOVE_MARKER", " Operacja usuwania zako�czy�a si� sukcesem" + znacznik);
-                    if (toRemove.isSaveOnServer()) {
-                        Log.d("REMOVE_MARKER", "Usuwam z serwera");
-                        Sender.sendRequestAboutRemoveMarker(markerIdMySql, globalVariable.getMyMap(), markers_old);
-                    }
-
-                    Marker marker = googleMarkers.remove(markerIdSQLITE);
-                    Log.d("REMOVE_MARKER", marker.getSnippet() + " " + markerIdSQLITE + "OSTATNI" + ostatniMarker.getSnippet());
-                    ostatniMarker.remove();
-
-
-                }
-                if (visibleRouts.containsKey(markId))
-                    deleteRoute(markId);
-
-
-                layoutMarker.setVisibility(View.GONE);
-                /*Sender.sendRequestAboutMarkers(session.getUserId(),markers_old,myMap);*/
-
-
-            }
-        });
-    }
-
-    @Override
-    public void onDialogPositiveClick(android.support.v4.app.DialogFragment dialog) {
-/*
-        MarkerDialog md = (MarkerDialog) dialog;
-        String name = md.getName();
-        Log.d("MyMarker Dialog", name);
-        Log.d("MyMarker Dialog", "myMap " + globalVariable.getMyMap());
-        Log.d("MyMarker Dialog", "my LatLong " + globalVariable.getLastClikOnMap());
-
-
-
-        CustomMarker nowyMarker = new CustomMarker(null, session.getUserId(), globalVariable.getLastClikOnMap().latitude, globalVariable.getLastClikOnMap().longitude, name);
-        globalVariable.addToMarkers(nowyMarker);
-        long id = db.addMarker(nowyMarker);
-        nowyMarker.setMarkerIdSQLite(Long.toString(id));
-        String markerIdExtrenal = "NULL";
-        String markerIdInteler = Long.toString(id);
-        MyMarker marker=globalVariable.getMyMap().addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromResource(R.drawable.mapmarkerhi)).position(globalVariable.getLastClikOnMap()).draggable(true).title(name).snippet(markerIdExtrenal + "," + markerIdInteler));
-        googleMarkers.put(markerIdInteler,marker);
-        Log.d("ADD_MARKER", markerIdExtrenal + "," + markerIdInteler);
-        InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.hideSoftInputFromWindow(md.getInput().getWindowToken(), 0);*/
-    }
-
-    public static GoogleMap getMap() {
-        return map;
-    }
-
-    public static void moveMapCamera(LatLng position) {
-        CameraPosition cameraPosition = new CameraPosition.Builder()
-                .target(position)
-                .zoom(17)
-                .bearing(0)
-                .tilt(30)
-                .build();
-        map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
     }
 
     private class PrepareMarkers extends AsyncTask<Void, Void, Void> {

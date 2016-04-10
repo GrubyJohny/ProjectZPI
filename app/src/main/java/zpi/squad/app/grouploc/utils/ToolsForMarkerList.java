@@ -2,7 +2,6 @@ package zpi.squad.app.grouploc.utils;
 
 import java.util.List;
 
-import zpi.squad.app.grouploc.SQLiteHandler;
 import zpi.squad.app.grouploc.domains.CustomMarker;
 
 public class ToolsForMarkerList {
@@ -28,9 +27,4 @@ public class ToolsForMarkerList {
             return null;
     }
 
-    public static void saveToSQLiteDataBase(List<CustomMarker> markers, SQLiteHandler db) {
-        for (CustomMarker m : markers) {
-            db.addMarker(m);
-        }
-    }
 }

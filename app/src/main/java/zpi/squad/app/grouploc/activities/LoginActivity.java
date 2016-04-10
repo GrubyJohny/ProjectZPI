@@ -49,7 +49,6 @@ import java.util.List;
 
 import zpi.squad.app.grouploc.AppController;
 import zpi.squad.app.grouploc.R;
-import zpi.squad.app.grouploc.SQLiteHandler;
 import zpi.squad.app.grouploc.SessionManager;
 import zpi.squad.app.grouploc.helpers.CommonMethods;
 
@@ -61,7 +60,6 @@ public class LoginActivity extends Activity implements AppCompatCallback {
     private EditText inputPassword;
     private TextInputLayout inputLayoutEmail, inputLayoutPassword;
     private TextView btnRemind;
-    private SQLiteHandler db;
     private Bitmap profileImageFromFacebook;
     private SessionManager session;
     private AppCompatDelegate delegate;
@@ -120,7 +118,7 @@ public class LoginActivity extends Activity implements AppCompatCallback {
         btnRegister = (Button) findViewById(R.id.btnLinkToRegisterScreen);
         btnRemind = (TextView) findViewById(R.id.btnRemindPassword);
 
-        db = new SQLiteHandler(getApplicationContext());
+
 
         btnLogin.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
@@ -195,7 +193,23 @@ public class LoginActivity extends Activity implements AppCompatCallback {
                     try {
 
                         //jedna kurwa, jebana linijka, pezez którą pieprzyłem się z tym 3 dni
-                        user.save();
+                        try {
+                            user.save();
+                        } catch (Exception e) {
+
+                            e.getLocalizedMessage();
+                            e.printStackTrace();
+                            if (e.getLocalizedMessage().contains("has already been taken")) {
+                                /*
+                                *
+                                * TUTAJ BĘDZIE OBSŁUGA SYTUACJI, KIEDY NAJPIERW ZAREJESTRUJESZ SIĘ NORMALNIE, A PÓŹNIEJ
+                                * CHCESZ ZALOGOWAĆ SIĘ PRZEZ FEJSA. NIE WIEM JEDNAK CO POWINNO SIĘ WYDARZYĆ W TAKIEJ SYTUACJI
+                                * #TAKASYTUACJA
+                                *
+                                * */
+                                //user.pin();
+                            }
+                        }
                         //jak nie ma internetu, to tu wypieprza
 
                         current = ParseUser.getCurrentUser().fetchIfNeeded();

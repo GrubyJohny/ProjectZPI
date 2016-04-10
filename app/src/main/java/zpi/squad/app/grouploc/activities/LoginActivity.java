@@ -54,14 +54,14 @@ import zpi.squad.app.grouploc.SessionManager;
 import zpi.squad.app.grouploc.helpers.CommonMethods;
 
 public class LoginActivity extends Activity implements AppCompatCallback {
+    public static Context context;
+    public static List<String> permissions = new ArrayList<>();
     private Button btnLogin, btnLoginWithFacebook, btnRegister;
     private EditText inputEmail;
     private EditText inputPassword;
     private TextInputLayout inputLayoutEmail, inputLayoutPassword;
     private TextView btnRemind;
     private SQLiteHandler db;
-    public static Context context;
-    public static List<String> permissions = new ArrayList<>();
     private Bitmap profileImageFromFacebook;
     private SessionManager session;
     private AppCompatDelegate delegate;
@@ -71,6 +71,11 @@ public class LoginActivity extends Activity implements AppCompatCallback {
     private boolean successLogin = false;
     private CommonMethods commonMethods;
     private ParseUser current;
+    private LogInCallback facebookLoginCallback;
+
+    private static boolean isValidEmail(String email) {
+        return !TextUtils.isEmpty(email) && android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches();
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -139,79 +144,111 @@ public class LoginActivity extends Activity implements AppCompatCallback {
         permissions.add("public_profile");
         permissions.add("email");
 
+        facebookLoginCallback = new LogInCallback() {
+            @Override
+            public void done(final ParseUser user, ParseException err) {
+                Intent i = new Intent(getApplicationContext(),
+                        LoginActivity.class);
+                boolean rollbackIntentStarted = false;
+
+                if (user == null) {
+                    Log.d("MyApp", "Uh oh. The user cancelled the Facebook login.");
+                    rollbackIntentStarted = true;
+                    finish();
+                    startActivity(i);
+                } else if (user.isNew()) {
+                    try {
+                        String[] tempInfo = getFacebookUserInfo(AccessToken.getCurrentAccessToken());
+                        user.setEmail(tempInfo[0]);
+
+                        user.put("name", tempInfo[1]);
+                        user.put("name_lowercase", tempInfo[1].toLowerCase());
+                        user.put("location", new ParseGeoPoint(55, 55));
+                        user.put("isFacebookAccount", true);
+                        try {
+                            user.put("photo", commonMethods.encodeBitmapTobase64(getFacebookProfilePicture(AccessToken.getCurrentAccessToken())));
+                        } catch (Exception e) {
+                            e.getLocalizedMessage();
+                            e.printStackTrace();
+                            user.put("photo", commonMethods.encodeBitmapTobase64(BitmapFactory.decodeResource(getResources(), R.drawable.default_avatar)));
+                        }
+
+                        user.save();
+
+                    } catch (Exception e) {
+                        e.getLocalizedMessage();
+                        e.printStackTrace();
+                    }
+                }
+
+
+                if (user == null) {
+                    if (!rollbackIntentStarted) {
+                        Log.e("A MOŻE", " JEDNAK");
+                        i = new Intent(getApplicationContext(),
+                                LoginActivity.class);
+                        finish();
+                        startActivity(i);
+                    }
+                } else {
+
+                    try {
+
+                        //jedna kurwa, jebana linijka, pezez którą pieprzyłem się z tym 3 dni
+                        user.save();
+                        //jak nie ma internetu, to tu wypieprza
+
+                        current = ParseUser.getCurrentUser().fetchIfNeeded();
+
+                        session.setUserEmail(current.getEmail());
+                        session.setUserName(current.get("name").toString());
+                        session.setUserPhoto(current.get("photo").toString());
+                        session.setUserId(current.getObjectId());
+                        session.setUserCurrentLocation(current.getParseGeoPoint("location").getLatitude(), current.getParseGeoPoint("location").getLongitude());
+                        session.setUserIsLoggedByFacebook(true);
+
+                        session.setLoggedIn(true);
+                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                        finish();
+                        startActivity(intent);
+                    } catch (ParseException e) {
+                        e.getLocalizedMessage();
+                        e.printStackTrace();
+
+                    }
+                }
+
+            }
+
+        };
+
         btnLoginWithFacebook.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (AppController.checkConn(LoginActivity.this.getApplication())) {
-                    progressFacebookLogin = ProgressDialog.show(LoginActivity.this, getString(R.string.pleaseWait), "Logging with Facebook", true);
 
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            // do the thing that takes a long time
+                try {
 
-                            ParseFacebookUtils.logInWithReadPermissionsInBackground(LoginActivity.this, permissions, new LogInCallback() {
-                                @Override
-                                public void done(final ParseUser user, ParseException err) {
-                                    if (user == null) {
-                                        Log.d("MyApp", "Uh oh. The user cancelled the Facebook login.");
-                                    } else if (user.isNew()) {
-                                        try {
-                                            String[] tempInfo = getFacebookUserInfo(AccessToken.getCurrentAccessToken());
-                                            user.setEmail(tempInfo[0]);
+                    if (AppController.checkConn(LoginActivity.this.getApplication())) {
 
-                                            user.put("name", tempInfo[1]);
-                                            user.put("name_lowercase", tempInfo[1].toLowerCase());
-                                            user.put("location", new ParseGeoPoint(55, 55));
-                                            user.put("isFacebookAccount", true);
-                                            try {
-                                                user.put("photo", commonMethods.encodeBitmapTobase64(getFacebookProfilePicture(AccessToken.getCurrentAccessToken())));
-                                            } catch (Exception e) {
-                                                e.getLocalizedMessage();
-                                                e.printStackTrace();
-                                                user.put("photo", commonMethods.encodeBitmapTobase64(BitmapFactory.decodeResource(getResources(), R.drawable.default_avatar)));
-                                            }
+                        progressFacebookLogin = ProgressDialog.show(LoginActivity.this, getString(R.string.pleaseWait), "Logging with Facebook", true);
 
-                                            user.save();
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                // do the thing that takes a long time
 
-                                        } catch (Exception e) {
-                                            e.getLocalizedMessage();
-                                            e.printStackTrace();
-                                        }
-                                    }
+                                ParseFacebookUtils.logInWithReadPermissionsInBackground(LoginActivity.this, permissions, facebookLoginCallback);
+                            }
+                        }).start();
 
+                    } else {
+                        Toast.makeText(getApplicationContext(),
+                                "No connection to internet detected. Unfortunately it's is impossible to login", Toast.LENGTH_LONG).show();
+                    }
+                } catch (Exception pe) {
+                    pe.getLocalizedMessage();
+                    pe.printStackTrace();
 
-                                    try {
-
-                                        //jedna kurwa, jebana linijka, pezez którą pieprzyłem się z tym 3 dni
-                                        user.save();
-                                        //jak nie ma internetu, to tu wypieprza
-
-                                        current = ParseUser.getCurrentUser().fetchIfNeeded();
-
-                                        session.setUserEmail(current.getEmail());
-                                        session.setUserName(current.get("name").toString());
-                                        session.setUserPhoto(current.get("photo").toString());
-                                        session.setUserId(current.getObjectId());
-                                        session.setUserCurrentLocation(current.getParseGeoPoint("location").getLatitude(), current.getParseGeoPoint("location").getLongitude());
-                                        session.setUserIsLoggedByFacebook(true);
-
-                                        session.setLoggedIn(true);
-                                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                                        finish();
-                                        startActivity(intent);
-                                    } catch (ParseException e) {
-                                        e.printStackTrace();
-                                    }
-
-                                }
-                            });
-                        }
-                    }).start();
-
-                } else {
-                    Toast.makeText(getApplicationContext(),
-                            "No connection to internet detected. Unfortunately it's is impossible to login", Toast.LENGTH_LONG).show();
                 }
             }
         });
@@ -441,10 +478,6 @@ public class LoginActivity extends Activity implements AppCompatCallback {
         }
 
         return true;
-    }
-
-    private static boolean isValidEmail(String email) {
-        return !TextUtils.isEmpty(email) && android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches();
     }
 
     private void requestFocus(View view) {

@@ -51,6 +51,7 @@ dependencies {
     compile 'com.facebook.android:facebook-android-sdk:4.1.2'
     compile 'com.cocosw:bottomsheet:1.+@aar'
     compile 'com.github.rahatarmanahmed:circularprogressview:2.4.0'
-    compile 'com.android.support:design:23.2.1'
+    compile 'com.android.support:design:23.3.0'
     compile 'com.android.support:support-v4:23.2.1'
+    compile 'com.android.support:preference-v14:23.2.1'
 }

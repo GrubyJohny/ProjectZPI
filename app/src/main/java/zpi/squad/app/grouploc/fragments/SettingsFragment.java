@@ -1,43 +1,19 @@
 package zpi.squad.app.grouploc.fragments;
 
-import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.view.InflateException;
-import android.view.LayoutInflater;
+import android.support.v7.preference.PreferenceFragmentCompat;
 import android.view.View;
-import android.view.ViewGroup;
 
 import zpi.squad.app.grouploc.R;
 import zpi.squad.app.grouploc.activities.MainActivity;
 
-public class SettingsFragment extends Fragment {
+public class SettingsFragment extends PreferenceFragmentCompat implements SharedPreferences.OnSharedPreferenceChangeListener {
     private static View view;
 
-    public SettingsFragment() {
-        // Required empty public constructor
-    }
+    private static final String TAG = SettingsFragment.class.getSimpleName();
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        if (view != null) {
-            ViewGroup parent = (ViewGroup) view.getParent();
-            if (parent != null)
-                parent.removeView(view);
-        }
-        try {
-            view = inflater.inflate(R.layout.fragment_settings, container, false);
-        } catch (InflateException e) {
-
-        }
-        return view;
-    }
+    SharedPreferences sharedPreferences;
 
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -45,12 +21,48 @@ public class SettingsFragment extends Fragment {
     }
 
     @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
+    public void onCreatePreferences(Bundle bundle, String s) {
+        //add xml
+        addPreferencesFromResource(R.xml.preferences);
+
+//        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+
+//        onSharedPreferenceChanged(sharedPreferences, getString(R.string.movies_categories_key));
+    }
+
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        //unregister the preferenceChange listener
+//        getPreferenceScreen().getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
     }
 
     @Override
-    public void onDetach() {
-        super.onDetach();
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        /*Preference preference = findPreference(key);
+        if (preference instanceof ListPreference) {
+            ListPreference listPreference = (ListPreference) preference;
+            int prefIndex = listPreference.findIndexOfValue(sharedPreferences.getString(key, ""));
+            if (prefIndex >= 0) {
+                preference.setSummary(listPreference.getEntries()[prefIndex]);
+            }
+        } else {
+            preference.setSummary(sharedPreferences.getString(key, ""));
+
+        }*/
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        //unregister the preference change listener
+//        getPreferenceScreen().getSharedPreferences()
+//                .unregisterOnSharedPreferenceChangeListener(this);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
     }
 }

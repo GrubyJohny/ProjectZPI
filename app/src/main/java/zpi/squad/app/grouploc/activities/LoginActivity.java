@@ -171,7 +171,7 @@ public class LoginActivity extends Activity implements AppCompatCallback {
                             user.put("photo", commonMethods.encodeBitmapTobase64(BitmapFactory.decodeResource(getResources(), R.drawable.default_avatar)));
                         }
 
-                        user.save();
+                        //user.save();
 
                     } catch (Exception e) {
                         e.getLocalizedMessage();
@@ -182,7 +182,6 @@ public class LoginActivity extends Activity implements AppCompatCallback {
 
                 if (user == null) {
                     if (!rollbackIntentStarted) {
-                        Log.e("A MOŻE", " JEDNAK");
                         i = new Intent(getApplicationContext(),
                                 LoginActivity.class);
                         finish();

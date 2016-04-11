@@ -38,13 +38,13 @@ import zpi.squad.app.grouploc.helpers.CommonMethods;
 public class SearchingFriendAdapter extends ArrayAdapter<Friend> implements Filterable {
     private final ArrayList<Friend> helpList;
     private final CommonMethods commonMethods;
-    private SessionManager session = SessionManager.getInstance();
-    private ArrayList<Friend> items;
-    private ArrayList<Friend> filteredList = new ArrayList<>();
     ParseQuery<ParseUser> queryFriend;
     ParseQuery queryAlreadyFriends, queryAlreadyFriends2;
     ParseUser newFriend = null;
     boolean alreadyFriends = false, alreadySent = false, success = false;
+    private SessionManager session = SessionManager.getInstance();
+    private ArrayList<Friend> items;
+    private ArrayList<Friend> filteredList = new ArrayList<>();
     private ImageView inviteFriendButton;
 
     public SearchingFriendAdapter(Context context, ArrayList<Friend> items) {
@@ -75,6 +75,7 @@ public class SearchingFriendAdapter extends ArrayAdapter<Friend> implements Filt
             @Override
             public void onClick(View v) {
                 inviteFriendButton = (ImageView) finalConvertView.findViewById(R.id.inviteFriend);
+                Log.e("W LISTENERZE: ", friend.getEmail());
                 new SendFriendshipRequest().execute(friend);
             }
         });
@@ -137,46 +138,6 @@ public class SearchingFriendAdapter extends ArrayAdapter<Friend> implements Filt
         items.clear();
         items.addAll(values);
         notifyDataSetChanged();
-    }
-
-    private class SendFriendshipRequest extends AsyncTask<Friend, Void, Void> {
-
-        String[] temp;
-        Animation animation = AnimationUtils.loadAnimation(getContext(), R.anim.rotate);
-        final ImageView inviteButton = inviteFriendButton;
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-
-            inviteButton.startAnimation(animation);
-        }
-
-        @Override
-        protected Void doInBackground(Friend... params) {
-            if (params[0] != null) {
-                temp = addFriendship(params[0].getEmail());
-                if (temp.length > 1 && temp[0].contains("Invitation sent to")) {
-                    try {
-                        sendFriendshipNotification(params[0].getEmail(), params[0].getName(), temp[1]);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                }
-            } else {
-                Log.e("Wrong argument ", " in doInBackground: null");
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
-            inviteButton.clearAnimation();
-            inviteButton.setImageResource(R.drawable.plus_circle_gray);
-            inviteButton.setClickable(false);
-            Toast.makeText(MainActivity.context, temp[0], Toast.LENGTH_LONG).show();
-        }
     }
 
     private void sendFriendshipNotification(String email, String friendName, String friendshipId) throws JSONException {
@@ -308,5 +269,46 @@ public class SearchingFriendAdapter extends ArrayAdapter<Friend> implements Filt
         Log.e("ROZMIAR RESULTU: ", methodResult == null ? "NULL" : methodResult[0]);
 
         return methodResult;
+    }
+
+    private class SendFriendshipRequest extends AsyncTask<Friend, Void, Void> {
+
+        final ImageView inviteButton = inviteFriendButton;
+        String[] temp;
+        Animation animation = AnimationUtils.loadAnimation(getContext(), R.anim.rotate);
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+
+            inviteButton.startAnimation(animation);
+        }
+
+        @Override
+        protected Void doInBackground(Friend... params) {
+            if (params[0] != null) {
+                temp = addFriendship(params[0].getEmail());
+
+                if (temp.length > 1 && temp[0].contains("Invitation sent to")) {
+                    try {
+                        sendFriendshipNotification(params[0].getEmail(), params[0].getName(), temp[1]);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            } else {
+                Log.e("Wrong argument ", " in doInBackground: null");
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            inviteButton.clearAnimation();
+            inviteButton.setImageResource(R.drawable.plus_circle_gray);
+            inviteButton.setClickable(false);
+            Toast.makeText(MainActivity.context, temp[0], Toast.LENGTH_LONG).show();
+        }
     }
 }

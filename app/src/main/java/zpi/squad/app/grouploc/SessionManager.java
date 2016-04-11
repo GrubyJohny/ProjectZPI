@@ -38,9 +38,9 @@ public class SessionManager {
     private static ArrayList<Friend> friends;
     private static ArrayList<Notification> notifications;
     private static ArrayList<MyMarker> markers;
-    private static HashMap<MarkerOptions, MyMarker> ownMarkers = new HashMap<>();       //własne markery
-    private static HashMap<MarkerOptions, MyMarker> sharedMarkers = new HashMap<>();     //otrzymane od znajomych
-    private static HashMap<MarkerOptions, Friend> friendsMarkers = new HashMap<>();     //znajomi
+    private static HashMap<MarkerOptions, MyMarker> ownMarkers;                           //własne markery
+    private static HashMap<MarkerOptions, MyMarker> sharedMarkers;     //otrzymane od znajomych
+    private static HashMap<MarkerOptions, Friend> friendsMarkers;     //znajomi
     private static String userId = "id";
     private static String userName = "name";
     private static String userEmail = "email";
@@ -321,10 +321,14 @@ public class SessionManager {
         requestLocationUpdate = false;
         notifications = null;
         markers = null;
+        sharedMarkers = null;
+        ownMarkers = null;
+        friendsMarkers = null;
         try {
             MapFragment.getMap().clear();
         } catch (Exception e) {
         }
+
     }
 
     public ArrayList<Friend> getFriendsList() {
@@ -384,7 +388,7 @@ public class SessionManager {
     private void getOwnMarkersFromParse() {
 
         ArrayList<MyMarker> myMarkersResult = new ArrayList<>();
-        ownMarkers.clear();
+        ownMarkers = new HashMap<>();
 
         ParseQuery markers = new ParseQuery("Marker");
         markers.whereEqualTo("owner", ParseUser.getCurrentUser());
@@ -425,7 +429,7 @@ public class SessionManager {
     private void getSharedMarkersFromParse() {
 
         ArrayList<MyMarker> sharedMarkersResult = new ArrayList<>();
-        sharedMarkers.clear();
+        sharedMarkers = new HashMap<>();
 
         ParseQuery markers = new ParseQuery("SharedMarker");
         markers.whereEqualTo("sharedUser", ParseUser.getCurrentUser());
@@ -465,21 +469,22 @@ public class SessionManager {
     }
 
     public HashMap<MarkerOptions, MyMarker> getOwnMarkers() {
-        //if (ownMarkers == null)
+        if (ownMarkers == null)
             getOwnMarkersFromParse();
 
         return ownMarkers;
     }
 
     public HashMap<MarkerOptions, MyMarker> getSharedMarkers() {
-        //if(sharedMarkers == null)
+        if (sharedMarkers == null)
         getSharedMarkersFromParse();
 
         return sharedMarkers;
     }
 
     public HashMap<MarkerOptions, Friend> getFriendsMarkers() {
-        getFriendsMarkersFromParse();
+        if (friendsMarkers == null)
+            getFriendsMarkersFromParse();
 
         return friendsMarkers;
     }

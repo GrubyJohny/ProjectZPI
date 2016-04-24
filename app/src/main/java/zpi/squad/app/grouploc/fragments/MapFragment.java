@@ -86,6 +86,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
     int height;
     ArrayList<MyMarker> markers;
     ArrayList<MyMarker> friendsMarkers;
+    ArrayList<Friend> friendsToShare = new ArrayList<Friend>();
     private SupportMapFragment fragment;
     private ScrollView POIScrollView;
     private Button mainPoiButton;
@@ -245,7 +246,20 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
                             }).show();
                         } else if (marker.getSnippet().startsWith("from ")) { //udostępniony przez znajomego
 
-                            //TO DO
+                            new BottomSheet.Builder(getActivity()).grid().title(marker.getTitle()).sheet(R.menu.menu_bottom_friend).listener(new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    switch (which) {
+                                        case R.id.polyline:
+                                            doPolyline(marker);
+                                            break;
+                                        case R.id.navigate:
+                                            doNavigation(marker);
+                                            break;
+                                    }
+                                }
+                            }).show();
+
                         }
                     }
 
@@ -259,7 +273,15 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
             }
 
             private void dialogShare(final Marker marker) {
-                final CharSequence[] items = {"Andrzej", "Stefek", "Gruby"};
+
+
+                final ArrayList<Friend> friends = SessionManager.getInstance().getFriendsList();
+
+                final CharSequence[] items = new CharSequence[friends.size()];
+
+                for (int i = 0; i < friends.size(); i++)
+                    items[i] = friends.get(i).getName();
+
                 final ArrayList seletedItems = new ArrayList();
 
                 AlertDialog shareDialog = new AlertDialog.Builder(getActivity())
@@ -276,14 +298,22 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
                         }).setPositiveButton("Share", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int id) {
-/*
 
-                                List<String> arg = new ArrayList<>();
-                                arg.add("yZQJ883hiw");
-                                arg.add("a@a.a");
-                                ShareMarker sha = new ShareMarker();
-                                sha.execute(arg);
-*/
+                                for (int i = 0; i < seletedItems.size(); i++)
+                                    Log.e("wybrany: ", seletedItems.get(i).toString());
+
+                                friendsToShare = new ArrayList<Friend>();
+
+                                for (int i = 0; i < friends.size(); i++) {
+                                    for (int j = 0; j < seletedItems.size(); j++) {
+                                        if (String.valueOf(i).equals(seletedItems.get(j).toString()))
+                                            friendsToShare.add(friends.get(i));
+
+                                    }
+                                }
+
+                                ShareMarkerForSelectedFriends shareMarkerForSelectedFriends = new ShareMarkerForSelectedFriends();
+                                shareMarkerForSelectedFriends.execute(marker);
 
                             }
                         }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -676,7 +706,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
         @Override
         protected Void doInBackground(Void... params) {
 
-            SessionManager.getInstance().refreshOwnMarkers();
+            //SessionManager.getInstance().refreshOwnMarkers();
+            //sprawdzę jeszcze czy refreshowanie powinno być tutaj
             return null;
         }
 
@@ -692,8 +723,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
         protected Void doInBackground(Marker... params) {
 
             try {
-                ParseObject originMarker = ParseQuery.getQuery("Marker").whereEqualTo("objectId", session.getOwnMarkers().get(actualShowingOnMapMarkers.get(params[0].getId())).getObjectId()).getFirst().fetchIfNeeded();
-                List<Friend> fri = session.getFriendsList();
+                ParseObject originMarker = ParseQuery.getQuery("Marker").whereEqualTo("objectId", SessionManager.getInstance().getOwnMarkers().get(actualShowingOnMapMarkers.get(params[0].getId())).getObjectId()).getFirst().fetchIfNeeded();
+                List<Friend> fri = SessionManager.getInstance().getFriendsList();
                 for (int i = 0; i < fri.size(); i++) {
                     ParseObject marker = new ParseObject("SharedMarker");
                     marker.put("marker", originMarker);
@@ -709,6 +740,34 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
 
             return null;
         }
+    }
+
+
+    private class ShareMarkerForSelectedFriends extends AsyncTask<Marker, Void, Void> {
+        @Override
+        protected Void doInBackground(Marker... params) {
+
+            if (friendsToShare.size() > 0) {
+                try {
+                    ParseObject originMarker = ParseQuery.getQuery("Marker").whereEqualTo("objectId", session.getOwnMarkers().get(actualShowingOnMapMarkers.get(params[0].getId())).getObjectId()).getFirst().fetchIfNeeded();
+                    List<Friend> fri = friendsToShare;
+                    for (int i = 0; i < fri.size(); i++) {
+                        ParseObject marker = new ParseObject("SharedMarker");
+                        marker.put("marker", originMarker);
+                        marker.put("sharedUser", fri.get(i).getParseUser());
+
+                        marker.saveInBackground();
+                    }
+
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+            }
+
+
+            return null;
+        }
+
     }
 
     private class RefreshFriendsPosition extends AsyncTask<Void, Void, Void> {

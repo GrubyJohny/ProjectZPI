@@ -528,7 +528,7 @@ public class SessionManager {
 
                 for (int i = 0; i < sharedMarkersResult.size(); i++) {
                     sharedMarkers.put(new MarkerOptions()
-                            .title(sharedMarkersResult.get(i).getName())
+                            .title(sharedMarkersResult.get(i).getName() + " (from " + sharedMarkersResult.get(i).getOwner().fetchIfNeeded().get("name") + ")")
                             .position(new LatLng(sharedMarkersResult.get(i).getLocalization().getLatitude(), sharedMarkersResult.get(i).getLocalization().getLongitude()))
                             .snippet("from " + sharedMarkersResult.get(i).getOwner().fetchIfNeeded().get("name"))
                             .visible(true)

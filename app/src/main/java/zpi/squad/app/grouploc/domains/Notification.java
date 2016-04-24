@@ -18,8 +18,6 @@ public class Notification {
 
     private boolean markedAsRead;
 
-    public Notification() {
-    }
 
     /*public Notification(String senderId, String senderName, String senderEmail, String receiverId, String type, String message, String groupId, String createdAt, int checked) {
         this.senderId = senderId;
@@ -49,11 +47,15 @@ public class Notification {
 
         switch (type) {
             case 101: {
-                response = senderName + " has invited you to friends";
+                response = senderName + " has invited you to friends.";
                 break;
             }
             case 102: {
-                response = senderName + " has accepted your friends request";
+                response = senderName + " has accepted your friends request.";
+                break;
+            }
+            case 103: {
+                response = senderName + " has shared a marker with you.";
                 break;
             }
             default: {

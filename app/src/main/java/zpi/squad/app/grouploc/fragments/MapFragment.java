@@ -43,6 +43,7 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
+import com.parse.ParseUser;
 
 import org.json.JSONObject;
 
@@ -583,6 +584,29 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
         imm.hideSoftInputFromWindow(md.getInput().getWindowToken(), 0);*/
     }
 
+    private void sendMarkerSharedNotification(ArrayList<Friend> receivers, Marker marker) {
+
+        for (int i = 0; i < receivers.size(); i++) {
+
+            ParseObject notific = new ParseObject("Notification");
+            notific.put("senderEmail", ParseUser.getCurrentUser().getEmail());
+            notific.put("senderName", ParseUser.getCurrentUser().get("name"));
+            notific.put("receiverEmail", receivers.get(i).getEmail());
+            notific.put("kindOfNotification", 103);
+            notific.put("markedAsRead", false);
+            notific.put("extra", marker.getId());
+
+            try {
+                notific.save();
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+
+        }
+
+
+    }
+
     class AsyncTaskRunner extends AsyncTask<String, String, String> {
         @Override
         protected String doInBackground(String... params) {
@@ -735,13 +759,16 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
 
             } catch (ParseException e) {
                 e.printStackTrace();
+            } finally {
+                SessionManager.getInstance().refreshOwnMarkers();
+                //no i trzeba będzie oczywiście odświeżyć markery na mapie bo się sypie jak chce się udostępnić świeżo zapisany marker...
             }
 
+            sendMarkerSharedNotification(SessionManager.getInstance().getFriendsList(), params[0]);
 
             return null;
         }
     }
-
 
     private class ShareMarkerForSelectedFriends extends AsyncTask<Marker, Void, Void> {
         @Override
@@ -763,6 +790,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
                     e.printStackTrace();
                 }
             }
+
+            sendMarkerSharedNotification(friendsToShare, params[0]);
 
 
             return null;

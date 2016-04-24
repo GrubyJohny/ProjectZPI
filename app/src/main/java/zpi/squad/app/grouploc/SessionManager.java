@@ -7,11 +7,13 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.location.Location;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
 
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -21,6 +23,12 @@ import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -54,6 +62,7 @@ public class SessionManager {
     private SharedPreferences.Editor editor;
     private LatLng currentLocation;
     private int refreshFriendsPositionInterval = 10; //w sekundach
+
     private SessionManager(Context context) {
         pref = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         editor = pref.edit();
@@ -72,86 +81,6 @@ public class SessionManager {
             return sessionManager;
 
         throw new IllegalArgumentException("Should use getInstance(Context) at least once before using this method.");
-    }
-
-    private static ArrayList<Friend> getFriendsFromParse() {
-        ArrayList<Friend> result = new ArrayList<>();
-
-        ParseQuery checkIfFriends1 = new ParseQuery("Friendship");
-        checkIfFriends1.whereEqualTo("friend1", ParseUser.getCurrentUser());
-        ParseQuery checkIfFriends2 = new ParseQuery("Friendship");
-        checkIfFriends2.whereEqualTo("friend2", ParseUser.getCurrentUser());
-
-        Object[] friendsList = null, friendsList2 = null;
-        ParseObject temp = null;
-
-        try {
-            friendsList = checkIfFriends1.find().toArray().clone();
-
-            if (friendsList.length > 0) {
-                for (int i = 0; i < friendsList.length; i++) {
-                    //to jest typu Friendship
-                    temp = ((ParseObject) friendsList[i]);
-
-                    if (temp.get("accepted").toString().equals("true")) {
-
-                        ParseUser actual = ((ParseUser) temp.get("friend2")).fetchIfNeeded();
-                        ParseGeoPoint point = (ParseGeoPoint) actual.get("location");
-
-                        try {
-                            result.add(new Friend(
-                                    actual.getObjectId(),
-                                    actual.get("name").toString(),
-                                    actual.getEmail(),
-                                    actual.get("photo") != null ? actual.get("photo").toString() : null,
-                                    point.getLatitude(), point.getLongitude(), actual, false));
-
-                            Log.d("Friend added: ", "" + actual.get("name").toString() + " " + point.getLatitude() + ", " + point.getLongitude());
-                        } catch (Exception e) {
-                            Log.e("Can't add friend.", " Friend - ObjectId: " + actual.getObjectId());
-                            e.getLocalizedMessage();
-                            e.printStackTrace();
-                        }
-                    }
-                }
-            }
-            friendsList2 = checkIfFriends2.find().toArray().clone();
-
-            if (friendsList2.length > 0) {
-                for (int i = 0; i < friendsList2.length; i++) {
-                    //to jest typu Friendship
-                    temp = ((ParseObject) friendsList2[i]);
-
-                    if (temp.get("accepted").toString().equals("true")) {
-
-                        ParseUser actual = ((ParseUser) temp.get("friend1")).fetchIfNeeded();
-                        ParseGeoPoint point = (ParseGeoPoint) actual.get("location");
-
-                        try {
-                            result.add(new Friend(
-                                    actual.getObjectId(),
-                                    actual.get("name").toString(),
-                                    actual.getEmail(),
-                                    actual.get("photo") != null ? actual.get("photo").toString() : null,
-                                    point.getLatitude(), point.getLongitude(), actual, false));
-                        } catch (Exception e) {
-                            Log.e("Can't add friend.", " Friend - ObjectId: " + actual.getObjectId());
-                            e.getLocalizedMessage();
-                            e.printStackTrace();
-                        }
-                    }
-
-                }
-            }
-        } catch (ParseException e) {
-            Log.e("Parse: ", e.getLocalizedMessage());
-            e.printStackTrace();
-        } catch (Exception e) {
-            Log.e("Exception: ", e.getLocalizedMessage());
-            e.printStackTrace();
-        }
-
-        return result;
     }
 
     public static ArrayList<Friend> getNotAcceptedFriendsFromParse() {
@@ -253,6 +182,143 @@ public class SessionManager {
         return searchFriendsList;
     }
 
+    private ArrayList<Friend> getFriendsFromParse() {
+        ArrayList<Friend> result = new ArrayList<>();
+
+        ParseQuery checkIfFriends1 = new ParseQuery("Friendship");
+        checkIfFriends1.whereEqualTo("friend1", ParseUser.getCurrentUser());
+        ParseQuery checkIfFriends2 = new ParseQuery("Friendship");
+        checkIfFriends2.whereEqualTo("friend2", ParseUser.getCurrentUser());
+
+        Object[] friendsList = null, friendsList2 = null;
+        ParseObject temp = null;
+
+        try {
+            friendsList = checkIfFriends1.find().toArray().clone();
+
+            if (friendsList.length > 0) {
+                for (int i = 0; i < friendsList.length; i++) {
+                    //to jest typu Friendship
+                    temp = ((ParseObject) friendsList[i]);
+
+                    if (temp.get("accepted").toString().equals("true")) {
+
+                        ParseUser actual = ((ParseUser) temp.get("friend2")).fetchIfNeeded();
+                        ParseGeoPoint point = (ParseGeoPoint) actual.get("location");
+
+                        try {
+                            result.add(new Friend(
+                                    actual.getObjectId(),
+                                    actual.get("name").toString(),
+                                    actual.getEmail(),
+                                    actual.get("photo") != null ? actual.get("photo").toString() : null,
+                                    point.getLatitude(), point.getLongitude(), actual, false));
+
+                            Log.d("Friend added: ", "" + actual.get("name").toString() + " " + point.getLatitude() + ", " + point.getLongitude());
+                        } catch (Exception e) {
+                            Log.e("Can't add friend.", " Friend - ObjectId: " + actual.getObjectId());
+                            e.getLocalizedMessage();
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
+            friendsList2 = checkIfFriends2.find().toArray().clone();
+
+            if (friendsList2.length > 0) {
+                for (int i = 0; i < friendsList2.length; i++) {
+                    //to jest typu Friendship
+                    temp = ((ParseObject) friendsList2[i]);
+
+                    if (temp.get("accepted").toString().equals("true")) {
+
+                        ParseUser actual = ((ParseUser) temp.get("friend1")).fetchIfNeeded();
+                        ParseGeoPoint point = (ParseGeoPoint) actual.get("location");
+
+                        try {
+                            result.add(new Friend(
+                                    actual.getObjectId(),
+                                    actual.get("name").toString(),
+                                    actual.getEmail(),
+                                    actual.get("photo") != null ? actual.get("photo").toString() : null,
+                                    point.getLatitude(), point.getLongitude(), actual, false));
+                        } catch (Exception e) {
+                            Log.e("Can't add friend.", " Friend - ObjectId: " + actual.getObjectId());
+                            e.getLocalizedMessage();
+                            e.printStackTrace();
+                        }
+                    }
+
+                }
+            }
+        } catch (ParseException e) {
+            Log.e("Parse: ", e.getLocalizedMessage());
+            e.printStackTrace();
+        } catch (Exception e) {
+            Log.e("Exception: ", e.getLocalizedMessage());
+            e.printStackTrace();
+        }
+
+
+        //nazwa lokalizacji znajomych
+        String url;
+
+
+        for (int i = 0; i < result.size(); i++) {
+
+            http:
+//maps.googleapis.com/maps/api/geocode/json?latlng=32,75&sensor=true
+
+            url = "https://maps.googleapis.com/maps/api/geocode/json?latlng=";
+            url += result.get(i).getLocation().getLatitude() + "," + result.get(i).getLocation().getLongitude() + "&";
+            //url += "sensor=false&";
+            //url += "key=AIzaSyDdi-iJtQoHbWf5qp-zknZSWKHT4QMANO0";
+            url += "key=AIzaSyCM8Pn_F9kmL2QH6hyWBAXnDG7u1hj6tYE";
+
+            Log.e("URL: ", url);
+
+
+            InputStream isStream = null;
+            HttpURLConnection urlConnection = null;
+
+            try {
+                URL address = new URL(url);
+                urlConnection = (HttpURLConnection) address.openConnection();
+                urlConnection.connect();
+
+                isStream = urlConnection.getInputStream();
+                BufferedReader br = new BufferedReader(new InputStreamReader(isStream));
+
+                String line = "";
+                while ((line = br.readLine()) != null) {
+
+                    if (line.contains("formatted_address")) {
+                        String almostReadyToShow = line.split(":")[1].replace("\"", "");
+                        result.get(i).setLocationName(almostReadyToShow.split(",")[0] + ", " + almostReadyToShow.split(",")[1]);
+                        break;
+                    }
+
+                }
+
+                br.close();
+            } catch (Exception e) {
+                Log.d("Exception url", e.toString());
+            } finally {
+                try {
+                    isStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                urlConnection.disconnect();
+            }
+
+
+        }
+
+
+        return result;
+    }
+
     public void setUserIsLoggedByFacebook(boolean cond) {
         userIsLoggedByFacebook = cond;
     }
@@ -310,6 +376,17 @@ public class SessionManager {
     }
 
     public LatLng getCurrentLocation() {
+        if (currentLocation == null) {
+            try {
+                Location loc = LocationServices.FusedLocationApi.getLastLocation(MapFragment.mGoogleApiClient);
+                currentLocation = new LatLng(loc.getLatitude(), loc.getLongitude());
+            } catch (Exception e) {
+                e.getLocalizedMessage();
+                e.printStackTrace();
+            }
+        }
+
+
         return currentLocation;
     }
 
@@ -346,7 +423,7 @@ public class SessionManager {
     private HashMap<MarkerOptions, Friend> getFriendsMarkersFromParse() {
 
         HashMap<MarkerOptions, Friend> result = new HashMap<>();
-        ArrayList<Friend> friends = getFriendsFromParse();
+        ArrayList<Friend> friends = getFriendsList();
 
         for (int i = 0; i < friends.size(); i++)
             result.put(new MarkerOptions()
@@ -477,7 +554,7 @@ public class SessionManager {
 
     public HashMap<MarkerOptions, MyMarker> getSharedMarkers() {
         if (sharedMarkers == null)
-        getSharedMarkersFromParse();
+            getSharedMarkersFromParse();
 
         return sharedMarkers;
     }
@@ -494,12 +571,13 @@ public class SessionManager {
     }
 
     public void refreshSharedMarkers() {
-        getOwnMarkersFromParse();
+        getSharedMarkersFromParse();
     }
 
     public ArrayList<MyMarker> getRefreshedFriendsMarkers() {
         ArrayList<MyMarker> result = new ArrayList<>();
-        ArrayList<Friend> friends = getFriendsFromParse();
+        refreshFriendsList();
+        ArrayList<Friend> friends = getFriendsList();
 
         for (int i = 0; i < friends.size(); i++)
             result.add(new MyMarker(friends.get(i).getUid(), friends.get(i).getName(), friends.get(i).getParseUser(), friends.get(i).getLocation(), CommonMethods.getInstance().decodeBase64ToBitmap(friends.get(i).getPhoto())));
@@ -563,10 +641,10 @@ public class SessionManager {
         for (int i = 0; i < users.size(); i++) {
             try {
                 result.add(new Friend(
-                    users.get(i).getObjectId(),
-                    users.get(i).get("name").toString(),
-                    users.get(i).getEmail(),
-                    users.get(i).get("photo") != null ? users.get(i).get("photo").toString() : null));
+                        users.get(i).getObjectId(),
+                        users.get(i).get("name").toString(),
+                        users.get(i).getEmail(),
+                        users.get(i).get("photo") != null ? users.get(i).get("photo").toString() : null));
             } catch (Exception e) {
                 e.getLocalizedMessage();
                 e.printStackTrace();
@@ -604,11 +682,11 @@ public class SessionManager {
             if (!isFriend) {
                 try {
 
-                result.add(new Friend(
-                        users.get(i).getObjectId(),
-                        users.get(i).get("name").toString(),
-                        users.get(i).getEmail(),
-                        users.get(i).get("photo") != null ? users.get(i).get("photo").toString() : null));
+                    result.add(new Friend(
+                            users.get(i).getObjectId(),
+                            users.get(i).get("name").toString(),
+                            users.get(i).getEmail(),
+                            users.get(i).get("photo") != null ? users.get(i).get("photo").toString() : null));
                 } catch (Exception e) {
                     e.getLocalizedMessage();
                     e.printStackTrace();
@@ -626,4 +704,5 @@ public class SessionManager {
     public void refreshNotificationsList() {
         notifications = getNotificationsFromParse();
     }
+
 }

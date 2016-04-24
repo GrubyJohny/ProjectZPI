@@ -74,6 +74,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
     public static Context context;
     //private GoogleMapOptions mapOptions = new GoogleMapOptions().liteMode(true);
     public static ParseGeoPoint lastClickOnMap;
+    public static GoogleApiClient mGoogleApiClient;
     private static View view;
     private static GoogleMap map;
     public HashMap<Marker, MyMarker> allMarkers = new HashMap<>();
@@ -112,7 +113,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
     private View tabs;
     private List<CustomMarker> markers_old;
     private HashMap<String, Marker> googleMarkers;
-    private GoogleApiClient mGoogleApiClient;
     private boolean mRequestingLocationUpdates;
     private LocationManager locationManager;
     private LocationRequest mLocationRequest;

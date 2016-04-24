@@ -71,14 +71,26 @@ import zpi.squad.app.grouploc.helpers.CommonMethods;
 public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
         LocationListener, NavigationView.OnNavigationItemSelectedListener/*, android.support.v4.app.FragmentManager.OnBackStackChangedListener*/ {
 
-    private SessionManager session;
-    private LocationManager locationManager;
     public static final int PICK_FROM_CAMERA = 1;
     public static final int PICK_FROM_GALLERY = 2;
     public static final int CROP_IMAGE = 3;
-
+    final static String mapTAG = "MAP";
+    final static String photoTAG = "PHOTO";
+    final static String passwordTAG = "PASSWORD";
+    final static String notificationTAG = "NOTIFICATION";
     public static Context context;
-
+    public static FriendAdapter adapter;
+    AppController globalVariable;
+    DrawerLayout drawer;
+    NavigationView navigationViewLeft;
+    NavigationView navigationViewRight;
+    Bitmap mainPhoto;
+    MapFragment mapFragment;
+    ChangePhotoFragment changePhotoFragment;
+    ChangePasswordFragment changePasswordFragment;
+    NotificationFragment notificationFragment;
+    private SessionManager session;
+    private LocationManager locationManager;
     //Andoridowy obiekt przechowujący dane o położeniu(np latitude, longitude, kiedy zostało zarejestrowane)
     private Location mCurrentLocation;
     //obiekt będący parametrem, przy wysłaniu żądania o aktualizację lokacji
@@ -86,32 +98,13 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     private String mLastUpdateTime;
     // private Date mLastUpdateDate = new Date();
     private ParseGeoPoint mParseLocation = new ParseGeoPoint();
-
     //Obiekt w ogólności reprezentujący googlowe api service,
     //jest często przekazywany jako argument, gdy coś o tego api chcemy
     private GoogleApiClient mGoogleApiClient;
-
-    AppController globalVariable;
-    DrawerLayout drawer;
-    NavigationView navigationViewLeft;
     private ImageView navigationViewLeftProfilePicture;
     private TextView navigationViewLeftFullName;
-    NavigationView navigationViewRight;
-    Bitmap mainPhoto;
-
-    MapFragment mapFragment;
-    ChangePhotoFragment changePhotoFragment;
-    ChangePasswordFragment changePasswordFragment;
-    NotificationFragment notificationFragment;
-
-    final static String mapTAG = "MAP";
-    final static String photoTAG = "PHOTO";
-    final static String passwordTAG = "PASSWORD";
-    final static String notificationTAG = "NOTIFICATION";
-
     private ListView friendsListView;
     private EditText inputSearch;
-    public static FriendAdapter adapter;
     private FloatingActionButton addFriendButton;
     private int navigationLeftClickedOneBeforeId;
 
@@ -223,6 +216,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         } catch (Exception e) {
             e.getLocalizedMessage();
         }
+
     }
 
     public void setActionBarTitle(String title) {
@@ -266,7 +260,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 builder.setItems(options, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        Toast.makeText(context, "You choose option: " + which, Toast.LENGTH_SHORT).show();
+                        //Toast.makeText(context, "You choose option: " + which, Toast.LENGTH_SHORT).show();
                         drawer.closeDrawer(navigationViewRight);
 
                         switch (which) {
@@ -326,7 +320,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                     }
                 });
                 builder.show();
-                Toast.makeText(context, "You selected: " + item.getName(), Toast.LENGTH_LONG).show();
+                // Toast.makeText(context, "You selected: " + item.getName(), Toast.LENGTH_LONG).show();
             }
         });
     }
@@ -619,7 +613,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             startLocationUpdates();
         }
 
-        CommonMethods.getInstance().reloadFriendsData(adapter);
+        // CommonMethods.getInstance().reloadFriendsData(adapter);
     }
 
     @Override
@@ -702,5 +696,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             return null;
         }
     }
+
+
 }
 

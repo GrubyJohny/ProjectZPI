@@ -8,14 +8,15 @@ import com.parse.ParseUser;
  */
 public class Friend {
 
+    public boolean alreadyInvited;
     String uid;
     String name;
     String email;
     String photo;
     ParseGeoPoint location;
-    private ParseUser parseUser;
-    public boolean alreadyInvited;
     boolean hasChanged = true;
+    String locationName = "";
+    private ParseUser parseUser;
 
     public Friend() {
     }
@@ -99,5 +100,13 @@ public class Friend {
 
     public void setParseUser(ParseUser parseUser) {
         this.parseUser = parseUser;
+    }
+
+    public String getLocationName() {
+        return locationName;
+    }
+
+    public void setLocationName(String locationName) {
+        this.locationName = locationName;
     }
 }

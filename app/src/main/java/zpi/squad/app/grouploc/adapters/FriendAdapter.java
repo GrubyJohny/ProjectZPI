@@ -46,7 +46,7 @@ public class FriendAdapter extends ArrayAdapter<Friend> implements Filterable {
         // Populate the data into the template view using the data object
         //wpakowałem to do tej samej linijki, co nazwa użytkownika, ale pewnie jakoś to już ładnie porozbijasz ;)
         Double distanceToMe = new ParseGeoPoint(session.getCurrentLocation().latitude, session.getCurrentLocation().longitude).distanceInKilometersTo(friend.getLocation());
-        streetAndDistance.setText(distanceToMe.intValue() + " km");
+        streetAndDistance.setText(distanceToMe.intValue() + " km " + "(" + friend.getLocationName() + " )");
         String text = friend.getName();
         name.setText(text);
         photo.setImageBitmap(commonMethods.decodeBase64ToBitmap(friend.getPhoto()));

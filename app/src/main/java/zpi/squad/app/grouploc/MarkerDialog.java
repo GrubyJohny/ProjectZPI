@@ -1,5 +1,6 @@
 package zpi.squad.app.grouploc;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
@@ -22,17 +23,26 @@ import zpi.squad.app.grouploc.fragments.MapFragment;
  * Created by sanczo on 2015-05-22.
  */
 public class MarkerDialog extends DialogFragment {
+    LatLng markerLocation;
+    // Use this instance of the interface to deliver action events
+    NoticeDialogListener mListener;
+    private String name;
+    private EditText input;
+
     public MarkerDialog() {
     }
 
-    LatLng markerLocation;
-
+    @SuppressLint("ValidFragment")
     public MarkerDialog(LatLng latLng) {
         markerLocation = latLng;
     }
 
     public String getName() {
         return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public EditText getInput() {
@@ -42,22 +52,6 @@ public class MarkerDialog extends DialogFragment {
     public void setInput(EditText input) {
         this.input = input;
     }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    private String name;
-    private EditText input;
-
-    public interface NoticeDialogListener {
-        public void onDialogPositiveClick(DialogFragment dialog);
-    }
-
-    // Use this instance of the interface to deliver action events
-    NoticeDialogListener mListener;
-    // Override the Fragment.onAttach() method to instantiate the NoticeDialogListener
-
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -69,6 +63,7 @@ public class MarkerDialog extends DialogFragment {
             throw new ClassCastException("Calling fragment must implement DialogClickListener interface");
         }
     }
+    // Override the Fragment.onAttach() method to instantiate the NoticeDialogListener
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -115,5 +110,9 @@ public class MarkerDialog extends DialogFragment {
 //        marker.put("icon", CommonMethods.getInstance().encodeBitmapTobase64(Bitmap));
 
         marker.saveInBackground();
+    }
+
+    public interface NoticeDialogListener {
+        public void onDialogPositiveClick(DialogFragment dialog);
     }
 }

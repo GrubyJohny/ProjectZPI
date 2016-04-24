@@ -15,7 +15,7 @@ android {
         applicationId "zpi.squad.app.grouploc"
         minSdkVersion 19
         targetSdkVersion 19
-        versionCode 20
+        versionCode 21
         versionName "1.0"
         signingConfig signingConfigs.config
         generatedDensities = []
@@ -35,6 +35,7 @@ android {
         additionalParameters "--no-version-vectors"
     }
 }
+
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')

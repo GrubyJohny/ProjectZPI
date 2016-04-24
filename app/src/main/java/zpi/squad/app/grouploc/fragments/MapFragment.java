@@ -41,7 +41,6 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.parse.ParseException;
-import com.parse.ParseGeoPoint;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 
@@ -73,8 +72,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
 
     public static Context context;
     //private GoogleMapOptions mapOptions = new GoogleMapOptions().liteMode(true);
-    public static ParseGeoPoint lastClickOnMap;
     public static GoogleApiClient mGoogleApiClient;
+    //OstatniKliknietyNaMapi
+    public static LatLng lastClikOnMap;
     private static View view;
     private static GoogleMap map;
     public HashMap<Marker, MyMarker> allMarkers = new HashMap<>();
@@ -87,8 +87,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
     ArrayList<MyMarker> markers;
     ArrayList<MyMarker> friendsMarkers;
     private SupportMapFragment fragment;
-    //OstatniKliknietyNaMapi
-    private LatLng lastClikOnMap;
     private ScrollView POIScrollView;
     private Button mainPoiButton;
     private Button clearPoiButton;
@@ -333,6 +331,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
         map.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
             @Override
             public void onMapLongClick(LatLng latLng) {
+                lastClikOnMap = latLng;
                 MarkerDialog markerDialog = new MarkerDialog(latLng);
                 markerDialog.setTargetFragment(MapFragment.this, 0);
                 markerDialog.show(getFragmentManager(), "Marker Dialog");

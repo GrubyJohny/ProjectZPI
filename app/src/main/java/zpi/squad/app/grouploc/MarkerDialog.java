@@ -105,7 +105,7 @@ public class MarkerDialog extends DialogFragment {
         ParseObject marker = new ParseObject("Marker");
 
         marker.put("name", name);
-        marker.put("localization", new ParseGeoPoint(MapFragment.getMap().getCameraPosition().target.latitude, MapFragment.getMap().getCameraPosition().target.longitude));
+        marker.put("localization", new ParseGeoPoint(MapFragment.lastClikOnMap.latitude, MapFragment.lastClikOnMap.longitude));
         marker.put("owner", ParseUser.getCurrentUser());
 //        marker.put("icon", CommonMethods.getInstance().encodeBitmapTobase64(Bitmap));
 

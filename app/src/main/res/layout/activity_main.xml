@@ -23,8 +23,8 @@
         android:id="@+id/main_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:paddingTop="55dp"
-        android:orientation="vertical" />
+        android:orientation="vertical"
+        android:paddingTop="55dp"></LinearLayout>
 
     <android.support.design.widget.NavigationView
         android:id="@+id/nav_view_left"

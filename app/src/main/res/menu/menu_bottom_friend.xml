@@ -1,4 +1,10 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:id="@+id/polyline" android:title="Polyline" android:icon="@drawable/vector_polyline"/>
-    <item android:id="@+id/navigate" android:title="Navigate to" android:icon="@drawable/navigation"/>
+    <item
+        android:id="@+id/polyline"
+        android:icon="@drawable/ic_vector_polyline_black_48dp"
+        android:title="Polyline" />
+    <item
+        android:id="@+id/navigate"
+        android:icon="@drawable/ic_navigation_black_48dp"
+        android:title="Navigate to" />
 </menu>

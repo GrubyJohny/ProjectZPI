@@ -18,10 +18,7 @@ import android.view.InflateException;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.ListView;
-import android.widget.ScrollView;
 import android.widget.Toast;
 
 import com.cocosw.bottomsheet.BottomSheet;
@@ -89,40 +86,18 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
     ArrayList<MyMarker> friendsMarkers;
     ArrayList<Friend> friendsToShare = new ArrayList<Friend>();
     private SupportMapFragment fragment;
-    private ScrollView POIScrollView;
-    private Button mainPoiButton;
-    private Button clearPoiButton;
-    private ArrayList<MarkerOptions> markersRestaurants = new ArrayList<MarkerOptions>();
-    private ArrayList<MarkerOptions> markersKfc = new ArrayList<MarkerOptions>();
-    private ArrayList<MarkerOptions> markersMcdonalds = new ArrayList<MarkerOptions>();
-    private ArrayList<MarkerOptions> markersBars = new ArrayList<MarkerOptions>();
-    private ArrayList<MarkerOptions> markersCoffee = new ArrayList<MarkerOptions>();
-    private ArrayList<MarkerOptions> markersShoppingMalls = new ArrayList<MarkerOptions>();
-    private ArrayList<MarkerOptions> markersShops = new ArrayList<MarkerOptions>();
-    private ArrayList<MarkerOptions> markersMarkets = new ArrayList<MarkerOptions>();
-    private ArrayList<MarkerOptions> markersNightClubs = new ArrayList<MarkerOptions>();
-    private ArrayList<MarkerOptions> markersParks = new ArrayList<MarkerOptions>();
-    private ArrayList<MarkerOptions> markersFriends = new ArrayList<MarkerOptions>();//?
     private ArrayList<ArrayList<MarkerOptions>> activePoiMarkers = new ArrayList<>();
     private HashMap<POISpecies, HashMap<String, Marker>> active = new HashMap<POISpecies, HashMap<String, Marker>>();
     private HashMap<String, Polyline> visibleRouts = new HashMap<String, Polyline>();
     private boolean poiIsUpToDate = false;
     private Location mCurrentLocation;
     private Marker ostatniMarker;
-    private View layoutMarker;
     private View tabs;
     private List<CustomMarker> markers_old;
     private HashMap<String, Marker> googleMarkers;
     private boolean mRequestingLocationUpdates;
     private LocationManager locationManager;
     private LocationRequest mLocationRequest;
-    private ImageButton firstMarkerButton;
-    private ImageButton secondMarkerButton;
-    private ImageButton thirdMarkerButton;
-    private ImageButton fourthMarkerButton;
-    private ImageButton fifthMarkerButton;
-    //private Button closeMarkerButton;
-    private Button changeMapTypeButton;
     private SessionManager session;
 
     public static GoogleMap getMap() {
@@ -142,10 +117,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //res = getResources();
 
-
-//        tabs = (View) getActivity().findViewById(R.id.tabanim_tabs);
         context = getActivity().getApplicationContext();
         globalVariable = (AppController) getActivity().getApplicationContext();
         session = SessionManager.getInstance(context);
@@ -174,16 +146,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
             fragment = SupportMapFragment.newInstance();
             fm.beginTransaction().replace(R.id.map, fragment).commit();
         }
-
-        layoutMarker = (View) getActivity().findViewById(R.id.markerLayout);
-
-        firstMarkerButton = (ImageButton) getActivity().findViewById(R.id.firstButton);
-        secondMarkerButton = (ImageButton) getActivity().findViewById(R.id.secondButton);
-        thirdMarkerButton = (ImageButton) getActivity().findViewById(R.id.thirdButton);
-        fourthMarkerButton = (ImageButton) getActivity().findViewById(R.id.fourthButton);
-        fifthMarkerButton = (ImageButton) getActivity().findViewById(R.id.fifthButton);
-
-
 //        inclizaidListenerForMarkerMenu();
     }
 
@@ -260,7 +222,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
                                     }
                                 }
                             }).show();
-
                         }
                     }
 
@@ -274,7 +235,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
             }
 
             private void dialogShare(final Marker marker) {
-
 
                 final ArrayList<Friend> friends = SessionManager.getInstance().getFriendsList();
 
@@ -309,7 +269,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
                                     for (int j = 0; j < seletedItems.size(); j++) {
                                         if (String.valueOf(i).equals(seletedItems.get(j).toString()))
                                             friendsToShare.add(friends.get(i));
-
                                     }
                                 }
 

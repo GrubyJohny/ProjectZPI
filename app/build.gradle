@@ -18,7 +18,7 @@ android {
         versionCode 21
         versionName "1.0"
         signingConfig signingConfigs.config
-        generatedDensities = []
+        vectorDrawables.useSupportLibrary = true
     }
     buildTypes {
         release {
@@ -49,5 +49,5 @@ dependencies {
     compile files('ParseFacebookUtilsV4-1.9.4.jar')
     compile 'com.cocosw:bottomsheet:1.+@aar'
     compile 'com.github.rahatarmanahmed:circularprogressview:2.4.0'
-    compile 'com.android.support:design:23.2.1'
+    compile 'com.android.support:design:23.3.0'
 }

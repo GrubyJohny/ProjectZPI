@@ -10,15 +10,15 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
+        android:layout_centerInParent="true"
         android:layout_marginRight="5dip"
-        android:padding="3dip">
+        android:padding="3dp">
 
         <ImageView
             android:id="@+id/img"
             android:layout_width="40dip"
             android:layout_height="40dip"
             android:src="@drawable/image3" />
-
     </LinearLayout>
 
     <LinearLayout
@@ -27,9 +27,12 @@
         android:layout_height="wrap_content"
         android:layout_marginRight="5dip"
         android:layout_toRightOf="@+id/linear1"
+        android:layout_centerInParent="true"
         android:orientation="vertical"
         android:layout_alignParentTop="true"
-        android:padding="3dip">
+        android:paddingLeft="3dp"
+        android:paddingRight="3dp"
+        android:paddingBottom="3dp">
 
         <TextView
             android:id="@+id/txt"

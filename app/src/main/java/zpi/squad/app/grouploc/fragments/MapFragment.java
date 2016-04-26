@@ -28,8 +28,6 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.OnStreetViewPanoramaReadyCallback;
-import com.google.android.gms.maps.StreetViewPanorama;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
@@ -66,17 +64,18 @@ import zpi.squad.app.grouploc.domains.MyMarker;
 import zpi.squad.app.grouploc.utils.DirectionsJSONParser;
 import zpi.squad.app.grouploc.utils.PoiJSONParser;
 
-public class MapFragment extends Fragment implements OnMapReadyCallback, OnStreetViewPanoramaReadyCallback, GoogleApiClient.ConnectionCallbacks, MarkerDialog.NoticeDialogListener {
+public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, MarkerDialog.NoticeDialogListener {
 
     public static Context context;
     //private GoogleMapOptions mapOptions = new GoogleMapOptions().liteMode(true);
     public static GoogleApiClient mGoogleApiClient;
     //OstatniKliknietyNaMapi
     public static LatLng lastClikOnMap;
+    public static HashMap<String, MarkerOptions> actualShowingOnMapMarkers = new HashMap<>();
+    public static Marker markerToShare;
     private static View view;
     private static GoogleMap map;
     public HashMap<Marker, MyMarker> allMarkers = new HashMap<>();
-    public HashMap<String, MarkerOptions> actualShowingOnMapMarkers = new HashMap<>();
     PoiJSONParser poiBase = new PoiJSONParser();
     Resources res;
     AppController globalVariable;
@@ -112,6 +111,25 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
                 .tilt(30)
                 .build();
         map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+    }
+
+    public static void prepareMarkers() {
+
+        HashMap<MarkerOptions, MyMarker> ownMarkers = SessionManager.getInstance().getOwnMarkers();
+        for (MarkerOptions m : ownMarkers.keySet())
+            actualShowingOnMapMarkers.put(map.addMarker(m).getId(), m);
+
+        HashMap<MarkerOptions, MyMarker> sharedMarkers = SessionManager.getInstance().getSharedMarkers();
+        for (MarkerOptions m : sharedMarkers.keySet())
+            actualShowingOnMapMarkers.put(map.addMarker(m).getId(), m);
+
+        HashMap<MarkerOptions, Friend> friendsMarkers = SessionManager.getInstance().getFriendsMarkers();
+        for (MarkerOptions m : friendsMarkers.keySet())
+            actualShowingOnMapMarkers.put(map.addMarker(m).getId(), m);
+/*
+                            .icon(BitmapDescriptorFactory.fromBitmap(CommonMethods.getInstance().clipBitmap(friendsMarkers.get(i).getIcon(), 150, 150)))
+        */
+        // .icon(BitmapDescriptorFactory.fromBitmap(getMarkerBitmapFromView(friendsMarkers.get(i).getIcon())))
     }
 
     @Override
@@ -150,7 +168,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
     }
 
     @Override
-    public void onMapReady(GoogleMap map) {
+    public void onMapReady(final GoogleMap map) {
         this.map = map;
         AppController.myMap = map;
         map.setBuildingsEnabled(true);
@@ -171,7 +189,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
 
                     @Override
                     public void onFinish() {
-                        if (marker.getSnippet().equals("own")) {
+                        if (marker.getSnippet().startsWith("own")) {
                             new BottomSheet.Builder(getActivity()).grid().title(marker.getTitle()).sheet(R.menu.menu_bottom_own).listener(new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
@@ -235,6 +253,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
             }
 
             private void dialogShare(final Marker marker) {
+                markerToShare = marker;
 
                 final ArrayList<Friend> friends = SessionManager.getInstance().getFriendsList();
 
@@ -273,7 +292,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
                                 }
 
                                 ShareMarkerForSelectedFriends shareMarkerForSelectedFriends = new ShareMarkerForSelectedFriends();
-                                shareMarkerForSelectedFriends.execute(marker);
+                                shareMarkerForSelectedFriends.execute(marker.getSnippet().split(",")[1].trim());
 
                             }
                         }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -290,7 +309,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
                                 }
 
                                 ShareMarkerForAllFriends shareAll = new ShareMarkerForAllFriends();
-                                shareAll.execute(marker);
+                                shareAll.execute(marker.getSnippet().split(",")[1].trim());
 
                             }
                         }).create();
@@ -331,33 +350,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
         new PrepareMarkers().execute();
     }
 
-    private void prepareMarkers() {
-
-        HashMap<MarkerOptions, MyMarker> ownMarkers = session.getOwnMarkers();
-        for (MarkerOptions m : ownMarkers.keySet())
-            actualShowingOnMapMarkers.put(map.addMarker(m).getId(), m);
-
-        HashMap<MarkerOptions, MyMarker> sharedMarkers = session.getSharedMarkers();
-        for (MarkerOptions m : sharedMarkers.keySet())
-            actualShowingOnMapMarkers.put(map.addMarker(m).getId(), m);
-
-        HashMap<MarkerOptions, Friend> friendsMarkers = session.getFriendsMarkers();
-        for (MarkerOptions m : friendsMarkers.keySet())
-            actualShowingOnMapMarkers.put(map.addMarker(m).getId(), m);
-/*
-                            .icon(BitmapDescriptorFactory.fromBitmap(CommonMethods.getInstance().clipBitmap(friendsMarkers.get(i).getIcon(), 150, 150)))
-        */
-        // .icon(BitmapDescriptorFactory.fromBitmap(getMarkerBitmapFromView(friendsMarkers.get(i).getIcon())))
-    }
-
     public void deleteRoute(String tag) {
         Polyline route = visibleRouts.remove(tag);
         route.remove();
-    }
-
-    @Override
-    public void onStreetViewPanoramaReady(StreetViewPanorama streetViewPanorama) {
-        streetViewPanorama.setZoomGesturesEnabled(true);
     }
 
     @Override
@@ -543,7 +538,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
         imm.hideSoftInputFromWindow(md.getInput().getWindowToken(), 0);*/
     }
 
-    private void sendMarkerSharedNotification(ArrayList<Friend> receivers, Marker marker) {
+    private void sendMarkerSharedNotification(ArrayList<Friend> receivers, String marker) {
 
         for (int i = 0; i < receivers.size(); i++) {
 
@@ -553,17 +548,14 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
             notific.put("receiverEmail", receivers.get(i).getEmail());
             notific.put("kindOfNotification", 103);
             notific.put("markedAsRead", false);
-            notific.put("extra", marker.getId());
+            notific.put("extra", marker);
 
             try {
                 notific.save();
             } catch (ParseException e) {
                 e.printStackTrace();
             }
-
         }
-
-
     }
 
     class AsyncTaskRunner extends AsyncTask<String, String, String> {
@@ -701,57 +693,56 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
         }
     }
 
-    private class ShareMarkerForAllFriends extends AsyncTask<Marker, Void, Void> {
+    private class ShareMarkerForAllFriends extends AsyncTask<String, Void, Void> {
         @Override
-        protected Void doInBackground(Marker... params) {
+        protected Void doInBackground(String... params) {
 
             try {
-                ParseObject originMarker = ParseQuery.getQuery("Marker").whereEqualTo("objectId", SessionManager.getInstance().getOwnMarkers().get(actualShowingOnMapMarkers.get(params[0].getId())).getObjectId()).getFirst().fetchIfNeeded();
+                ParseObject originMarker = ParseQuery.getQuery("Marker").whereEqualTo("objectId", params[0]).getFirst().fetch();
                 List<Friend> fri = SessionManager.getInstance().getFriendsList();
                 for (int i = 0; i < fri.size(); i++) {
                     ParseObject marker = new ParseObject("SharedMarker");
                     marker.put("marker", originMarker);
                     marker.put("sharedUser", fri.get(i).getParseUser());
 
-                    marker.saveInBackground();
+                    marker.save();
+
+                    sendMarkerSharedNotification(SessionManager.getInstance().getFriendsList(), params[0]);
                 }
 
             } catch (ParseException e) {
                 e.printStackTrace();
-            } finally {
-                SessionManager.getInstance().refreshOwnMarkers();
-                //no i trzeba będzie oczywiście odświeżyć markery na mapie bo się sypie jak chce się udostępnić świeżo zapisany marker...
             }
-
-            sendMarkerSharedNotification(SessionManager.getInstance().getFriendsList(), params[0]);
 
             return null;
         }
     }
 
-    private class ShareMarkerForSelectedFriends extends AsyncTask<Marker, Void, Void> {
-        @Override
-        protected Void doInBackground(Marker... params) {
+    private class ShareMarkerForSelectedFriends extends AsyncTask<String, Void, Void> {
 
-            if (friendsToShare.size() > 0) {
+        @Override
+        protected Void doInBackground(String... params) {
+
+            if (friendsToShare.size() > 0 && params.length > 0 && actualShowingOnMapMarkers != null && actualShowingOnMapMarkers.size() > 0) {
                 try {
-                    ParseObject originMarker = ParseQuery.getQuery("Marker").whereEqualTo("objectId", session.getOwnMarkers().get(actualShowingOnMapMarkers.get(params[0].getId())).getObjectId()).getFirst().fetchIfNeeded();
+
+                    ParseObject originMarker = ParseQuery.getQuery("Marker").whereEqualTo("objectId", params[0]).getFirst().fetch();
                     List<Friend> fri = friendsToShare;
                     for (int i = 0; i < fri.size(); i++) {
                         ParseObject marker = new ParseObject("SharedMarker");
                         marker.put("marker", originMarker);
                         marker.put("sharedUser", fri.get(i).getParseUser());
 
-                        marker.saveInBackground();
+                        marker.save();
+
+                        sendMarkerSharedNotification(friendsToShare, params[0]);
                     }
 
                 } catch (ParseException e) {
                     e.printStackTrace();
                 }
-            }
-
-            sendMarkerSharedNotification(friendsToShare, params[0]);
-
+            } else
+                Log.e("wrong", " arguments");
 
             return null;
         }
@@ -767,5 +758,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, OnStree
             return null;
         }
     }
+
 
 }

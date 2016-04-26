@@ -489,7 +489,7 @@ public class SessionManager {
                     ownMarkers.put(new MarkerOptions()
                             .title(myMarkersResult.get(i).getName())
                             .position(new LatLng(myMarkersResult.get(i).getLocalization().getLatitude(), myMarkersResult.get(i).getLocalization().getLongitude()))
-                            .snippet("own")
+                            .snippet("own, " + myMarkersResult.get(i).getObjectId())
                             .visible(true)
                             .draggable(false), myMarkersResult.get(i));
                 }

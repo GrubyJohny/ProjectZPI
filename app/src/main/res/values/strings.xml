@@ -46,5 +46,9 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="searching_friends_text">Enter friend name or email</string>
+    <string name="polyline">Show road</string>
+    <string name="navigate_to">Navigate to</string>
+    <string name="share_marker">Share Marker</string>
+    <string name="delete">Delete</string>
 
 </resources>

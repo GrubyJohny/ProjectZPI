@@ -2,9 +2,9 @@
     <item
         android:id="@+id/polyline"
         android:icon="@drawable/vector_polyline"
-        android:title="Polyline" />
+        android:title="@string/polyline" />
     <item
         android:id="@+id/navigate"
         android:icon="@drawable/navigation"
-        android:title="Navigate to" />
+        android:title="@string/navigate_to" />
 </menu>

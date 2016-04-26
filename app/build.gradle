@@ -13,8 +13,8 @@ android {
     buildToolsVersion '23.0.2'
     defaultConfig {
         applicationId "zpi.squad.app.grouploc"
-        minSdkVersion 19
-        targetSdkVersion 19
+        minSdkVersion 16
+        targetSdkVersion 21
         versionCode 21
         versionName "1.0"
         signingConfig signingConfigs.config

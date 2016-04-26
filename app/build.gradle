@@ -29,11 +29,6 @@ android {
             signingConfig signingConfigs.config
         }
     }
-    productFlavors {
-    }
-    aaptOptions {
-        additionalParameters "--no-version-vectors"
-    }
 }
 
 
@@ -49,5 +44,5 @@ dependencies {
     compile files('ParseFacebookUtilsV4-1.9.4.jar')
     compile 'com.cocosw:bottomsheet:1.+@aar'
     compile 'com.github.rahatarmanahmed:circularprogressview:2.4.0'
-    compile 'com.android.support:design:23.3.0'
+    compile 'com.android.support:design:23.2.1'
 }
